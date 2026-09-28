@@ -165,7 +165,7 @@ function remplirHeroGeant(c) {
   if (elPoste) elPoste.textContent = c.poste || 'Conseiller Terrain CHR';
 
   if (elPhoto) {
-    elPhoto.src = c.photo_url || c.photo || 'images/commercial1.jpg';
+    elPhoto.src = c.photo_url || c.photo || 'images/commercial1.svg';
     elPhoto.alt = `Portrait de ${c.prenom} ${c.nom} — Lou Ame Tay`;
     elPhoto.onerror = function() {
       this.onerror = null;

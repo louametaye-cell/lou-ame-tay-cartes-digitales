@@ -35,13 +35,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 /**
- * Charge les commerciaux actifs depuis Supabase
+ * Charge les commerciaux actifs avec affichage instantané (SWR) et synchronisation Supabase
  * SELECT * FROM commerciaux WHERE actif = true ORDER BY created_at DESC
  */
 async function chargerCommerciauxDepuisSupabase() {
   const annuaire = document.getElementById('annuaire');
 
-  if (annuaire) {
+  // 1. Affichage INSTANTANÉ des données locales pour éliminer tout temps d'attente
+  if (typeof commerciaux !== 'undefined' && Array.isArray(commerciaux) && commerciaux.length > 0) {
+    listeCommerciauxActifs = commerciaux.filter(c => c.actif !== false);
+    appliquerFiltres();
+  } else if (annuaire) {
     annuaire.innerHTML = `
       <div style="grid-column: 1 / -1; text-align: center; padding: 2.5rem 1rem;">
         <div class="spinner-chargement" style="width: 32px; height: 32px; margin: 0 auto 1rem; border-color: rgba(11, 31, 58, 0.2); border-top-color: var(--marine-fonce);"></div>
@@ -50,7 +54,7 @@ async function chargerCommerciauxDepuisSupabase() {
     `;
   }
 
-  // 1. Essai de chargement depuis Supabase si configuré
+  // 2. Synchronisation en arrière-plan avec Supabase
   if (estSupabaseConfigure()) {
     try {
       const { data, error } = await supabase
@@ -64,19 +68,10 @@ async function chargerCommerciauxDepuisSupabase() {
       if (Array.isArray(data) && data.length > 0) {
         listeCommerciauxActifs = data;
         appliquerFiltres();
-        return;
       }
     } catch (err) {
-      console.warn('Erreur chargement Supabase, bascule sur données de secours :', err);
+      console.warn('Erreur synchronisation Supabase, maintien des données locales :', err);
     }
-  }
-
-  // 2. Repli gracieux (fallback) sur data.js pour ne jamais laisser un écran vide
-  if (typeof commerciaux !== 'undefined' && Array.isArray(commerciaux)) {
-    listeCommerciauxActifs = commerciaux.filter(c => c.actif !== false);
-    appliquerFiltres();
-  } else {
-    rendreGrilleCommerciaux([]);
   }
 }
 
@@ -227,7 +222,7 @@ function rendreGrilleCommerciaux(liste) {
 
     const urlCarte = `carte.html?id=${encodeURIComponent(commercial.id)}`;
     const bioTexte = commercial.bio || "Conseiller terrain Lou Ame Tay pour la restauration et l'hôtellerie.";
-    const photoSrc = commercial.photo_url || commercial.photo || 'images/commercial1.jpg';
+    const photoSrc = commercial.photo_url || commercial.photo || 'images/commercial1.svg';
     const zoneTexte = commercial.zone || 'Axe Thiès — Dakar — Mbour';
     const catTexte = commercial.categorie || 'Vente';
 
