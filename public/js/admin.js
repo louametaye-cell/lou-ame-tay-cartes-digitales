@@ -712,6 +712,21 @@ function initialiserModalCommercial() {
   videoInput?.addEventListener('input', actualiserApercuVideo);
   videoInput?.addEventListener('paste', () => setTimeout(actualiserApercuVideo, 50));
 
+  // Clic sur les suggestions rapides de vidéos officielles Lou Ame Tay
+  document.querySelectorAll('.btn-suggestion-yt').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const vidId = btn.getAttribute('data-id');
+      const titre = btn.getAttribute('data-titre');
+      const desc = btn.getAttribute('data-desc');
+      if (videoInput) videoInput.value = vidId;
+      const vTitre = document.getElementById('comm-video-titre');
+      const vDesc = document.getElementById('comm-video-description');
+      if (vTitre) vTitre.value = titre || '';
+      if (vDesc) vDesc.value = desc || '';
+      actualiserApercuVideo();
+    });
+  });
+
   // Prévisualisation et suppression des slots du carrousel d'images
   for (let i = 0; i < 3; i++) {
     const fileInputSlot = document.querySelector(`.carrousel-file[data-index="${i}"]`);
@@ -804,6 +819,7 @@ function initialiserModalCommercial() {
         facebook: document.getElementById('comm-facebook').value.trim(),
         instagram: document.getElementById('comm-instagram').value.trim(),
         tiktok: document.getElementById('comm-tiktok').value.trim(),
+        youtube: document.getElementById('comm-youtube')?.value.trim() || null,
         actif: document.getElementById('comm-actif').checked
       };
 
@@ -972,6 +988,8 @@ function remplirFormulairePourEdition(id) {
   document.getElementById('comm-facebook').value = commercial.facebook || '';
   document.getElementById('comm-instagram').value = commercial.instagram || '';
   document.getElementById('comm-tiktok').value = commercial.tiktok || '';
+  const inputYt = document.getElementById('comm-youtube');
+  if (inputYt) inputYt.value = commercial.youtube || (commercial.reseaux && commercial.reseaux.youtube) || 'https://youtube.com/@louametaye?si=wdfwRr2F-x0ho5PY';
   document.getElementById('comm-actif').checked = commercial.actif !== false;
 
   const photoSrc = commercial.photo_url || commercial.photo || 'images/commercial1.jpg';

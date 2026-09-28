@@ -934,6 +934,10 @@ VALUES
               <label for="comm-tiktok" class="champ-label">TikTok</label>
               <input type="url" id="comm-tiktok" class="champ-input champ-sm" placeholder="https://tiktok.com/@compte">
             </div>
+            <div class="champ-groupe" style="grid-column: span 2;">
+              <label for="comm-youtube" class="champ-label">Chaîne ou Vidéo YouTube</label>
+              <input type="url" id="comm-youtube" class="champ-input champ-sm" placeholder="https://youtube.com/@louametaye?si=wdfwRr2F-x0ho5PY">
+            </div>
           </div>
         </div>
 
@@ -943,8 +947,24 @@ VALUES
           
           <div class="champ-groupe">
             <label for="comm-video-youtube-id" class="champ-label">ID YouTube ou URL de la vidéo</label>
-            <input type="text" id="comm-video-youtube-id" class="champ-input" placeholder="ex: dQw4w9WgXcQ ou https://youtu.be/dQw4w9WgXcQ">
+            <input type="text" id="comm-video-youtube-id" class="champ-input" placeholder="ex: hZq2u-yPnAE ou https://youtu.be/hZq2u-yPnAE">
             <small class="form-hint" style="color: #64748B; font-size: 0.78rem; margin-top: 3px;">Collez l'URL complète YouTube ou uniquement l'ID à 11 caractères</small>
+
+            <div class="video-suggestions-louametay" style="margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap;">
+              <span style="font-size: 0.75rem; color: #0B1F3A; font-weight: 700; width: 100%;">Vidéos officielles de la chaîne Lou Ame Tay :</span>
+              <button type="button" class="btn-suggestion-yt" data-id="hZq2u-yPnAE" data-titre="Lou Ame Tay ? – Digitalisez Votre Restaurant en 3 Clics" data-desc="Démonstration officielle Lou Ame Tay : Menu digital QR code sans application, écran cuisine KDS en temps réel et paiement direct Wave & Orange Money." style="font-size: 0.72rem; padding: 5px 9px; border-radius: 6px; border: 1px solid #CBD5E1; background: #F8FAFC; cursor: pointer; color: #0B1F3A; font-weight: 600;">
+                ▶ Démo Officielle FR (3 clics)
+              </button>
+              <button type="button" class="btn-suggestion-yt" data-id="Iy1MdWuW4A0" data-titre="Lou Ame Tay? Scan. Order. Enjoy." data-desc="La commande à table instantanée : gagnez 8 minutes par service et augmentez votre panier moyen de 25%." style="font-size: 0.72rem; padding: 5px 9px; border-radius: 6px; border: 1px solid #CBD5E1; background: #F8FAFC; cursor: pointer; color: #0B1F3A; font-weight: 600;">
+                ▶ Scan. Order. Enjoy.
+              </button>
+              <button type="button" class="btn-suggestion-yt" data-id="1M-yv5NiLp8" data-titre="Lou Ame Tay? – Digitize Your Restaurant in 3 Clicks" data-desc="The leading restaurant SaaS in Senegal for hotels, beach resorts and modern dining." style="font-size: 0.72rem; padding: 5px 9px; border-radius: 6px; border: 1px solid #CBD5E1; background: #F8FAFC; cursor: pointer; color: #0B1F3A; font-weight: 600;">
+                ▶ Version Anglaise
+              </button>
+              <button type="button" class="btn-suggestion-yt" data-id="Q12DiZtNoVk" data-titre="Lou Ame Tay en Salle — Saly & Petite Côte" data-desc="Déploiement en salle et expérience client sur la Petite Côte sénégalaise." style="font-size: 0.72rem; padding: 5px 9px; border-radius: 6px; border: 1px solid #CBD5E1; background: #F8FAFC; cursor: pointer; color: #0B1F3A; font-weight: 600;">
+                ▶ Immersion Saly
+              </button>
+            </div>
           </div>
 
           <div class="form-grille-2" style="margin-top: 0.5rem;">

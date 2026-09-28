@@ -28,7 +28,9 @@ export const entreprise = {
     whatsappAffichage: "+221 76 231 20 03",
     telephone: "+221771303678",
     telephoneAffichage: "+221 77 130 36 78",
-    email: "contact@louametay.com"
+    email: "contact@louametay.com",
+    youtube: "https://youtube.com/@louametaye?si=wdfwRr2F-x0ho5PY",
+    youtubeChannelId: "UCmaFo8BlqLgMj87mqbG3jkw"
   },
   paiements: ["Wave", "Orange Money", "Carte bancaire"],
   fonctionnalites: [
@@ -140,9 +142,9 @@ export const commerciaux = [
     latitude: 14.6928,
     longitude: -17.4467,
     maps_url: "https://www.google.com/maps/search/?api=1&query=Dakar+Point+E",
-    video_youtube_id: "dQw4w9WgXcQ",
-    video_titre: "Démo Lou Ame Tay — Menu QR & Commande à table",
-    video_description: "Découvrez en 2 minutes comment notre solution digitalise la prise de commande et booste le chiffre d'affaires de votre restaurant.",
+    video_youtube_id: "hZq2u-yPnAE",
+    video_titre: "Lou Ame Tay ? – Digitalisez Votre Restaurant en 3 Clics",
+    video_description: "Découvrez en vidéo la solution N°1 au Sénégal : Menu digital QR code sans application, écran cuisine KDS en temps réel et paiement direct Wave & Orange Money.",
     carrousel_images: [
       { url: "images/deploiement1.jpg", titre: "Écran Cuisine (KDS) en action", legende: "Gestion temps réel des commandes en brigade" },
       { url: "images/deploiement2.jpg", titre: "Supports QR Chevalets Premium", legende: "Commande autonome à table par smartphone" },
@@ -152,7 +154,8 @@ export const commerciaux = [
       linkedin: "https://linkedin.com/in/mamadou-diallo-louametay",
       facebook: "https://facebook.com/louametay.officiel",
       instagram: "https://instagram.com/louametay_sn",
-      tiktok: "https://tiktok.com/@louametay_digital"
+      tiktok: "https://tiktok.com/@louametay_digital",
+      youtube: "https://youtube.com/@louametaye?si=wdfwRr2F-x0ho5PY"
     }
   },
   {
@@ -172,11 +175,15 @@ export const commerciaux = [
     latitude: 14.7903,
     longitude: -16.9260,
     maps_url: "https://www.google.com/maps/search/?api=1&query=Thies+Senegal",
+    video_youtube_id: "hZq2u-yPnAE",
+    video_titre: "Lou Ame Tay ? – Digitalisez Votre Restaurant en 3 Clics",
+    video_description: "Démonstration du système de commande QR et de l'écran cuisine KDS.",
     reseaux: {
       linkedin: "https://linkedin.com/in/cheikh-ndiaye-louametay",
       facebook: "https://facebook.com/louametay.officiel",
       instagram: "https://instagram.com/cheikh_louametay",
-      tiktok: "https://tiktok.com/@louametay_digital"
+      tiktok: "https://tiktok.com/@louametay_digital",
+      youtube: "https://youtube.com/@louametaye?si=wdfwRr2F-x0ho5PY"
     }
   },
   {
@@ -196,11 +203,15 @@ export const commerciaux = [
     latitude: 14.4437,
     longitude: -17.0270,
     maps_url: "https://www.google.com/maps/search/?api=1&query=Saly+Portudal",
+    video_youtube_id: "Iy1MdWuW4A0",
+    video_titre: "Lou Ame Tay? Scan. Order. Enjoy.",
+    video_description: "La commande à table instantanée par QR code au Sénégal.",
     reseaux: {
       linkedin: "https://linkedin.com/in/fatou-sow-louametay",
       facebook: "https://facebook.com/louametay.officiel",
       instagram: "https://instagram.com/fatou_louametay",
-      tiktok: "https://tiktok.com/@fatousow_restau"
+      tiktok: "https://tiktok.com/@fatousow_restau",
+      youtube: "https://youtube.com/@louametaye?si=wdfwRr2F-x0ho5PY"
     }
   },
   {
@@ -220,11 +231,15 @@ export const commerciaux = [
     latitude: 14.7450,
     longitude: -17.5186,
     maps_url: "https://www.google.com/maps/search/?api=1&query=Almadies+Dakar",
+    video_youtube_id: "1M-yv5NiLp8",
+    video_titre: "Lou Ame Tay? – Digitize Your Restaurant in 3 Clicks",
+    video_description: "The leading restaurant SaaS in Senegal for hotels, beach resorts and modern dining.",
     reseaux: {
       linkedin: "https://linkedin.com/in/moussa-ba-louametay",
       facebook: "https://facebook.com/louametay.officiel",
       instagram: "https://instagram.com/louametay_hotels",
-      tiktok: ""
+      tiktok: "",
+      youtube: "https://youtube.com/@louametaye?si=wdfwRr2F-x0ho5PY"
     }
   }
 ];
