@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
     "build": "vite build",
+    "build:lws": "node -e \"fs.rmSync('dist', { recursive: true, force: true })\" && vite build && node scripts/prepare-lws.js",
     "preview": "vite preview",
     "deploy": "netlify deploy --prod --dir=dist",
     "clean": "node -e \"fs.rmSync('dist', { recursive: true, force: true })\""

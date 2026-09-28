@@ -1,0 +1,18 @@
+# ==============================================================================
+# ROBOTS.TXT — LOU AME TAY (https://louametay.online)
+# ==============================================================================
+
+User-agent: *
+Allow: /
+Allow: /index.html
+Allow: /carte.html
+Allow: /images/
+Allow: /manifest.json
+
+# Protection des accès privés & administration
+Disallow: /admin.html
+Disallow: /login.html
+Disallow: /js/env.js
+Disallow: /sql/
+
+Sitemap: https://louametay.online/sitemap.xml

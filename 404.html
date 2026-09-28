@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page non trouvée (404) — Lou Ame Tay 🍽️</title>
+  <meta name="description" content="La page ou la carte de visite digitale demandée n'existe pas ou a été déplacée.">
+  <link rel="icon" type="image/svg+xml" href="images/logo.svg">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap">
+  <style>
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: linear-gradient(135deg, #0B1F3A 0%, #162F53 100%);
+      color: #FFFFFF;
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      margin: 0;
+    }
+    .erreur-conteneur {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1.25rem;
+    }
+    .erreur-carte {
+      background: #FFFFFF;
+      color: #0B1F3A;
+      max-width: 520px;
+      width: 100%;
+      border-radius: 20px;
+      padding: 3rem 2rem;
+      text-align: center;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+      border-top: 6px solid #C9A227;
+    }
+    .code-404 {
+      font-family: 'Playfair Display', serif;
+      font-size: 5rem;
+      font-weight: 800;
+      color: #C9A227;
+      line-height: 1;
+      margin: 0 0 0.5rem;
+      letter-spacing: -2px;
+    }
+    .erreur-titre {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #0B1F3A;
+      margin-bottom: 0.75rem;
+    }
+    .erreur-texte {
+      font-size: 0.95rem;
+      color: #64748B;
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+    .actions-groupe {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+    .btn-retour {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background: #0B1F3A;
+      color: #FFFFFF;
+      font-weight: 700;
+      padding: 0.9rem 1.5rem;
+      border-radius: 12px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    .btn-retour:hover {
+      background: #162F53;
+      transform: translateY(-2px);
+    }
+    .btn-wa-support {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background: #25D366;
+      color: #FFFFFF;
+      font-weight: 700;
+      padding: 0.85rem 1.5rem;
+      border-radius: 12px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    .btn-wa-support:hover {
+      background: #1EBE5B;
+      transform: translateY(-2px);
+    }
+    .logo-header {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 1.5rem;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <main class="erreur-conteneur">
+    <div class="erreur-carte">
+      <img src="images/logo.png" alt="Lou Ame Tay" class="logo-header" onerror="this.onerror=null; this.src='images/logo.svg';">
+      <div class="code-404">404</div>
+      <h1 class="erreur-titre">Page ou carte introuvable</h1>
+      <p class="erreur-texte">
+        La carte de visite digitale demandée n'existe pas, a été désactivée ou l'adresse saisie est incorrecte.
+      </p>
+
+      <div class="actions-groupe">
+        <a href="index.html" class="btn-retour">
+          <span>←</span> Retourner à l'annuaire des conseillers
+        </a>
+        <a href="https://wa.me/221762312003?text=Bonjour%20Lou%20Ame%20Tay,%20j'ai%20rencontré%20une%20page%20introuvable%20sur%20votre%20site." target="_blank" rel="noopener noreferrer" class="btn-wa-support">
+          <span>💬</span> Contacter le support d'assistance WhatsApp
+        </a>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

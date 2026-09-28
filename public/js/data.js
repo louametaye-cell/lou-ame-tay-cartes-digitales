@@ -7,7 +7,7 @@
  * Commande à table par QR Code, Écran Cuisine (KDS), Gestion des ruptures.
  */
 
-const entreprise = {
+export const entreprise = {
   nom: "Lou Ame Tay 🍽️",
   slogan: "La transition digitale de la restauration et de l'hôtellerie au Sénégal.",
   description: "Lou Ame Tay est une solution SaaS 100% sénégalaise conçue pour moderniser les établissements de restauration et d'hôtellerie. Elle permet aux clients de consulter le menu et de passer commande directement depuis leur table en scannant un QR code, sans aucune application à télécharger.",
@@ -122,12 +122,13 @@ const entreprise = {
   horairesSupport: "Support 7j/7 de 08h00 à 20h00 (Interventions d'urgence 22h00)"
 };
 
-const commerciaux = [
+export const commerciaux = [
   {
     id: "1",
     prenom: "Mamadou",
     nom: "Diallo",
     poste: "Directeur Commercial & Grands Comptes",
+    categorie: "Direction",
     telephone: "+221771303678",
     email: "mamadou@louametay.com",
     whatsapp: "221762312003",
@@ -147,6 +148,7 @@ const commerciaux = [
     prenom: "Cheikh",
     nom: "Ndiaye",
     poste: "Responsable Déploiement Terrain & Formations",
+    categorie: "Technique",
     telephone: "+221785123456",
     email: "cheikh.ndiaye@louametay.com",
     whatsapp: "221762312003",
@@ -166,6 +168,7 @@ const commerciaux = [
     prenom: "Fatou",
     nom: "Sow",
     poste: "Conseillère Commerciale Restauration & Maquis",
+    categorie: "Vente",
     telephone: "+221763407890",
     email: "fatou.sow@louametay.com",
     whatsapp: "221762312003",
@@ -185,6 +188,7 @@ const commerciaux = [
     prenom: "Moussa",
     nom: "Ba",
     poste: "Chargé d'Affaires Hôtellerie & Complexes Touristiques",
+    categorie: "Support",
     telephone: "+221776543210",
     email: "moussa.ba@louametay.com",
     whatsapp: "221762312003",
@@ -201,6 +205,8 @@ const commerciaux = [
   }
 ];
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { entreprise, commerciaux };
+if (typeof window !== 'undefined') {
+  window.entreprise = entreprise;
+  window.commerciaux = commerciaux;
 }
+

@@ -1302,6 +1302,70 @@ body {
   opacity: 1;
 }
 
+/* Sélecteur de langue & Boutons */
+.selecteur-langue-carte {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(11, 31, 58, 0.9);
+  padding: 3px;
+  border-radius: var(--arrondi-rond);
+  border: 1px solid var(--dore-primaire);
+  gap: 3px;
+}
+
+.btn-lang-switch {
+  background: transparent;
+  border: none;
+  color: #FFFFFF;
+  padding: 4px 10px;
+  border-radius: var(--arrondi-rond);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-rapide);
+}
+
+.btn-lang-switch.active, .btn-lang-switch:hover {
+  background: var(--dore-primaire);
+  color: var(--marine-fonce);
+}
+
+/* Filtres par Catégories */
+.filtres-categories-annuaire {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.btn-filtre-cat {
+  background: #FFFFFF;
+  border: 1px solid var(--gris-bordure);
+  color: var(--marine-fonce);
+  padding: 0.45rem 1.1rem;
+  border-radius: var(--arrondi-rond);
+  font-family: var(--police-titre);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-rapide);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.btn-filtre-cat:hover {
+  border-color: var(--dore-primaire);
+  color: var(--dore-sombre);
+  transform: translateY(-1px);
+}
+
+.btn-filtre-cat.active {
+  background: var(--marine-fonce);
+  border-color: var(--marine-fonce);
+  color: var(--dore-lumineux);
+  box-shadow: 0 4px 10px rgba(11, 31, 58, 0.2);
+}
+
 /* Pied de page */
 .pied {
   background: var(--marine-nuit);

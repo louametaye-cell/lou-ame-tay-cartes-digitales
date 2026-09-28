@@ -1,0 +1,1411 @@
+/* ==========================================================================
+   LOU AME TAY 🍽️ — STYLES DE L'ESPACE ADMINISTRATION (ADMIN.CSS)
+   Charte : Bleu Marine (#0B1F3A), Doré (#C9A227), Blanc (#FFFFFF), Gris (#F1F5F9)
+   ========================================================================== */
+
+/* Structure générale de l'écran admin */
+.page-admin-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #F8FAFC;
+  font-family: var(--police-corps);
+  color: var(--gris-texte-sombre);
+  overflow-x: hidden;
+}
+
+/* ==========================================================================
+   1. BARRE LATÉRALE (SIDEBAR)
+   ========================================================================== */
+.admin-sidebar {
+  width: 270px;
+  background: var(--marine-fonce);
+  color: var(--blanc);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 100;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sidebar-haut {
+  padding: 1.5rem 1.25rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-logo-lien {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  text-decoration: none;
+  color: var(--blanc);
+}
+
+.sidebar-logo {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+
+.sidebar-marque-txt {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-marque-txt .marque-nom {
+  font-family: var(--police-titre);
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: var(--blanc);
+  letter-spacing: -0.3px;
+}
+
+.sidebar-marque-txt .marque-badge {
+  font-size: 0.72rem;
+  color: var(--dore-primaire);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.btn-sidebar-fermer {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--blanc);
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+
+/* Navigation de la sidebar */
+.sidebar-nav {
+  padding: 1.25rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex: 1;
+}
+
+.nav-onglet-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: transparent;
+  border: none;
+  border-radius: var(--arrondi-md);
+  color: #94A3B8;
+  font-family: var(--police-corps);
+  font-size: 0.92rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.nav-onglet-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--blanc);
+}
+
+.nav-onglet-btn.active {
+  background: linear-gradient(135deg, rgba(201, 162, 39, 0.2) 0%, rgba(201, 162, 39, 0.08) 100%);
+  color: var(--dore-lumineux);
+  border-left: 3px solid var(--dore-primaire);
+}
+
+.nav-icone {
+  font-size: 1.15rem;
+}
+
+.nav-badge-compteur {
+  margin-left: auto;
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--blanc);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.15rem 0.55rem;
+  border-radius: var(--arrondi-rond);
+}
+
+/* Bas de la sidebar */
+.sidebar-bas {
+  padding: 1.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.admin-profil-resume {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+}
+
+.admin-avatar-cercle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--marine-moyen);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.admin-profil-infos {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.admin-email-txt {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--blanc);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 170px;
+}
+
+.admin-role-txt {
+  font-size: 0.72rem;
+  color: #94A3B8;
+}
+
+.btn-deconnexion {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6rem;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #FCA5A5;
+  border-radius: var(--arrondi-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-deconnexion:hover {
+  background: #EF4444;
+  color: var(--blanc);
+}
+
+/* ==========================================================================
+   2. ZONE CENTRALE & TOPBAR
+   ========================================================================== */
+.admin-zone-centrale {
+  flex: 1;
+  margin-left: 270px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.admin-topbar {
+  background: var(--blanc);
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--gris-bordure);
+  position: sticky;
+  top: 0;
+  z-index: 90;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+}
+
+.topbar-gauche {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.btn-burger-mobile {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--marine-fonce);
+}
+
+.topbar-titre {
+  font-family: var(--police-titre);
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--marine-fonce);
+  letter-spacing: -0.3px;
+}
+
+.topbar-droite {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+/* Bannière d'alerte configuration */
+.banniere-alerte-admin {
+  background: #FEF3C7;
+  border-left: 5px solid #F59E0B;
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.alerte-contenu-flex {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.alerte-icone-grande {
+  font-size: 1.6rem;
+}
+
+.alerte-titre {
+  color: #92400E;
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+}
+
+.alerte-desc {
+  color: #78350F;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+/* Vues */
+.admin-contenu-vues {
+  padding: 2rem;
+  flex: 1;
+}
+
+.admin-vue {
+  display: none;
+}
+
+.admin-vue.active {
+  display: block;
+  animation: fonduEntree 0.3s ease-out;
+}
+
+@keyframes fonduEntree {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
+   3. STATISTIQUES DU DASHBOARD
+   ========================================================================== */
+.stats-grille {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.stat-carte {
+  background: var(--blanc);
+  padding: 1.5rem;
+  border-radius: var(--arrondi-lg);
+  border: 1px solid var(--gris-bordure);
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-carte:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+}
+
+.stat-icone-fond {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--arrondi-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.icone-bleu { background: #E0E7FF; color: #4338CA; }
+.icone-vert { background: #DCFCE7; color: #15803D; }
+.icone-orange { background: #FFEDD5; color: #C2410C; }
+.icone-or { background: #FEF3C7; color: #B45309; }
+
+.stat-contenu {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-titre {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--gris-texte-muet);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-valeur {
+  font-family: var(--police-titre);
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: var(--marine-fonce);
+  line-height: 1.2;
+}
+
+.stat-precision {
+  font-size: 0.78rem;
+  color: #94A3B8;
+}
+
+/* Actions rapides */
+.panneau-actions-rapides {
+  background: var(--blanc);
+  border-radius: var(--arrondi-lg);
+  border: 1px solid var(--gris-bordure);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.panneau-entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.panneau-titre {
+  font-family: var(--police-titre);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--marine-fonce);
+}
+
+.panneau-soustitre {
+  font-size: 0.82rem;
+  color: var(--gris-texte-muet);
+  margin-top: 0.2rem;
+}
+
+.panneau-badge {
+  font-size: 0.75rem;
+  background: #EFF6FF;
+  color: #1D4ED8;
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--arrondi-rond);
+}
+
+.actions-rapides-grille {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.btn-action-rapide {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: #F8FAFC;
+  border: 1px solid var(--gris-bordure);
+  border-radius: var(--arrondi-md);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.btn-action-rapide:hover {
+  background: #F1F5F9;
+  border-color: var(--dore-primaire);
+  transform: translateY(-2px);
+}
+
+.action-icone {
+  font-size: 1.5rem;
+}
+
+.action-texte {
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: var(--marine-fonce);
+}
+
+/* ==========================================================================
+   4. TABLEAU DE GESTION DES COMMERCIAUX
+   ========================================================================== */
+.panneau-table {
+  background: var(--blanc);
+  border-radius: var(--arrondi-lg);
+  border: 1px solid var(--gris-bordure);
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+}
+
+.panneau-entete-commerciaux {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  border-bottom: 1px solid var(--gris-bordure);
+  background: #FAFAFA;
+}
+
+.commerciaux-recherche-zone {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.champ-recherche-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 280px;
+}
+
+.champ-recherche-admin {
+  width: 100%;
+  padding: 0.65rem 2rem 0.65rem 2.4rem;
+  border: 1px solid var(--gris-bordure);
+  border-radius: var(--arrondi-md);
+  font-size: 0.88rem;
+  background: var(--blanc);
+}
+
+.champ-recherche-wrapper .icone-recherche {
+  position: absolute;
+  left: 0.85rem;
+  color: var(--gris-texte-muet);
+  pointer-events: none;
+}
+
+.btn-effacer-filtre {
+  position: absolute;
+  right: 0.65rem;
+  background: none;
+  border: none;
+  color: #94A3B8;
+  cursor: pointer;
+}
+
+.select-filtre-admin {
+  padding: 0.65rem 1rem;
+  border: 1px solid var(--gris-bordure);
+  border-radius: var(--arrondi-md);
+  font-size: 0.88rem;
+  background: var(--blanc);
+  color: var(--gris-texte-sombre);
+  cursor: pointer;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.admin-table th {
+  padding: 0.95rem 1.25rem;
+  background: #F8FAFC;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--gris-texte-muet);
+  border-bottom: 1px solid var(--gris-bordure);
+  letter-spacing: 0.5px;
+}
+
+.admin-table td {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--gris-bordure);
+  font-size: 0.9rem;
+  vertical-align: middle;
+}
+
+.admin-table tbody tr:hover {
+  background: #F8FAFC;
+}
+
+.ligne-inactive {
+  opacity: 0.65;
+  background: #FAF8F5;
+}
+
+.col-commercial-identite {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.avatar-table-mini {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--blanc);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.table-nom-commercial {
+  color: var(--marine-fonce);
+  font-size: 0.95rem;
+}
+
+.table-id-muet {
+  display: block;
+  font-size: 0.72rem;
+  color: #94A3B8;
+}
+
+.table-poste-txt {
+  font-weight: 600;
+  color: var(--marine-fonce);
+}
+
+.badge-categorie {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--arrondi-rond);
+  margin-top: 0.25rem;
+}
+
+.badge-vente { background: #E0E7FF; color: #3730A3; }
+.badge-direction { background: #DCFCE7; color: #166534; }
+.badge-technique { background: #FEF3C7; color: #92400E; }
+.badge-support { background: #FCE7F3; color: #9D174D; }
+
+.table-contact-lignes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-size: 0.82rem;
+  color: #475569;
+}
+
+/* Switch Actif / Inactif 1 clic style iOS */
+.switch-table-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.switch-table {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.switch-table input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch-table-curseur {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #CBD5E1;
+  transition: .3s;
+  border-radius: 34px;
+}
+
+.switch-table-curseur:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .3s;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.switch-table input:checked + .switch-table-curseur {
+  background-color: #10B981;
+}
+
+.switch-table input:checked + .switch-table-curseur:before {
+  transform: translateX(20px);
+}
+
+.statut-libelle {
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.texte-actif { color: #059669; }
+.texte-inactif { color: #94A3B8; }
+
+.badge-statut-pill {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--arrondi-rond);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.statut-vert { background: #DCFCE7; color: #15803D; }
+.statut-gris { background: #F1F5F9; color: #64748B; }
+
+/* Bouton QR Code dans la table */
+.btn-qr-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  background: #F1F5F9;
+  border: 1px solid var(--gris-bordure);
+  border-radius: var(--arrondi-sm);
+  color: var(--marine-fonce);
+  font-weight: 600;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-qr-action:hover {
+  background: var(--dore-primaire);
+  border-color: var(--dore-primaire);
+  color: var(--marine-nuit);
+}
+
+.table-actions-cell {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.btn-icone-action {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--arrondi-sm);
+  border: 1px solid var(--gris-bordure);
+  background: var(--blanc);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.btn-icone-action:hover {
+  background: #F8FAFC;
+  transform: translateY(-1px);
+}
+
+.btn-supprimer:hover {
+  background: #FEF2F2;
+  border-color: #F87171;
+}
+
+/* ==========================================================================
+   5. BOÎTES MODALES (FORMULAIRE & CONFIRMATION)
+   ========================================================================== */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(6, 17, 32, 0.75);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.25s ease;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-contenu {
+  background: var(--blanc);
+  border-radius: var(--arrondi-lg);
+  padding: 2rem;
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.4);
+  position: relative;
+  transform: scale(0.95);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-overlay.active .modal-contenu {
+  transform: scale(1);
+}
+
+.modal-contenu-large {
+  max-width: 760px;
+}
+
+.modal-entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--gris-bordure);
+}
+
+.modal-titre {
+  font-family: var(--police-titre);
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--marine-fonce);
+}
+
+.btn-fermer-modal {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+  color: var(--gris-texte-muet);
+}
+
+/* Formulaire en grille */
+.form-modal-commercial {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+.form-grille-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.form-grille-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.champ-upload-photo-bloc {
+  background: #F8FAFC;
+  padding: 1.25rem;
+  border-radius: var(--arrondi-md);
+  border: 1px dashed var(--gris-bordure);
+}
+
+.upload-flex-zone {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-top: 0.5rem;
+}
+
+.apercu-photo-wrapper {
+  width: 70px;
+  height: 88px; /* format 4:5 */
+  border-radius: var(--arrondi-sm);
+  overflow: hidden;
+  border: 2px solid var(--dore-primaire);
+  flex-shrink: 0;
+  background: #E2E8F0;
+}
+
+.apercu-photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.upload-controles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  flex: 1;
+}
+
+.champ-file-input {
+  display: none;
+}
+
+.photo-nom-texte {
+  font-size: 0.78rem;
+  color: var(--gris-texte-muet);
+}
+
+.upload-separateur-ou {
+  font-size: 0.75rem;
+  color: #94A3B8;
+  margin-top: 0.25rem;
+}
+
+.reseaux-sociaux-cadre {
+  background: #F8FAFC;
+  padding: 1.15rem;
+  border-radius: var(--arrondi-md);
+  border: 1px solid var(--gris-bordure);
+}
+
+.reseaux-cadre-titre {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--marine-fonce);
+  margin-bottom: 0.75rem;
+}
+
+.statut-switch-modal-ligne {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: #F8FAFC;
+  border-radius: var(--arrondi-md);
+}
+
+.statut-switch-texte {
+  font-size: 0.9rem;
+  color: var(--marine-fonce);
+}
+
+.modal-pied-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.85rem;
+  margin-top: 1rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--gris-bordure);
+}
+
+/* ==========================================================================
+   6. CADRE QR CODE HAUTE DÉFINITION (EXPORT PNG 1000PX)
+   ========================================================================== */
+.qr-export-cadre-visuel {
+  background: var(--blanc);
+  border: 6px solid var(--marine-fonce);
+  border-radius: 18px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.qr-export-logo-ligne {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+
+.qr-export-logo-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.qr-export-marque-titre {
+  font-family: var(--police-titre);
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--marine-fonce);
+}
+
+.qr-export-code-centre {
+  padding: 0.85rem;
+  background: var(--blanc);
+  border-radius: var(--arrondi-md);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+  margin-bottom: 1rem;
+}
+
+.qr-export-infos-bas {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.qr-export-nom {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--marine-fonce);
+}
+
+.qr-export-poste {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--dore-sombre);
+}
+
+.qr-export-instruction {
+  font-size: 0.72rem;
+  color: var(--gris-texte-muet);
+  margin-top: 0.35rem;
+}
+
+/* Galerie exports */
+.exports-banniere-aide {
+  background: var(--blanc);
+  padding: 1.5rem;
+  border-radius: var(--arrondi-lg);
+  border: 1px solid var(--gris-bordure);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.exports-actions-globales {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.grille-exports-qrcodes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.25rem;
+}
+
+.carte-qr-export-item {
+  background: var(--blanc);
+  padding: 1.25rem;
+  border-radius: var(--arrondi-md);
+  border: 1px solid var(--gris-bordure);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.mini-qr-bloc {
+  padding: 0.5rem;
+  margin: 0.75rem 0;
+}
+
+/* ==========================================================================
+   7. PARAMÈTRES & SQL
+   ========================================================================== */
+.parametres-grille {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 1.5rem;
+}
+
+.parametre-carte {
+  background: var(--blanc);
+  padding: 1.75rem;
+  border-radius: var(--arrondi-lg);
+  border: 1px solid var(--gris-bordure);
+}
+
+.parametre-carte-entete {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+
+.parametre-icone {
+  font-size: 1.6rem;
+}
+
+.parametre-titre {
+  font-family: var(--police-titre);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--marine-fonce);
+}
+
+.parametre-desc {
+  font-size: 0.82rem;
+  color: var(--gris-texte-muet);
+}
+
+.parametre-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.statut-test-bloc {
+  padding: 0.75rem 1rem;
+  border-radius: var(--arrondi-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.statut-test-bloc.succes { background: #DCFCE7; color: #166534; }
+.statut-test-bloc.erreur { background: #FEE2E2; color: #991B1B; }
+.statut-test-bloc.info { background: #EFF6FF; color: #1E40AF; }
+
+.code-sql-conteneur {
+  position: relative;
+  background: #0B1F3A;
+  border-radius: var(--arrondi-md);
+  padding: 1.25rem;
+  margin-top: 1rem;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.code-sql-conteneur pre {
+  margin: 0;
+}
+
+.code-sql-conteneur code {
+  color: #E2E8F0;
+  font-family: monospace;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.btn-copier-code {
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: var(--blanc);
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--arrondi-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-copier-code:hover {
+  background: var(--dore-primaire);
+  color: var(--marine-nuit);
+}
+
+/* ==========================================================================
+   8. PAGE DE CONNEXION (LOGIN.HTML)
+   ========================================================================== */
+.page-auth-fond {
+  background: linear-gradient(135deg, var(--marine-nuit) 0%, var(--marine-fonce) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 1.5rem;
+}
+
+.auth-carte-conteneur {
+  background: var(--blanc);
+  border-radius: var(--arrondi-xl);
+  padding: 2.5rem 2rem;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.auth-en-tete {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.auth-logo {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  margin-bottom: 0.75rem;
+}
+
+.auth-titre {
+  font-family: var(--police-titre);
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: var(--marine-fonce);
+  letter-spacing: -0.3px;
+}
+
+.auth-soustitre {
+  font-size: 0.85rem;
+  color: var(--gris-texte-muet);
+  margin-top: 0.25rem;
+}
+
+.auth-formulaire {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.input-avec-icone {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-avec-icone .icone-champ {
+  position: absolute;
+  left: 0.95rem;
+  color: var(--gris-texte-muet);
+}
+
+.input-avec-icone .champ-input {
+  padding-left: 2.6rem;
+}
+
+.btn-auth-soumettre {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.85rem;
+}
+
+.auth-pied {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.82rem;
+}
+
+.auth-retour-lien {
+  color: var(--marine-fonce);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.auth-badge-securise {
+  color: #64748B;
+  font-size: 0.75rem;
+}
+
+/* ==========================================================================
+   CRM LEADS & ANALYTICS STYLES
+   ========================================================================== */
+/* Badges de Score de Leads */
+.badge-score-lead {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--arrondi-rond);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.badge-score-haute {
+  background: #FEE2E2;
+  color: #DC2626;
+  border: 1px solid #FCA5A5;
+}
+
+.badge-score-moyenne {
+  background: #FEF3C7;
+  color: #D97706;
+  border: 1px solid #FCD34D;
+}
+
+.badge-score-basse {
+  background: #F1F5F9;
+  color: #475569;
+  border: 1px solid #CBD5E1;
+}
+
+/* Statuts de leads interactifs */
+.select-statut-lead {
+  padding: 0.35rem 0.65rem;
+  border-radius: var(--arrondi-md);
+  font-size: 0.82rem;
+  font-weight: 700;
+  border: 1px solid var(--gris-bordure);
+  cursor: pointer;
+  background-color: #FFFFFF;
+  transition: all 0.2s ease;
+}
+
+.select-statut-lead[data-statut="nouveau"] {
+  background-color: #EFF6FF;
+  color: #1D4ED8;
+  border-color: #BFDBFE;
+}
+
+.select-statut-lead[data-statut="contacte"] {
+  background-color: #FEF3C7;
+  color: #D97706;
+  border-color: #FDE68A;
+}
+
+.select-statut-lead[data-statut="converti"] {
+  background-color: #DCFCE7;
+  color: #15803D;
+  border-color: #BBF7D0;
+}
+
+.select-statut-lead[data-statut="perdu"] {
+  background-color: #FEE2E2;
+  color: #B91C1C;
+  border-color: #FECACA;
+}
+
+/* Bouton WhatsApp direct lead */
+.btn-wa-direct-lead {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #22C55E;
+  color: #FFFFFF;
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--arrondi-rond);
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 700;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(34, 197, 94, 0.25);
+}
+
+.btn-wa-direct-lead:hover {
+  background: #16A34A;
+  transform: translateY(-1px);
+  color: #FFFFFF;
+}
+
+/* Grille Analytics & Graphiques */
+.analytics-conteneur-grille {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+@media (max-width: 1024px) {
+  .analytics-conteneur-grille {
+    grid-template-columns: 1fr;
+  }
+}
+
+.graphique-cadre-visuel {
+  background: #FFFFFF;
+  border-radius: var(--arrondi-lg);
+  border: 1px solid var(--gris-bordure);
+  padding: 1.5rem;
+  box-shadow: var(--ombre-carte);
+}
+
+.barre-analytics-ligne {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.85rem;
+}
+
+.barre-analytics-jour {
+  width: 90px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--marine-fonce);
+}
+
+.barre-analytics-rail {
+  flex: 1;
+  height: 22px;
+  background: #F1F5F9;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+}
+
+.barre-analytics-scans {
+  background: linear-gradient(90deg, #0B1F3A, #1E3A8A);
+  height: 100%;
+  border-radius: 12px 0 0 12px;
+  transition: width 0.5s ease;
+}
+
+.barre-analytics-leads {
+  background: linear-gradient(90deg, #C9A227, #EAB308);
+  height: 100%;
+  transition: width 0.5s ease;
+}
+
+.barre-analytics-chiffre {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #334155;
+  min-width: 50px;
+  text-align: right;
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN (TABLETTES & SMARTPHONES)
+   ========================================================================== */
+@media (max-width: 900px) {
+  .admin-sidebar {
+    transform: translateX(-100%);
+  }
+
+  .admin-sidebar.ouverte {
+    transform: translateX(0);
+  }
+
+  .btn-sidebar-fermer {
+    display: block;
+  }
+
+  .admin-zone-centrale {
+    margin-left: 0;
+  }
+
+  .btn-burger-mobile {
+    display: block;
+  }
+
+  .admin-contenu-vues {
+    padding: 1.25rem;
+  }
+
+  .form-grille-2, .form-grille-3 {
+    grid-template-columns: 1fr;
+  }
+}
