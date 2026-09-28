@@ -204,34 +204,116 @@ export async function toggleActif(id, nouvelEtat) {
 }
 
 /**
+ * Compression intelligente de la photo côté client (navigateur) avant téléversement
+ * Réduit automatiquement les photos de smartphone haute résolution (ex: 8-15 Mo) à moins de 1 Mo (< 1200px)
+ * Utilise browser-image-compression via window.imageCompression
+ * @param {File} fichier - Fichier image brut
+ * @returns {Promise<File|Blob>} Fichier compressé ou fichier original si échec
+ */
+export async function compresserImage(fichier) {
+  const options = {
+    maxSizeMB: 1,
+    maxWidthOrHeight: 1200,
+    useWebWorker: true,
+    initialQuality: 0.85
+  };
+
+  if (typeof window !== 'undefined' && typeof window.imageCompression === 'function') {
+    try {
+      const tailleInitialeMo = (fichier.size / (1024 * 1024)).toFixed(2);
+      console.log(`[Compression] Début compression pour ${fichier.name} (${tailleInitialeMo} Mo)...`);
+      const fichierCompresse = await window.imageCompression(fichier, options);
+      const tailleFinaleKo = (fichierCompresse.size / 1024).toFixed(1);
+      console.log(`[Compression] Succès : ${tailleInitialeMo} Mo -> ${tailleFinaleKo} Ko (-${Math.round((1 - fichierCompresse.size / fichier.size) * 100)}%)`);
+      return fichierCompresse;
+    } catch (err) {
+      console.error('[Compression] Erreur lors de la compression :', err);
+      return fichier;
+    }
+  }
+
+  console.warn('[Compression] Bibliothèque browser-image-compression non disponible dans window, envoi direct.');
+  return fichier;
+}
+
+/**
  * 7. Téléversement de photo vers Supabase Storage (bucket 'photos')
+ * Comprend :
+ * - Validation stricte du type MIME (JPG, PNG, WebP)
+ * - Validation de la taille brute (max 20 Mo)
+ * - Compression automatique côté navigateur (cible < 1 Mo)
+ * - Gestion d'erreur explicite et messages compréhensibles en français
  * @param {File} fichier - Fichier image sélectionné
  * @returns {Promise<string>} URL publique de l'image
  */
 export async function uploadPhoto(fichier) {
   if (!fichier) return null;
 
-  const extension = fichier.name.split('.').pop() || 'jpg';
-  const nomFichierNettoye = `${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${extension}`;
-  const cheminStockage = `commerciaux/${nomFichierNettoye}`;
-
-  const { data, error } = await supabase.storage
-    .from('photos')
-    .upload(cheminStockage, fichier, {
-      cacheControl: '3600',
-      upsert: true
-    });
-
-  if (error) {
-    console.error('Erreur Supabase Storage :', error);
-    throw new Error(`Échec upload photo: ${error.message}. Vérifiez que le bucket 'photos' existe et est public.`);
+  // 1. Validation du type MIME
+  if (!fichier.type || !fichier.type.startsWith('image/')) {
+    afficherToast('❌ Veuillez sélectionner un fichier image valide (JPG, PNG, WebP).');
+    throw new Error('Type de fichier non supporté. Veuillez sélectionner une image (JPG, PNG, WebP).');
   }
 
-  const { data: urlData } = supabase.storage
-    .from('photos')
-    .getPublicUrl(cheminStockage);
+  // 2. Validation de la taille brute avant compression (max 20 Mo pour tolérer les photos smartphone récentes)
+  const MAX_RAW_SIZE_MB = 20;
+  const MAX_RAW_SIZE_BYTES = MAX_RAW_SIZE_MB * 1024 * 1024;
+  if (fichier.size > MAX_RAW_SIZE_BYTES) {
+    const tailleMo = (fichier.size / (1024 * 1024)).toFixed(1);
+    afficherToast(`❌ Image trop volumineuse (${tailleMo} Mo). Veuillez choisir une photo de moins de ${MAX_RAW_SIZE_MB} Mo.`);
+    throw new Error(`Image trop volumineuse (${tailleMo} Mo). La limite maximale avant compression est de ${MAX_RAW_SIZE_MB} Mo.`);
+  }
 
-  return urlData.publicUrl;
+  // 3. Compression intelligente côté client
+  let fichierAEnvoyer = fichier;
+  try {
+    fichierAEnvoyer = await compresserImage(fichier);
+  } catch (compErr) {
+    console.warn('[Upload] Échec compression, poursuite avec le fichier original :', compErr);
+  }
+
+  // 4. Vérification de sécurité post-compression (< 5 Mo imposé par le bucket Supabase)
+  const MAX_STORAGE_LIMIT_BYTES = 5 * 1024 * 1024;
+  if (fichierAEnvoyer.size > MAX_STORAGE_LIMIT_BYTES) {
+    const tailleMo = (fichierAEnvoyer.size / (1024 * 1024)).toFixed(1);
+    afficherToast(`❌ Même après compression, l'image reste trop volumineuse (${tailleMo} Mo > 5 Mo).`);
+    throw new Error(`La photo compressée (${tailleMo} Mo) dépasse le quota de 5 Mo autorisé par le serveur. Veuillez sélectionner une photo de résolution inférieure.`);
+  }
+
+  // 5. Téléversement vers Supabase Storage (bucket 'photos')
+  try {
+    const extension = fichier.name.split('.').pop() || 'jpg';
+    const nomFichierNettoye = `${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${extension}`;
+    const cheminStockage = `commerciaux/${nomFichierNettoye}`;
+
+    const { data, error } = await supabase.storage
+      .from('photos')
+      .upload(cheminStockage, fichierAEnvoyer, {
+        cacheControl: '3600',
+        upsert: true,
+        contentType: fichierAEnvoyer.type || fichier.type || 'image/jpeg'
+      });
+
+    if (error) {
+      console.error('[Upload] Erreur Supabase Storage upload :', error);
+      if (error.message && error.message.includes('exceeded the maximum allowed size')) {
+        throw new Error("L'image dépasse la taille maximale autorisée par le bucket 'photos' (5 Mo). Veuillez réduire la résolution de l'image.");
+      }
+      if (error.statusCode === 403 || error.message?.includes('row-level security') || error.message?.includes('violates row-level security policy')) {
+        throw new Error("Droits insuffisants pour téléverser dans 'photos'. Vérifiez que votre session administrateur est active et que la politique RLS INSERT est configurée.");
+      }
+      throw new Error(`Échec upload photo: ${error.message}. Vérifiez que le bucket 'photos' existe et est public.`);
+    }
+
+    const { data: urlData } = supabase.storage
+      .from('photos')
+      .getPublicUrl(cheminStockage);
+
+    return urlData.publicUrl;
+  } catch (err) {
+    console.error('[Upload] Échec téléversement photo :', err);
+    throw err;
+  }
 }
 
 /**
@@ -474,11 +556,24 @@ function initialiserModalCommercial() {
     if (e.key === 'Escape' && modal?.classList.contains('active')) fermer();
   });
 
-  // Aperçu de la photo lors de la sélection de fichier
+  // Aperçu et pré-validation de la photo lors de la sélection de fichier
   fileInput?.addEventListener('change', () => {
     const file = fileInput.files[0];
     if (file) {
-      nomFichierEl.textContent = file.name;
+      if (!file.type || !file.type.startsWith('image/')) {
+        afficherToast('❌ Veuillez sélectionner un fichier image valide (JPG, PNG, WebP).');
+        fileInput.value = '';
+        nomFichierEl.textContent = 'Fichier non supporté';
+        return;
+      }
+      const tailleMo = (file.size / (1024 * 1024)).toFixed(1);
+      if (file.size > 20 * 1024 * 1024) {
+        afficherToast(`❌ Fichier trop volumineux (${tailleMo} Mo). Limite : 20 Mo.`);
+        fileInput.value = '';
+        nomFichierEl.textContent = 'Fichier trop volumineux (> 20 Mo)';
+        return;
+      }
+      nomFichierEl.textContent = `${file.name} (${tailleMo} Mo — sera optimisé)`;
       const reader = new FileReader();
       reader.onload = (e) => {
         if (imgApercu) imgApercu.src = e.target.result;
@@ -508,10 +603,10 @@ function initialiserModalCommercial() {
     spinner.style.display = 'inline-block';
 
     try {
-      // 1. Upload photo si nouveau fichier
+      // 1. Upload photo si nouveau fichier avec compression automatique
       let photoUrl = urlPhotoInput.value.trim() || 'images/commercial1.jpg';
       if (fileInput.files && fileInput.files[0]) {
-        txtSave.textContent = 'Envoi photo...';
+        txtSave.textContent = 'Compression & envoi photo...';
         photoUrl = await uploadPhoto(fileInput.files[0]);
       }
 
