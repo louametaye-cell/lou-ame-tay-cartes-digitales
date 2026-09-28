@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connexion Administration — Lou Ame Tay 🍽️</title>
+  <meta name="description" content="Espace d'administration sécurisé pour la gestion des cartes de visite digitales Lou Ame Tay.">
+  <link rel="icon" type="image/svg+xml" href="images/logo.svg">
+
+  <!-- Feuilles de styles -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="page-auth-fond">
+
+  <div class="auth-carte-conteneur">
+    <!-- En-tête de la carte de connexion -->
+    <div class="auth-en-tete">
+      <a href="index.html" class="auth-logo-lien" title="Retour à l'annuaire public">
+        <img src="images/logo.png" onerror="this.onerror=null; this.src='images/logo.svg';" alt="Logo Lou Ame Tay" class="auth-logo">
+      </a>
+      <h1 class="auth-titre">Espace Administration</h1>
+      <p class="auth-soustitre">Gestion des cartes de visite digitales & équipe terrain</p>
+    </div>
+
+    <!-- Bannière d'aide si Supabase n'est pas configuré -->
+    <div id="banniere-config-supabase" class="banniere-alerte" style="display: none;">
+      <div class="banniere-icone">⚙️</div>
+      <div class="banniere-texte">
+        <strong>Identifiants Supabase requis :</strong>
+        <p>Veuillez configurer votre URL de projet et clé ANON ci-dessous ou dans le fichier <code>.env</code>.</p>
+        <button type="button" id="btn-toggle-config-rapide" class="btn-lien-texte">
+          Saisir mes clés Supabase ▾
+        </button>
+      </div>
+    </div>
+
+    <!-- Formulaire de saisie rapide des clés Supabase -->
+    <form id="form-config-rapide" class="auth-config-panneau" style="display: none;">
+      <h3 class="config-panneau-titre">Connexion au projet Supabase</h3>
+      <div class="champ-groupe">
+        <label for="cfg-supabase-url" class="champ-label">URL du projet Supabase</label>
+        <input type="url" id="cfg-supabase-url" class="champ-input" placeholder="https://xyzcompany.supabase.co" required>
+      </div>
+      <div class="champ-groupe">
+        <label for="cfg-supabase-key" class="champ-label">Clé Publique Anon (anon key)</label>
+        <input type="password" id="cfg-supabase-key" class="champ-input" placeholder="eyJhbGciOiJIUzI1NiIsInR5..." required>
+      </div>
+      <button type="submit" class="btn btn-secondaire" style="width: 100%;">
+        Enregistrer et recharger
+      </button>
+    </form>
+
+    <!-- Zone de message d'alerte / succès / erreur -->
+    <div id="auth-alerte" class="auth-message-alerte" style="display: none;" role="alert"></div>
+
+    <!-- Encart identifiants configurés -->
+    <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1.25rem; font-size: 0.85rem; color: #166534; line-height: 1.5;">
+      <div style="font-weight: 700; margin-bottom: 0.25rem;">🔑 Compte Administrateur Supabase configuré :</div>
+      <div>Email : <strong style="user-select: all;">admin@louametay.com</strong></div>
+      <div>Mot de passe : <strong style="user-select: all;">LouAmeTay2026!</strong></div>
+    </div>
+
+    <!-- Formulaire de connexion Supabase Auth -->
+    <form id="form-login" class="auth-formulaire">
+      <div class="champ-groupe">
+        <label for="email" class="champ-label">Adresse email administrateur</label>
+        <div class="input-avec-icone">
+          <span class="icone-champ" aria-hidden="true">✉️</span>
+          <input 
+            type="email" 
+            id="email" 
+            name="email" 
+            class="champ-input" 
+            value="admin@louametay.com"
+            placeholder="admin@louametay.com" 
+            required 
+            autocomplete="email"
+          >
+        </div>
+      </div>
+
+      <div class="champ-groupe">
+        <div class="champ-label-ligne">
+          <label for="password" class="champ-label">Mot de passe</label>
+          <a href="#" id="lien-mdp-oublie" class="lien-discret" title="Réinitialiser le mot de passe">Mot de passe oublié ?</a>
+        </div>
+        <div class="input-avec-icone">
+          <span class="icone-champ" aria-hidden="true">🔒</span>
+          <input 
+            type="password" 
+            id="password" 
+            name="password" 
+            class="champ-input" 
+            value="LouAmeTay2026!"
+            placeholder="••••••••••••" 
+            required 
+            autocomplete="current-password"
+          >
+        </div>
+      </div>
+
+      <button type="submit" id="btn-soumettre-login" class="btn btn-primaire btn-auth-soumettre">
+        <span id="btn-login-texte">Se connecter à l'espace admin</span>
+        <span id="btn-login-spinner" class="spinner-chargement" style="display: none;"></span>
+      </button>
+
+      <div style="display: flex; align-items: center; margin: 1.25rem 0 0.75rem; gap: 0.75rem;">
+        <hr style="flex: 1; border: 0; border-top: 1px solid var(--gris-bordure);">
+        <span style="font-size: 0.75rem; color: #94A3B8; text-transform: uppercase; font-weight: 600;">ou test rapide</span>
+        <hr style="flex: 1; border: 0; border-top: 1px solid var(--gris-bordure);">
+      </div>
+
+      <button type="button" id="btn-demo-local" class="btn btn-secondaire" style="width: 100%; border: 1.5px dashed var(--marine-fonce); background: #F8FAFC; color: var(--marine-fonce); font-weight: 600; padding: 0.75rem 1rem;">
+        🧪 Accéder en Mode Démo Local (Hors-Ligne)
+      </button>
+    </form>
+
+    <!-- Pied de carte -->
+    <div class="auth-pied">
+      <a href="index.html" class="auth-retour-lien">
+        ← Retourner à l'annuaire public
+      </a>
+      <span class="auth-badge-securise">🔒 Accès sécurisé SSL & Supabase RLS</span>
+    </div>
+  </div>
+
+  <!-- Script d'authentification Supabase -->
+  <script type="module">
+    import { supabase, estSupabaseConfigure, enregistrerConfigurationSupabase, SUPABASE_URL, SUPABASE_ANON_KEY } from './js/supabase-client.js';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const form = document.getElementById('form-login');
+      const alerte = document.getElementById('auth-alerte');
+      const btnSoumettre = document.getElementById('btn-soumettre-login');
+      const btnTexte = document.getElementById('btn-login-texte');
+      const btnSpinner = document.getElementById('btn-login-spinner');
+      const banniereConfig = document.getElementById('banniere-config-supabase');
+      const btnToggleConfig = document.getElementById('btn-toggle-config-rapide');
+      const formConfigRapide = document.getElementById('form-config-rapide');
+      const inputCfgUrl = document.getElementById('cfg-supabase-url');
+      const inputCfgKey = document.getElementById('cfg-supabase-key');
+      const lienMdpOublie = document.getElementById('lien-mdp-oublie');
+
+      // Vérifier si Supabase est configuré
+      if (!estSupabaseConfigure()) {
+        banniereConfig.style.display = 'flex';
+      }
+
+      if (btnToggleConfig && formConfigRapide) {
+        btnToggleConfig.addEventListener('click', () => {
+          const visible = formConfigRapide.style.display !== 'none';
+          formConfigRapide.style.display = visible ? 'none' : 'block';
+          if (!visible && inputCfgUrl) {
+            inputCfgUrl.value = (SUPABASE_URL.includes('votre-projet') || SUPABASE_URL.includes('VOTRE_PROJET')) ? '' : SUPABASE_URL;
+            inputCfgKey.value = (SUPABASE_ANON_KEY.includes('eyJhbGci') || SUPABASE_ANON_KEY.includes('VOTRE_CLE')) ? '' : SUPABASE_ANON_KEY;
+            inputCfgUrl.focus();
+          }
+        });
+
+        formConfigRapide.addEventListener('submit', (e) => {
+          e.preventDefault();
+          enregistrerConfigurationSupabase(inputCfgUrl.value, inputCfgKey.value);
+        });
+      }
+
+      // Gestionnaire du mode démo local
+      const btnDemo = document.getElementById('btn-demo-local');
+      if (btnDemo) {
+        btnDemo.addEventListener('click', () => {
+          sessionStorage.setItem('LOUAMETAY_DEMO_SESSION', 'true');
+          sessionStorage.setItem('LOUAMETAY_DEMO_USER_EMAIL', 'demo-admin@louametay.com');
+          afficherMessage('✓ Session Démo locale activée. Accès au tableau de bord...', 'succes');
+          setTimeout(() => {
+            window.location.href = 'admin.html';
+          }, 400);
+        });
+      }
+
+      // Redirection immédiate si déjà connecté
+      try {
+        const isDemo = sessionStorage.getItem('LOUAMETAY_DEMO_SESSION') === 'true';
+        if (isDemo) {
+          window.location.href = 'admin.html';
+          return;
+        }
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          window.location.href = 'admin.html';
+          return;
+        }
+      } catch (err) {
+        console.warn('Vérification session :', err);
+      }
+
+      // Mot de passe oublié
+      if (lienMdpOublie) {
+        lienMdpOublie.addEventListener('click', async (e) => {
+          e.preventDefault();
+          const email = document.getElementById('email').value.trim();
+          if (!email) {
+            afficherMessage('Veuillez d\'abord saisir votre email dans le champ ci-dessus.', 'attention');
+            document.getElementById('email').focus();
+            return;
+          }
+
+          try {
+            const { error } = await supabase.auth.resetPasswordForEmail(email, {
+              redirectTo: window.location.origin + '/admin.html'
+            });
+            if (error) throw error;
+            afficherMessage('✓ Un email de réinitialisation vous a été envoyé.', 'succes');
+          } catch (err) {
+            afficherMessage(err.message || 'Impossible d\'envoyer le lien de réinitialisation.', 'erreur');
+          }
+        });
+      }
+
+      // Soumission formulaire connexion
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        cacherMessage();
+
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+
+        if (!email || !password) {
+          afficherMessage('Veuillez renseigner votre email et mot de passe.', 'erreur');
+          return;
+        }
+
+        if (!estSupabaseConfigure()) {
+          afficherMessage('Attention : Vos clés Supabase réelles ne sont pas encore configurées.', 'erreur');
+          formConfigRapide.style.display = 'block';
+          return;
+        }
+
+        btnSoumettre.disabled = true;
+        btnTexte.textContent = 'Connexion en cours...';
+        btnSpinner.style.display = 'inline-block';
+
+        try {
+          const { data, error } = await supabase.auth.signInWithPassword({
+            email,
+            password
+          });
+
+          if (error) throw error;
+
+          if (data && data.session) {
+            afficherMessage('✓ Connexion réussie ! Redirection...', 'succes');
+            setTimeout(() => {
+              window.location.href = 'admin.html';
+            }, 600);
+          } else {
+            throw new Error('Identifiants incorrects.');
+          }
+        } catch (err) {
+          console.error('Erreur authentification :', err);
+          let message = 'Échec de la connexion. Vérifiez votre email et mot de passe.';
+          if (err.message && err.message.includes('Invalid login credentials')) {
+            message = 'Identifiants invalides : email ou mot de passe incorrect.';
+          } else if (err.message && err.message.includes('Email not confirmed')) {
+            message = 'Votre adresse email n\'a pas encore été confirmée dans Supabase Auth.';
+          } else if (err.message) {
+            message = err.message;
+          }
+          afficherMessage(message, 'erreur');
+        } finally {
+          btnSoumettre.disabled = false;
+          btnTexte.textContent = 'Se connecter à l\'espace admin';
+          btnSpinner.style.display = 'none';
+        }
+      });
+
+      function afficherMessage(texte, type = 'erreur') {
+        alerte.textContent = texte;
+        alerte.className = `auth-message-alerte alerte-${type}`;
+        alerte.style.display = 'block';
+      }
+
+      function cacherMessage() {
+        alerte.style.display = 'none';
+      }
+    });
+  </script>
+
+</body>
+</html>

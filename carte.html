@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carte de Visite Digitale — Lou Ame Tay 🍽️</title>
+  <meta name="description" content="Carte de visite digitale interactive du conseiller Lou Ame Tay. Transition digitale de la restauration et hôtellerie au Sénégal.">
+  <meta property="og:title" content="Carte de Visite Digitale — Lou Ame Tay 🍽️">
+  <meta property="og:description" content="Contactez directement notre conseiller terrain, planifiez une démo en salle ou demandez un devis Wave/Orange Money.">
+  <meta property="og:type" content="profile">
+
+  <!-- Manifest PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0B1F3A">
+
+  <!-- Feuilles de style & Polices -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" type="image/svg+xml" href="images/logo.svg">
+
+  <!-- Bibliothèques pour le QR Code et la Signature -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body class="page-carte-fond">
+
+  <!-- Barre supérieure avec Retour & Sélecteur de Langue (FR / Wolof / EN) -->
+  <header class="carte-flottante-barre">
+    <a href="index.html" class="btn-retour-flottant" title="Retour à l'annuaire de l'équipe" data-i18n="carte.retour">
+      ← Retour à l'équipe
+    </a>
+
+    <!-- Sélecteur de Langue Trilingue -->
+    <div class="selecteur-langue-carte" aria-label="Choisir la langue">
+      <button type="button" class="btn-lang-switch active" data-lang="fr" title="Français">🇫🇷 FR</button>
+      <button type="button" class="btn-lang-switch" data-lang="wo" title="Wolof">🇸🇳 WO</button>
+      <button type="button" class="btn-lang-switch" data-lang="en" title="English">🇬🇧 EN</button>
+    </div>
+
+    <!-- Bouton PWA si éligible -->
+    <button type="button" id="btn-pwa-install" class="btn-pwa-install-header" style="display: none;" title="Installer sur mon smartphone">
+      📲 Installer
+    </button>
+  </header>
+
+  <!-- Conteneur principal façon smartphone / QRCodeChimp -->
+  <main class="carte-chimp-canvas" id="conteneur-carte" aria-live="polite">
+
+    <!-- CONTENU DYNAMIQUE DE LA CARTE -->
+    <div id="carte-contenu">
+
+      <!-- ====================================================================
+           PHOTO DE PROFIL GÉANTE (FORMAT PORTRAIT 4:5)
+           ==================================================================== -->
+      <section class="hero-photo-chimp-container" aria-label="Photo et identité du commercial">
+        <img 
+          id="commercial-photo" 
+          src="images/commercial1.jpg" 
+          alt="Photo de profil" 
+          class="hero-photo-chimp"
+          loading="eager"
+        >
+
+        <!-- Dégradé sombre superposé sur la photo -->
+        <div class="hero-gradient-overlay">
+          <div class="hero-badge-haut">
+            <span class="chimp-pill-officiel" data-i18n="carte.badge_terrain">✦ CONSEILLER TERRAIN CHR</span>
+          </div>
+
+          <div class="hero-textes-bas">
+            <h1 id="commercial-nom-complet" class="hero-nom-commercial">Mamadou Diallo</h1>
+            <p id="commercial-poste" class="hero-poste-commercial">Directeur Commercial</p>
+
+            <div class="hero-entreprise-ruban">
+              <img id="logo-ruban" src="images/logo.png" onerror="this.onerror=null; this.src='images/logo.svg';" alt="Lou Ame Tay" class="hero-entreprise-logo-mini">
+              <div>
+                <span class="hero-entreprise-nom-txt">LOU AME TAY 🍽️</span>
+                <span class="hero-entreprise-slogan-txt"> — Menu Digital & Commande QR Code</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CORPS DE LA CARTE -->
+      <div class="carte-chimp-corps">
+
+        <!-- 1. BOUTONS D'ACTION RAPIDE RONDS (Appel, WhatsApp, Email, Partage) -->
+        <nav class="chimp-actions-rondes" aria-label="Actions rapides directes">
+          <!-- Téléphone -->
+          <a id="action-tel" href="#" class="chimp-btn-rond-wrapper" title="Appeler le conseiller">
+            <div class="chimp-cercle-icone icone-rond-tel" aria-hidden="true">📞</div>
+            <span class="chimp-cercle-label" data-i18n="carte.appel">Appel</span>
+          </a>
+
+          <!-- WhatsApp direct -->
+          <a id="action-wa" href="#" target="_blank" rel="noopener noreferrer" class="chimp-btn-rond-wrapper" title="Envoyer un message WhatsApp">
+            <div class="chimp-cercle-icone icone-rond-wa" aria-hidden="true">💬</div>
+            <span class="chimp-cercle-label" data-i18n="carte.whatsapp">WhatsApp</span>
+          </a>
+
+          <!-- Email -->
+          <a id="action-mail" href="#" class="chimp-btn-rond-wrapper" title="Envoyer un courriel">
+            <div class="chimp-cercle-icone icone-rond-mail" aria-hidden="true">✉️</div>
+            <span class="chimp-cercle-label" data-i18n="carte.email">Email</span>
+          </a>
+
+          <!-- Partager la carte -->
+          <button type="button" id="btn-partager-action" class="chimp-btn-rond-wrapper" style="background: none; border: none; cursor: pointer;" title="Partager cette carte">
+            <div class="chimp-cercle-icone icone-rond-partage" aria-hidden="true">🔗</div>
+            <span class="chimp-cercle-label" data-i18n="carte.partager">Partager</span>
+          </button>
+        </nav>
+
+        <!-- 2. BOUTONS D'ACTION TERRAIN (RDV DÉMO & SUPPORT WHATSAPP) -->
+        <div class="bloc-actions-terrain">
+          <button type="button" id="btn-ouvrir-modal-rdv" class="btn-rdv-demo" title="Planifier une démonstration de commande à table">
+            <span aria-hidden="true">📅</span>
+            <span data-i18n="carte.rdv_demo">Planifier une démo en salle (Thiès / Dakar / Mbour)</span>
+          </button>
+
+          <a id="btn-support-direct-wa" href="https://wa.me/221762312003?text=Bonjour,%20je%20souhaite%20une%20d%C3%A9monstration%20de%20Lou%20Ame%20Tay%20pour%20mon%20restaurant." target="_blank" rel="noopener noreferrer" class="btn-support-wa">
+            <span aria-hidden="true">💬</span>
+            <span data-i18n="carte.support_direct">Support WhatsApp direct 7j/7 (Intervention 48h)</span>
+          </a>
+        </div>
+
+        <!-- 3. BOUTON "AJOUTER AU CONTACT" (VCARD .VCF) -->
+        <div class="bloc-chimp-vcard">
+          <button type="button" id="btn-telecharger-vcard" class="btn-chimp-vcard" title="Ajouter dans votre carnet d'adresses smartphone">
+            <span aria-hidden="true" style="font-size: 1.25rem;">📥</span>
+            <span data-i18n="carte.vcard">Ajouter aux contacts (vCard)</span>
+          </button>
+        </div>
+
+        <!-- 4. HEURES D'OUVERTURE & SUPPORT TERRAIN -->
+        <div class="chimp-horaires-bloc">
+          <div style="font-size: 1.7rem;" aria-hidden="true">⏰</div>
+          <div class="chimp-horaires-texte">
+            <h4 data-i18n="carte.horaires_titre">Support technique & Hotline CHR : 7j/7 de 8h à 20h</h4>
+            <p data-i18n="carte.horaires_desc">Intervention d'urgence jusqu'à 22h00 pour les services du soir</p>
+          </div>
+        </div>
+
+        <!-- 5. SECTION "À PROPOS DE MOI" -->
+        <section class="chimp-carte-blanche" aria-label="Biographie du conseiller">
+          <h2 class="chimp-section-titre">
+            <span class="chimp-section-titre-icone" aria-hidden="true">👤</span>
+            <span data-i18n="carte.a_propos">À propos de moi</span>
+          </h2>
+          <p id="commercial-bio" class="chimp-bio-texte"></p>
+
+          <div class="badges-statut-chimp">
+            <span class="badge-dispo-vert">
+              <span class="pastille-verte"></span>
+              <span id="commercial-dispo" data-i18n="carte.disponible">Disponible pour démo en salle</span>
+            </span>
+            <span class="badge-zone-bleu">
+              <span aria-hidden="true">📍</span>
+              <span id="commercial-zone">Axe Thiès — Dakar — Mbour</span>
+            </span>
+          </div>
+        </section>
+
+        <!-- 6. COORDONNÉES PROFESSIONNELLES DIRECTES -->
+        <section class="chimp-carte-blanche" aria-label="Coordonnées directes">
+          <h2 class="chimp-section-titre">
+            <span class="chimp-section-titre-icone" aria-hidden="true">📱</span>
+            <span data-i18n="carte.coordonnees">Coordonnées professionnelles</span>
+          </h2>
+
+          <div class="chimp-contact-lignes">
+            <a id="ligne-tel" href="#" class="chimp-contact-ligne" title="Appeler ce numéro">
+              <div class="chimp-ligne-icone" aria-hidden="true">📞</div>
+              <div class="chimp-ligne-info">
+                <span class="chimp-ligne-label">Téléphone direct</span>
+                <span id="ligne-tel-valeur" class="chimp-ligne-valeur">+221 77 130 36 78</span>
+              </div>
+            </a>
+
+            <a id="ligne-wa" href="#" target="_blank" rel="noopener noreferrer" class="chimp-contact-ligne" title="Écrire sur WhatsApp">
+              <div class="chimp-ligne-icone" style="background: #25D366;" aria-hidden="true">💬</div>
+              <div class="chimp-ligne-info">
+                <span class="chimp-ligne-label">WhatsApp Pro</span>
+                <span id="ligne-wa-valeur" class="chimp-ligne-valeur">+221 76 231 20 03</span>
+              </div>
+            </a>
+
+            <a id="ligne-mail" href="#" class="chimp-contact-ligne" title="Envoyer un email">
+              <div class="chimp-ligne-icone" style="background: var(--dore-sombre);" aria-hidden="true">✉️</div>
+              <div class="chimp-ligne-info">
+                <span class="chimp-ligne-label">Adresse email</span>
+                <span id="ligne-mail-valeur" class="chimp-ligne-valeur">contact@louametay.com</span>
+              </div>
+            </a>
+          </div>
+        </section>
+
+        <!-- 7. FORMULES RESTAURATION & HÔTELLERIE -->
+        <section class="chimp-carte-blanche" aria-label="Formules d'abonnement Lou Ame Tay">
+          <h2 class="chimp-section-titre">
+            <span class="chimp-section-titre-icone" aria-hidden="true">📋</span>
+            <span data-i18n="carte.formules_titre">Nos Formules Restauration & Hôtellerie</span>
+          </h2>
+          <p style="font-size: 0.85rem; color: var(--gris-texte-muet); margin-bottom: 1rem;" data-i18n="carte.formules_desc">
+            Sélectionnez une formule pour en discuter directement lors de la visite du conseiller :
+          </p>
+
+          <div id="liste-offres-carte" class="chimp-offres-liste">
+            <!-- Rendu dynamique par js/carte.js -->
+          </div>
+
+          <div class="bandeau-frais-installation">
+            <strong>Mise en service : 50 000 FCFA</strong> (Création de carte + supports chevalets QR codes résistants à l'eau).
+          </div>
+
+          <div class="paiements-badges">
+            <span style="font-size: 0.75rem; font-weight: 700; color: var(--gris-texte-muet); align-self: center;">Paiements acceptés :</span>
+            <span class="badge-paiement badge-wave">💙 Wave</span>
+            <span class="badge-paiement badge-om">🧡 Orange Money</span>
+          </div>
+        </section>
+
+        <!-- 8. RÉSEAUX SOCIAUX -->
+        <section class="chimp-carte-blanche" id="section-reseaux" aria-label="Réseaux sociaux">
+          <h2 class="chimp-section-titre">
+            <span class="chimp-section-titre-icone" aria-hidden="true">🌐</span>
+            <span>Retrouvez-moi sur les réseaux</span>
+          </h2>
+          <div id="commercial-reseaux" class="chimp-reseaux-liste"></div>
+        </section>
+
+        <!-- 9. QR CODE DYNAMIQUE SCANNABLE -->
+        <section class="chimp-carte-blanche chimp-qrcode-bloc" aria-label="QR Code de la carte">
+          <h2 class="chimp-section-titre" style="justify-content: center;">
+            <span class="chimp-section-titre-icone" aria-hidden="true">📲</span>
+            <span data-i18n="carte.scanner_titre">Faire scanner ma carte</span>
+          </h2>
+          <p style="font-size: 0.85rem; color: var(--gris-texte-muet);" data-i18n="carte.scanner_desc">
+            Pointez l'appareil photo d'un smartphone sur ce QR code pour ouvrir instantanément cette carte de visite.
+          </p>
+
+          <div class="chimp-qrcode-cadre" id="qrcode-cadre" title="QR Code menant à cette carte de visite"></div>
+
+          <button type="button" id="btn-copier-url" class="btn btn-secondaire" style="font-size: 0.85rem; width: 100%;">
+            📋 Copier l'adresse de cette carte
+          </button>
+        </section>
+
+        <!-- 10. FORMULAIRE DE CAPTURE DE LEADS RESTAURANT (ENREGISTREMENT BDD + WHATSAPP) -->
+        <section class="chimp-carte-blanche" aria-label="Formulaire de contact rapide">
+          <h2 class="chimp-section-titre">
+            <span class="chimp-section-titre-icone" aria-hidden="true">📝</span>
+            <span data-i18n="carte.demande_devis">Demander une démo ou un devis</span>
+          </h2>
+          <p style="font-size: 0.85rem; color: var(--gris-texte-muet); margin-bottom: 0.75rem;">
+            Laissez les coordonnées de votre restaurant pour être recontacté sous 2h :
+          </p>
+
+          <form id="form-lead-carte" class="formulaire-leads">
+            <div class="champ-groupe">
+              <label for="lead-etablissement" class="champ-label" data-i18n="carte.nom_etablissement">Nom de votre établissement *</label>
+              <input type="text" id="lead-etablissement" class="champ-input" placeholder="Ex: Restaurant Le Teranga, Café du Port..." required>
+            </div>
+
+            <div class="champ-groupe">
+              <label for="lead-nom" class="champ-label" data-i18n="carte.votre_nom">Votre nom & prénom *</label>
+              <input type="text" id="lead-nom" class="champ-input" placeholder="Ex: M. Ousmane Diop" required>
+            </div>
+
+            <div class="champ-groupe">
+              <label for="lead-tel" class="champ-label" data-i18n="carte.telephone">Téléphone / WhatsApp *</label>
+              <input type="tel" id="lead-tel" class="champ-input" placeholder="+221 77 ... ..." required>
+            </div>
+
+            <div class="champ-groupe">
+              <label for="lead-ville" class="champ-label" data-i18n="carte.ville">Ville / Quartier *</label>
+              <select id="lead-ville" class="champ-select" required>
+                <option value="Dakar">Dakar (Plateau, Almadies, Point E, Ngor...)</option>
+                <option value="Thiès">Thiès (Dixième, Randoulène, Cité Lamy...)</option>
+                <option value="Mbour/Saly">Mbour / Saly / Somone</option>
+                <option value="Autre région">Autre localité au Sénégal</option>
+              </select>
+            </div>
+
+            <div class="champ-groupe">
+              <label for="lead-formule" class="champ-label" data-i18n="carte.formule_souhaitee">Formule souhaitée</label>
+              <select id="lead-formule" class="champ-select">
+                <option value="Tàmbali">Formule Tàmbali (15 000 FCFA/mois)</option>
+                <option value="Nio Far">Formule Nio Far (25 000 FCFA/mois)</option>
+                <option value="Xéweul" selected>Formule Xéweul ⭐ (35 000 FCFA/mois)</option>
+                <option value="Sur Mesure">Sur Mesure (Complexe / Multi-sites)</option>
+              </select>
+            </div>
+
+            <button type="submit" id="btn-envoyer-lead" class="btn btn-primaire" style="width: 100%; margin-top: 0.5rem;">
+              <span id="btn-lead-texte" data-i18n="carte.envoyer">🚀 Envoyer ma demande au conseiller</span>
+              <span id="btn-lead-spinner" class="spinner-chargement" style="display: none;"></span>
+            </button>
+          </form>
+        </section>
+
+        <!-- 11. BOUTON SIGNATURE EMAIL PRO -->
+        <div style="text-align: center; margin-bottom: 1.5rem;">
+          <button type="button" id="btn-ouvrir-modal-signature" class="btn btn-contour" style="width: 100%; font-size: 0.85rem;" data-i18n="carte.signature_email">
+            ✉️ Obtenir ma signature email professionnelle
+          </button>
+        </div>
+
+        <!-- 12. SECTION ENTREPRISE "LOU AME TAY", SITE WEB ET GALERIE -->
+        <section class="chimp-carte-blanche chimp-entreprise-bloc" aria-label="L'entreprise Lou Ame Tay">
+          <h2 class="chimp-section-titre">
+            <span class="chimp-section-titre-icone" aria-hidden="true">🏛️</span>
+            <span id="carte-entreprise-nom">Lou Ame Tay 🍽️</span>
+          </h2>
+          <p id="carte-entreprise-slogan" style="color: var(--dore-sombre); font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;"></p>
+          <p id="carte-entreprise-desc" class="chimp-entreprise-description"></p>
+
+          <a id="carte-entreprise-lien" href="https://www.louametay.com" target="_blank" rel="noopener noreferrer" class="btn btn-primaire" style="width: 100%;">
+            Visiter la plateforme www.louametay.com ↗
+          </a>
+
+          <div id="carte-entreprise-galerie" class="chimp-galerie-grille"></div>
+        </section>
+
+        <!-- Bouton retour en bas -->
+        <div style="text-align: center; margin-top: 0.5rem;">
+          <a href="index.html" class="btn btn-contour" style="width: 100%;" data-i18n="carte.retour">
+            ← Retourner à la liste de l'équipe terrain
+          </a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ÉTAT D'ERREUR SI CARTE DÉSACTIVÉE -->
+    <div id="carte-inactive-bloc" class="carte-erreur" style="display: none;">
+      <div class="icone-erreur" aria-hidden="true" style="background: #FEF3C7; color: #D97706;">⏸️</div>
+      <h2 style="font-family: var(--police-titre); font-size: 1.4rem; color: var(--marine-fonce); margin-bottom: 0.5rem;" data-i18n="carte.carte_inactive">
+        Cette carte n'est plus active
+      </h2>
+      <p style="color: var(--gris-texte-muet); margin-bottom: 1.5rem;" data-i18n="carte.carte_inactive_desc">
+        La carte de visite digitale de ce conseiller commercial a été désactivée temporairement par la direction Lou Ame Tay.
+      </p>
+      <a href="index.html" class="btn btn-primaire" data-i18n="carte.retour">
+        ← Voir les conseillers actuellement disponibles
+      </a>
+    </div>
+
+    <!-- ÉTAT D'ERREUR SI ID INVALIDE OU NON TROUVÉ -->
+    <div id="carte-erreur-bloc" class="carte-erreur" style="display: none;">
+      <div class="icone-erreur" aria-hidden="true">⚠️</div>
+      <h2 id="carte-erreur-titre" style="font-family: var(--police-titre); font-size: 1.4rem; color: var(--marine-fonce); margin-bottom: 0.5rem;">
+        Conseiller introuvable
+      </h2>
+      <p id="carte-erreur-msg" style="color: var(--gris-texte-muet); margin-bottom: 1.5rem;">
+        Cette carte de visite n'existe pas ou le lien est incomplet.
+      </p>
+      <a href="index.html" class="btn btn-primaire" data-i18n="carte.retour">
+        ← Retourner à l'accueil de l'équipe
+      </a>
+    </div>
+
+  </main>
+
+  <!-- MODAL DE PLANIFICATION DE RENDEZ-VOUS EN SALLE -->
+  <div id="modal-rdv" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-titre">
+    <div class="modal-contenu">
+      <button type="button" id="btn-fermer-modal" class="btn-fermer-modal" aria-label="Fermer la boîte de dialogue">✕</button>
+      <h3 id="modal-titre" style="font-family: var(--police-titre); font-size: 1.3rem; color: var(--marine-fonce); font-weight: 800; margin-bottom: 0.5rem;">
+        📅 Planifier une démonstration en salle
+      </h3>
+      <p style="font-size: 0.85rem; color: var(--gris-texte-muet); margin-bottom: 1.25rem;">
+        Notre conseiller se déplace avec un kit de test QR code et un écran pour vous montrer la prise de commande en direct.
+      </p>
+
+      <form id="form-modal-rdv" class="formulaire-leads">
+        <div class="champ-groupe">
+          <label for="rdv-etablissement" class="champ-label">Nom du restaurant / hôtel *</label>
+          <input type="text" id="rdv-etablissement" class="champ-input" required>
+        </div>
+
+        <div class="champ-groupe">
+          <label for="rdv-contact" class="champ-label">Responsable & Téléphone *</label>
+          <input type="text" id="rdv-contact" class="champ-input" placeholder="Ex: M. Ba - +221 77 ..." required>
+        </div>
+
+        <div class="champ-groupe">
+          <label for="rdv-date" class="champ-label">Date souhaitée *</label>
+          <input type="date" id="rdv-date" class="champ-input" required>
+        </div>
+
+        <div class="champ-groupe">
+          <label for="rdv-creneau" class="champ-label">Créneau horaire *</label>
+          <select id="rdv-creneau" class="champ-select" required>
+            <option value="Matinée (09h00 - 12h00)">Matinée (09h00 - 12h00, avant le coup de feu)</option>
+            <option value="Après-midi (15h00 - 18h00)">Après-midi (15h00 - 18h00, entre deux services)</option>
+            <option value="Soirée (18h30 - 20h00)">Fin de journée (18h30 - 20h00)</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn-primaire" style="width: 100%; margin-top: 0.5rem;">
+          Valider le rendez-vous par WhatsApp ➔
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL DE SIGNATURE EMAIL PROFESSIONNELLE -->
+  <div id="modal-signature" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal-contenu" style="max-width: 540px;">
+      <button type="button" id="btn-fermer-modal-signature" class="btn-fermer-modal" aria-label="Fermer">✕</button>
+      <h3 style="font-family: var(--police-titre); font-size: 1.25rem; color: var(--marine-fonce); font-weight: 800; margin-bottom: 0.25rem;">
+        ✉️ Signature Email Professionnelle
+      </h3>
+      <p style="font-size: 0.85rem; color: var(--gris-texte-muet); margin-bottom: 1rem;">
+        Copiez cette signature HTML pour vos correspondances professionnelles sur Gmail, Outlook ou Apple Mail.
+      </p>
+
+      <div id="signature-preview-cadre" style="background: #F8FAFC; padding: 1.25rem; border-radius: var(--arrondi-md); border: 1px solid var(--gris-bordure); margin-bottom: 1rem;"></div>
+
+      <button type="button" id="btn-copier-signature-html" class="btn btn-primaire" style="width: 100%;">
+        📋 Copier la signature HTML
+      </button>
+    </div>
+  </div>
+
+  <!-- Notification Toast flottant -->
+  <div id="toast" class="toast-notification" role="status" aria-live="polite"></div>
+
+  <!-- Scripts -->
+  <script type="module" src="js/carte.js"></script>
+</body>
+</html>

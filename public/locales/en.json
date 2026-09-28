@@ -1,0 +1,55 @@
+{
+  "nav": {
+    "accueil": "Home",
+    "offres": "Our Plans",
+    "apropos": "About",
+    "admin": "Admin Space",
+    "site_officiel": "Official Website ↗"
+  },
+  "hero": {
+    "badge": "✦ FIELD SALES & HOSPITALITY CONSULTING ✦",
+    "titre": "Digital Business Cards of our Field Advisors",
+    "soustitre": "Each sales advisor has an interactive mobile card with high-res portrait, live QR code ordering demo, on-site appointment booking and instant WhatsApp chat.",
+    "recherche_placeholder": "Search by first name, last name, region (Dakar, Thiès, Saly)..."
+  },
+  "carte": {
+    "retour": "← Back to team directory",
+    "badge_terrain": "✦ FIELD HOSPITALITY ADVISOR",
+    "appel": "Call",
+    "whatsapp": "WhatsApp",
+    "email": "Email",
+    "partager": "Share",
+    "vcard": "Save to Contacts (vCard)",
+    "rdv_demo": "Book an On-Site Demo (Thiès / Dakar / Mbour)",
+    "support_direct": "Direct WhatsApp Support 7/7 (48h Response)",
+    "horaires_titre": "Technical Support & Hospitality Hotline: 7/7 from 8AM to 8PM",
+    "horaires_desc": "Emergency intervention until 10PM for evening restaurant services",
+    "a_propos": "About Me",
+    "disponible": "Available for on-site live demo",
+    "coordonnees": "Direct Contact Details",
+    "formules_titre": "Our Restaurant & Hospitality Plans",
+    "formules_desc": "Select a formula to discuss directly with the sales representative:",
+    "scanner_titre": "Scan My Business Card",
+    "scanner_desc": "Point any smartphone camera at this QR code to instantly open this digital card.",
+    "demande_devis": "Request a Demo or Quote",
+    "nom_etablissement": "Establishment Name *",
+    "votre_nom": "Your Full Name *",
+    "telephone": "Phone / WhatsApp *",
+    "ville": "City / Neighborhood *",
+    "formule_souhaitee": "Desired Plan",
+    "envoyer": "🚀 Send My Request to the Advisor",
+    "carte_inactive": "This card is no longer active",
+    "carte_inactive_desc": "This advisor's digital card has been temporarily deactivated by Lou Ame Tay management.",
+    "signature_email": "✉️ Generate my email signature"
+  },
+  "formules": {
+    "tambali": "Tàmbali Plan (15,000 FCFA/month)",
+    "niofar": "Nio Far Plan (25,000 FCFA/month)",
+    "xeweul": "Xéweul Plan ⭐ (35,000 FCFA/month)",
+    "surmesure": "Tailor-Made (Resort / Multi-site)"
+  },
+  "footer": {
+    "droits": "Lou Ame Tay — Hospitality SaaS in Senegal. All rights reserved.",
+    "support_wa": "WhatsApp Support (+221 76 231 20 03)"
+  }
+}

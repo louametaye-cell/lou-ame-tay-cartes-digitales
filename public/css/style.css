@@ -1,0 +1,1391 @@
+/* ==========================================================================
+   LOU AME TAY 🍽️ — STYLES DES CARTES DIGITALES TERRAIN STYLE QRCODECHIMP
+   Charte : Bleu Marine Profond (#0B1F3A), Doré (#C9A227), Blanc (#FFFFFF), Gris Clair (#F8F9FA)
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800;900&display=swap');
+
+:root {
+  --marine-nuit: #061120;
+  --marine-fonce: #0B1F3A;
+  --marine-moyen: #15325B;
+  --marine-clair: #22477B;
+  
+  --dore-primaire: #C9A227;
+  --dore-lumineux: #F5D77F;
+  --dore-sombre: #9E7D17;
+  --dore-degrade: linear-gradient(135deg, #FCE588 0%, #C9A227 50%, #997300 100%);
+  --dore-subtil: rgba(201, 162, 39, 0.12);
+
+  --vert-whatsapp: #25D366;
+  --vert-whatsapp-fonce: #1EBE5D;
+  --bleu-wave: #1DA1F2;
+  --orange-money: #FF7900;
+
+  --blanc: #FFFFFF;
+  --gris-fond: #F4F6F9;
+  --gris-chimp: #F8F9FA;
+  --gris-bordure: #E2E8F0;
+  --gris-texte-muet: #64748B;
+  --gris-texte-sombre: #1E293B;
+
+  --police-titre: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+  --police-corps: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --arrondi-sm: 8px;
+  --arrondi-md: 14px;
+  --arrondi-lg: 20px;
+  --arrondi-xl: 28px;
+  --arrondi-rond: 9999px;
+
+  --ombre-carte: 0 12px 35px -8px rgba(11, 31, 58, 0.12), 0 2px 6px rgba(11, 31, 58, 0.04);
+  --ombre-telephone: 0 25px 60px -12px rgba(6, 17, 32, 0.35), 0 0 1px rgba(0, 0, 0, 0.2);
+  --ombre-hover: 0 20px 40px -10px rgba(11, 31, 58, 0.22);
+  --ombre-doree: 0 6px 20px rgba(201, 162, 39, 0.38);
+
+  --transition-normale: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Réinitialisation */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+body {
+  font-family: var(--police-corps);
+  background-color: var(--gris-fond);
+  color: var(--gris-texte-sombre);
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+}
+
+.conteneur {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* ==========================================================================
+   HEADER PRINCIPAL
+   ========================================================================== */
+.entete {
+  background: linear-gradient(180deg, var(--marine-nuit) 0%, var(--marine-fonce) 100%);
+  color: var(--blanc);
+  padding: 1.15rem 0;
+  border-bottom: 2px solid var(--dore-primaire);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  position: relative;
+  z-index: 10;
+}
+
+.entete-contenu {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+}
+
+.marque-lien {
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.logo {
+  height: 52px;
+  width: auto;
+  max-width: 200px;
+  object-fit: contain;
+}
+
+.titre-marque {
+  font-family: var(--police-titre);
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--blanc);
+  text-transform: uppercase;
+}
+
+.slogan {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--dore-primaire);
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* ==========================================================================
+   BOUTONS GÉNÉRAUX
+   ========================================================================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.4rem;
+  font-family: var(--police-titre);
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: var(--arrondi-md);
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all var(--transition-normale);
+  white-space: nowrap;
+}
+
+.btn-primaire {
+  background: var(--dore-degrade);
+  color: var(--marine-nuit);
+  box-shadow: var(--ombre-doree);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.btn-primaire:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(201, 162, 39, 0.5);
+  filter: brightness(1.05);
+}
+
+.btn-secondaire {
+  background-color: var(--marine-fonce);
+  color: var(--blanc);
+  border: 1px solid var(--marine-clair);
+}
+
+.btn-secondaire:hover {
+  background-color: var(--marine-moyen);
+  color: var(--dore-lumineux);
+  border-color: var(--dore-primaire);
+  transform: translateY(-2px);
+}
+
+.btn-contour {
+  background-color: transparent;
+  color: var(--marine-fonce);
+  border: 1.5px solid var(--marine-fonce);
+}
+
+.btn-contour:hover {
+  background-color: var(--marine-fonce);
+  color: var(--blanc);
+}
+
+.btn-retour {
+  background-color: rgba(255, 255, 255, 0.12);
+  color: var(--blanc);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  border-radius: var(--arrondi-sm);
+}
+
+.btn-retour:hover {
+  background-color: rgba(255, 255, 255, 0.25);
+  color: var(--dore-lumineux);
+}
+
+.btn-whatsapp-grand {
+  background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+  color: #FFFFFF;
+  box-shadow: 0 4px 15px rgba(37, 211, 102, 0.35);
+}
+
+.btn-whatsapp-grand:hover {
+  background: linear-gradient(135deg, #20BA5C 0%, #0E7468 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(37, 211, 102, 0.5);
+}
+
+/* ==========================================================================
+   PAGE D'ACCUEIL (INDEX.HTML)
+   ========================================================================== */
+.hero-equipe {
+  text-align: center;
+  padding: 3.5rem 1rem 2rem;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 1rem;
+  border-radius: var(--arrondi-rond);
+  background: var(--dore-subtil);
+  border: 1px solid rgba(201, 162, 39, 0.3);
+  color: var(--dore-sombre);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 1rem;
+}
+
+.hero-titre {
+  font-family: var(--police-titre);
+  font-size: 2.3rem;
+  font-weight: 800;
+  color: var(--marine-fonce);
+  margin-bottom: 0.75rem;
+  line-height: 1.2;
+}
+
+.hero-titre span {
+  background: var(--dore-degrade);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-soustitre {
+  max-width: 700px;
+  margin: 0 auto 2rem;
+  color: var(--gris-texte-muet);
+  font-size: 1.05rem;
+}
+
+.zone-recherche {
+  max-width: 580px;
+  margin: 0 auto 3rem;
+}
+
+.recherche-conteneur {
+  display: flex;
+  align-items: center;
+  background: var(--blanc);
+  border: 2px solid var(--gris-bordure);
+  border-radius: var(--arrondi-xl);
+  padding: 0.4rem 0.6rem 0.4rem 1.25rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  transition: all var(--transition-normale);
+}
+
+.recherche-conteneur:focus-within {
+  border-color: var(--dore-primaire);
+  box-shadow: 0 0 0 4px rgba(201, 162, 39, 0.2);
+}
+
+.icone-recherche {
+  color: var(--dore-primaire);
+  font-size: 1.2rem;
+  margin-right: 0.5rem;
+}
+
+.champ-recherche {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-family: var(--police-corps);
+  font-size: 1rem;
+  color: var(--gris-texte-sombre);
+  padding: 0.6rem 0;
+  outline: none;
+}
+
+.btn-effacer-recherche {
+  background: transparent;
+  border: none;
+  color: #94A3B8;
+  cursor: pointer;
+  padding: 0.4rem 0.6rem;
+  font-size: 1rem;
+  border-radius: var(--arrondi-rond);
+  display: none;
+}
+
+.compteur-resultats {
+  font-size: 0.85rem;
+  color: var(--gris-texte-muet);
+  margin-top: 0.5rem;
+  text-align: right;
+  padding-right: 0.5rem;
+}
+
+.grille-commerciaux {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 2rem;
+  margin-bottom: 4.5rem;
+}
+
+.carte-commercial {
+  background: var(--gris-carte);
+  border-radius: var(--arrondi-xl);
+  border: 1px solid var(--gris-bordure);
+  box-shadow: var(--ombre-carte);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: all var(--transition-normale);
+  position: relative;
+  text-decoration: none;
+  color: inherit;
+}
+
+.carte-commercial:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--ombre-hover);
+  border-color: var(--dore-primaire);
+}
+
+.carte-vignette-hero {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 4.8;
+  background-color: var(--marine-fonce);
+  overflow: hidden;
+}
+
+.carte-vignette-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+  display: block;
+}
+
+.carte-commercial:hover .carte-vignette-img {
+  transform: scale(1.04);
+}
+
+.carte-vignette-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(6, 17, 32, 0.05) 0%, rgba(6, 17, 32, 0.35) 50%, rgba(6, 17, 32, 0.95) 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 1.5rem;
+  color: var(--blanc);
+}
+
+.vignette-badge-logo {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: rgba(11, 31, 58, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--dore-primaire);
+  border-radius: var(--arrondi-rond);
+  padding: 0.25rem 0.75rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--dore-lumineux);
+  letter-spacing: 0.5px;
+}
+
+.vignette-nom {
+  font-family: var(--police-titre);
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.15;
+  color: #FFFFFF;
+  margin-bottom: 0.25rem;
+}
+
+.vignette-poste {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--dore-lumineux);
+  line-height: 1.3;
+}
+
+.carte-vignette-pied {
+  padding: 1.25rem 1.5rem;
+  background: var(--blanc);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex-grow: 1;
+}
+
+.vignette-bio-texte {
+  font-size: 0.88rem;
+  color: var(--gris-texte-muet);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.vignette-zone {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--marine-fonce);
+  background: #EDF2F7;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--arrondi-sm);
+  align-self: flex-start;
+}
+
+/* ==========================================================================
+   PAGE CARTE INDIVIDUELLE (CARTE.HTML) STYLE QRCODECHIMP
+   ========================================================================== */
+.page-carte-fond {
+  background: linear-gradient(135deg, #E2E8F0 0%, #CBD5E1 100%);
+  min-height: 100vh;
+  padding: 2rem 1rem 4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.carte-flottante-barre {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding: 0 0.25rem;
+}
+
+.btn-retour-flottant {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--marine-fonce);
+  color: var(--blanc);
+  border: 1px solid var(--dore-primaire);
+  padding: 0.55rem 1.1rem;
+  border-radius: var(--arrondi-rond);
+  text-decoration: none;
+  font-family: var(--police-titre);
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(11, 31, 58, 0.2);
+  transition: all var(--transition-normale);
+}
+
+.btn-retour-flottant:hover {
+  background: var(--marine-nuit);
+  color: var(--dore-lumineux);
+  transform: translateY(-2px);
+}
+
+.badge-apercu-chimp {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--marine-fonce);
+  letter-spacing: 0.5px;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--arrondi-rond);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* Le mockup smartphone centré (max-width 480px) */
+.carte-chimp-canvas {
+  width: 100%;
+  max-width: 480px;
+  background: #F8F9FA;
+  border-radius: 32px;
+  box-shadow: var(--ombre-telephone);
+  overflow: hidden;
+  position: relative;
+  border: 4px solid #FFFFFF;
+}
+
+/* --------------------------------------------------------------------------
+   LA PHOTO DE PROFIL GÉANTE (ÉLÉMENT CENTRAL VISUEL)
+   Format portrait 4:5, 100% de la largeur, dégradé sombre en bas
+   -------------------------------------------------------------------------- */
+.hero-photo-chimp-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  background-color: var(--marine-fonce);
+  overflow: hidden;
+}
+
+.hero-photo-chimp {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.hero-gradient-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.95) 0%,
+    rgba(6, 17, 32, 0.85) 28%,
+    rgba(6, 17, 32, 0.45) 55%,
+    rgba(6, 17, 32, 0.0) 78%,
+    rgba(6, 17, 32, 0.2) 100%
+  );
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.5rem 1.5rem 1.75rem;
+  color: var(--blanc);
+}
+
+.hero-badge-haut {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chimp-pill-officiel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(11, 31, 58, 0.85);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--dore-primaire);
+  border-radius: var(--arrondi-rond);
+  padding: 0.35rem 0.85rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--dore-lumineux);
+  letter-spacing: 0.5px;
+}
+
+.hero-textes-bas {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.hero-nom-commercial {
+  font-family: var(--police-titre);
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: #FFFFFF;
+  line-height: 1.12;
+  letter-spacing: -0.5px;
+  text-shadow: 0 3px 12px rgba(0, 0, 0, 0.7);
+}
+
+.hero-poste-commercial {
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.35;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.hero-entreprise-ruban {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-top: 0.5rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.hero-entreprise-logo-mini {
+  height: 28px;
+  width: auto;
+  max-width: 90px;
+  object-fit: contain;
+  filter: brightness(0) invert(1) drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+}
+
+.hero-entreprise-nom-txt {
+  font-family: var(--police-titre);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--dore-lumineux);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.hero-entreprise-slogan-txt {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.85);
+  font-style: italic;
+}
+
+/* Corps de la carte */
+.carte-chimp-corps {
+  padding: 1.5rem 1.25rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* 1. Boutons d'action rapide ronds */
+.chimp-actions-rondes {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0.5rem 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.chimp-btn-rond-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  text-decoration: none;
+  color: var(--gris-texte-sombre);
+  transition: transform var(--transition-normale);
+}
+
+.chimp-btn-rond-wrapper:hover {
+  transform: translateY(-3px);
+}
+
+.chimp-cercle-icone {
+  width: 54px;
+  height: 54px;
+  border-radius: var(--arrondi-rond);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  transition: all var(--transition-normale);
+  cursor: pointer;
+  border: none;
+}
+
+.icone-rond-tel {
+  background: linear-gradient(135deg, #0B1F3A 0%, #15325B 100%);
+  color: #FFFFFF;
+}
+.icone-rond-tel:hover {
+  box-shadow: 0 6px 20px rgba(11, 31, 58, 0.4);
+}
+
+.icone-rond-wa {
+  background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+  color: #FFFFFF;
+}
+.icone-rond-wa:hover {
+  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.45);
+}
+
+.icone-rond-mail {
+  background: linear-gradient(135deg, #C9A227 0%, #9E7D17 100%);
+  color: #FFFFFF;
+}
+.icone-rond-mail:hover {
+  box-shadow: 0 6px 20px rgba(201, 162, 39, 0.45);
+}
+
+.icone-rond-partage {
+  background: #FFFFFF;
+  color: var(--marine-fonce);
+  border: 1.5px solid var(--gris-bordure);
+}
+.icone-rond-partage:hover {
+  background: #F1F5F9;
+  border-color: var(--marine-fonce);
+}
+
+.chimp-cercle-label {
+  font-family: var(--police-titre);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--gris-texte-sombre);
+}
+
+/* Boutons personnalisés d'action terrain (RDV, Démo) */
+.bloc-actions-terrain {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.btn-rdv-demo {
+  background: linear-gradient(135deg, #0B1F3A 0%, #1B3F73 100%);
+  color: #FFFFFF;
+  border: 1.5px solid var(--dore-primaire);
+  border-radius: var(--arrondi-md);
+  padding: 0.95rem 1.25rem;
+  font-family: var(--police-titre);
+  font-size: 0.95rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  text-decoration: none;
+  box-shadow: 0 4px 15px rgba(11, 31, 58, 0.2);
+  transition: all var(--transition-normale);
+}
+
+.btn-rdv-demo:hover {
+  transform: translateY(-2px);
+  background: var(--marine-nuit);
+  color: var(--dore-lumineux);
+  box-shadow: 0 8px 22px rgba(11, 31, 58, 0.35);
+}
+
+.btn-support-wa {
+  background: #F0FDF4;
+  color: #166534;
+  border: 1.5px solid #86EFAC;
+  border-radius: var(--arrondi-md);
+  padding: 0.8rem 1.25rem;
+  font-family: var(--police-titre);
+  font-size: 0.9rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all var(--transition-normale);
+}
+
+.btn-support-wa:hover {
+  background: #DCFCE7;
+  transform: translateY(-2px);
+}
+
+/* Bouton Ajouter aux contacts (vCard) */
+.bloc-chimp-vcard {
+  margin-bottom: 0.25rem;
+}
+
+.btn-chimp-vcard {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  background: var(--dore-degrade);
+  color: var(--marine-nuit);
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
+  border-radius: var(--arrondi-xl);
+  padding: 1.05rem 1.5rem;
+  font-family: var(--police-titre);
+  font-size: 1.05rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: var(--ombre-doree);
+  transition: all var(--transition-normale);
+}
+
+.btn-chimp-vcard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(201, 162, 39, 0.5);
+  filter: brightness(1.05);
+}
+
+/* Blocs cartes blanches style QRCodeChimp */
+.chimp-carte-blanche {
+  background: #FFFFFF;
+  border-radius: var(--arrondi-lg);
+  padding: 1.4rem 1.25rem;
+  box-shadow: 0 4px 18px rgba(11, 31, 58, 0.05);
+  border: 1px solid var(--gris-bordure);
+}
+
+.chimp-section-titre {
+  font-family: var(--police-titre);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--marine-fonce);
+  margin-bottom: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.chimp-section-titre-icone {
+  color: var(--dore-primaire);
+  font-size: 1.15rem;
+}
+
+.chimp-bio-texte {
+  font-size: 0.92rem;
+  color: #334155;
+  line-height: 1.65;
+}
+
+/* Badges de zone & statut */
+.badges-statut-chimp {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.85rem;
+}
+
+.badge-dispo-vert {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #047857;
+  background-color: #ECFDF5;
+  border: 1px solid #A7F3D0;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--arrondi-rond);
+}
+
+.pastille-verte {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--arrondi-rond);
+  background-color: #10B981;
+}
+
+.badge-zone-bleu {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--marine-fonce);
+  background-color: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--arrondi-rond);
+}
+
+/* 4. Heures d'ouverture / Support */
+.chimp-horaires-bloc {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  background: #F8FAFC;
+  padding: 0.9rem 1rem;
+  border-radius: var(--arrondi-md);
+  border-left: 4px solid var(--vert-whatsapp);
+}
+
+.chimp-horaires-texte h4 {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--marine-fonce);
+}
+
+.chimp-horaires-texte p {
+  font-size: 0.82rem;
+  color: var(--gris-texte-muet);
+}
+
+/* Coordonnées directes */
+.chimp-contact-lignes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.chimp-contact-ligne {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.75rem 0.9rem;
+  background-color: var(--gris-fond);
+  border-radius: var(--arrondi-md);
+  text-decoration: none;
+  color: inherit;
+  transition: all var(--transition-normale);
+  border: 1px solid transparent;
+}
+
+.chimp-contact-ligne:hover {
+  background-color: #FFFFFF;
+  border-color: var(--dore-primaire);
+  transform: translateX(3px);
+}
+
+.chimp-ligne-icone {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--arrondi-rond);
+  background: var(--marine-fonce);
+  color: var(--blanc);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.chimp-ligne-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.chimp-ligne-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  color: var(--gris-texte-muet);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.chimp-ligne-valeur {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--marine-fonce);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 5. Liste des formules / Offres Lou Ame Tay */
+.chimp-offres-liste {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.carte-offre-item {
+  border: 1.5px solid var(--gris-bordure);
+  border-radius: var(--arrondi-md);
+  padding: 1rem;
+  background: #FFFFFF;
+  transition: all var(--transition-normale);
+  position: relative;
+}
+
+.carte-offre-item.populaire {
+  border-color: var(--dore-primaire);
+  box-shadow: 0 4px 15px rgba(201, 162, 39, 0.15);
+  background: #FFFDF9;
+}
+
+.carte-offre-haut {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.35rem;
+}
+
+.offre-nom {
+  font-family: var(--police-titre);
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--marine-fonce);
+}
+
+.offre-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--arrondi-rond);
+  background: #EFF6FF;
+  color: var(--marine-fonce);
+}
+
+.carte-offre-item.populaire .offre-badge {
+  background: var(--dore-degrade);
+  color: var(--marine-nuit);
+}
+
+.offre-prix {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--dore-sombre);
+  margin-bottom: 0.25rem;
+}
+
+.offre-cible {
+  font-size: 0.82rem;
+  color: var(--gris-texte-muet);
+  margin-bottom: 0.6rem;
+  font-style: italic;
+}
+
+.offre-details-liste {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.82rem;
+  color: #334155;
+  margin-bottom: 0.85rem;
+}
+
+.offre-details-liste li {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.offre-details-liste li::before {
+  content: "✓";
+  color: #10B981;
+  font-weight: 800;
+}
+
+.btn-choisir-offre {
+  width: 100%;
+  padding: 0.55rem 0.85rem;
+  font-size: 0.85rem;
+  border-radius: var(--arrondi-sm);
+}
+
+/* Frais installation bandeau */
+.bandeau-frais-installation {
+  background: #F1F5F9;
+  border-radius: var(--arrondi-sm);
+  padding: 0.75rem 0.9rem;
+  font-size: 0.8rem;
+  color: var(--gris-texte-sombre);
+  margin-top: 0.5rem;
+  border-left: 3px solid var(--marine-fonce);
+}
+
+/* Moyens de paiements badges */
+.paiements-badges {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.6rem;
+}
+
+.badge-paiement {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--arrondi-sm);
+  background: #FFFFFF;
+  border: 1px solid var(--gris-bordure);
+}
+
+.badge-wave {
+  color: var(--bleu-wave);
+  border-color: #BAE6FD;
+}
+
+.badge-om {
+  color: var(--orange-money);
+  border-color: #FED7AA;
+}
+
+/* Réseaux sociaux */
+.chimp-reseaux-liste {
+  display: flex;
+  justify-content: center;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.chimp-reseau-bulle {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--arrondi-rond);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gris-fond);
+  color: var(--marine-fonce);
+  border: 1px solid var(--gris-bordure);
+  text-decoration: none;
+  transition: all var(--transition-normale);
+}
+
+.chimp-reseau-bulle svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+.chimp-reseau-bulle:hover {
+  background: var(--marine-fonce);
+  color: var(--dore-lumineux);
+  border-color: var(--dore-primaire);
+  transform: translateY(-3px) scale(1.08);
+}
+
+/* 8. QR Code */
+.chimp-qrcode-bloc {
+  text-align: center;
+}
+
+.chimp-qrcode-cadre {
+  width: 216px;
+  height: 216px;
+  margin: 0.75rem auto 1rem;
+  background: #FFFFFF;
+  padding: 8px;
+  border-radius: var(--arrondi-md);
+  border: 2px solid var(--dore-primaire);
+  box-shadow: 0 4px 16px rgba(11, 31, 58, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chimp-qrcode-cadre img,
+.chimp-qrcode-cadre canvas {
+  width: 200px !important;
+  height: 200px !important;
+  display: block;
+  margin: 0 auto;
+}
+
+/* 10. Formulaire de contact / Capture de leads */
+.formulaire-leads {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+.champ-groupe {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  text-align: left;
+}
+
+.champ-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--marine-fonce);
+}
+
+.champ-input,
+.champ-select,
+.champ-textarea {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  border: 1.5px solid var(--gris-bordure);
+  border-radius: var(--arrondi-sm);
+  font-family: var(--police-corps);
+  font-size: 0.9rem;
+  color: var(--gris-texte-sombre);
+  background-color: #FFFFFF;
+  outline: none;
+  transition: border-color var(--transition-normale);
+}
+
+.champ-input:focus,
+.champ-select:focus,
+.champ-textarea:focus {
+  border-color: var(--dore-primaire);
+  box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.15);
+}
+
+.champ-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Entreprise & Galerie */
+.chimp-entreprise-bloc {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.chimp-entreprise-description {
+  font-size: 0.88rem;
+  color: #475569;
+  line-height: 1.6;
+}
+
+.chimp-galerie-grille {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.chimp-galerie-item {
+  border-radius: var(--arrondi-sm);
+  overflow: hidden;
+  aspect-ratio: 1;
+  background: var(--marine-nuit);
+  border: 1px solid var(--gris-bordure);
+}
+
+.chimp-galerie-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Modal Popup de Rendez-vous */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(6, 17, 32, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal-contenu {
+  background: #FFFFFF;
+  border-radius: var(--arrondi-xl);
+  max-width: 480px;
+  width: 100%;
+  padding: 2rem 1.5rem;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.35);
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.btn-fermer-modal {
+  position: absolute;
+  top: 1rem;
+  right: 1.25rem;
+  background: transparent;
+  border: none;
+  font-size: 1.4rem;
+  color: var(--gris-texte-muet);
+  cursor: pointer;
+}
+
+.btn-fermer-modal:hover {
+  color: var(--marine-fonce);
+}
+
+/* Toast */
+.toast-notification {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--marine-nuit);
+  color: var(--blanc);
+  border: 1.5px solid var(--dore-primaire);
+  padding: 0.85rem 1.5rem;
+  border-radius: var(--arrondi-rond);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  font-family: var(--police-titre);
+  font-size: 0.9rem;
+  font-weight: 600;
+  z-index: 1000;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.toast-notification.visible {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+/* Pied de page */
+.pied {
+  background: var(--marine-nuit);
+  color: #94A3B8;
+  padding: 2.5rem 0;
+  margin-top: auto;
+  border-top: 1px solid var(--marine-moyen);
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.pied-contenu {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.pied-liens {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.pied-lien {
+  color: var(--dore-primaire);
+  text-decoration: none;
+}
+
+.pied-lien:hover {
+  text-decoration: underline;
+}
+
+/* Erreur */
+.carte-erreur {
+  text-align: center;
+  padding: 3.5rem 2rem;
+  background: var(--blanc);
+  border-radius: var(--arrondi-xl);
+  box-shadow: var(--ombre-carte);
+  max-width: 440px;
+  margin: 2rem auto;
+  border: 2px dashed #EF4444;
+}
+
+.icone-erreur {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--arrondi-rond);
+  background-color: #FEE2E2;
+  color: #DC2626;
+  font-size: 2rem;
+  margin: 0 auto 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Responsive mobile */
+@media (max-width: 480px) {
+  .page-carte-fond {
+    padding: 0.5rem 0 2rem;
+    background: #F8F9FA;
+  }
+
+  .carte-flottante-barre {
+    padding: 0.5rem 1rem;
+  }
+
+  .carte-chimp-canvas {
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+    max-width: 100%;
+  }
+
+  .hero-nom-commercial {
+    font-size: 1.95rem;
+  }
+
+  .chimp-cercle-icone {
+    width: 48px;
+    height: 48px;
+    font-size: 1.2rem;
+  }
+}

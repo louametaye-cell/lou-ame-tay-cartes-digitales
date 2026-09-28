@@ -1,0 +1,30 @@
+{
+  "name": "Lou Ame Tay — Cartes de Visite Digitales",
+  "short_name": "LouAmeTay",
+  "description": "Cartes de visite digitales et QR codes des conseillers terrain de Lou Ame Tay (CHR Sénégal)",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#0B1F3A",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "images/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "images/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "images/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

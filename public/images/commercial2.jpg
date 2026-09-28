@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 750" width="600" height="750">
+  <defs>
+    <radialGradient id="studioLight2" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#1A3459" />
+      <stop offset="50%" stop-color="#0E213D" />
+      <stop offset="100%" stop-color="#061221" />
+    </radialGradient>
+    <linearGradient id="skin2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#73421E"/>
+      <stop offset="50%" stop-color="#5B3113"/>
+      <stop offset="100%" stop-color="#43220A"/>
+    </linearGradient>
+    <linearGradient id="goldSilk2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE89C"/>
+      <stop offset="40%" stop-color="#D4AF37"/>
+      <stop offset="100%" stop-color="#7E5F09"/>
+    </linearGradient>
+    <linearGradient id="kaftanGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0E2442"/>
+      <stop offset="70%" stop-color="#08172C"/>
+      <stop offset="100%" stop-color="#040D1A"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Studio Backdrop -->
+  <rect width="600" height="750" fill="url(#studioLight2)"/>
+  
+  <!-- Subtle Architectural Atelier Arch -->
+  <path d="M120 750 L120 280 C120 180, 480 180, 480 280 L480 750" fill="none" stroke="#C9A227" stroke-width="1.5" stroke-opacity="0.2"/>
+  <circle cx="300" cy="270" r="210" fill="none" stroke="#FFFFFF" stroke-width="0.75" stroke-opacity="0.08"/>
+
+  <!-- Torso: Luxury Grand Boubou / Kaftan with Gold Embroidery (Cheikh Ndiaye) -->
+  <path d="M50 750 L85 490 C100 420, 170 380, 235 365 L300 435 L365 365 C430 380, 500 420, 515 490 L550 750 Z" fill="url(#kaftanGrad)"/>
+
+  <!-- Gold Embroidered Placket & Mandarin Collar -->
+  <!-- Mao Collar -->
+  <path d="M260 365 Q300 385 340 365 L345 350 Q300 370 255 350 Z" fill="url(#goldSilk2)"/>
+  <!-- Vertical Gold Placket with African Royal Pattern -->
+  <rect x="282" y="375" width="36" height="375" fill="url(#goldSilk2)"/>
+  <polygon points="300,375 320,410 280,410" fill="#FFEAA7"/>
+  <!-- Decorative hand-stitched motifs -->
+  <circle cx="300" cy="440" r="6" fill="#08172C"/>
+  <circle cx="300" cy="490" r="6" fill="#08172C"/>
+  <circle cx="300" cy="540" r="6" fill="#08172C"/>
+  <circle cx="300" cy="590" r="6" fill="#08172C"/>
+  <circle cx="300" cy="640" r="6" fill="#08172C"/>
+  <line x1="270" y1="410" x2="270" y2="750" stroke="url(#goldSilk2)" stroke-width="2" stroke-dasharray="6,4"/>
+  <line x1="330" y1="410" x2="330" y2="750" stroke="url(#goldSilk2)" stroke-width="2" stroke-dasharray="6,4"/>
+
+  <!-- Neck -->
+  <rect x="268" y="290" width="64" height="90" rx="16" fill="url(#skin2)"/>
+
+  <!-- Head -->
+  <ellipse cx="300" cy="235" rx="76" ry="92" fill="url(#skin2)"/>
+
+  <!-- Sharp Modern Fade Haircut -->
+  <path d="M220 220 C220 145, 250 130, 300 130 C350 130, 380 145, 380 220 C380 170, 360 150, 300 150 C240 150, 220 170, 220 220 Z" fill="#140B05"/>
+  <!-- Crisp Razor Lineup -->
+  <path d="M236 200 L242 165 L358 165 L364 200" stroke="#0D0703" stroke-width="4" fill="none"/>
+
+  <!-- Sculpted Beard and Mustache -->
+  <path d="M242 245 C245 320, 355 320, 358 245 C358 300, 335 315, 300 315 C265 315, 242 300, 242 245 Z" fill="#140B05"/>
+  <path d="M275 272 Q300 262 325 272 Q300 282 275 272 Z" fill="#140B05"/>
+
+  <!-- Facial Features -->
+  <!-- Brows -->
+  <path d="M245 205 Q270 196 288 205" stroke="#140B05" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <path d="M312 205 Q330 196 355 205" stroke="#140B05" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <!-- Eyes -->
+  <path d="M250 220 Q268 212 284 220 Q268 227 250 220 Z" fill="#FFFFFF"/>
+  <circle cx="268" cy="219" r="6" fill="#1D1007"/>
+  <circle cx="270" cy="217" r="2" fill="#FFFFFF"/>
+
+  <path d="M316 220 Q332 212 350 220 Q332 227 316 220 Z" fill="#FFFFFF"/>
+  <circle cx="332" cy="219" r="6" fill="#1D1007"/>
+  <circle cx="334" cy="217" r="2" fill="#FFFFFF"/>
+
+  <!-- Nose -->
+  <path d="M298 222 L294 254 L306 254" stroke="#3D1F0A" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+
+  <!-- Smile / Lips -->
+  <path d="M280 286 Q300 296 320 286" stroke="#2B1405" stroke-width="2.5" fill="none"/>
+</svg>

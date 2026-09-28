@@ -1,0 +1,55 @@
+{
+  "nav": {
+    "accueil": "Dalal jàmm",
+    "offres": "Sunuy formules",
+    "apropos": "Mbootaay gi",
+    "admin": "Bunt Admin",
+    "site_officiel": "Dàll bi ↗"
+  },
+  "hero": {
+    "badge": "✦ MBOOTAAYU TÀRÀŊ BI ✦",
+    "titre": "Kaartu Numérig yu sunuy Liggéeykat",
+    "soustitre": "Kujokk ak sa commercial ci WhatsApp, jël rendez-vous ci sa këru ñam ak diisoo ci menu QR Code Lou Ame Tay.",
+    "recherche_placeholder": "Wër ci tur, sant, walla dëkk (Ndakaaru, Cees, Mbuur)..."
+  },
+  "carte": {
+    "retour": "← Dellu ci mbooloo mi",
+    "badge_terrain": "✦ KILIFAG TÀRÀŊ CHR",
+    "appel": "Wooté",
+    "whatsapp": "WhatsApp",
+    "email": "Bataaxal",
+    "partager": "Séddoo",
+    "vcard": "Dugal ci sa telefon (vCard)",
+    "rdv_demo": "Tàggat ci sa këru ñam (Ndakaaru / Cees / Mbuur)",
+    "support_direct": "Dimbal WhatsApp 7j/7 (Ñëw ci 48h)",
+    "horaires_titre": "Dimbal teknig : 7j/7 bu 8h ba 20h",
+    "horaires_desc": "Dimbal bu gaaw ba 22h ngir añ ak reer",
+    "a_propos": "Ci sama jëmm",
+    "disponible": "Mën naa ñëw léegi ci sa këru ñam",
+    "coordonnees": "Sunuy jokkoo",
+    "formules_titre": "Sunuy Formules Këru Ñam ak Otel",
+    "formules_desc": "Tànnal formule bi la gënal ngir diisoo ak sa conseiller :",
+    "scanner_titre": "Skaneel sama kaart",
+    "scanner_desc": "Joxeel sa telefon ci QR code bi ngir ubbi kaart bi ci saasi.",
+    "demande_devis": "Laaj ndimo walla devis",
+    "nom_etablissement": "Turu sa këru ñam *",
+    "votre_nom": "Sa sant ak sa tur *",
+    "telephone": "Nimero telefon / WhatsApp *",
+    "ville": "Dëkk / Kër *",
+    "formule_souhaitee": "Formule bi nga bëgg",
+    "envoyer": "🚀 Yónneel sa laaj ci commercial bi",
+    "carte_inactive": "Kaart bi dafa taxaw",
+    "carte_inactive_desc": "Njiitu Lou Ame Tay dafa taxawal kaartu liggéeykat bi ci ndànk-ndànk.",
+    "signature_email": "✉️ Généréel sama signature email"
+  },
+  "formules": {
+    "tambali": "Formule Tàmbali (15 000 FCFA/weer)",
+    "niofar": "Formule Nio Far (25 000 FCFA/weer)",
+    "xeweul": "Formule Xéweul ⭐ (35 000 FCFA/weer)",
+    "surmesure": "Sur Mesure (Kompleks / Barab yu bari)"
+  },
+  "footer": {
+    "droits": "Lou Ame Tay — Xarala yu yees ci réewum Senegaal. Yelleef yépp tëju nañu.",
+    "support_wa": "Jokkoo WhatsApp (+221 76 231 20 03)"
+  }
+}

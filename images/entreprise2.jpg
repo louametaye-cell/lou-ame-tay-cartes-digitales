@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="600" height="400">
+  <defs>
+    <linearGradient id="entBg2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0E1B2D" />
+      <stop offset="50%" stop-color="#162A45" />
+      <stop offset="100%" stop-color="#081423" />
+    </linearGradient>
+    <linearGradient id="goldE2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCE588" />
+      <stop offset="50%" stop-color="#C9A227" />
+      <stop offset="100%" stop-color="#997300" />
+    </linearGradient>
+  </defs>
+  
+  <rect width="600" height="400" fill="url(#entBg2)" rx="12"/>
+  
+  <!-- Showroom Arches & Display -->
+  <path d="M70 330 L70 120 C70 70, 160 70, 160 120 L160 330 Z" fill="none" stroke="url(#goldE2)" stroke-width="2.5"/>
+  <path d="M250 330 L250 90 C250 40, 350 40, 350 90 L350 330 Z" fill="none" stroke="url(#goldE2)" stroke-width="3"/>
+  <path d="M440 330 L440 120 C440 70, 530 70, 530 120 L530 330 Z" fill="none" stroke="url(#goldE2)" stroke-width="2.5"/>
+  
+  <!-- Pedestals & Luxury Outfits Displayed -->
+  <!-- Left Display -->
+  <rect x="90" y="270" width="50" height="60" fill="#0B192A" stroke="url(#goldE2)" stroke-width="1.5"/>
+  <path d="M98 270 L115 170 L132 270 Z" fill="#997300" opacity="0.8"/>
+  <circle cx="115" cy="155" r="10" fill="url(#goldE2)"/>
+
+  <!-- Center Grand Display -->
+  <rect x="275" y="250" width="50" height="80" fill="#0B192A" stroke="url(#goldE2)" stroke-width="2"/>
+  <path d="M280 250 L300 130 L320 250 Z" fill="#C9A227"/>
+  <path d="M270 250 C290 200, 310 200, 330 250 Z" fill="#FCE588" opacity="0.6"/>
+  <circle cx="300" cy="115" r="12" fill="url(#goldE2)"/>
+  
+  <!-- Right Display -->
+  <rect x="460" y="270" width="50" height="60" fill="#0B192A" stroke="url(#goldE2)" stroke-width="1.5"/>
+  <path d="M468 270 L485 170 L502 270 Z" fill="#1C3F6E" stroke="url(#goldE2)" stroke-width="1"/>
+  <circle cx="485" cy="155" r="10" fill="url(#goldE2)"/>
+  
+  <!-- Elegant floor reflection -->
+  <line x1="30" y1="330" x2="570" y2="330" stroke="url(#goldE2)" stroke-width="2"/>
+  
+  <!-- Chandelier spark -->
+  <circle cx="300" cy="40" r="18" fill="url(#goldE2)" opacity="0.3"/>
+  <circle cx="300" cy="40" r="6" fill="#FFF"/>
+
+  <!-- Caption overlay -->
+  <rect x="0" y="325" width="600" height="75" fill="#071220" opacity="0.9"/>
+  <text x="30" y="355" font-family="'Poppins', sans-serif" font-size="18" font-weight="700" fill="url(#goldE2)">Showroom & Salons Privés</text>
+  <text x="30" y="378" font-family="'Inter', sans-serif" font-size="13" font-weight="400" fill="#E2E8F0">Un espace confidentiel et chaleureux dédié à l'essayage et aux conseils personnalisés.</text>
+</svg>

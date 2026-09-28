@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administration — Lou Ame Tay 🍽️</title>
+  <meta name="description" content="Espace d'administration des cartes de visite digitales Lou Ame Tay.">
+  <link rel="icon" type="image/svg+xml" href="images/logo.svg">
+
+  <!-- Feuilles de style -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/admin.css">
+
+  <!-- Bibliothèques QR Code, Capture PNG, PDF et Graphiques -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="page-admin-layout">
+
+  <!-- ======================================================================
+       BARRE LATÉRALE (SIDEBAR)
+       ====================================================================== -->
+  <aside class="admin-sidebar" id="admin-sidebar">
+    <div class="sidebar-haut">
+      <a href="index.html" class="sidebar-logo-lien" title="Voir l'annuaire public">
+        <img src="images/logo.png" onerror="this.onerror=null; this.src='images/logo.svg';" alt="Logo" class="sidebar-logo">
+        <div class="sidebar-marque-txt">
+          <span class="marque-nom">Lou Ame Tay 🍽️</span>
+          <span class="marque-badge">Espace Admin</span>
+        </div>
+      </a>
+      <button type="button" id="btn-fermer-sidebar-mobile" class="btn-sidebar-fermer" aria-label="Fermer le menu">✕</button>
+    </div>
+
+    <!-- Navigation principale -->
+    <nav class="sidebar-nav" aria-label="Menu d'administration">
+      <button type="button" class="nav-onglet-btn active" data-onglet="dashboard">
+        <span class="nav-icone" aria-hidden="true">📊</span>
+        <span>Tableau de bord</span>
+      </button>
+
+      <button type="button" class="nav-onglet-btn" data-onglet="commerciaux">
+        <span class="nav-icone" aria-hidden="true">👥</span>
+        <span>Commerciaux</span>
+        <span id="badge-compteur-total" class="nav-badge-compteur">0</span>
+      </button>
+
+      <button type="button" class="nav-onglet-btn" data-onglet="leads">
+        <span class="nav-icone" aria-hidden="true">📋</span>
+        <span>Leads & Devis</span>
+        <span id="badge-compteur-leads" class="nav-badge-compteur">0</span>
+      </button>
+
+      <button type="button" class="nav-onglet-btn" data-onglet="analytics">
+        <span class="nav-icone" aria-hidden="true">📈</span>
+        <span>Statistiques & Scans</span>
+      </button>
+
+      <button type="button" class="nav-onglet-btn" data-onglet="exports">
+        <span class="nav-icone" aria-hidden="true">🖨️</span>
+        <span>Exports & QR Codes</span>
+      </button>
+
+      <button type="button" class="nav-onglet-btn" data-onglet="parametres">
+        <span class="nav-icone" aria-hidden="true">⚙️</span>
+        <span>Paramètres & BD</span>
+      </button>
+    </nav>
+
+    <!-- Pied de sidebar avec profil & déconnexion -->
+    <div class="sidebar-bas">
+      <div class="admin-profil-resume">
+        <div class="admin-avatar-cercle">👤</div>
+        <div class="admin-profil-infos">
+          <span id="admin-user-email" class="admin-email-txt">admin@louametay.com</span>
+          <span class="admin-role-txt">Super Administrateur</span>
+        </div>
+      </div>
+      <button type="button" id="btn-deconnexion" class="btn-deconnexion" title="Se déconnecter de la session">
+        <span aria-hidden="true">🚪</span>
+        <span>Déconnexion</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ======================================================================
+       ZONE CENTRALE DE L'APPLICATION
+       ====================================================================== -->
+  <div class="admin-zone-centrale">
+
+    <!-- En-tête supérieur (Topbar) -->
+    <header class="admin-topbar">
+      <div class="topbar-gauche">
+        <button type="button" id="btn-toggle-sidebar" class="btn-burger-mobile" aria-label="Ouvrir le menu">
+          ☰
+        </button>
+        <h2 id="topbar-titre-page" class="topbar-titre">Tableau de bord</h2>
+      </div>
+
+      <div class="topbar-droite">
+        <a href="index.html" target="_blank" class="btn btn-retour btn-sm" title="Ouvrir l'annuaire public">
+          <span>Voir le site public</span> ↗
+        </a>
+        <button type="button" id="btn-ouvrir-modal-nouveau" class="btn btn-primaire btn-sm">
+          <span>+ Nouveau commercial</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Bannière si Supabase n'est pas configuré -->
+    <div id="banniere-alerte-admin" class="banniere-alerte-admin" style="display: none;">
+      <div class="alerte-contenu-flex">
+        <span class="alerte-icone-grande">⚠️</span>
+        <div>
+          <h4 class="alerte-titre">Configuration Supabase en attente</h4>
+          <p class="alerte-desc">
+            Vos identifiants Supabase réels (URL et clé ANON) ne sont pas encore renseignés.
+            Configurez-les dans l'onglet <strong>Paramètres & BD</strong> ou dans votre fichier <code>.env</code>.
+          </p>
+        </div>
+      </div>
+      <button type="button" id="btn-regler-cles-banniere" class="btn btn-secondaire btn-sm">
+        Configurer maintenant ⚙️
+      </button>
+    </div>
+
+    <!-- Contenu des Vues / Onglets -->
+    <main class="admin-contenu-vues">
+
+      <!-- ==================================================================
+           VUE 1 : TABLEAU DE BORD (STATS ET APERÇU RAPIDE)
+           ================================================================== -->
+      <section id="vue-dashboard" class="admin-vue active">
+        <!-- Cartes statistiques -->
+        <div class="stats-grille">
+          <div class="stat-carte">
+            <div class="stat-icone-fond icone-bleu">👥</div>
+            <div class="stat-contenu">
+              <span class="stat-titre">Total Conseillers</span>
+              <strong id="stat-total" class="stat-valeur">0</strong>
+              <span class="stat-precision">Dans l'équipe commerciale</span>
+            </div>
+          </div>
+
+          <div class="stat-carte">
+            <div class="stat-icone-fond icone-vert">✅</div>
+            <div class="stat-contenu">
+              <span class="stat-titre">Cartes Actives</span>
+              <strong id="stat-actifs" class="stat-valeur">0</strong>
+              <span class="stat-precision">Visibles publiquement</span>
+            </div>
+          </div>
+
+          <div class="stat-carte">
+            <div class="stat-icone-fond icone-orange">⏸️</div>
+            <div class="stat-contenu">
+              <span class="stat-titre">Cartes Inactives</span>
+              <strong id="stat-inactifs" class="stat-valeur">0</strong>
+              <span class="stat-precision">Désactivées temporairement</span>
+            </div>
+          </div>
+
+          <div class="stat-carte">
+            <div class="stat-icone-fond icone-or">📍</div>
+            <div class="stat-contenu">
+              <span class="stat-titre">Régions Couvertes</span>
+              <strong class="stat-valeur">3</strong>
+              <span class="stat-precision">Thiès, Dakar, Saly / Mbour</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions Fréquentes -->
+        <div class="panneau-actions-rapides">
+          <div class="panneau-entete">
+            <h3 class="panneau-titre">Actions rapides</h3>
+            <span class="panneau-badge">Gestion express</span>
+          </div>
+          <div class="actions-rapides-grille">
+            <button type="button" class="btn-action-rapide" id="action-creer-rapide">
+              <span class="action-icone">⚡</span>
+              <span class="action-texte">Créer un commercial en 30 secondes</span>
+            </button>
+
+            <button type="button" class="btn-action-rapide" id="action-telecharger-pdf-tous">
+              <span class="action-icone">🖨️</span>
+              <span class="action-texte">Télécharger toutes les cartes en PDF A4 (85x55mm)</span>
+            </button>
+
+            <button type="button" class="btn-action-rapide" id="action-tester-annuaire">
+              <span class="action-icone">🌐</span>
+              <span class="action-texte">Tester l'annuaire public en direct</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Dernières cartes enregistrées -->
+        <div class="panneau-table">
+          <div class="panneau-entete">
+            <div>
+              <h3 class="panneau-titre">Dernières cartes enregistrées</h3>
+              <p class="panneau-soustitre">Aperçu synchronisé en temps réel avec Supabase</p>
+            </div>
+            <button type="button" id="btn-actualiser-dashboard" class="btn btn-contour btn-sm" title="Recharger les données">
+              ↻ Actualiser
+            </button>
+          </div>
+
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Commercial</th>
+                  <th>Pôle / Catégorie</th>
+                  <th>Contact</th>
+                  <th>Statut</th>
+                  <th style="text-align: right;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-dashboard-recents">
+                <tr><td colspan="5" class="table-chargement">Chargement des données...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================================================================
+           VUE 2 : GESTION COMPLÈTE DES COMMERCIAUX
+           ================================================================== -->
+      <section id="vue-commerciaux" class="admin-vue">
+        <div class="panneau-table">
+          <div class="panneau-entete-commerciaux">
+            <div class="commerciaux-recherche-zone">
+              <div class="champ-recherche-wrapper">
+                <span class="icone-recherche" aria-hidden="true">🔍</span>
+                <input 
+                  type="text" 
+                  id="recherche-admin" 
+                  class="champ-recherche-admin" 
+                  placeholder="Rechercher par nom, prénom, poste, téléphone..."
+                >
+                <button type="button" id="btn-effacer-recherche-admin" class="btn-effacer-filtre">✕</button>
+              </div>
+
+              <!-- Filtre par catégorie (contrainte CHECK Supabase) -->
+              <select id="filtre-categorie-admin" class="select-filtre-admin">
+                <option value="tous">Toutes les catégories</option>
+                <option value="Direction">Direction</option>
+                <option value="Vente">Vente</option>
+                <option value="Support">Support</option>
+                <option value="Technique">Technique</option>
+              </select>
+
+              <!-- Filtre par statut -->
+              <select id="filtre-statut-admin" class="select-filtre-admin">
+                <option value="tous">Tous les statuts</option>
+                <option value="actifs">Cartes Actives</option>
+                <option value="inactifs">Cartes Inactives</option>
+              </select>
+            </div>
+
+            <button type="button" id="btn-nouveau-tableau" class="btn btn-primaire btn-sm">
+              + Ajouter un commercial
+            </button>
+          </div>
+
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Conseiller</th>
+                  <th>Poste & Catégorie</th>
+                  <th>Coordonnées</th>
+                  <th>Statut (1 clic)</th>
+                  <th>QR Code</th>
+                  <th style="text-align: right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-commerciaux">
+                <tr><td colspan="6" class="table-chargement">Chargement des conseillers commerciaux...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================================================================
+           VUE : GESTION DES LEADS & PROSPECTS CHR
+           ================================================================== -->
+      <section id="vue-leads" class="admin-vue">
+        <div class="panneau-table">
+          <div class="panneau-entete-commerciaux">
+            <div class="commerciaux-recherche-zone">
+              <div class="champ-recherche-wrapper">
+                <span class="icone-recherche" aria-hidden="true">🔍</span>
+                <input 
+                  type="text" 
+                  id="recherche-leads-admin" 
+                  class="champ-recherche-admin" 
+                  placeholder="Rechercher par restaurant, contact, téléphone, ville..."
+                >
+                <button type="button" id="btn-effacer-recherche-leads" class="btn-effacer-filtre">✕</button>
+              </div>
+
+              <!-- Filtre par statut lead -->
+              <select id="filtre-statut-leads" class="select-filtre-admin">
+                <option value="tous">Tous les statuts</option>
+                <option value="nouveau">Nouveaux</option>
+                <option value="contacté">Contactés</option>
+                <option value="converti">Convertis (Clients)</option>
+                <option value="perdu">Perdus</option>
+              </select>
+
+              <!-- Filtre par formule demandée -->
+              <select id="filtre-formule-leads" class="select-filtre-admin">
+                <option value="tous">Toutes les formules</option>
+                <option value="Tàmbali">Tàmbali</option>
+                <option value="Nio Far">Nio Far</option>
+                <option value="Xéweul">Xéweul</option>
+                <option value="Sur Mesure">Sur Mesure</option>
+              </select>
+            </div>
+
+            <div style="display: flex; gap: 0.5rem;">
+              <button type="button" id="btn-actualiser-leads" class="btn btn-contour btn-sm" title="Rafraîchir les leads">
+                ↻ Rafraîchir
+              </button>
+              <button type="button" id="btn-export-leads-csv" class="btn btn-primaire btn-sm">
+                📥 Exporter en CSV
+              </button>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Restaurant & Contact</th>
+                  <th>Coordonnées</th>
+                  <th>Formule & Remarque</th>
+                  <th>Score Lead</th>
+                  <th>Commercial Affilié</th>
+                  <th>Statut</th>
+                  <th style="text-align: right;">Action Rapide</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-leads">
+                <tr><td colspan="7" class="table-chargement">Chargement des prospects CRM...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================================================================
+           VUE : ANALYTICS, STATISTIQUES & SUIVI DES SCANS
+           ================================================================== -->
+      <section id="vue-analytics" class="admin-vue">
+        <!-- 4 Cartes Stats Analytics -->
+        <div class="stats-grille">
+          <div class="stat-carte">
+            <div class="stat-icone-fond icone-bleu">📲</div>
+            <div class="stat-contenu">
+              <span class="stat-titre">Total Scans QR</span>
+              <strong id="stat-analytics-scans" class="stat-valeur">0</strong>
+              <span class="stat-precision">Scans de cartes enregistrés</span>
+            </div>
+          </div>
+
+          <div class="stat-carte">
+            <div class="stat-icone-fond icone-or">📋</div>
+            <div class="stat-contenu">
+              <span class="stat-titre">Total Demandes (Leads)</span>
+              <strong id="stat-analytics-leads" class="stat-valeur">0</strong>
+              <span class="stat-precision">Prospects CHR qualifiés</span>
+            </div>
+          </div>
+
+          <div class="stat-carte">
+            <div class="stat-icone-fond icone-vert">💬</div>
+            <div class="stat-contenu">
+              <span class="stat-titre">Clics WhatsApp Pro</span>
+              <strong id="stat-analytics-wa" class="stat-valeur">0</strong>
+              <span class="stat-precision">Discussions amorcées</span>
+            </div>
+          </div>
+
+          <div class="stat-carte">
+            <div class="stat-icone-fond icone-orange">🎯</div>
+            <div class="stat-contenu">
+              <span class="stat-titre">Taux de Conversion</span>
+              <strong id="stat-analytics-conversion" class="stat-valeur">0%</strong>
+              <span class="stat-precision">Ratio Leads / Scans</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="analytics-conteneur-grille">
+          <!-- Graphique d'activité sur 7 jours -->
+          <div class="graphique-cadre-visuel">
+            <div class="panneau-entete" style="margin-bottom: 1.25rem;">
+              <div>
+                <h3 class="panneau-titre">Activité Scans & Leads (7 derniers jours)</h3>
+                <p class="panneau-soustitre">Flux journalier des interactions terrain</p>
+              </div>
+              <span class="badge-categorie badge-direction">En direct</span>
+            </div>
+            <div style="position: relative; height: 260px;">
+              <canvas id="chart-analytics-activite"></canvas>
+            </div>
+          </div>
+
+          <!-- Répartition par Région / Ville -->
+          <div class="graphique-cadre-visuel">
+            <div class="panneau-entete" style="margin-bottom: 1.25rem;">
+              <div>
+                <h3 class="panneau-titre">Répartition Géographique</h3>
+                <p class="panneau-soustitre">Dakar, Thiès, Mbour & autres</p>
+              </div>
+            </div>
+            <div style="position: relative; height: 260px;">
+              <canvas id="chart-analytics-zones"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tableau des Derniers Scans Géolocalisés -->
+        <div class="panneau-table" style="margin-top: 1.5rem;">
+          <div class="panneau-entete">
+            <div>
+              <h3 class="panneau-titre">Journal des 10 Derniers Scans QR</h3>
+              <p class="panneau-soustitre">Traçabilité IP, localisation et conseiller concerné</p>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Date & Heure</th>
+                  <th>Commercial Scanné</th>
+                  <th>Localisation IP</th>
+                  <th>Source / Référer</th>
+                  <th style="text-align: right;">Statut</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-scans-recents">
+                <tr><td colspan="5" class="table-chargement">Chargement des scans...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================================================================
+           VUE 3 : EXPORTS & QR CODES HAUTE DÉFINITION
+           ================================================================== -->
+      <section id="vue-exports" class="admin-vue">
+        <div class="exports-banniere-aide">
+          <div class="exports-aide-texte">
+            <h3 style="font-family: var(--police-titre); font-size: 1.2rem; color: var(--marine-fonce); margin-bottom: 0.35rem;">
+              🖨️ Exports & Supports d'Impression Haute Définition
+            </h3>
+            <p style="font-size: 0.92rem; color: var(--gris-texte-muet);">
+              Générez en un clic des QR Codes prêts pour l'impression haute définition (1000x1000px avec nom + logo Lou Ame Tay) ou téléchargez le catalogue complet en PDF A4 au format carte de visite standard 85x55mm.
+            </p>
+          </div>
+          <div class="exports-actions-globales">
+            <button type="button" id="btn-export-pdf-global" class="btn btn-primaire">
+              📄 Télécharger toutes les cartes en PDF A4 (85x55mm)
+            </button>
+            <button type="button" id="btn-export-csv-global" class="btn btn-contour">
+              📊 Exporter les données en CSV (Excel)
+            </button>
+          </div>
+        </div>
+
+        <!-- Galerie des QR codes individuels -->
+        <h4 style="font-family: var(--police-titre); color: var(--marine-fonce); margin-bottom: 1rem; font-size: 1.1rem;">
+          QR Codes unitaires par commercial
+        </h4>
+        <div id="grille-exports-qrcodes" class="grille-exports-qrcodes">
+          <!-- Rendu dynamique par js/admin.js -->
+        </div>
+      </section>
+
+      <!-- ==================================================================
+           VUE 4 : PARAMÈTRES, SÉCURITÉ & BASE DE DONNÉES (SUPABASE)
+           ================================================================== -->
+      <section id="vue-parametres" class="admin-vue">
+        <div class="parametres-grille">
+          <!-- Carte Configuration Supabase -->
+          <div class="parametre-carte">
+            <div class="parametre-carte-entete">
+              <span class="parametre-icone">⚡</span>
+              <div>
+                <h3 class="parametre-titre">Identifiants Supabase (Production)</h3>
+                <p class="parametre-desc">URL de votre projet et clé publique Anon</p>
+              </div>
+            </div>
+
+            <form id="form-parametres-supabase" class="parametre-form">
+              <div class="champ-groupe">
+                <label for="param-supabase-url" class="champ-label">URL du projet Supabase</label>
+                <input type="url" id="param-supabase-url" class="champ-input" placeholder="https://votre-projet.supabase.co" required>
+              </div>
+
+              <div class="champ-groupe">
+                <label for="param-supabase-key" class="champ-label">Clé Publique Anon (anon key)</label>
+                <input type="password" id="param-supabase-key" class="champ-input" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." required>
+              </div>
+
+              <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                <button type="submit" class="btn btn-primaire btn-sm">
+                  Enregistrer les identifiants
+                </button>
+                <button type="button" id="btn-tester-connexion-supabase" class="btn btn-secondaire btn-sm">
+                  Tester la connexion
+                </button>
+              </div>
+
+              <div id="statut-test-connexion" class="statut-test-bloc" style="display: none;"></div>
+            </form>
+          </div>
+
+          <!-- Carte Modification Mot de Passe Admin -->
+          <div class="parametre-carte">
+            <div class="parametre-carte-entete">
+              <span class="parametre-icone">🔒</span>
+              <div>
+                <h3 class="parametre-titre">Sécurité du Compte Administrateur</h3>
+                <p class="parametre-desc">Mettez à jour le mot de passe de votre compte Supabase Auth</p>
+              </div>
+            </div>
+
+            <form id="form-changer-mdp" class="parametre-form">
+              <div class="champ-groupe">
+                <label for="nouveau-mdp" class="champ-label">Nouveau mot de passe</label>
+                <input type="password" id="nouveau-mdp" class="champ-input" placeholder="Minimum 6 caractères" required minlength="6">
+              </div>
+
+              <div class="champ-groupe">
+                <label for="confirmer-nouveau-mdp" class="champ-label">Confirmer le mot de passe</label>
+                <input type="password" id="confirmer-nouveau-mdp" class="champ-input" placeholder="Retapez le mot de passe" required minlength="6">
+              </div>
+
+              <button type="submit" id="btn-soumettre-changer-mdp" class="btn btn-secondaire btn-sm">
+                Mettre à jour le mot de passe
+              </button>
+            </form>
+          </div>
+
+          <!-- Carte Guide & Script SQL Supabase complet -->
+          <div class="parametre-carte" style="grid-column: 1 / -1;">
+            <div class="parametre-carte-entete">
+              <span class="parametre-icone">🗄️</span>
+              <div>
+                <h3 class="parametre-titre">Script SQL d'initialisation Supabase</h3>
+                <p class="parametre-desc">Copiez et collez ce script dans l'Éditeur SQL de votre tableau de bord Supabase pour créer la table, les règles RLS et le bucket de photos.</p>
+              </div>
+            </div>
+
+            <div class="code-sql-conteneur">
+              <button type="button" id="btn-copier-sql" class="btn-copier-code">📋 Copier le SQL</button>
+              <pre><code id="bloc-code-sql">-- ============================================================================
+-- SCRIPT INITIALISATION SUPABASE — LOU AME TAY CARTES DE VISITE DIGITALES
+-- ============================================================================
+
+-- 1. Création de la table des commerciaux
+CREATE TABLE IF NOT EXISTS public.commerciaux (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  prenom TEXT NOT NULL,
+  nom TEXT NOT NULL,
+  poste TEXT,
+  telephone TEXT,
+  email TEXT,
+  whatsapp TEXT,
+  bio TEXT,
+  photo_url TEXT,
+  zone TEXT,
+  categorie TEXT CHECK (categorie IN ('Direction', 'Vente', 'Support', 'Technique')),
+  actif BOOLEAN DEFAULT true,
+  linkedin TEXT,
+  facebook TEXT,
+  instagram TEXT,
+  tiktok TEXT,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- 2. Activation de la sécurité Row Level Security (RLS)
+ALTER TABLE public.commerciaux ENABLE ROW LEVEL SECURITY;
+
+-- 3. Politique : Lecture publique des commerciaux actifs uniquement
+DROP POLICY IF EXISTS "Lecture publique actifs" ON public.commerciaux;
+CREATE POLICY "Lecture publique actifs" ON public.commerciaux
+  FOR SELECT USING (actif = true);
+
+-- 4. Politique : Gestion complète pour les administrateurs connectés
+DROP POLICY IF EXISTS "Admin full access" ON public.commerciaux;
+CREATE POLICY "Admin full access" ON public.commerciaux
+  FOR ALL USING (auth.role() = 'authenticated');
+
+-- 5. Création du bucket Storage public 'photos'
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('photos', 'photos', true)
+ON CONFLICT (id) DO UPDATE SET public = true;
+
+-- 6. Politiques d'accès au bucket 'photos'
+DROP POLICY IF EXISTS "Accès public aux photos" ON storage.objects;
+CREATE POLICY "Accès public aux photos"
+  ON storage.objects FOR SELECT
+  USING (bucket_id = 'photos');
+
+DROP POLICY IF EXISTS "Upload photos administrateurs" ON storage.objects;
+CREATE POLICY "Upload photos administrateurs"
+  ON storage.objects FOR INSERT
+  TO authenticated
+  WITH CHECK (bucket_id = 'photos');
+
+DROP POLICY IF EXISTS "Suppression photos administrateurs" ON storage.objects;
+CREATE POLICY "Suppression photos administrateurs"
+  ON storage.objects FOR DELETE
+  TO authenticated
+  USING (bucket_id = 'photos');
+
+-- 7. Insertion des 4 conseillers fondateurs Lou Ame Tay
+INSERT INTO public.commerciaux (prenom, nom, poste, categorie, telephone, email, whatsapp, photo_url, bio, zone, linkedin, facebook, instagram, tiktok, actif)
+VALUES 
+(
+  'Mamadou', 'Diallo', 'Directeur Commercial & Grands Comptes', 'Direction',
+  '+221771303678', 'mamadou@louametay.com', '221762312003', 'images/commercial1.jpg',
+  'Spécialiste de la transformation digitale CHR au Sénégal. J''accompagne les propriétaires et gérants dans l''automatisation de la prise de commande à table.',
+  'Dakar (Plateau, Almadies, Point E) & Thiès',
+  'https://linkedin.com/in/mamadou-diallo-louametay', 'https://facebook.com/louametay.officiel', 'https://instagram.com/louametay_sn', 'https://tiktok.com/@louametay_digital',
+  true
+),
+(
+  'Cheikh', 'Ndiaye', 'Responsable Déploiement Terrain & Formations', 'Technique',
+  '+221785123456', 'cheikh.ndiaye@louametay.com', '221762312003', 'images/commercial2.jpg',
+  'Ingénieur d''affaires CHR. J''assure l''audit technique de vos établissements, l''installation des écrans cuisine (KDS) et la formation de la brigade.',
+  'Axe Dakar — Thiès — Mbour — Saly Portudal',
+  'https://linkedin.com/in/cheikh-ndiaye-louametay', 'https://facebook.com/louametay.officiel', 'https://instagram.com/cheikh_louametay', 'https://tiktok.com/@louametay_digital',
+  true
+),
+(
+  'Fatou', 'Sow', 'Conseillère Commerciale Restauration & Maquis', 'Vente',
+  '+221763407890', 'fatou.sow@louametay.com', '221762312003', 'images/commercial3.jpg',
+  'Spécialiste des formules Tàmbali et Nio Far dédiées aux restaurants de quartier, glaciers, fast-foods et cafés.',
+  'Thiès (Dixième, Cité Lamy, Randoulène) & Dakar Banlieue',
+  'https://linkedin.com/in/fatou-sow-louametay', 'https://facebook.com/louametay.officiel', 'https://instagram.com/fatou_louametay', 'https://tiktok.com/@fatousow_restau',
+  true
+),
+(
+  'Moussa', 'Ba', 'Chargé d''Affaires Hôtellerie & Complexes', 'Support',
+  '+221776543210', 'moussa.ba@louametay.com', '221762312003', 'images/commercial4.jpg',
+  'Expert des solutions multisites pour resorts, hôtels de plage et chaînes de restauration (room-service QR, commande transat piscine).',
+  'Petite Côte, Saly, Somone, Toubab Dialaw & Dakar',
+  'https://linkedin.com/in/moussa-ba-louametay', 'https://facebook.com/louametay.officiel', 'https://instagram.com/louametay_hotels', '',
+  true
+);
+</code></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ======================================================================
+       MODAL 1 : FORMULAIRE COMMERCIAL (NOUVEAU & MODIFIER)
+       ====================================================================== -->
+  <div id="modal-commercial" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-commercial-titre">
+    <div class="modal-contenu modal-contenu-large">
+      <div class="modal-entete">
+        <h3 id="modal-commercial-titre" class="modal-titre">
+          + Nouveau Conseiller Commercial
+        </h3>
+        <button type="button" id="btn-fermer-modal-commercial" class="btn-fermer-modal" aria-label="Fermer la boîte de dialogue">✕</button>
+      </div>
+
+      <form id="form-commercial" class="form-modal-commercial">
+        <input type="hidden" id="commercial-id">
+
+        <!-- Ligne 1 : Prénom et Nom -->
+        <div class="form-grille-2">
+          <div class="champ-groupe">
+            <label for="comm-prenom" class="champ-label">Prénom *</label>
+            <input type="text" id="comm-prenom" class="champ-input" placeholder="Ex: Moussa" required>
+          </div>
+          <div class="champ-groupe">
+            <label for="comm-nom" class="champ-label">Nom de famille *</label>
+            <input type="text" id="comm-nom" class="champ-input" placeholder="Ex: Diop" required>
+          </div>
+        </div>
+
+        <!-- Ligne 2 : Poste et Catégorie -->
+        <div class="form-grille-2">
+          <div class="champ-groupe">
+            <label for="comm-poste" class="champ-label">Intitulé du poste *</label>
+            <input type="text" id="comm-poste" class="champ-input" placeholder="Ex: Conseiller Commercial CHR" required>
+          </div>
+          <div class="champ-groupe">
+            <label for="comm-categorie" class="champ-label">Catégorie * (Pôle)</label>
+            <select id="comm-categorie" class="champ-select">
+              <option value="Vente" selected>Vente (Conseiller terrain & prospection)</option>
+              <option value="Direction">Direction (Directeur commercial & grands comptes)</option>
+              <option value="Technique">Technique (Déploiement KDS & matériel)</option>
+              <option value="Support">Support (Formation & assistance client)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Ligne 3 : Téléphone, WhatsApp et Email -->
+        <div class="form-grille-3">
+          <div class="champ-groupe">
+            <label for="comm-telephone" class="champ-label">Téléphone direct *</label>
+            <input type="tel" id="comm-telephone" class="champ-input" placeholder="+221 77 123 45 67" required>
+          </div>
+          <div class="champ-groupe">
+            <label for="comm-whatsapp" class="champ-label">WhatsApp Pro (sans + ni espaces) *</label>
+            <input type="text" id="comm-whatsapp" class="champ-input" placeholder="221762312003" required>
+          </div>
+          <div class="champ-groupe">
+            <label for="comm-email" class="champ-label">Email professionnel *</label>
+            <input type="email" id="comm-email" class="champ-input" placeholder="moussa.diop@louametay.com" required>
+          </div>
+        </div>
+
+        <!-- Ligne 4 : Zone géographique et Disponibilité -->
+        <div class="form-grille-2">
+          <div class="champ-groupe">
+            <label for="comm-zone" class="champ-label">Zone d'intervention terrain</label>
+            <input type="text" id="comm-zone" class="champ-input" placeholder="Ex: Dakar (Plateau, Almadies) & Thiès">
+          </div>
+          <div class="champ-groupe">
+            <label for="comm-disponibilite" class="champ-label">Disponibilité affichée</label>
+            <input type="text" id="comm-disponibilite" class="champ-input" placeholder="Ex: Disponible pour démo en salle">
+          </div>
+        </div>
+
+        <!-- Ligne 5 : Photo de profil (Upload ou URL) -->
+        <div class="champ-groupe champ-upload-photo-bloc">
+          <label class="champ-label">Photo portrait du conseiller (Format 4:5 recommandé)</label>
+          <div class="upload-flex-zone">
+            <!-- Aperçu de l'image -->
+            <div class="apercu-photo-wrapper">
+              <img id="img-apercu-commercial" src="images/commercial1.jpg" onerror="this.onerror=null; this.src='images/commercial1.svg';" alt="Aperçu photo" class="apercu-photo-img">
+            </div>
+
+            <div class="upload-controles">
+              <input type="file" id="comm-photo-file" accept="image/*" class="champ-file-input">
+              <label for="comm-photo-file" class="btn btn-contour btn-sm">
+                📁 Choisir une photo sur mon ordinateur
+              </label>
+              <span id="comm-photo-nom-fichier" class="photo-nom-texte">Aucun nouveau fichier sélectionné</span>
+
+              <div class="upload-separateur-ou">ou saisir l'URL directe de l'image :</div>
+              <input type="url" id="comm-photo-url" class="champ-input champ-sm" placeholder="https://... / images/commercial1.jpg">
+            </div>
+          </div>
+        </div>
+
+        <!-- Ligne 6 : Biographie -->
+        <div class="champ-groupe">
+          <label for="comm-bio" class="champ-label">Biographie & Spécialisation CHR</label>
+          <textarea id="comm-bio" class="champ-textarea" rows="3" placeholder="Présentation du conseiller, missions d'accompagnement sur le terrain..."></textarea>
+        </div>
+
+        <!-- Ligne 7 : Réseaux sociaux -->
+        <div class="reseaux-sociaux-cadre">
+          <h4 class="reseaux-cadre-titre">Liens Réseaux Sociaux (Facultatifs)</h4>
+          <div class="form-grille-2">
+            <div class="champ-groupe">
+              <label for="comm-linkedin" class="champ-label">LinkedIn</label>
+              <input type="url" id="comm-linkedin" class="champ-input champ-sm" placeholder="https://linkedin.com/in/nom">
+            </div>
+            <div class="champ-groupe">
+              <label for="comm-facebook" class="champ-label">Facebook</label>
+              <input type="url" id="comm-facebook" class="champ-input champ-sm" placeholder="https://facebook.com/profil">
+            </div>
+            <div class="champ-groupe">
+              <label for="comm-instagram" class="champ-label">Instagram</label>
+              <input type="url" id="comm-instagram" class="champ-input champ-sm" placeholder="https://instagram.com/compte">
+            </div>
+            <div class="champ-groupe">
+              <label for="comm-tiktok" class="champ-label">TikTok</label>
+              <input type="url" id="comm-tiktok" class="champ-input champ-sm" placeholder="https://tiktok.com/@compte">
+            </div>
+          </div>
+        </div>
+
+        <!-- Ligne 8 : Statut Actif / Inactif -->
+        <div class="statut-switch-modal-ligne">
+          <label class="switch-table">
+            <input type="checkbox" id="comm-actif" checked>
+            <span class="switch-table-curseur"></span>
+          </label>
+          <span class="statut-switch-texte">
+            <strong>Carte active</strong> (visible dans l'annuaire public et QR code fonctionnel)
+          </span>
+        </div>
+
+        <!-- Boutons d'action du formulaire -->
+        <div class="modal-pied-actions">
+          <button type="button" id="btn-annuler-modal-commercial" class="btn btn-contour">
+            Annuler
+          </button>
+          <button type="submit" id="btn-enregistrer-commercial" class="btn btn-primaire">
+            <span id="btn-save-texte">Enregistrer le commercial</span>
+            <span id="btn-save-spinner" class="spinner-chargement" style="display: none;"></span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MODAL 2 : CONFIRMATION DE SUPPRESSION
+       ====================================================================== -->
+  <div id="modal-suppression" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal-contenu" style="max-width: 440px;">
+      <h3 style="font-family: var(--police-titre); font-size: 1.25rem; color: var(--marine-fonce); font-weight: 800; margin-bottom: 0.5rem;">
+        Confirmer la suppression
+      </h3>
+      <p id="msg-confirmation-suppr" style="color: var(--gris-texte-muet); font-size: 0.92rem; margin-bottom: 1.5rem;">
+        Êtes-vous sûr de vouloir supprimer définitivement la carte de ce conseiller ? Cette action est irréversible.
+      </p>
+      <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+        <button type="button" id="btn-annuler-suppression" class="btn btn-contour btn-sm">
+          Annuler
+        </button>
+        <button type="button" id="btn-valider-suppression" class="btn btn-danger btn-sm">
+          Supprimer définitivement
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MODAL 3 : PRÉVISUALISATION QR CODE HAUTE RÉSOLUTION (1000x1000px PNG)
+       ====================================================================== -->
+  <div id="modal-qr-preview" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal-contenu" style="max-width: 480px; text-align: center;">
+      <button type="button" id="btn-fermer-modal-qr" class="btn-fermer-modal" aria-label="Fermer">✕</button>
+      <h3 id="modal-qr-nom" style="font-family: var(--police-titre); font-size: 1.25rem; color: var(--marine-fonce); font-weight: 800; margin-bottom: 0.25rem;">
+        QR Code Haute Définition
+      </h3>
+      <p id="modal-qr-poste" style="color: var(--dore-sombre); font-weight: 700; font-size: 0.9rem; margin-bottom: 1rem;">
+        Poste commercial
+      </p>
+
+      <!-- Cadre visuel 1000x1000px capturé en HD -->
+      <div id="qr-export-carte-cadre" class="qr-export-cadre-visuel">
+        <div class="qr-export-logo-ligne">
+          <img src="images/logo.png" onerror="this.onerror=null; this.src='images/logo.svg';" alt="Lou Ame Tay" class="qr-export-logo-img">
+          <div class="qr-export-marque-titre">LOU AME TAY 🍽️</div>
+        </div>
+
+        <div id="modal-qrcode-rendu" class="qr-export-code-centre"></div>
+
+        <div class="qr-export-infos-bas">
+          <strong id="modal-qr-carte-nom" class="qr-export-nom">Moussa Diop</strong>
+          <span id="modal-qr-carte-poste" class="qr-export-poste">Conseiller CHR</span>
+          <span class="qr-export-instruction">Scannez pour ouvrir la carte & enregistrer le contact</span>
+        </div>
+      </div>
+
+      <div style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
+        <button type="button" id="btn-telecharger-png-1000" class="btn btn-primaire">
+          📥 Télécharger en PNG Haute Définition (1000x1000px)
+        </button>
+        <span style="font-size: 0.8rem; color: #64748B;">Idéal pour l'impression sur chevalets de table, cartes PVC et dépliants</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Toast flottant -->
+  <div id="toast" class="toast-notification" role="status" aria-live="polite"></div>
+
+  <!-- Scripts modulaires -->
+  <script type="module" src="js/qrcode-export.js"></script>
+  <script type="module" src="js/admin.js"></script>
+</body>
+</html>

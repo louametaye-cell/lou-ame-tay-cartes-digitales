@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="600" height="400">
+  <defs>
+    <linearGradient id="entBg1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#071526" />
+      <stop offset="60%" stop-color="#12253E" />
+      <stop offset="100%" stop-color="#1E395F" />
+    </linearGradient>
+    <linearGradient id="goldE1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCE588" />
+      <stop offset="50%" stop-color="#C9A227" />
+      <stop offset="100%" stop-color="#997300" />
+    </linearGradient>
+  </defs>
+  
+  <rect width="600" height="400" fill="url(#entBg1)" rx="12"/>
+  
+  <!-- Architectural Studio lines -->
+  <line x1="0" y1="320" x2="600" y2="320" stroke="#C9A227" stroke-width="1.5" opacity="0.4"/>
+  <line x1="0" y1="330" x2="600" y2="330" stroke="#C9A227" stroke-width="0.8" opacity="0.2"/>
+  
+  <!-- Atelier Cutting Table with Fabric Rolls -->
+  <rect x="80" y="240" width="440" height="90" rx="6" fill="#0C1D33" stroke="url(#goldE1)" stroke-width="2"/>
+  
+  <!-- Fabric roll draped -->
+  <path d="M120 230 C200 210, 240 260, 360 220 L400 240 L380 270 L120 270 Z" fill="#997300" opacity="0.7"/>
+  <path d="M140 225 C210 205, 250 255, 370 215" stroke="url(#goldE1)" stroke-width="3" fill="none"/>
+  
+  <!-- Golden Tailor Scissors & Measuring Tape -->
+  <g transform="translate(420, 255) rotate(-25)">
+    <circle cx="0" cy="0" r="12" fill="none" stroke="url(#goldE1)" stroke-width="3"/>
+    <circle cx="16" cy="16" r="12" fill="none" stroke="url(#goldE1)" stroke-width="3"/>
+    <line x1="5" y1="5" x2="50" y2="30" stroke="url(#goldE1)" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="15" y1="10" x2="45" y2="-10" stroke="url(#goldE1)" stroke-width="3.5" stroke-linecap="round"/>
+  </g>
+  
+  <!-- Haute Couture Mannequin Form -->
+  <g transform="translate(190, 80)">
+    <ellipse cx="60" cy="18" rx="8" ry="4" fill="url(#goldE1)"/>
+    <path d="M40 30 C40 30, 50 65, 36 90 C28 105, 34 140, 48 150 L72 150 C86 140, 92 105, 84 90 C70 65, 80 30, 80 30 Z" fill="#172F4F" stroke="url(#goldE1)" stroke-width="2.5"/>
+    <line x1="60" y1="150" x2="60" y2="240" stroke="url(#goldE1)" stroke-width="3"/>
+    <path d="M40 240 L80 240" stroke="url(#goldE1)" stroke-width="4" stroke-linecap="round"/>
+    <!-- Gold Drape on mannequin -->
+    <path d="M38 50 Q60 85 82 50 Q75 100 48 130" stroke="url(#goldE1)" stroke-width="2" fill="none"/>
+  </g>
+  
+  <!-- Lighting pendants -->
+  <line x1="150" y1="0" x2="150" y2="70" stroke="url(#goldE1)" stroke-width="2"/>
+  <polygon points="135,70 165,70 175,90 125,90" fill="url(#goldE1)"/>
+  <line x1="450" y1="0" x2="450" y2="70" stroke="url(#goldE1)" stroke-width="2"/>
+  <polygon points="435,70 465,70 475,90 425,90" fill="url(#goldE1)"/>
+
+  <!-- Caption overlay -->
+  <rect x="0" y="325" width="600" height="75" fill="#071220" opacity="0.9"/>
+  <text x="30" y="355" font-family="'Poppins', sans-serif" font-size="18" font-weight="700" fill="url(#goldE1)">Atelier de Haute Confection Lou Ame Tay</text>
+  <text x="30" y="378" font-family="'Inter', sans-serif" font-size="13" font-weight="400" fill="#E2E8F0">Maîtres tailleurs, découpe au millimètre et finitions brodées à la main.</text>
+</svg>

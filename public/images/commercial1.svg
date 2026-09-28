@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 750" width="600" height="750">
+  <defs>
+    <!-- Studio Lighting Background -->
+    <radialGradient id="studioLight1" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#223E66" />
+      <stop offset="45%" stop-color="#12243D" />
+      <stop offset="100%" stop-color="#081424" />
+    </radialGradient>
+    <linearGradient id="skin1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#844B22"/>
+      <stop offset="50%" stop-color="#6F3B16"/>
+      <stop offset="100%" stop-color="#542B0E"/>
+    </linearGradient>
+    <linearGradient id="goldSilk" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE89C"/>
+      <stop offset="35%" stop-color="#D4AF37"/>
+      <stop offset="70%" stop-color="#AA8214"/>
+      <stop offset="100%" stop-color="#6C5106"/>
+    </linearGradient>
+    <linearGradient id="boubouGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0F284A"/>
+      <stop offset="50%" stop-color="#091B33"/>
+      <stop offset="100%" stop-color="#051020"/>
+    </linearGradient>
+    <!-- Soft vignette and ambient highlights -->
+    <radialGradient id="softGlow" cx="50%" cy="20%" r="40%">
+      <stop offset="0%" stop-color="#C9A227" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#C9A227" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Studio Background -->
+  <rect width="600" height="750" fill="url(#studioLight1)"/>
+  <rect width="600" height="750" fill="url(#softGlow)"/>
+
+  <!-- Subtle Studio Backdrop Geometric Accent -->
+  <circle cx="300" cy="280" r="230" fill="none" stroke="#C9A227" stroke-width="1.5" stroke-opacity="0.25" stroke-dasharray="8,6"/>
+  <circle cx="300" cy="280" r="260" fill="none" stroke="#FFFFFF" stroke-width="0.75" stroke-opacity="0.1"/>
+
+  <!-- Bust / Couture Attire (Aminata Diallo) -->
+  <!-- Shoulders and Royal Navy Cape / Boubou -->
+  <path d="M40 750 L80 520 C90 440, 160 395, 230 380 L300 440 L370 380 C440 395, 510 440, 520 520 L560 750 Z" fill="url(#boubouGrad)" />
+  
+  <!-- Intricate Gold Embroidery along neckline and chest placket -->
+  <path d="M230 380 Q300 490 370 380 Q300 445 230 380 Z" fill="url(#goldSilk)" />
+  <path d="M285 435 L315 435 L325 750 L275 750 Z" fill="url(#goldSilk)" opacity="0.95"/>
+  <!-- Embroidery filigree lines -->
+  <path d="M290 450 L310 450 M288 480 L312 480 M286 510 L314 510 M284 540 L316 540 M282 570 L318 570 M280 600 L320 600 M278 630 L322 630" stroke="#4B3704" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="300" cy="465" r="4" fill="#FFEAA7"/>
+  <circle cx="300" cy="525" r="4" fill="#FFEAA7"/>
+  <circle cx="300" cy="585" r="4" fill="#FFEAA7"/>
+  <circle cx="300" cy="645" r="4" fill="#FFEAA7"/>
+
+  <!-- Neck -->
+  <rect x="272" y="300" width="56" height="100" rx="20" fill="url(#skin1)"/>
+  <!-- Gold Choker Necklace -->
+  <path d="M260 370 Q300 395 340 370" fill="none" stroke="url(#goldSilk)" stroke-width="10" stroke-linecap="round"/>
+  <path d="M270 385 Q300 405 330 385" fill="none" stroke="#FFEAA7" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- Head / Face -->
+  <ellipse cx="300" cy="245" rx="78" ry="95" fill="url(#skin1)"/>
+  
+  <!-- Majestic Senegalese Gele / Headwrap (Moussor) in Gold Silk & Royal Blue -->
+  <path d="M200 230 C190 120, 240 60, 300 60 C360 60, 410 120, 400 230 C410 170, 370 100, 300 100 C230 100, 190 170, 200 230 Z" fill="url(#boubouGrad)"/>
+  <path d="M195 180 C210 110, 260 70, 310 65 C370 70, 405 110, 405 180 C370 125, 330 115, 300 115 C265 115, 230 125, 195 180 Z" fill="url(#goldSilk)"/>
+  <path d="M225 105 Q300 40 375 105 Q300 70 225 105" fill="#FFEAA7"/>
+  <circle cx="300" cy="65" r="16" fill="url(#goldSilk)"/>
+  <circle cx="300" cy="65" r="8" fill="#FFF"/>
+
+  <!-- High Fashion Makeup & Features -->
+  <!-- Eyebrows -->
+  <path d="M245 215 Q270 205 285 215" stroke="#251206" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M315 215 Q330 205 355 215" stroke="#251206" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <!-- Eyes with eyeliner -->
+  <path d="M248 230 Q268 220 284 230 Q268 238 248 230 Z" fill="#FFFFFF"/>
+  <circle cx="267" cy="229" r="6.5" fill="#201005"/>
+  <circle cx="269" cy="227" r="2.5" fill="#FFFFFF"/>
+  <path d="M245 228 Q268 217 286 228" stroke="#000000" stroke-width="3" fill="none"/>
+  
+  <path d="M316 230 Q332 220 352 230 Q332 238 316 230 Z" fill="#FFFFFF"/>
+  <circle cx="333" cy="229" r="6.5" fill="#201005"/>
+  <circle cx="335" cy="227" r="2.5" fill="#FFFFFF"/>
+  <path d="M314 228 Q332 217 355 228" stroke="#000000" stroke-width="3" fill="none"/>
+
+  <!-- Nose -->
+  <path d="M298 230 L294 262 L306 262" stroke="#48240B" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+
+  <!-- High Fashion Lips (Matte Wine Red) -->
+  <path d="M276 288 Q300 282 324 288 Q300 310 276 288 Z" fill="#882D2D"/>
+  <path d="M280 288 Q300 293 320 288" stroke="#4E1212" stroke-width="2" fill="none"/>
+
+  <!-- Gold Drop Earrings with Emerald Stone -->
+  <g transform="translate(204, 260)">
+    <circle cx="0" cy="0" r="7" fill="url(#goldSilk)"/>
+    <line x1="0" y1="7" x2="0" y2="35" stroke="url(#goldSilk)" stroke-width="3.5"/>
+    <polygon points="0,50 -9,35 9,35" fill="url(#goldSilk)"/>
+    <circle cx="0" cy="40" r="4" fill="#0E4E38"/>
+  </g>
+  <g transform="translate(396, 260)">
+    <circle cx="0" cy="0" r="7" fill="url(#goldSilk)"/>
+    <line x1="0" y1="7" x2="0" y2="35" stroke="url(#goldSilk)" stroke-width="3.5"/>
+    <polygon points="0,50 -9,35 9,35" fill="url(#goldSilk)"/>
+    <circle cx="0" cy="40" r="4" fill="#0E4E38"/>
+  </g>
+
+  <!-- Studio Soft Rim Light (Left & Right Edge) -->
+  <path d="M0 0 L40 0 L120 750 L0 750 Z" fill="#C9A227" opacity="0.06"/>
+  <path d="M560 0 L600 0 L600 750 L480 750 Z" fill="#C9A227" opacity="0.06"/>
+</svg>

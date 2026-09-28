@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 750" width="600" height="750">
+  <defs>
+    <radialGradient id="studioLight3" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#1B3F3D" />
+      <stop offset="50%" stop-color="#0E2827" />
+      <stop offset="100%" stop-color="#061515" />
+    </radialGradient>
+    <linearGradient id="skin3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#884F26"/>
+      <stop offset="50%" stop-color="#723E19"/>
+      <stop offset="100%" stop-color="#552B0F"/>
+    </linearGradient>
+    <linearGradient id="goldSilk3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE89C"/>
+      <stop offset="40%" stop-color="#D4AF37"/>
+      <stop offset="100%" stop-color="#7E5F09"/>
+    </linearGradient>
+    <linearGradient id="emeraldSilk" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#134E4A"/>
+      <stop offset="50%" stop-color="#0F3B38"/>
+      <stop offset="100%" stop-color="#07201E"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="600" height="750" fill="url(#studioLight3)"/>
+  <circle cx="300" cy="270" r="230" fill="none" stroke="#C9A227" stroke-width="1.5" stroke-opacity="0.25" stroke-dasharray="6,4"/>
+
+  <!-- Bust: Haute Couture Emerald Cape / Tailored Gown (Fatou Sow) -->
+  <path d="M45 750 L80 500 C95 430, 165 390, 235 375 L300 440 L365 375 C435 390, 505 430, 520 500 L555 750 Z" fill="url(#emeraldSilk)"/>
+
+  <!-- Gold Brocade V-Neck Border -->
+  <path d="M235 375 L300 455 L365 375 L350 365 L300 435 L250 365 Z" fill="url(#goldSilk3)"/>
+  <path d="M285 455 L315 455 L320 750 L280 750 Z" fill="url(#goldSilk3)" opacity="0.9"/>
+  <!-- Gold Brocade stitching -->
+  <circle cx="300" cy="485" r="4.5" fill="#FFEAA7"/>
+  <circle cx="300" cy="545" r="4.5" fill="#FFEAA7"/>
+  <circle cx="300" cy="605" r="4.5" fill="#FFEAA7"/>
+  <circle cx="300" cy="665" r="4.5" fill="#FFEAA7"/>
+
+  <!-- Neck -->
+  <rect x="270" y="295" width="60" height="95" rx="18" fill="url(#skin3)"/>
+  <!-- Delicate Triple Gold Chain Necklace -->
+  <path d="M260 360 Q300 380 340 360" fill="none" stroke="url(#goldSilk3)" stroke-width="3"/>
+  <path d="M255 375 Q300 400 345 375" fill="none" stroke="url(#goldSilk3)" stroke-width="2.5"/>
+  <circle cx="300" cy="402" r="5" fill="#FFEAA7"/>
+
+  <!-- Head -->
+  <ellipse cx="300" cy="240" rx="74" ry="90" fill="url(#skin3)"/>
+
+  <!-- High Sleek Top-Knot Chignon with Gold Accessories -->
+  <circle cx="300" cy="120" r="46" fill="#120A05"/>
+  <path d="M225 220 C225 140, 255 135, 300 135 C345 135, 375 140, 375 220 C375 165, 350 150, 300 150 C250 150, 225 165, 225 220 Z" fill="#120A05"/>
+  <!-- Traditional Gold Pin through Chignon -->
+  <line x1="240" y1="100" x2="360" y2="135" stroke="url(#goldSilk3)" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="360" cy="135" r="8" fill="#FFEAA7"/>
+
+  <!-- Eyes & Eyebrows -->
+  <path d="M246 215 Q268 206 284 215" stroke="#1C0E06" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+  <path d="M316 215 Q332 206 354 215" stroke="#1C0E06" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+  
+  <path d="M248 228 Q268 219 284 228 Q268 235 248 228 Z" fill="#FFFFFF"/>
+  <circle cx="267" cy="227" r="6" fill="#1C0E06"/>
+  <circle cx="269" cy="225" r="2" fill="#FFFFFF"/>
+  <path d="M245 226 Q268 216 285 226" stroke="#000" stroke-width="2.5" fill="none"/>
+
+  <path d="M316 228 Q332 219 352 228 Q332 235 316 228 Z" fill="#FFFFFF"/>
+  <circle cx="333" cy="227" r="6" fill="#1C0E06"/>
+  <circle cx="335" cy="225" r="2" fill="#FFFFFF"/>
+  <path d="M314 226 Q332 216 354 226" stroke="#000" stroke-width="2.5" fill="none"/>
+
+  <!-- Nose -->
+  <path d="M298 226 L294 256 L306 256" stroke="#48220A" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+  <!-- Lips (Terracotta Satin) -->
+  <path d="M276 284 Q300 278 324 284 Q300 304 276 284 Z" fill="#9C3A32"/>
+
+  <!-- Gold Drop Earrings -->
+  <g transform="translate(208, 255)">
+    <circle cx="0" cy="0" r="5" fill="url(#goldSilk3)"/>
+    <line x1="0" y1="5" x2="0" y2="40" stroke="url(#goldSilk3)" stroke-width="3"/>
+    <polygon points="0,55 -8,40 8,40" fill="url(#goldSilk3)"/>
+  </g>
+  <g transform="translate(392, 255)">
+    <circle cx="0" cy="0" r="5" fill="url(#goldSilk3)"/>
+    <line x1="0" y1="5" x2="0" y2="40" stroke="url(#goldSilk3)" stroke-width="3"/>
+    <polygon points="0,55 -8,40 8,40" fill="url(#goldSilk3)"/>
+  </g>
+</svg>

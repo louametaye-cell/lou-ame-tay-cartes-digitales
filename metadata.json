@@ -1,0 +1,6 @@
+{
+  "name": "Lou Ame Tay — Cartes de Visite Digitales",
+  "description": "Cartes de visite digitales et interactives avec QR codes dynamiques pour l'équipe commerciale de Lou Ame Tay.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

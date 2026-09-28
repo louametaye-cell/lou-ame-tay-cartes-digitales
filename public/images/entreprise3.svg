@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="600" height="400">
+  <defs>
+    <linearGradient id="entBg3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#050E18" />
+      <stop offset="50%" stop-color="#0E1D31" />
+      <stop offset="100%" stop-color="#192A42" />
+    </linearGradient>
+    <linearGradient id="goldE3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCE588" />
+      <stop offset="50%" stop-color="#C9A227" />
+      <stop offset="100%" stop-color="#997300" />
+    </linearGradient>
+    <linearGradient id="spotlight" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#FCE588" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#0B1F3A" stop-opacity="0.0" />
+    </linearGradient>
+  </defs>
+  
+  <rect width="600" height="400" fill="url(#entBg3)" rx="12"/>
+  
+  <!-- Runway perspective spotlights -->
+  <polygon points="300,0 200,330 400,330" fill="url(#spotlight)"/>
+  <polygon points="100,0 30,330 220,330" fill="url(#spotlight)" opacity="0.4"/>
+  <polygon points="500,0 380,330 570,330" fill="url(#spotlight)" opacity="0.4"/>
+  
+  <!-- Runway Floor -->
+  <polygon points="220,180 380,180 460,330 140,330" fill="#0A1626" stroke="url(#goldE3)" stroke-width="1.5"/>
+  <line x1="300" y1="180" x2="300" y2="330" stroke="url(#goldE3)" stroke-width="1" stroke-dasharray="8,6" opacity="0.6"/>
+  
+  <!-- Model walking on runway -->
+  <g transform="translate(275, 120)">
+    <!-- Headwrap -->
+    <ellipse cx="25" cy="20" rx="9" ry="12" fill="url(#goldE3)"/>
+    <circle cx="25" cy="12" r="5" fill="#FCE588"/>
+    <!-- Head -->
+    <ellipse cx="25" cy="28" rx="7" ry="9" fill="#6A3B18"/>
+    <!-- Slender High Fashion Silhouette -->
+    <path d="M16 42 L25 90 L34 42 Z" fill="#081423"/>
+    <!-- Flowing Caped Gown with African Motifs -->
+    <path d="M15 45 C0 100, -10 140, -15 170 L25 180 L65 170 C60 140, 50 100, 35 45 Z" fill="url(#goldE3)" opacity="0.9"/>
+    <path d="M10 70 Q25 110 40 70" stroke="#081423" stroke-width="2" fill="none"/>
+    <path d="M5 120 Q25 150 45 120" stroke="#081423" stroke-width="2" fill="none"/>
+    <!-- Legs walking -->
+    <line x1="21" y1="180" x2="16" y2="210" stroke="#6A3B18" stroke-width="4" stroke-linecap="round"/>
+    <line x1="29" y1="180" x2="34" y2="206" stroke="#6A3B18" stroke-width="4" stroke-linecap="round"/>
+    <!-- High heels -->
+    <line x1="16" y1="210" x2="12" y2="214" stroke="url(#goldE3)" stroke-width="3"/>
+    <line x1="34" y1="206" x2="38" y2="210" stroke="url(#goldE3)" stroke-width="3"/>
+  </g>
+  
+  <!-- Runway Lights dots -->
+  <circle cx="150" cy="330" r="4" fill="url(#goldE3)"/>
+  <circle cx="210" cy="330" r="4" fill="url(#goldE3)"/>
+  <circle cx="270" cy="330" r="4" fill="url(#goldE3)"/>
+  <circle cx="330" cy="330" r="4" fill="url(#goldE3)"/>
+  <circle cx="390" cy="330" r="4" fill="url(#goldE3)"/>
+  <circle cx="450" cy="330" r="4" fill="url(#goldE3)"/>
+
+  <!-- Caption overlay -->
+  <rect x="0" y="325" width="600" height="75" fill="#071220" opacity="0.9"/>
+  <text x="30" y="355" font-family="'Poppins', sans-serif" font-size="18" font-weight="700" fill="url(#goldE3)">Défilés & Événements d'Envergure</text>
+  <text x="30" y="378" font-family="'Inter', sans-serif" font-size="13" font-weight="400" fill="#E2E8F0">Présence aux semaines de la mode de Dakar, Paris, Abidjan et Casablanca.</text>
+</svg>

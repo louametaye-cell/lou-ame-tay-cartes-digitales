@@ -1,0 +1,55 @@
+{
+  "nav": {
+    "accueil": "Accueil",
+    "offres": "Nos formules",
+    "apropos": "L'entreprise",
+    "admin": "Espace Admin",
+    "site_officiel": "Site officiel ↗"
+  },
+  "hero": {
+    "badge": "✦ ÉQUIPE TERRAIN & CONSEIL CHR ✦",
+    "titre": "Cartes Digitales de nos Conseillers Terrain",
+    "soustitre": "Chaque commercial dispose d'un outil mobile interactif avec photo grand format, démonstration en direct de commande QR code, rendez-vous en salle et WhatsApp direct.",
+    "recherche_placeholder": "Rechercher par prénom, nom, zone (Dakar, Thiès, Saly)..."
+  },
+  "carte": {
+    "retour": "← Retour à l'équipe",
+    "badge_terrain": "✦ CONSEILLER TERRAIN CHR",
+    "appel": "Appel",
+    "whatsapp": "WhatsApp",
+    "email": "Email",
+    "partager": "Partager",
+    "vcard": "Ajouter aux contacts (vCard)",
+    "rdv_demo": "Planifier une démo en salle (Thiès / Dakar / Mbour)",
+    "support_direct": "Support WhatsApp direct 7j/7 (Intervention 48h)",
+    "horaires_titre": "Support technique & Hotline CHR : 7j/7 de 8h à 20h",
+    "horaires_desc": "Intervention d'urgence jusqu'à 22h00 pour les services du soir",
+    "a_propos": "À propos de moi",
+    "disponible": "Disponible pour démo en salle",
+    "coordonnees": "Coordonnées professionnelles",
+    "formules_titre": "Nos Formules Restauration & Hôtellerie",
+    "formules_desc": "Sélectionnez une formule pour en discuter directement avec le conseiller :",
+    "scanner_titre": "Faire scanner ma carte",
+    "scanner_desc": "Pointez l'appareil photo d'un smartphone sur ce QR code pour ouvrir instantanément cette carte de visite.",
+    "demande_devis": "Demander une démo ou un devis",
+    "nom_etablissement": "Nom de votre établissement *",
+    "votre_nom": "Votre nom & prénom *",
+    "telephone": "Téléphone / WhatsApp *",
+    "ville": "Ville / Quartier *",
+    "formule_souhaitee": "Formule souhaitée",
+    "envoyer": "🚀 Envoyer ma demande au conseiller",
+    "carte_inactive": "Cette carte n'est plus active",
+    "carte_inactive_desc": "La carte de ce conseiller commercial a été désactivée temporairement par la direction Lou Ame Tay.",
+    "signature_email": "✉️ Générer ma signature email"
+  },
+  "formules": {
+    "tambali": "Formule Tàmbali (15 000 FCFA/mois)",
+    "niofar": "Formule Nio Far (25 000 FCFA/mois)",
+    "xeweul": "Formule Xéweul ⭐ (35 000 FCFA/mois)",
+    "surmesure": "Sur Mesure (Complexe / Multi-sites)"
+  },
+  "footer": {
+    "droits": "Solution SaaS CHR au Sénégal. Tous droits réservés.",
+    "support_wa": "Support WhatsApp (+221 76 231 20 03)"
+  }
+}

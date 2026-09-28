@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 750" width="600" height="750">
+  <defs>
+    <radialGradient id="studioLight4" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#142C4B" />
+      <stop offset="50%" stop-color="#0B1A2F" />
+      <stop offset="100%" stop-color="#050C17" />
+    </radialGradient>
+    <linearGradient id="skin4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#794622"/>
+      <stop offset="50%" stop-color="#623414"/>
+      <stop offset="100%" stop-color="#46220A"/>
+    </linearGradient>
+    <linearGradient id="goldSilk4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE89C"/>
+      <stop offset="40%" stop-color="#D4AF37"/>
+      <stop offset="100%" stop-color="#7E5F09"/>
+    </linearGradient>
+    <linearGradient id="suitGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0A1828"/>
+      <stop offset="50%" stop-color="#06101C"/>
+      <stop offset="100%" stop-color="#02060A"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="600" height="750" fill="url(#studioLight4)"/>
+  <circle cx="300" cy="270" r="230" fill="none" stroke="#C9A227" stroke-width="1.5" stroke-opacity="0.2" stroke-dasharray="8,6"/>
+
+  <!-- Torso: Luxury Bespoke Navy Suit, Crisp White Shirt, Gold Silk Tie (Moussa Ba) -->
+  <path d="M45 750 L80 490 C95 420, 165 380, 235 365 L300 440 L365 365 C435 380, 505 420, 520 490 L555 750 Z" fill="url(#suitGrad)"/>
+
+  <!-- White Shirt Collar & Gold Silk Tie -->
+  <polygon points="265,365 300,440 335,365" fill="#FFFFFF"/>
+  <!-- Gold Tie Knot & Blade -->
+  <polygon points="292,390 308,390 312,415 288,415" fill="url(#goldSilk4)"/>
+  <polygon points="288,415 312,415 320,680 300,720 280,680" fill="url(#goldSilk4)"/>
+  <!-- Subtle Tie Pattern -->
+  <line x1="288" y1="450" x2="312" y2="450" stroke="#AA8214" stroke-width="2"/>
+  <line x1="286" y1="490" x2="314" y2="490" stroke="#AA8214" stroke-width="2"/>
+  <line x1="284" y1="530" x2="316" y2="530" stroke="#AA8214" stroke-width="2"/>
+
+  <!-- Suit Lapels with Gold Boutonniere Pin -->
+  <path d="M225 365 L275 520 L240 750" stroke="url(#goldSilk4)" stroke-width="2.5" fill="none"/>
+  <path d="M375 365 L325 520 L360 750" stroke="url(#goldSilk4)" stroke-width="2.5" fill="none"/>
+  <!-- Gold Lapel Pin / Brooch -->
+  <circle cx="250" cy="430" r="7" fill="url(#goldSilk4)"/>
+  <line x1="250" y1="437" x2="245" y2="465" stroke="url(#goldSilk4)" stroke-width="2.5"/>
+
+  <!-- Neck -->
+  <rect x="268" y="290" width="64" height="90" rx="16" fill="url(#skin4)"/>
+
+  <!-- Head -->
+  <ellipse cx="300" cy="235" rx="76" ry="92" fill="url(#skin4)"/>
+
+  <!-- Short Professional Fade -->
+  <path d="M225 215 C225 140, 255 125, 300 125 C345 125, 375 140, 375 215 C375 160, 355 145, 300 145 C245 145, 225 160, 225 215 Z" fill="#130B06"/>
+
+  <!-- Gold-Rimmed Executive Glasses -->
+  <rect x="245" y="210" width="45" height="32" rx="8" fill="none" stroke="url(#goldSilk4)" stroke-width="3.5"/>
+  <rect x="310" y="210" width="45" height="32" rx="8" fill="none" stroke="url(#goldSilk4)" stroke-width="3.5"/>
+  <line x1="290" y1="222" x2="310" y2="222" stroke="url(#goldSilk4)" stroke-width="3.5"/>
+  <line x1="225" y1="220" x2="245" y2="220" stroke="url(#goldSilk4)" stroke-width="3"/>
+  <line x1="355" y1="220" x2="375" y2="220" stroke="url(#goldSilk4)" stroke-width="3"/>
+
+  <!-- Eyes behind glasses -->
+  <circle cx="268" cy="226" r="6" fill="#1C0E06"/>
+  <circle cx="270" cy="224" r="2" fill="#FFFFFF"/>
+  <circle cx="332" cy="226" r="6" fill="#1C0E06"/>
+  <circle cx="334" cy="224" r="2" fill="#FFFFFF"/>
+
+  <!-- Brows -->
+  <path d="M245 198 Q268 190 288 198" stroke="#130B06" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M312 198 Q332 190 355 198" stroke="#130B06" stroke-width="5" fill="none" stroke-linecap="round"/>
+
+  <!-- Nose -->
+  <path d="M298 226 L294 256 L306 256" stroke="#48220A" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+  <!-- Smile & Moustache -->
+  <path d="M276 270 Q300 262 324 270" stroke="#130B06" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M280 286 Q300 298 320 286" stroke="#2B1304" stroke-width="2.5" fill="none"/>
+</svg>

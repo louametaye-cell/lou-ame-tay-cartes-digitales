@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lou Ame Tay 🍽️ — Cartes de Visite Digitales Équipe Terrain</title>
+  <meta name="description" content="Cartes de visite digitales et QR codes des conseillers terrain de Lou Ame Tay. Transition digitale de la restauration et de l'hôtellerie au Sénégal (Dakar, Thiès, Mbour).">
+  <meta property="og:title" content="Lou Ame Tay 🍽️ — Cartes de Visite Digitales">
+  <meta property="og:description" content="Solution SaaS 100% sénégalaise : Menu Digital, Commande à Table QR Code, KDS Cuisine.">
+  <meta property="og:type" content="website">
+
+  <!-- Manifest PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0B1F3A">
+
+  <!-- Feuilles de style & Polices Google Fonts -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" type="image/svg+xml" href="images/logo.svg">
+</head>
+<body>
+
+  <!-- En-tête principal -->
+  <header class="entete">
+    <div class="conteneur entete-contenu">
+      <a href="index.html" class="marque-lien" aria-label="Accueil Lou Ame Tay">
+        <img id="logo" src="images/logo.png" onerror="this.onerror=null; this.src='images/logo.svg';" alt="Logo Lou Ame Tay" class="logo">
+        <div>
+          <h1 id="nom-entreprise" class="titre-marque">Lou Ame Tay 🍽️</h1>
+          <p id="slogan-entreprise" class="slogan">La transition digitale de la restauration et de l'hôtellerie au Sénégal</p>
+        </div>
+      </a>
+
+      <div class="nav-actions">
+        <!-- Sélecteur de Langue Trilingue -->
+        <div class="selecteur-langue-carte" aria-label="Choisir la langue">
+          <button type="button" class="btn-lang-switch active" data-lang="fr" title="Français">🇫🇷 FR</button>
+          <button type="button" class="btn-lang-switch" data-lang="wo" title="Wolof">🇸🇳 WO</button>
+          <button type="button" class="btn-lang-switch" data-lang="en" title="English">🇬🇧 EN</button>
+        </div>
+
+        <a href="#offres" class="btn btn-retour" data-i18n="nav.offres">Nos formules</a>
+        <a href="#apropos" class="btn btn-retour" data-i18n="nav.apropos">L'entreprise</a>
+        <a href="login.html" class="btn btn-contour" title="Connexion Administration" data-i18n="nav.admin">
+          🔐 Espace Admin
+        </a>
+        <a id="nav-lien-site" href="https://www.louametay.com" target="_blank" rel="noopener noreferrer" class="btn btn-primaire" data-i18n="nav.site_officiel">
+          Site officiel ↗
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Contenu Principal -->
+  <main class="conteneur">
+
+    <!-- Bannière Hero Équipe Terrain -->
+    <section class="hero-equipe">
+      <div class="hero-badge" data-i18n="hero.badge">✦ ÉQUIPE TERRAIN & CONSEIL CHR ✦</div>
+      <h2 class="hero-titre" data-i18n="hero.titre">Cartes Digitales de nos <span>Conseillers Terrain</span></h2>
+      <p class="hero-soustitre" data-i18n="hero.soustitre">
+        Chaque commercial dispose d'un outil mobile interactif avec photo grand format, 
+        démonstration en direct de commande par QR code, formulaire de rendez-vous et contact direct WhatsApp.
+      </p>
+
+      <!-- Champ de recherche en temps réel -->
+      <div class="zone-recherche">
+        <div class="recherche-conteneur">
+          <span class="icone-recherche" aria-hidden="true">🔍</span>
+          <input 
+            type="search" 
+            id="recherche" 
+            class="champ-recherche" 
+            placeholder="Rechercher par prénom, nom, zone (Dakar, Thiès, Saly)..."
+            data-i18n-placeholder="hero.recherche_placeholder"
+            aria-label="Rechercher un conseiller commercial"
+            autocomplete="off"
+          >
+          <button type="button" id="btn-effacer-recherche" class="btn-effacer-recherche" aria-label="Effacer">✕</button>
+        </div>
+
+        <!-- Filtres par Catégorie (Alignés avec la contrainte CHECK PostgreSQL) -->
+        <div class="filtres-categories-annuaire" id="filtres-categories" role="group" aria-label="Filtrer par catégorie">
+          <button type="button" class="btn-filtre-cat active" data-categorie="Tous">Tous</button>
+          <button type="button" class="btn-filtre-cat" data-categorie="Direction">Direction</button>
+          <button type="button" class="btn-filtre-cat" data-categorie="Vente">Vente</button>
+          <button type="button" class="btn-filtre-cat" data-categorie="Support">Support</button>
+          <button type="button" class="btn-filtre-cat" data-categorie="Technique">Technique</button>
+        </div>
+
+        <p id="compteur-resultats" class="compteur-resultats" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <!-- Grille des cartes des commerciaux -->
+    <section aria-label="Annuaire des conseillers terrain">
+      <div id="annuaire" class="grille-commerciaux grille">
+        <!-- Rendu dynamique par js/app.js -->
+      </div>
+    </section>
+
+    <!-- Section Présentation des Formules Commerciales -->
+    <section id="offres" class="chimp-carte-blanche" style="margin-bottom: 3rem; padding: 2.5rem 2rem;">
+      <div style="text-align: center; max-width: 700px; margin: 0 auto 2rem;">
+        <span class="hero-badge">✦ NOS OFFRES RESTAURATION ✦</span>
+        <h2 style="font-family: var(--police-titre); font-size: 2rem; color: var(--marine-fonce); font-weight: 800; margin-top: 0.5rem;" data-i18n="carte.formules_titre">
+          Des formules adaptées à chaque établissement
+        </h2>
+        <p style="color: var(--gris-texte-muet); font-size: 0.95rem; margin-top: 0.5rem;" data-i18n="carte.formules_desc">
+          Du petit maquis au grand complexe hôtelier, bénéficiez de paiements Wave & Orange Money et d'un support 7j/7.
+        </p>
+      </div>
+
+      <div id="grille-offres-accueil" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem;">
+        <!-- Rempli dynamiquement -->
+      </div>
+
+      <!-- Frais d'installation bandeau -->
+      <div class="bandeau-frais-installation" style="margin-top: 2rem; padding: 1.25rem; font-size: 0.95rem;">
+        <strong>⚙️ Frais de mise en service unique : 50 000 FCFA</strong> — 
+        Création de votre carte interactive, shooting assistance, configuration des tables, et livraison des supports chevalets QR codes résistants à l'eau.
+      </div>
+    </section>
+
+    <!-- Section À propos de l'entreprise Lou Ame Tay -->
+    <section id="apropos" class="chimp-carte-blanche" style="margin-bottom: 4rem; padding: 2.5rem 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem; margin-bottom: 1.5rem;">
+        <div>
+          <h2 style="font-family: var(--police-titre); font-size: 1.85rem; color: var(--marine-fonce); font-weight: 800;">
+            À propos de Lou Ame Tay 🍽️
+          </h2>
+          <p id="slogan-section" style="color: var(--dore-sombre); font-weight: 700; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 1px;">
+            La transition digitale de la restauration et de l'hôtellerie au Sénégal
+          </p>
+        </div>
+        <a id="lien-site" href="https://www.louametay.com" class="btn btn-primaire" target="_blank" rel="noopener noreferrer">
+          Visiter le site web officiel ↗
+        </a>
+      </div>
+
+      <p id="description-entreprise" style="font-size: 1.05rem; color: #334155; line-height: 1.8; margin-bottom: 2rem;">
+        <!-- Rempli par js/app.js -->
+      </p>
+
+      <!-- Grille fonctionnalités -->
+      <h3 style="font-family: var(--police-titre); font-size: 1.25rem; color: var(--marine-fonce); margin-bottom: 1.25rem;">
+        Fonctionnalités clés de la solution
+      </h3>
+      <div id="grille-fonctionnalites" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.25rem; margin-bottom: 2.5rem;">
+        <!-- Rempli dynamiquement -->
+      </div>
+
+      <!-- Présence terrain -->
+      <div style="background: #F8FAFC; border-radius: var(--arrondi-md); padding: 1.5rem; border-left: 4px solid var(--dore-primaire); margin-bottom: 2.5rem;">
+        <h4 style="font-family: var(--police-titre); color: var(--marine-fonce); font-size: 1.1rem; margin-bottom: 0.5rem;">
+          📍 Présence terrain & Support opérationnel
+        </h4>
+        <p style="color: #334155; font-size: 0.95rem; margin-bottom: 0.4rem;">
+          <strong>Bureaux :</strong> Basée à Thiès (Quartier Dixième) et Dakar (Point E).
+        </p>
+        <p style="color: #334155; font-size: 0.95rem; margin-bottom: 0.4rem;">
+          <strong>Zone d'intervention :</strong> Déploiements et audits sur place le long de l'axe Thiès — Dakar — Mbour / Saly.
+        </p>
+        <p style="color: #334155; font-size: 0.95rem;">
+          <strong>Assistance 7j/7 :</strong> Support WhatsApp réactif de 08h00 à 20h00 (+221 76 231 20 03).
+        </p>
+      </div>
+
+      <!-- Galerie -->
+      <h3 style="font-family: var(--police-titre); font-size: 1.25rem; color: var(--marine-fonce); margin-bottom: 1rem;">
+        Écrans, supports QR et déploiements en salle
+      </h3>
+      <div id="galerie" class="galerie" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem;">
+        <!-- Rempli par js/app.js -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Notification Toast flottant -->
+  <div id="toast" class="toast-notification" role="status" aria-live="polite"></div>
+
+  <!-- Pied de page -->
+  <footer class="pied">
+    <div class="conteneur pied-contenu">
+      <p>© <span id="annee"></span> <strong>Lou Ame Tay</strong> — <span data-i18n="footer.droits">Solution SaaS CHR au Sénégal. Tous droits réservés.</span></p>
+      <div class="pied-liens">
+        <a href="#offres" class="pied-lien" data-i18n="nav.offres">Formules Tàmbali, Nio Far, Xéweul</a>
+        <a href="#apropos" class="pied-lien" data-i18n="nav.apropos">À propos</a>
+        <a href="login.html" class="pied-lien" data-i18n="nav.admin">Administration</a>
+        <a href="https://wa.me/221762312003" target="_blank" rel="noopener" class="pied-lien" data-i18n="footer.support_wa">Support WhatsApp (+221 76 231 20 03)</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
