@@ -19,6 +19,10 @@ import { notifierCommercial, genererLienWhatsAppClient } from './notifications.j
 import { initialiserI18n } from './i18n.js';
 import { genererSignatureEmail } from './qrcode-export.js';
 import { entreprise, commerciaux } from './data.js';
+import { jouerIntro, lancerAnimationIntro } from './intro-animation.js';
+import { echangerCarte, genererKitNetworking } from './networking.js';
+import { ouvrirRdv, finaliserRdvFormulaire } from './rdv.js';
+import { trackerParrainage, partagerCarte, genererLienParrainage } from './parrainage.js';
 import './pwa-install.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -148,6 +152,84 @@ async function initialiserCarte() {
 
   // 10. Signature email professionnelle (Modal HTML)
   configurerSignatureEmail(commercial);
+
+  // Initialisations WOW Networking demandées
+  jouerIntro(commercial);
+  afficherStatut(commercial);
+  afficherCompteur(commercial.id);
+  afficherBadges(commercial.id);
+  afficherClientsConfiance();
+  afficherTemoignages(commercial.id);
+  await trackerParrainage(commercial.id);
+
+  // Écouteurs des boutons exacts
+  const btnEchange = document.getElementById('btn-echange');
+  const modalEchange = document.getElementById('modal-echange');
+  const formEchange = document.getElementById('form-echange');
+  const btnFermerEchange = document.getElementById('btn-fermer-modal-echange');
+
+  if (btnEchange && modalEchange) {
+    btnEchange.onclick = () => {
+      trackerEvenement('clic_echange_carte', commercial.id);
+      modalEchange.classList.remove('hidden');
+    };
+  }
+  if (btnFermerEchange && modalEchange) {
+    btnFermerEchange.onclick = () => modalEchange.classList.add('hidden');
+  }
+  if (modalEchange) {
+    modalEchange.onclick = (e) => {
+      if (e.target === modalEchange) modalEchange.classList.add('hidden');
+    };
+  }
+  if (formEchange) {
+    formEchange.onsubmit = (e) => {
+      e.preventDefault();
+      echangerCarte(commercial.id);
+    };
+  }
+
+  const btnRdv = document.getElementById('btn-rdv');
+  const modalRdv = document.getElementById('modal-rdv');
+  const formRdv = document.getElementById('form-rdv');
+  const btnFermerRdv = document.getElementById('btn-fermer-modal-rdv');
+
+  if (btnRdv) {
+    btnRdv.onclick = () => {
+      trackerEvenement('clic_rdv', commercial.id);
+      ouvrirRdv(commercial);
+    };
+  }
+  if (btnFermerRdv && modalRdv) {
+    btnFermerRdv.onclick = () => modalRdv.classList.add('hidden');
+  }
+  if (formRdv) {
+    formRdv.onsubmit = (e) => {
+      e.preventDefault();
+      finaliserRdvFormulaire(commercial);
+    };
+  }
+
+  const btnKit = document.getElementById('btn-kit');
+  if (btnKit) {
+    btnKit.onclick = () => {
+      trackerEvenement('clic_kit_networking', commercial.id);
+      genererKitNetworking(commercial);
+    };
+  }
+
+  const btnPartager = document.getElementById('btn-partager');
+  if (btnPartager) {
+    btnPartager.onclick = () => {
+      trackerEvenement('partager_carte', commercial.id);
+      partagerCarte(commercial);
+    };
+  }
+
+  // Bonus : Simulateur ROI, Démo Menu, Wallet
+  initialiserSimulateurROI();
+  initialiserDemoMenu(commercial);
+  initialiserWallet(commercial);
 
   // 11. Section Entreprise Lou Ame Tay et galerie
   remplirEntreprise();
@@ -677,23 +759,20 @@ function remplirEntreprise() {
 /**
  * Partage natif (Web Share API) ou copie du lien
  */
-function partagerCarte(c) {
-  const url = window.location.href;
-  const titre = `${c.prenom} ${c.nom} — Lou Ame Tay 🍽️`;
-  const texte = `Carte digitale de ${c.prenom} ${c.nom}, ${c.poste || 'Conseiller'} chez Lou Ame Tay (Transition digitale restauration CHR).`;
-
-  if (navigator.share) {
-    navigator.share({
-      title: titre,
-      text: texte,
-      url: url
-    }).catch(err => {
-      if (err.name !== 'AbortError') {
-        copierDansPressePapier(url, "✓ Lien de la carte copié !");
-      }
-    });
+function partagerCarteNatif(c) {
+  const modalPartage = document.getElementById('modal-partager-wow');
+  if (modalPartage) {
+    modalPartage.classList.add('active');
+    configurerModalPartage(c);
   } else {
-    copierDansPressePapier(url, "✓ Lien de la carte copié !");
+    const url = window.location.href;
+    const titre = `${c.prenom} ${c.nom} — Lou Ame Tay 🍽️`;
+    const texte = `Découvrez la carte digitale de ${c.prenom} ${c.nom}, ${c.poste || 'Conseiller'} Lou Ame Tay : ${url}`;
+    if (navigator.share) {
+      navigator.share({ title: titre, text: texte, url: url }).catch(() => copierDansPressePapier(url, "✓ Lien copié !"));
+    } else {
+      copierDansPressePapier(url, "✓ Lien copié !");
+    }
   }
 }
 
@@ -1256,4 +1335,864 @@ function resetAutoPlay() {
   if (carrouselInterval) clearInterval(carrouselInterval);
   demarrerAutoPlay();
 }
+
+// ═══════════════════════════════════════════════════════════════════
+// SPRINT A2 : STATUT DE DISPONIBILITÉ EN TEMPS RÉEL
+// ═══════════════════════════════════════════════════════════════════
+export function afficherStatut(commercial) {
+  const el = document.getElementById('statut-dispo');
+  if (!el) return;
+  
+  const statut = commercial.statut_disponible || 'disponible';
+  const messages = {
+    disponible: 'Disponible maintenant',
+    occupe: commercial.statut_message || 'En rendez-vous',
+    indisponible: commercial.statut_message || 'Indisponible aujourd\'hui'
+  };
+  
+  el.className = `statut-dispo ${statut === 'disponible' ? '' : statut}`;
+  const texteEl = el.querySelector('.statut-texte');
+  if (texteEl) texteEl.textContent = messages[statut] || 'Disponible maintenant';
+}
+
+export const afficherStatutDisponibilite = afficherStatut;
+
+// ═══════════════════════════════════════════════════════════════════
+// SPRINT A3 : COMPTEUR DE VUES ANIMÉ
+// ═══════════════════════════════════════════════════════════════════
+export async function afficherCompteur(commercialId) {
+  let cible = 148;
+  if (estSupabaseConfigure()) {
+    try {
+      const { data } = await supabase
+        .from('commerciaux_stats')
+        .select('vues_mois')
+        .eq('commercial_id', commercialId)
+        .single();
+      if (data && data.vues_mois) cible = data.vues_mois;
+    } catch (e) {
+      // Mode démo / fallback
+    }
+  }
+
+  const el = document.getElementById('vues-num');
+  if (el) animerNombre(el, 0, cible, 1000);
+}
+
+export const afficherCompteurVues = afficherCompteur;
+
+function animerNombre(el, debut, fin, duree) {
+  const start = performance.now();
+  function update(now) {
+    const progress = Math.min((now - start) / duree, 1);
+    el.textContent = Math.floor(debut + (fin - debut) * progress);
+    if (progress < 1) requestAnimationFrame(update);
+    else el.textContent = fin;
+  }
+  requestAnimationFrame(update);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// SPRINT C2 : BADGES DE CERTIFICATION
+// ═══════════════════════════════════════════════════════════════════
+export async function afficherBadges(commercialId) {
+  let badges = [
+    { libelle: "Expert CHR Certifié", icone: "🛡️", couleur: "#C9A227" },
+    { libelle: "Déploiement 48h", icone: "⚡", couleur: "#22C55E" },
+    { libelle: "Partenaire Wave & OM", icone: "💙", couleur: "#3B82F6" }
+  ];
+
+  if (estSupabaseConfigure()) {
+    try {
+      const { data } = await supabase
+        .from('badges')
+        .select('*')
+        .eq('commercial_id', commercialId)
+        .eq('actif', true)
+        .order('ordre');
+      if (data && data.length > 0) badges = data;
+    } catch (e) {
+      // Fallback
+    }
+  }
+
+  const container = document.getElementById('badges-container');
+  if (!container || !badges.length) return;
+  
+  container.innerHTML = badges.map(b => `
+    <span class="badge-item" style="background: ${b.couleur || '#C9A227'}20; color: ${b.couleur || '#C9A227'}; border-color: ${b.couleur || '#C9A227'}40;">
+      ${b.icone || '✦'} ${b.libelle || b.titre}
+    </span>
+  `).join('');
+}
+
+export const afficherBadgesCommercial = afficherBadges;
+
+// ═══════════════════════════════════════════════════════════════════
+// SPRINT C1 : CLIENTS DE CONFIANCE (MARQUEE TRACK)
+// ═══════════════════════════════════════════════════════════════════
+export async function afficherClientsConfiance() {
+  const track = document.getElementById('marquee-track');
+  if (!track) return;
+
+  let logos = [
+    { nom: "Le Teranga", logo_url: "images/deploiement1.jpg" },
+    { nom: "Lagon 1", logo_url: "images/deploiement2.jpg" },
+    { nom: "Café de Rome", logo_url: "images/deploiement3.jpg" },
+    { nom: "Chez Loutcha", logo_url: "images/deploiement1.jpg" },
+    { nom: "Hôtel Farid", logo_url: "images/deploiement2.jpg" },
+    { nom: "Le Jardin Thaïlandais", logo_url: "images/deploiement3.jpg" }
+  ];
+
+  if (estSupabaseConfigure()) {
+    try {
+      const { data } = await supabase
+        .from('clients_logos')
+        .select('*')
+        .eq('actif', true)
+        .order('ordre');
+      if (data && data.length) logos = data;
+    } catch (e) {}
+  }
+
+  const doubleLogos = [...logos, ...logos];
+  track.innerHTML = doubleLogos.map(l => `
+    <img src="${l.logo_url || 'images/logo.svg'}" alt="${escapeHtml(l.nom)}" title="${escapeHtml(l.nom)}" onerror="this.src='images/logo.svg'">
+  `).join('');
+}
+
+export const afficherLogosClients = afficherClientsConfiance;
+
+// ═══════════════════════════════════════════════════════════════════
+// SPRINT C3 : TÉMOIGNAGES CLIENTS
+// ═══════════════════════════════════════════════════════════════════
+export async function afficherTemoignages(commercialId) {
+  let temoignages = [
+    {
+      nom_client: "M. Babacar Ndiaye",
+      restaurant_client: "Le Patio (Saly)",
+      note: 10,
+      texte: "La commande QR Lou Ame Tay a révolutionné nos coups de feu. Les serveurs sont plus détendus et les ventes de desserts ont bondi de 25%."
+    },
+    {
+      nom_client: "Mme Aïssatou Ba",
+      restaurant_client: "Café de Rome (Dakar)",
+      note: 10,
+      texte: "L'écran cuisine KDS a éliminé toutes les erreurs de commande. Les clients adorent scanner et payer avec Wave en 1 seconde."
+    },
+    {
+      nom_client: "M. Ibrahima Diop",
+      restaurant_client: "L'Almadies Seafood",
+      note: 10,
+      texte: "L'équipe commerciale est intervenue en 48h chrono pour équiper nos 40 tables. Rentabilisé dès le premier mois !"
+    }
+  ];
+
+  if (estSupabaseConfigure()) {
+    try {
+      const { data } = await supabase
+        .from('temoignages')
+        .select('*')
+        .or(`commercial_id.eq.${commercialId},commercial_id.is.null`)
+        .eq('actif', true)
+        .limit(3);
+      if (data && data.length > 0) temoignages = data;
+    } catch (e) {
+      // Fallback
+    }
+  }
+
+  const grid = document.getElementById('temoignages-grid');
+  if (!grid || !temoignages.length) return;
+
+  grid.innerHTML = temoignages.map(t => `
+    <div class="temoignage-card">
+      ${t.video_youtube_id ? `
+        <div class="temoignage-video" style="cursor:pointer;" onclick="window.open('https://youtube.com/watch?v=${t.video_youtube_id}','_blank')">
+          <img src="https://img.youtube.com/vi/${t.video_youtube_id}/mqdefault.jpg" style="width:100%; border-radius:10px;">
+          <div class="play-icon" style="font-size:24px; text-align:center;">▶</div>
+        </div>
+      ` : ''}
+      <div class="temoignage-content">
+        <div class="temoignage-note">${'⭐'.repeat(Math.min(5, Math.round(t.note / 2)))} ${t.note}/10</div>
+        <p class="temoignage-texte">"${escapeHtml(t.texte)}"</p>
+        <div class="temoignage-auteur">
+          <strong>${escapeHtml(t.nom_client)}</strong>
+          ${t.restaurant_client ? `<span> — ${escapeHtml(t.restaurant_client)}</span>` : ''}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// SPRINT B & D : BARRE NETWORKING (ÉCHANGE, RDV 7J, KIT ZIP)
+// ═══════════════════════════════════════════════════════════════════
+function configurerBarreNetworking(commercial) {
+  // 1. Modal Échange de carte (B1)
+  const btnEchange = document.getElementById('btn-echange-carte');
+  const modalEchange = document.getElementById('modal-echange-carte');
+  const fermerEchange = document.getElementById('fermer-modal-echange');
+  const formEchange = document.getElementById('form-echange-carte');
+
+  if (btnEchange && modalEchange) {
+    btnEchange.addEventListener('click', () => {
+      trackerEvenement('clic_echange_carte', commercial.id);
+      modalEchange.classList.add('active');
+    });
+  }
+
+  fermerEchange?.addEventListener('click', () => modalEchange?.classList.remove('active'));
+  modalEchange?.addEventListener('click', (e) => {
+    if (e.target === modalEchange) modalEchange.classList.remove('active');
+  });
+
+  formEchange?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const nom = document.getElementById('echange-nom')?.value.trim();
+    const tel = document.getElementById('echange-tel')?.value.trim();
+    const email = document.getElementById('echange-email')?.value.trim();
+    const etab = document.getElementById('echange-etablissement')?.value.trim();
+    const poste = document.getElementById('echange-poste')?.value.trim();
+    const msg = document.getElementById('echange-message')?.value.trim();
+
+    if (estSupabaseConfigure()) {
+      try {
+        await supabase.from('echanges_cartes').insert([{
+          commercial_id: commercial.id,
+          nom_prospect: nom,
+          telephone_prospect: tel,
+          email_prospect: email || null,
+          etablissement_prospect: etab,
+          poste_prospect: poste || null,
+          message_prospect: msg || null
+        }]);
+      } catch (err) {
+        console.warn('Erreur insertion échange de carte:', err);
+      }
+    }
+
+    trackerEvenement('echange_carte_valide', commercial.id);
+
+    // Alerte WhatsApp au commercial
+    const numWA = (commercial.whatsapp || "221762312003").replace(/\D/g, '');
+    const msgWA = encodeURIComponent(
+      `Bonjour ${commercial.prenom},\n\n` +
+      `🤝 NOUVEL ÉCHANGE DE CARTE (Lou Ame Tay) :\n` +
+      `• Nom : ${nom}\n` +
+      `• Établissement : ${etab}\n` +
+      `• Téléphone : ${tel}\n` +
+      (poste ? `• Poste : ${poste}\n` : '') +
+      (email ? `• Email : ${email}\n` : '') +
+      (msg ? `• Message : ${msg}\n` : '') +
+      `\nÀ recontacter pour organiser une démo !`
+    );
+    window.open(`https://wa.me/${numWA}?text=${msgWA}`, '_blank');
+
+    modalEchange?.classList.remove('active');
+    formEchange.reset();
+    afficherToast("✨ Carte échangée avec succès ! Le conseiller vous recontacte très vite.");
+  });
+
+  // 2. Modal RDV Intelligent 7 Jours (B2)
+  const btnRdv = document.getElementById('btn-rdv-rapide');
+  const modalRdvIntel = document.getElementById('modal-rdv-intelligent');
+  const fermerRdvIntel = document.getElementById('fermer-modal-rdv-intel');
+  const formRdvIntel = document.getElementById('form-rdv-intelligent');
+
+  if (btnRdv && modalRdvIntel) {
+    btnRdv.addEventListener('click', () => {
+      trackerEvenement('clic_rdv_intelligent', commercial.id);
+      modalRdvIntel.classList.add('active');
+      genererJoursEtCreneauxRDV();
+    });
+  }
+
+  fermerRdvIntel?.addEventListener('click', () => modalRdvIntel?.classList.remove('active'));
+  modalRdvIntel?.addEventListener('click', (e) => {
+    if (e.target === modalRdvIntel) modalRdvIntel.classList.remove('active');
+  });
+
+  formRdvIntel?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const dateChoisie = document.getElementById('rdv-intel-date-val')?.value;
+    const creneauChoisi = document.getElementById('rdv-intel-creneau-val')?.value;
+    const nom = document.getElementById('rdv-intel-nom')?.value.trim();
+    const tel = document.getElementById('rdv-intel-tel')?.value.trim();
+    const etab = document.getElementById('rdv-intel-etablissement')?.value.trim();
+    const format = document.getElementById('rdv-intel-format')?.value;
+
+    if (!dateChoisie || !creneauChoisi) {
+      afficherToast("⚠️ Veuillez sélectionner un jour et un créneau horaire.");
+      return;
+    }
+
+    if (estSupabaseConfigure()) {
+      try {
+        await supabase.from('rendez_vous').insert([{
+          commercial_id: commercial.id,
+          nom_client: nom,
+          telephone_client: tel,
+          etablissement_client: etab,
+          date_rdv: dateChoisie,
+          creneau_rdv: creneauChoisi,
+          type_demo: format,
+          statut: 'confirme'
+        }]);
+      } catch (err) {
+        console.warn('Erreur enregistrement RDV:', err);
+      }
+    }
+
+    trackerEvenement('rdv_reserve', commercial.id);
+
+    // Lien Google Calendar
+    const titreCal = encodeURIComponent(`Démo Lou Ame Tay — ${etab}`);
+    const descCal = encodeURIComponent(`Démonstration de commande à table et menu digital avec ${commercial.prenom} ${commercial.nom} (${commercial.telephone}). Contact: ${nom} (${tel}).`);
+    const dateIso = dateChoisie.replace(/-/g, '');
+    const googleCalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${titreCal}&dates=${dateIso}T100000Z/${dateIso}T110000Z&details=${descCal}`;
+
+    // Notification WhatsApp
+    const numWA = (commercial.whatsapp || "221762312003").replace(/\D/g, '');
+    const msgWA = encodeURIComponent(
+      `Bonjour ${commercial.prenom},\n\n` +
+      `📅 NOUVEAU RDV DÉMO PLANIFIÉ :\n` +
+      `• Date : ${dateChoisie}\n` +
+      `• Créneau : ${creneauChoisi}\n` +
+      `• Établissement : ${etab}\n` +
+      `• Contact : ${nom} (${tel})\n` +
+      `• Format : ${format}\n\n` +
+      `À très vite pour la démonstration !`
+    );
+
+    window.open(`https://wa.me/${numWA}?text=${msgWA}`, '_blank');
+    setTimeout(() => {
+      window.open(googleCalUrl, '_blank');
+    }, 400);
+
+    modalRdvIntel?.classList.remove('active');
+    formRdvIntel.reset();
+    afficherToast("📅 RDV validé ! Synchronisation WhatsApp et Google Calendar lancée.");
+  });
+
+  // 3. Modal Kit Networking ZIP (D1)
+  const btnKit = document.getElementById('btn-telecharger-kit');
+  const modalKit = document.getElementById('modal-kit-networking');
+  const fermerKit = document.getElementById('fermer-modal-kit');
+  const btnPackZip = document.getElementById('btn-generer-pack-zip');
+  const btnPdfSeul = document.getElementById('btn-telecharger-seul-pdf');
+
+  if (btnKit && modalKit) {
+    btnKit.addEventListener('click', () => {
+      trackerEvenement('clic_kit_networking', commercial.id);
+      modalKit.classList.add('active');
+    });
+  }
+
+  fermerKit?.addEventListener('click', () => modalKit?.classList.remove('active'));
+  modalKit?.addEventListener('click', (e) => {
+    if (e.target === modalKit) modalKit.classList.remove('active');
+  });
+
+  btnPackZip?.addEventListener('click', async () => {
+    await genererKitNetworkingZIP(commercial);
+  });
+
+  btnPdfSeul?.addEventListener('click', () => {
+    genererCarteVisitePDF(commercial);
+  });
+}
+
+function genererJoursEtCreneauxRDV() {
+  const containerJours = document.getElementById('calendrier-jours-grille');
+  const containerCreneaux = document.getElementById('creneaux-horaires-grille');
+  const inputDate = document.getElementById('rdv-intel-date-val');
+  const inputCreneau = document.getElementById('rdv-intel-creneau-val');
+  if (!containerJours || !containerCreneaux) return;
+
+  const nomsJours = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+  const jours = [];
+  const aujourdhui = new Date();
+
+  for (let i = 1; i <= 7; i++) {
+    const d = new Date();
+    d.setDate(aujourdhui.getDate() + i);
+    if (d.getDay() === 0) continue;
+    jours.push(d);
+  }
+
+  containerJours.innerHTML = jours.map((d, index) => {
+    const jourNom = nomsJours[d.getDay()];
+    const jourNum = d.getDate();
+    const mois = (d.getMonth() + 1).toString().padStart(2, '0');
+    const annee = d.getFullYear();
+    const dateYMD = `${annee}-${mois}-${d.getDate().toString().padStart(2, '0')}`;
+    return `
+      <button type="button" class="jour-rdv-btn ${index === 0 ? 'actif' : ''}" data-date="${dateYMD}">
+        <span class="jour-nom-court">${jourNom}</span>
+        <span class="jour-num-date">${jourNum}</span>
+      </button>
+    `;
+  }).join('');
+
+  if (jours.length > 0 && inputDate) {
+    const premier = jours[0];
+    const mois = (premier.getMonth() + 1).toString().padStart(2, '0');
+    inputDate.value = `${premier.getFullYear()}-${mois}-${premier.getDate().toString().padStart(2, '0')}`;
+  }
+
+  const creneaux = ['09h30', '11h00', '14h30', '16h00', '17h30'];
+  containerCreneaux.innerHTML = creneaux.map((c, index) => `
+    <button type="button" class="creneau-horaire-btn ${index === 0 ? 'actif' : ''}" data-creneau="${c}">
+      ${c}
+    </button>
+  `).join('');
+
+  if (inputCreneau) inputCreneau.value = creneaux[0];
+
+  containerJours.querySelectorAll('.jour-rdv-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      containerJours.querySelectorAll('.jour-rdv-btn').forEach(b => b.classList.remove('actif'));
+      btn.classList.add('actif');
+      if (inputDate) inputDate.value = btn.dataset.date;
+    });
+  });
+
+  containerCreneaux.querySelectorAll('.creneau-horaire-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      containerCreneaux.querySelectorAll('.creneau-horaire-btn').forEach(b => b.classList.remove('actif'));
+      btn.classList.add('actif');
+      if (inputCreneau) inputCreneau.value = btn.dataset.creneau;
+    });
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// SPRINT D1, D2, D3 : GÉNÉRATEUR KIT NETWORKING ZIP & PDF
+// ═══════════════════════════════════════════════════════════════════
+async function genererKitNetworkingZIP(c) {
+  if (typeof window.JSZip === 'undefined') {
+    afficherToast("⚠️ Module de compression ZIP en cours de chargement...");
+    return;
+  }
+
+  const btnPack = document.getElementById('btn-generer-pack-zip');
+  if (btnPack) {
+    btnPack.disabled = true;
+    btnPack.textContent = "⏳ Génération du Pack ZIP en cours...";
+  }
+
+  try {
+    const zip = new window.JSZip();
+
+    // 1. vCard 3.0
+    const telPropre = (c.telephone || '').replace(/\s+/g, '');
+    const bioLigne = (c.bio || "Lou Ame Tay — Solution SaaS Restauration & Hôtellerie").replace(/\r?\n/g, ' ');
+    const vCardContenu = [
+      'BEGIN:VCARD',
+      'VERSION:3.0',
+      `N:${c.nom};${c.prenom};;;`,
+      `FN:${c.prenom} ${c.nom}`,
+      `ORG:Lou Ame Tay;Restauration & Hôtellerie SaaS`,
+      `TITLE:${c.poste || 'Conseiller Terrain'}`,
+      `TEL;TYPE=CELL,VOICE,PREF:${telPropre}`,
+      `EMAIL;TYPE=WORK,INTERNET:${c.email || ''}`,
+      `URL:${window.location.href}`,
+      `NOTE:${bioLigne}`,
+      'END:VCARD'
+    ].join('\r\n');
+    zip.file(`contact_${c.prenom.toLowerCase()}_${c.nom.toLowerCase()}.vcf`, vCardContenu);
+
+    // 2. QR Code PNG HD
+    const qrCanvas = document.querySelector('#qrcode-cadre canvas');
+    if (qrCanvas) {
+      const dataUrl = qrCanvas.toDataURL('image/png');
+      const base64Data = dataUrl.replace(/^data:image\/png;base64,/, '');
+      zip.file(`qr_code_${c.prenom.toLowerCase()}_${c.nom.toLowerCase()}.png`, base64Data, { base64: true });
+    }
+
+    // 3. Carte de Visite PDF 85x55mm
+    if (window.jspdf && window.jspdf.jsPDF) {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: [85, 55] });
+      // Recto
+      doc.setFillColor(11, 31, 58);
+      doc.rect(0, 0, 85, 55, 'F');
+      doc.setTextColor(201, 162, 39);
+      doc.setFontSize(13);
+      doc.setFont('helvetica', 'bold');
+      doc.text('LOU AME TAY', 7, 12);
+      doc.setFontSize(7.5);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(255, 255, 255);
+      doc.text('Menu Digital & Commande QR Code', 7, 16);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`${c.prenom} ${c.nom}`, 7, 28);
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(201, 162, 39);
+      doc.text(c.poste || 'Conseiller Commercial Terrain', 7, 33);
+      doc.setFontSize(7);
+      doc.setTextColor(220, 220, 220);
+      doc.text(`Tél : ${c.telephone || '+221 77 130 36 78'}`, 7, 41);
+      doc.text(`Email : ${c.email || 'contact@louametay.com'}`, 7, 45);
+      doc.text(`Web : www.louametay.com`, 7, 49);
+
+      // Verso
+      doc.addPage([85, 55], 'landscape');
+      doc.setFillColor(255, 255, 255);
+      doc.rect(0, 0, 85, 55, 'F');
+      doc.setTextColor(11, 31, 58);
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.text('LA SOLUTION N°1 DU CHR AU SÉNÉGAL', 42.5, 14, { align: 'center' });
+      doc.setFontSize(7.5);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(70, 70, 70);
+      doc.text('• Menu Digital interactif & multilingue (Wolof, FR, EN)', 10, 24);
+      doc.text('• Écran Cuisine KDS en temps réel (0 erreur de bon)', 10, 29);
+      doc.text('• Encaissement direct Wave & Orange Money', 10, 34);
+      doc.text('• Déploiement en salle et formation en 48h', 10, 39);
+      doc.setTextColor(201, 162, 39);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Thiès — Dakar — Mbour — Saly', 42.5, 48, { align: 'center' });
+
+      const pdfArrayBuffer = doc.output('arraybuffer');
+      zip.file(`carte_visite_${c.prenom.toLowerCase()}_${c.nom.toLowerCase()}_85x55mm.pdf`, pdfArrayBuffer);
+    }
+
+    // 4. Signature Email HTML
+    const htmlSig = (typeof genererSignatureEmail === 'function' && typeof entreprise !== 'undefined')
+      ? genererSignatureEmail(c, entreprise)
+      : `<div style="font-family:sans-serif;color:#0B1F3A;"><strong>${c.prenom} ${c.nom}</strong><br>${c.poste}<br>Lou Ame Tay — www.louametay.com</div>`;
+    zip.file(`signature_email_${c.prenom.toLowerCase()}.html`, htmlSig);
+
+    // 5. Message WhatsApp de recommandation
+    const messageTxt = `Bonjour ! Je vous recommande vivement ${c.prenom} ${c.nom}, notre conseiller chez Lou Ame Tay (Menu QR Code et Écrans Cuisine pour restaurants). Voici sa carte digitale directe : ${window.location.href}`;
+    zip.file(`message_recommandation_whatsapp.txt`, messageTxt);
+
+    // 6. Fichier Lisez-moi
+    const readmeTxt = `═══════════════════════════════════════════════════════════════\r\n` +
+      `KIT NETWORKING OFFICIEL — LOU AME TAY\r\n` +
+      `Conseiller : ${c.prenom} ${c.nom} (${c.poste})\r\n` +
+      `Site : https://www.louametay.com\r\n` +
+      `═══════════════════════════════════════════════════════════════\r\n\r\n` +
+      `Ce kit contient tous les outils nécessaires pour vos présentations et impressions :\r\n` +
+      `1. contact.vcf : Import direct dans votre carnet d'adresses (iPhone / Android).\r\n` +
+      `2. qr_code.png : Image haute définition pour vos menus, affiches et chevalets.\r\n` +
+      `3. carte_visite_85x55mm.pdf : Format d'impression standardisé recto/verso pour imprimeur.\r\n` +
+      `4. signature_email.html : Signature professionnelle compatible Gmail & Outlook.\r\n` +
+      `5. message_recommandation_whatsapp.txt : Texte prêt à l'envoi pour recommander le service.\r\n\r\n` +
+      `Lou Ame Tay — La transition digitale de la restauration au Sénégal.`;
+    zip.file(`LISEZ-MOI_LOU_AME_TAY.txt`, readmeTxt);
+
+    // Génération et téléchargement
+    const contenuBlob = await zip.generateAsync({ type: 'blob' });
+    const lien = document.createElement('a');
+    lien.href = URL.createObjectURL(contenuBlob);
+    lien.download = `Kit_Networking_${c.prenom}_${c.nom}_LouAmeTay.zip`;
+    document.body.appendChild(lien);
+    lien.click();
+    document.body.removeChild(lien);
+    URL.revokeObjectURL(lien.href);
+
+    afficherToast("✓ Pack Kit Networking ZIP téléchargé avec succès !");
+  } catch (err) {
+    console.error("Erreur génération ZIP:", err);
+    afficherToast("❌ Erreur lors de la création du pack ZIP.");
+  } finally {
+    if (btnPack) {
+      btnPack.disabled = false;
+      btnPack.textContent = "⬇️ Télécharger le Pack ZIP complet (.zip)";
+    }
+  }
+}
+
+function genererCarteVisitePDF(c) {
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    afficherToast("⚠️ Module PDF en cours de chargement...");
+    return;
+  }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: [85, 55] });
+
+  // Recto
+  doc.setFillColor(11, 31, 58);
+  doc.rect(0, 0, 85, 55, 'F');
+  doc.setTextColor(201, 162, 39);
+  doc.setFontSize(13);
+  doc.setFont('helvetica', 'bold');
+  doc.text('LOU AME TAY', 7, 12);
+  doc.setFontSize(7.5);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(255, 255, 255);
+  doc.text('Menu Digital & Commande QR Code', 7, 16);
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'bold');
+  doc.text(`${c.prenom} ${c.nom}`, 7, 28);
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(201, 162, 39);
+  doc.text(c.poste || 'Conseiller Commercial Terrain', 7, 33);
+  doc.setFontSize(7);
+  doc.setTextColor(220, 220, 220);
+  doc.text(`Tél : ${c.telephone || '+221 77 130 36 78'}`, 7, 41);
+  doc.text(`Email : ${c.email || 'contact@louametay.com'}`, 7, 45);
+  doc.text(`Web : www.louametay.com`, 7, 49);
+
+  // Verso
+  doc.addPage([85, 55], 'landscape');
+  doc.setFillColor(255, 255, 255);
+  doc.rect(0, 0, 85, 55, 'F');
+  doc.setTextColor(11, 31, 58);
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.text('LA SOLUTION N°1 DU CHR AU SÉNÉGAL', 42.5, 14, { align: 'center' });
+  doc.setFontSize(7.5);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(70, 70, 70);
+  doc.text('• Menu Digital interactif & multilingue (Wolof, FR, EN)', 10, 24);
+  doc.text('• Écran Cuisine KDS en temps réel (0 erreur de bon)', 10, 29);
+  doc.text('• Encaissement direct Wave & Orange Money', 10, 34);
+  doc.text('• Déploiement en salle et formation en 48h', 10, 39);
+  doc.setTextColor(201, 162, 39);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Thiès — Dakar — Mbour — Saly', 42.5, 48, { align: 'center' });
+
+  doc.save(`Carte_Visite_${c.prenom}_${c.nom}_85x55mm.pdf`);
+  afficherToast("✓ Carte de visite PDF (85x55mm) téléchargée !");
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// SPRINT E2 : MODAL PARTAGE AVANCÉ
+// ═══════════════════════════════════════════════════════════════════
+function configurerModalPartage(c) {
+  const modal = document.getElementById('modal-partager-wow');
+  const fermer = document.getElementById('fermer-modal-partage');
+  const btnWa = document.getElementById('btn-partage-wa-wow');
+  const btnCopier = document.getElementById('btn-partage-copier-wow');
+  const btnMail = document.getElementById('btn-partage-mail-wow');
+  if (!modal) return;
+
+  const url = window.location.href;
+  const messageWA = encodeURIComponent(
+    `Salam ! Découvre la carte de visite de ${c.prenom} ${c.nom}, conseiller chez Lou Ame Tay (solutions QR code et écran cuisine pour restaurants) : ${url}`
+  );
+
+  btnWa?.addEventListener('click', () => {
+    window.open(`https://wa.me/?text=${messageWA}`, '_blank');
+  });
+
+  btnCopier?.addEventListener('click', () => {
+    copierDansPressePapier(url, "✓ Lien unique de recommandation copié !");
+  });
+
+  btnMail?.addEventListener('click', () => {
+    const sujet = encodeURIComponent(`Recommandation : Carte digitale Lou Ame Tay`);
+    const corps = encodeURIComponent(`Bonjour,\n\nJe vous recommande de consulter la carte de visite de ${c.prenom} ${c.nom} chez Lou Ame Tay :\n${url}\n\nBien cordialement.`);
+    window.location.href = `mailto:?subject=${sujet}&body=${corps}`;
+  });
+
+  fermer?.addEventListener('click', () => modal.classList.remove('active'));
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) modal.classList.remove('active');
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// BONUS 1 : APPLE & GOOGLE WALLET
+// ═══════════════════════════════════════════════════════════════════
+function initialiserWallet(c) {
+  const modalWallet = document.getElementById('modal-wallet');
+  const fermerWallet = document.getElementById('fermer-modal-wallet');
+  const btnApple = document.getElementById('btn-wallet-apple');
+  const btnGoogle = document.getElementById('btn-wallet-google');
+
+  fermerWallet?.addEventListener('click', () => modalWallet?.classList.remove('active'));
+  modalWallet?.addEventListener('click', (e) => {
+    if (e.target === modalWallet) modalWallet.classList.remove('active');
+  });
+
+  btnApple?.addEventListener('click', () => {
+    const btnVCard = document.getElementById('btn-telecharger-vcard');
+    btnVCard?.click();
+    modalWallet?.classList.remove('active');
+    afficherToast("🍏 Contact prêt pour l'intégration Apple Wallet & Contacts !");
+  });
+
+  btnGoogle?.addEventListener('click', () => {
+    const btnVCard = document.getElementById('btn-telecharger-vcard');
+    btnVCard?.click();
+    modalWallet?.classList.remove('active');
+    afficherToast("📱 Fiche contact prête pour Google Contacts & Wallet !");
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// BONUS 2 : SIMULATEUR DE RENTABILITÉ ROI CHR
+// ═══════════════════════════════════════════════════════════════════
+let chartRoiInstance = null;
+
+function initialiserSimulateurROI() {
+  const rangeTables = document.getElementById('simu-range-tables');
+  const rangeTicket = document.getElementById('simu-range-ticket');
+  const rangeRotation = document.getElementById('simu-range-rotation');
+  const valTables = document.getElementById('simu-val-tables');
+  const valTicket = document.getElementById('simu-val-ticket');
+  const valRotation = document.getElementById('simu-val-rotation');
+  const gainChiffre = document.getElementById('simu-chiffre-gain');
+  if (!rangeTables || !rangeTicket || !rangeRotation) return;
+
+  function calculerEtMettreAJour() {
+    const tables = parseInt(rangeTables.value, 10);
+    const ticket = parseInt(rangeTicket.value, 10);
+    const rotation = parseFloat(rangeRotation.value);
+
+    if (valTables) valTables.textContent = `${tables} tables`;
+    if (valTicket) valTicket.textContent = `${ticket.toLocaleString('fr-FR')} FCFA`;
+    if (valRotation) valRotation.textContent = `${rotation} service${rotation > 1 ? 's' : ''}`;
+
+    const caActuel = Math.round(tables * rotation * ticket * 30);
+    const gainMensuel = Math.round(caActuel * 0.18);
+    const caAvec = caActuel + gainMensuel;
+
+    if (gainChiffre) {
+      gainChiffre.textContent = `+ ${gainMensuel.toLocaleString('fr-FR')} FCFA / mois`;
+    }
+
+    mettreAJourGraphiqueROI(caActuel, caAvec);
+  }
+
+  rangeTables.addEventListener('input', calculerEtMettreAJour);
+  rangeTicket.addEventListener('input', calculerEtMettreAJour);
+  rangeRotation.addEventListener('input', calculerEtMettreAJour);
+
+  calculerEtMettreAJour();
+}
+
+function mettreAJourGraphiqueROI(caActuel, caAvec) {
+  const canvas = document.getElementById('chart-roi-comparatif');
+  if (!canvas || typeof window.Chart === 'undefined') return;
+
+  if (chartRoiInstance) {
+    chartRoiInstance.data.datasets[0].data = [Math.round(caActuel / 1000), Math.round(caAvec / 1000)];
+    chartRoiInstance.update('none');
+    return;
+  }
+
+  const ctx = canvas.getContext('2d');
+  chartRoiInstance = new window.Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Sans Lou Ame Tay', 'Avec Lou Ame Tay ⭐'],
+      datasets: [{
+        label: 'CA Mensuel (en milliers FCFA)',
+        data: [Math.round(caActuel / 1000), Math.round(caAvec / 1000)],
+        backgroundColor: ['#64748B', '#C9A227'],
+        borderRadius: 8,
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => `${ctx.parsed.y.toLocaleString('fr-FR')} 000 FCFA`
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: { color: '#E2E8F0' },
+          ticks: {
+            callback: (val) => `${val} k`
+          }
+        },
+        x: {
+          grid: { display: false }
+        }
+      }
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// BONUS 3 : DÉMO INTERACTIVE COMMANDE À TABLE (CHR SÉNÉGAL)
+// ═══════════════════════════════════════════════════════════════════
+const platsDemo = [
+  { id: 1, nom: "Pastels Thon croustillants x12", prix: 2500, emoji: "🥟" },
+  { id: 2, nom: "Thiéboudienne Penda Mbaye Rouge", prix: 4500, emoji: "🍲" },
+  { id: 3, nom: "Yassa Poulet braisé oignons", prix: 4000, emoji: "🍗" },
+  { id: 4, nom: "Mafé Boeuf sauce arachide", prix: 4200, emoji: "🍛" },
+  { id: 5, nom: "Dibi d'agneau braisé au feu", prix: 6000, emoji: "🥩" },
+  { id: 6, nom: "Jus de Bissap frais maison 50cl", prix: 1000, emoji: "🥤" }
+];
+
+let panierVirtuel = [];
+
+function initialiserDemoMenu(c) {
+  const container = document.getElementById('demo-plats-grille');
+  const btnKds = document.getElementById('btn-envoyer-kds');
+  if (!container) return;
+
+  container.innerHTML = platsDemo.map(plat => `
+    <div class="demo-plat-item" data-id="${plat.id}">
+      <span class="demo-plat-emoji">${plat.emoji}</span>
+      <span class="demo-plat-nom">${plat.nom}</span>
+      <span class="demo-plat-prix">${plat.prix.toLocaleString('fr-FR')} FCFA</span>
+      <button type="button" class="btn-demo-ajouter">+ Ajouter</button>
+    </div>
+  `).join('');
+
+  container.querySelectorAll('.demo-plat-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const platId = parseInt(item.dataset.id, 10);
+      const plat = platsDemo.find(p => p.id === platId);
+      if (plat) {
+        panierVirtuel.push(plat);
+        if (navigator.vibrate) navigator.vibrate([20]);
+        mettreAJourPanierDemo();
+      }
+    });
+  });
+
+  btnKds?.addEventListener('click', () => {
+    if (panierVirtuel.length === 0) return;
+
+    if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
+    const total = panierVirtuel.reduce((sum, p) => sum + p.prix, 0);
+
+    afficherToast(`👨‍🍳 BON ENVOYÉ EN CUISINE (Table #4) ! Total : ${total.toLocaleString('fr-FR')} FCFA`);
+
+    panierVirtuel = [];
+    mettreAJourPanierDemo();
+  });
+}
+
+function mettreAJourPanierDemo() {
+  const listeEl = document.getElementById('panier-articles-liste');
+  const totalEl = document.getElementById('panier-total-prix');
+  const btnKds = document.getElementById('btn-envoyer-kds');
+  if (!listeEl || !totalEl || !btnKds) return;
+
+  if (panierVirtuel.length === 0) {
+    listeEl.textContent = "Aucun plat sélectionné. Touchez un plat ci-dessus !";
+    totalEl.textContent = "0 FCFA";
+    btnKds.disabled = true;
+    return;
+  }
+
+  const total = panierVirtuel.reduce((sum, p) => sum + p.prix, 0);
+  const noms = panierVirtuel.map(p => `${p.emoji} ${p.nom}`).join(' • ');
+
+  listeEl.textContent = `${panierVirtuel.length} article(s) : ${noms}`;
+  totalEl.textContent = `${total.toLocaleString('fr-FR')} FCFA`;
+  btnKds.disabled = false;
+}
+
 

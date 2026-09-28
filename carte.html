@@ -17,8 +17,11 @@
   <link rel="stylesheet" href="css/style.css">
   <link rel="icon" type="image/svg+xml" href="images/logo.svg">
 
-  <!-- Bibliothèques pour le QR Code et la Signature -->
+  <!-- Bibliothèques pour le QR Code, la Signature, le Kit ZIP, le PDF et le Graphique ROI -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="page-carte-fond">
 
@@ -63,11 +66,32 @@
         <div class="hero-gradient-overlay">
           <div class="hero-badge-haut">
             <span class="chimp-pill-officiel" data-i18n="carte.badge_terrain">✦ CONSEILLER TERRAIN CHR</span>
+            
+            <!-- A2 : Statut de disponibilité en temps réel -->
+            <div class="statut-dispo" id="statut-dispo" title="Statut de disponibilité du conseiller">
+              <span class="statut-dot"></span>
+              <span class="statut-texte">Disponible maintenant</span>
+            </div>
+
+            <!-- A3 : Compteur de vues animé -->
+            <div class="compteur-vues" id="compteur-vues" title="Popularité de cette carte">
+              👁️ <span id="vues-num">0</span> personnes ont vu cette carte ce mois-ci
+            </div>
+
+            <!-- E1 : Badge de parrainage traçable (?ref=) -->
+            <div id="badge-parrainage" style="display: none; background: rgba(201, 162, 39, 0.95); color: #0B1F3A; font-weight: 800; font-size: 11px; padding: 4px 10px; border-radius: 12px; margin-top: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
+              <span>✨ Recommandé par un confrère</span>
+            </div>
           </div>
 
           <div class="hero-textes-bas">
             <h1 id="commercial-nom-complet" class="hero-nom-commercial">Mamadou Diallo</h1>
             <p id="commercial-poste" class="hero-poste-commercial">Directeur Commercial</p>
+
+            <!-- C2 : Badges & Certifications d'expertise -->
+            <div class="badges-container" id="badges-container" aria-label="Certifications et expertises">
+              <!-- Rendu dynamique JS -->
+            </div>
 
             <div class="hero-entreprise-ruban">
               <img id="logo-ruban" src="images/logo.svg" alt="Lou Ame Tay" class="hero-entreprise-logo-mini" width="28" height="28">
@@ -110,7 +134,21 @@
           </button>
         </nav>
 
-        <!-- Section Localisation Cliquable (Google Maps / Apple Maps) -->
+        <!-- SPRINT B & D : BARRE D'ACTION NETWORKING RAPIDE -->
+        <div class="barre-networking-rapide">
+          <button type="button" class="btn-echange" id="btn-echange" title="Échanger nos cartes de visite">
+            🔄 Échanger ma carte
+          </button>
+          <button type="button" class="btn-rdv" id="btn-rdv" title="Réserver un créneau de démonstration">
+            📅 Réserver un créneau
+          </button>
+          <button type="button" class="btn-kit" id="btn-kit" title="Télécharger mon kit networking">
+            📦 Mon Kit
+          </button>
+          <button type="button" class="btn-partager" id="btn-partager" title="Partager cette carte">
+            🔗 Partager
+          </button>
+        </div>
         <section class="carte-localisation" id="section-localisation">
           <div class="loc-icon" aria-hidden="true">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -159,6 +197,16 @@
             <p data-i18n="carte.horaires_desc">Intervention d'urgence jusqu'à 22h00 pour les services du soir</p>
           </div>
         </div>
+
+        <!-- C1 : SECTION CLIENTS DE CONFIANCE (MARQUEE) -->
+        <section class="clients-confiance">
+          <h2>🏢 Ils nous font confiance</h2>
+          <div class="marquee-logos">
+            <div class="marquee-track" id="marquee-track">
+              <!-- Logos générés en JS -->
+            </div>
+          </div>
+        </section>
 
         <!-- Section Avis & Évaluation Clients (0 à 10) -->
         <section class="carte-avis" id="section-avis" aria-label="Avis et notes des clients">
@@ -211,6 +259,12 @@
           <div id="liste-avis" class="liste-avis">
             <!-- Chargé en JS depuis Supabase -->
           </div>
+        </section>
+
+        <!-- C3 : SECTION TÉMOIGNAGES -->
+        <section class="temoignages-section">
+          <h2>💬 Ils en parlent</h2>
+          <div class="temoignages-grid" id="temoignages-grid"></div>
         </section>
 
         <!-- 5. SECTION "À PROPOS DE MOI" -->
@@ -357,6 +411,53 @@
           </div>
         </section>
 
+        <!-- BONUS 2 : SIMULATEUR DE RENTABILITÉ ROI CHR -->
+        <section class="simulateur-roi-bloc" id="section-simulateur-roi" aria-label="Simulateur de rentabilité">
+          <h2 class="chimp-section-titre">
+            <span class="chimp-section-titre-icone" aria-hidden="true">📊</span>
+            <span>Simulateur de Rentabilité CHR</span>
+          </h2>
+          <p style="font-size: 0.85rem; color: var(--gris-texte-muet); margin-bottom: 1.25rem;">
+            Estimez votre gain mensuel moyen avec la commande QR & le menu digital Lou Ame Tay :
+          </p>
+
+          <div class="simulateur-curseur-groupe">
+            <div class="curseur-entete-ligne">
+              <span>Nombre de tables :</span>
+              <span id="simu-val-tables" class="curseur-valeur-badge">25 tables</span>
+            </div>
+            <input type="range" id="simu-range-tables" class="curseur-range-input" min="5" max="80" value="25" step="1">
+          </div>
+
+          <div class="simulateur-curseur-groupe">
+            <div class="curseur-entete-ligne">
+              <span>Ticket moyen par table :</span>
+              <span id="simu-val-ticket" class="curseur-valeur-badge">7 500 FCFA</span>
+            </div>
+            <input type="range" id="simu-range-ticket" class="curseur-range-input" min="2000" max="25000" value="7500" step="500">
+          </div>
+
+          <div class="simulateur-curseur-groupe">
+            <div class="curseur-entete-ligne">
+              <span>Rotations de table / jour :</span>
+              <span id="simu-val-rotation" class="curseur-valeur-badge">2 services</span>
+            </div>
+            <input type="range" id="simu-range-rotation" class="curseur-range-input" min="1" max="4" value="2" step="0.5">
+          </div>
+
+          <!-- Résultat du calcul dynamique -->
+          <div class="simulateur-resultat-carte">
+            <div class="simu-label-sub">Gain de chiffre d'affaires additionnel estimé :</div>
+            <span id="simu-chiffre-gain" class="simu-chiffre-geant">+ 675 000 FCFA / mois</span>
+            <div class="simu-label-sub">⚡ +18% de panier moyen grâce aux photos HD & 8 min gagnées par commande</div>
+          </div>
+
+          <!-- Graphique comparatif Chart.js -->
+          <div style="margin-top: 18px; max-height: 220px;">
+            <canvas id="chart-roi-comparatif" height="180"></canvas>
+          </div>
+        </section>
+
         <!-- 8. RÉSEAUX SOCIAUX -->
         <section class="chimp-carte-blanche" id="section-reseaux" aria-label="Réseaux sociaux">
           <h2 class="chimp-section-titre">
@@ -443,6 +544,35 @@
           </button>
         </div>
 
+        <!-- BONUS 3 : DÉMO INTERACTIVE COMMANDE À TABLE (CHR SÉNÉGAL) -->
+        <section class="chimp-carte-blanche" id="section-demo-menu" aria-label="Démonstration interactive">
+          <h2 class="chimp-section-titre">
+            <span class="chimp-section-titre-icone" aria-hidden="true">🍲</span>
+            <span>Testez la commande à table en direct</span>
+          </h2>
+          <p style="font-size: 0.85rem; color: var(--gris-texte-muet); margin-bottom: 1rem;">
+            Touchez les plats pour simuler une commande client instantanée :
+          </p>
+
+          <div class="demo-plats-grille" id="demo-plats-grille">
+            <!-- 6 plats sénégalais générés dynamiquement par JS -->
+          </div>
+
+          <!-- Panier virtuel & Envoi cuisine KDS -->
+          <div class="panier-kds-simulation" id="panier-simulation">
+            <div style="display: flex; justify-content: space-between; align-items: center; font-weight: 800; color: #0B1F3A; font-size: 14px;">
+              <span>🛒 Panier virtuel Table #4 :</span>
+              <span id="panier-total-prix" style="color: #C9A227; font-size: 16px;">0 FCFA</span>
+            </div>
+            <div id="panier-articles-liste" style="font-size: 12px; color: #475569; margin: 8px 0; min-height: 24px;">
+              Aucun plat sélectionné. Touchez un plat ci-dessus !
+            </div>
+            <button type="button" id="btn-envoyer-kds" class="btn btn-primaire" style="width: 100%; font-size: 13px; padding: 11px;" disabled>
+              🛎️ Envoyer en Cuisine (Simuler Écran KDS)
+            </button>
+          </div>
+        </section>
+
         <!-- 12. SECTION ENTREPRISE "LOU AME TAY", SITE WEB ET GALERIE -->
         <section class="chimp-carte-blanche chimp-entreprise-bloc" aria-label="L'entreprise Lou Ame Tay">
           <h2 class="chimp-section-titre">
@@ -499,45 +629,40 @@
 
   </main>
 
-  <!-- MODAL DE PLANIFICATION DE RENDEZ-VOUS EN SALLE -->
-  <div id="modal-rdv" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-titre">
-    <div class="modal-contenu">
-      <button type="button" id="btn-fermer-modal" class="btn-fermer-modal" aria-label="Fermer la boîte de dialogue">✕</button>
-      <h3 id="modal-titre" style="font-family: var(--police-titre); font-size: 1.3rem; color: var(--marine-fonce); font-weight: 800; margin-bottom: 0.5rem;">
-        📅 Planifier une démonstration en salle
-      </h3>
-      <p style="font-size: 0.85rem; color: var(--gris-texte-muet); margin-bottom: 1.25rem;">
-        Notre conseiller se déplace avec un kit de test QR code et un écran pour vous montrer la prise de commande en direct.
-      </p>
+  <!-- B1 : MODAL ÉCHANGE DE CARTES -->
+  <div class="modal-echange hidden" id="modal-echange">
+    <div class="modal-content">
+      <button type="button" class="btn-fermer-modal" id="btn-fermer-modal-echange" style="position: absolute; right: 14px; top: 14px; background: none; border: none; font-size: 18px; cursor: pointer;">✕</button>
+      <h3>🔄 Échangeons nos cartes</h3>
+      <form id="form-echange">
+        <input type="text" name="nom" placeholder="Votre nom complet *" required>
+        <input type="tel" name="telephone" placeholder="Téléphone / WhatsApp *" required>
+        <input type="email" name="email" placeholder="Email (optionnel)">
+        <input type="text" name="entreprise" placeholder="Restaurant / Entreprise (optionnel)">
+        <textarea name="message" placeholder="Message court (optionnel)" maxlength="200"></textarea>
+        <button type="submit" class="btn-primary">Envoyer ma carte 📤</button>
+      </form>
+    </div>
+  </div>
 
-      <form id="form-modal-rdv" class="formulaire-leads">
-        <div class="champ-groupe">
-          <label for="rdv-etablissement" class="champ-label">Nom du restaurant / hôtel *</label>
-          <input type="text" id="rdv-etablissement" class="champ-input" required>
-        </div>
-
-        <div class="champ-groupe">
-          <label for="rdv-contact" class="champ-label">Responsable & Téléphone *</label>
-          <input type="text" id="rdv-contact" class="champ-input" placeholder="Ex: M. Ba - +221 77 ..." required>
-        </div>
-
-        <div class="champ-groupe">
-          <label for="rdv-date" class="champ-label">Date souhaitée *</label>
-          <input type="date" id="rdv-date" class="champ-input" required>
-        </div>
-
-        <div class="champ-groupe">
-          <label for="rdv-creneau" class="champ-label">Créneau horaire *</label>
-          <select id="rdv-creneau" class="champ-select" required>
-            <option value="Matinée (09h00 - 12h00)">Matinée (09h00 - 12h00, avant le coup de feu)</option>
-            <option value="Après-midi (15h00 - 18h00)">Après-midi (15h00 - 18h00, entre deux services)</option>
-            <option value="Soirée (18h30 - 20h00)">Fin de journée (18h30 - 20h00)</option>
-          </select>
-        </div>
-
-        <button type="submit" class="btn btn-primaire" style="width: 100%; margin-top: 0.5rem;">
-          Valider le rendez-vous par WhatsApp ➔
-        </button>
+  <!-- B2 : MODAL RÉSERVATION DE CRÉNEAU RDV -->
+  <div class="modal-rdv hidden" id="modal-rdv">
+    <div class="modal-content">
+      <button type="button" class="btn-fermer-modal" id="btn-fermer-modal-rdv" style="position: absolute; right: 14px; top: 14px; background: none; border: none; font-size: 18px; cursor: pointer;">✕</button>
+      <h3>📅 Réserver un créneau</h3>
+      <div id="jours-rdv"></div>
+      <div id="creneaux-rdv"></div>
+      <form id="form-rdv">
+        <input type="text" name="nom" placeholder="Votre nom *" required>
+        <input type="tel" name="telephone" placeholder="Téléphone *" required>
+        <input type="text" name="restaurant" placeholder="Restaurant (optionnel)">
+        <select name="type_rdv">
+          <option value="demo">Démo</option>
+          <option value="audit">Audit</option>
+          <option value="formation">Formation</option>
+          <option value="installation">Installation</option>
+        </select>
+        <button type="submit">Confirmer le RDV ✅</button>
       </form>
     </div>
   </div>
@@ -558,6 +683,89 @@
       <button type="button" id="btn-copier-signature-html" class="btn btn-primaire" style="width: 100%;">
         📋 Copier la signature HTML
       </button>
+    </div>
+  </div>
+
+  <!-- D1 : MODAL KIT NETWORKING ZIP & PDF -->
+  <div id="modal-kit-networking" class="modal-overlay-wow" role="dialog" aria-modal="true" aria-labelledby="titre-modal-kit">
+    <div class="modal-boite-wow">
+      <div class="modal-wow-entete">
+        <h3 id="titre-modal-kit" class="modal-wow-titre">📦 Pack Kit Networking Complet</h3>
+        <button type="button" class="modal-wow-fermer" id="fermer-modal-kit" aria-label="Fermer">✕</button>
+      </div>
+      <p style="font-size: 0.85rem; color: #64748B; margin-bottom: 1rem;">
+        Téléchargez instantanément l'archive ZIP complète regroupant tous les éléments digitaux et imprimables de ce conseiller :
+      </p>
+
+      <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 14px; padding: 14px; margin-bottom: 16px;">
+        <ul style="margin: 0; padding-left: 20px; font-size: 0.85rem; color: #334155; line-height: 1.8;">
+          <li>📇 <strong>contact.vcf</strong> (vCard 3.0 universelle avec photo & coordonnées)</li>
+          <li>📱 <strong>qr_code_hd.png</strong> (QR Code 1000x1000px haute définition)</li>
+          <li>📄 <strong>carte_visite_85x55mm.pdf</strong> (Carte imprimable recto/verso)</li>
+          <li>✉️ <strong>signature_email.html</strong> (Code HTML prêt pour Gmail/Outlook)</li>
+          <li>💬 <strong>message_recommandation.txt</strong> (Message WhatsApp pré-formaté)</li>
+          <li>📖 <strong>LISEZ-MOI_LOU_AME_TAY.txt</strong> (Présentation & offres CHR)</li>
+        </ul>
+      </div>
+
+      <div style="display: flex; gap: 8px; flex-direction: column;">
+        <button type="button" id="btn-generer-pack-zip" class="btn btn-primaire" style="width: 100%; padding: 12px;">
+          ⬇️ Télécharger le Pack ZIP complet (.zip)
+        </button>
+        <button type="button" id="btn-telecharger-seul-pdf" class="btn btn-secondaire" style="width: 100%;">
+          📄 Télécharger uniquement la carte PDF (85x55mm)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- E2 : MODAL PARTAGE AVANCÉ -->
+  <div id="modal-partager-wow" class="modal-overlay-wow" role="dialog" aria-modal="true" aria-labelledby="titre-modal-partage">
+    <div class="modal-boite-wow">
+      <div class="modal-wow-entete">
+        <h3 id="titre-modal-partage" class="modal-wow-titre">🔗 Partager avec un confrère restaurateur</h3>
+        <button type="button" class="modal-wow-fermer" id="fermer-modal-partage" aria-label="Fermer">✕</button>
+      </div>
+      <p style="font-size: 0.85rem; color: #64748B; margin-bottom: 1.25rem;">
+        Faites découvrir la solution Lou Ame Tay à un confrère du secteur CHR au Sénégal :
+      </p>
+
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <button type="button" id="btn-partage-wa-wow" class="btn" style="background: #25D366; color: white; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; padding: 12px;">
+          <span>💬</span> Partager directement sur WhatsApp
+        </button>
+        <button type="button" id="btn-partage-copier-wow" class="btn btn-secondaire" style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px;">
+          <span>📋</span> Copier le lien unique de recommandation
+        </button>
+        <button type="button" id="btn-partage-mail-wow" class="btn btn-contour" style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px;">
+          <span>✉️</span> Envoyer par Email
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BONUS 1 : MODAL APPLE WALLET & GOOGLE WALLET -->
+  <div id="modal-wallet" class="modal-overlay-wow" role="dialog" aria-modal="true" aria-labelledby="titre-modal-wallet">
+    <div class="modal-boite-wow">
+      <div class="modal-wow-entete">
+        <h3 id="titre-modal-wallet" class="modal-wow-titre">📱 Ajouter au Wallet Smartphone</h3>
+        <button type="button" class="modal-wow-fermer" id="fermer-modal-wallet" aria-label="Fermer">✕</button>
+      </div>
+      <p style="font-size: 0.85rem; color: #64748B; margin-bottom: 1.25rem;">
+        Conservez la carte Lou Ame Tay dans votre portefeuille numérique Apple ou Google :
+      </p>
+
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <button type="button" id="btn-wallet-apple" class="btn" style="background: #000000; color: white; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px; font-weight: 700;">
+          <span>🍏</span> Ajouter à Apple Wallet (.pkpass)
+        </button>
+        <button type="button" id="btn-wallet-google" class="btn" style="background: #4285F4; color: white; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px; font-weight: 700;">
+          <span>📱</span> Ajouter à Google Wallet
+        </button>
+      </div>
+      <p style="font-size: 0.75rem; color: #94A3B8; margin-top: 12px; text-align: center;">
+        Compatible iPhone (iOS 12+) et smartphones Android.
+      </p>
     </div>
   </div>
 
