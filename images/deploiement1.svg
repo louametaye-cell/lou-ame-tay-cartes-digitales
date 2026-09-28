@@ -1,0 +1,55 @@
+
+<svg width="1200" height="800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0B1F3A"/>
+      <stop offset="100%" stop-color="#1a3a5f"/>
+    </linearGradient>
+    <linearGradient id="ecran" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e4d7b"/>
+      <stop offset="100%" stop-color="#0a1a2e"/>
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+  
+  <!-- Fond -->
+  <rect width="1200" height="800" fill="url(#bg1)"/>
+  
+  <!-- Titre haut -->
+  <text x="60" y="80" font-family="Poppins, Arial, sans-serif" font-size="32" font-weight="700" fill="#C9A227">LOU AME TAY 🐘</text>
+  <text x="60" y="120" font-family="Poppins, Arial, sans-serif" font-size="18" fill="#FFFFFF" opacity="0.75">La transition digitale de la restauration au Sénégal</text>
+  
+  <!-- Écran KDS avec ombre -->
+  <rect x="250" y="180" width="700" height="450" rx="20" fill="url(#ecran)" stroke="#C9A227" stroke-width="3" filter="url(#shadow)"/>
+  
+  <!-- Barre titre écran -->
+  <path d="M 250 200 Q 250 180 270 180 L 930 180 Q 950 180 950 200 L 950 240 L 250 240 Z" fill="#C9A227"/>
+  <text x="280" y="222" font-family="Poppins, Arial, sans-serif" font-size="22" font-weight="700" fill="#0B1F3A">🍽️ ÉCRAN CUISINE (KDS) — COMMANDES EN DIRECT</text>
+  
+  <!-- Lignes de commandes -->
+  <rect x="280" y="270" width="640" height="60" rx="10" fill="#FFFFFF" opacity="0.12"/>
+  <text x="310" y="307" font-family="Poppins, Arial, sans-serif" font-size="20" font-weight="600" fill="#FFFFFF">Table 5  —  2x Thiéboudienne Penda Mbaye</text>
+  <text x="830" y="307" font-family="Poppins, Arial, sans-serif" font-size="16" font-weight="700" fill="#34D399">03:45 min</text>
+  
+  <rect x="280" y="345" width="640" height="60" rx="10" fill="#FFFFFF" opacity="0.12"/>
+  <text x="310" y="382" font-family="Poppins, Arial, sans-serif" font-size="20" font-weight="600" fill="#FFFFFF">Table 8  —  1x Yassa Poulet braisé + Bissap</text>
+  <text x="830" y="382" font-family="Poppins, Arial, sans-serif" font-size="16" font-weight="700" fill="#FBBF24">07:12 min</text>
+  
+  <rect x="280" y="420" width="640" height="60" rx="10" fill="#FFFFFF" opacity="0.12"/>
+  <text x="310" y="457" font-family="Poppins, Arial, sans-serif" font-size="20" font-weight="600" fill="#FFFFFF">Table 3  —  3x Mafé Bœuf &amp; Alloco</text>
+  <text x="830" y="457" font-family="Poppins, Arial, sans-serif" font-size="16" font-weight="700" fill="#60A5FA">01:20 min</text>
+  
+  <rect x="280" y="495" width="640" height="60" rx="10" fill="#C9A227" opacity="0.25"/>
+  <text x="310" y="532" font-family="Poppins, Arial, sans-serif" font-size="20" font-weight="600" fill="#FFFFFF">Table 12 —  2x Burger Teranga ✅ PRÊT</text>
+  <text x="830" y="532" font-family="Poppins, Arial, sans-serif" font-size="16" font-weight="700" fill="#34D399">SERVI</text>
+  
+  <!-- QR code en bas à droite -->
+  <rect x="1000" y="590" width="140" height="140" rx="12" fill="#FFFFFF" stroke="#C9A227" stroke-width="3" filter="url(#shadow)"/>
+  <rect x="1015" y="605" width="110" height="110" rx="6" fill="#0B1F3A"/>
+  <text x="1070" y="678" font-family="monospace" font-size="52" font-weight="800" text-anchor="middle" fill="#C9A227">QR</text>
+  
+  <!-- Texte bas -->
+  <text x="60" y="740" font-family="Poppins, Arial, sans-serif" font-size="24" font-weight="700" fill="#C9A227">Menu digital &amp; commande instantanée à table</text>
+</svg>

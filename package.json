@@ -10,7 +10,8 @@
     "build:lws": "node -e \"fs.rmSync('dist', { recursive: true, force: true })\" && vite build && node scripts/prepare-lws.js",
     "preview": "vite preview",
     "deploy": "netlify deploy --prod --dir=dist",
-    "clean": "node -e \"fs.rmSync('dist', { recursive: true, force: true })\""
+    "clean": "node -e \"fs.rmSync('dist', { recursive: true, force: true })\"",
+    "generate:images": "node scripts/generate-gallery-images.js"
   },
   "dependencies": {
     "dotenv": "^17.2.3",
@@ -21,8 +22,10 @@
     "@types/node": "^22.14.0",
     "autoprefixer": "^10.4.21",
     "esbuild": "^0.28.0",
+    "fs-extra": "^11.4.1",
     "netlify-cli": "^17.37.0",
     "pg": "^8.23.0",
+    "sharp": "^0.35.5",
     "tailwindcss": "^4.3.3",
     "tsx": "^4.21.0",
     "typescript": "^7.0.2"

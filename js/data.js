@@ -14,9 +14,9 @@ export const entreprise = {
   siteWeb: "https://www.louametay.com",
   logo: "images/logo.svg",
   images: [
-    "images/entreprise1.jpg",
-    "images/entreprise2.jpg",
-    "images/entreprise3.jpg"
+    "images/deploiement1.jpg",
+    "images/deploiement2.jpg",
+    "images/deploiement3.jpg"
   ],
   presence: {
     bureaux: "Basée à Thiès (Quartier Dixième) et Dakar (Point E).",

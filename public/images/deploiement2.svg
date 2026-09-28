@@ -1,0 +1,52 @@
+
+<svg width="1200" height="800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#C9A227"/>
+      <stop offset="100%" stop-color="#7A5C10"/>
+    </linearGradient>
+    <filter id="shadow2" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000000" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  
+  <!-- Fond -->
+  <rect width="1200" height="800" fill="url(#bg2)"/>
+  
+  <!-- Titre haut -->
+  <text x="60" y="80" font-family="Poppins, Arial, sans-serif" font-size="32" font-weight="700" fill="#0B1F3A">LOU AME TAY 🐘</text>
+  <text x="60" y="120" font-family="Poppins, Arial, sans-serif" font-size="18" font-weight="600" fill="#0B1F3A" opacity="0.85">Support QR sur table &amp; formation des serveurs</text>
+  
+  <!-- Chevalet de table -->
+  <rect x="130" y="230" width="320" height="430" rx="18" fill="#FFFFFF" stroke="#0B1F3A" stroke-width="4" filter="url(#shadow2)"/>
+  <rect x="180" y="275" width="220" height="220" rx="12" fill="#0B1F3A"/>
+  <text x="290" y="405" font-family="monospace" font-size="90" font-weight="800" text-anchor="middle" fill="#C9A227">QR</text>
+  <text x="290" y="540" font-family="Poppins, Arial, sans-serif" font-size="22" font-weight="800" text-anchor="middle" fill="#0B1F3A">Scannez pour</text>
+  <text x="290" y="570" font-family="Poppins, Arial, sans-serif" font-size="22" font-weight="800" text-anchor="middle" fill="#0B1F3A">commander</text>
+  <text x="290" y="615" font-family="Poppins, Arial, sans-serif" font-size="14" font-weight="700" text-anchor="middle" fill="#C9A227">TABLE N° 04</text>
+  
+  <!-- Smartphone -->
+  <rect x="580" y="210" width="240" height="460" rx="32" fill="#0B1F3A" stroke="#FFFFFF" stroke-width="4" filter="url(#shadow2)"/>
+  <rect x="600" y="245" width="200" height="390" rx="18" fill="#FFFFFF"/>
+  <rect x="625" y="275" width="150" height="150" rx="10" fill="#C9A227"/>
+  <text x="700" y="370" font-family="monospace" font-size="60" font-weight="800" text-anchor="middle" fill="#0B1F3A">QR</text>
+  <rect x="625" y="450" width="150" height="22" rx="5" fill="#0B1F3A" opacity="0.35"/>
+  <rect x="625" y="490" width="150" height="22" rx="5" fill="#0B1F3A" opacity="0.35"/>
+  <rect x="625" y="530" width="95" height="22" rx="5" fill="#0B1F3A" opacity="0.35"/>
+  <rect x="625" y="570" width="150" height="36" rx="8" fill="#10B981"/>
+  <text x="700" y="594" font-family="Poppins, Arial, sans-serif" font-size="14" font-weight="700" text-anchor="middle" fill="#FFFFFF">Valider (Wave / OM)</text>
+  
+  <!-- Flèche pointillée de scan -->
+  <path d="M 460 410 Q 520 360 570 380" stroke="#0B1F3A" stroke-width="4" fill="none" stroke-dasharray="10,5"/>
+  <polygon points="565,372 585,384 570,396" fill="#0B1F3A"/>
+  
+  <!-- Badge Équipe formée -->
+  <circle cx="980" cy="340" r="70" fill="#0B1F3A" stroke="#FFFFFF" stroke-width="3" filter="url(#shadow2)"/>
+  <text x="980" y="365" font-family="Poppins, Arial, sans-serif" font-size="65" text-anchor="middle" fill="#C9A227">👥</text>
+  <rect x="880" y="440" width="200" height="60" rx="12" fill="#0B1F3A" filter="url(#shadow2)"/>
+  <text x="980" y="468" font-family="Poppins, Arial, sans-serif" font-size="18" font-weight="700" text-anchor="middle" fill="#C9A227">Équipe formée</text>
+  <text x="980" y="488" font-family="Poppins, Arial, sans-serif" font-size="13" text-anchor="middle" fill="#FFFFFF">Adoption en moins de 48h</text>
+  
+  <!-- Texte bas -->
+  <text x="60" y="740" font-family="Poppins, Arial, sans-serif" font-size="24" font-weight="700" fill="#0B1F3A">Chevalets QR résistants • Formation brigade de salle • Support</text>
+</svg>
