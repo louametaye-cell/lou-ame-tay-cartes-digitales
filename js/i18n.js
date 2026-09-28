@@ -114,11 +114,9 @@ function recupererValeurCle(obj, chemin) {
 function mettreAJourSelecteurUI() {
   document.querySelectorAll('.btn-lang-switch').forEach((btn) => {
     const lang = btn.getAttribute('data-lang');
-    if (lang === langueCourante) {
-      btn.classList.add('active');
-    } else {
-      btn.classList.remove('active');
-    }
+    const estActif = (lang === langueCourante);
+    btn.classList.toggle('active', estActif);
+    btn.setAttribute('aria-pressed', String(estActif));
   });
 }
 

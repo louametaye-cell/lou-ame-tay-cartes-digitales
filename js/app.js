@@ -22,39 +22,121 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 1. Initialisation de l'internationalisation
   await initialiserI18n();
 
-  // 2. Initialisation des sections statiques / entreprise
+  // 2. Initialisation du menu burger mobile
+  initialiserMenuBurger();
+
+  // 3. Initialisation immédiate des filtres et écouteurs
+  initialiserRechercheEtFiltres();
+  initialiserPiedDePage();
+
+  // 4. Initialisation des sections statiques / entreprise
   initialiserEntreprise();
   initialiserOffresAccueil();
 
-  // 3. Chargement des données des conseillers
+  // 5. Chargement des données des conseillers
   await chargerCommerciauxDepuisSupabase();
-
-  // 4. Initialisation des filtres et écouteurs
-  initialiserRechercheEtFiltres();
-  initialiserPiedDePage();
 });
 
 /**
- * Charge les commerciaux actifs avec affichage instantané (SWR) et synchronisation Supabase
- * SELECT * FROM commerciaux WHERE actif = true ORDER BY created_at DESC
+ * Initialise le comportement du menu burger mobile (< 768px)
+ */
+function initialiserMenuBurger() {
+  const btnBurger = document.getElementById('btn-burger');
+  const tiroir = document.getElementById('menu-tiroir-mobile');
+  if (!btnBurger || !tiroir) return;
+
+  btnBurger.addEventListener('click', () => {
+    const estOuvert = btnBurger.classList.toggle('ouvert');
+    tiroir.classList.toggle('ouvert', estOuvert);
+    btnBurger.setAttribute('aria-expanded', String(estOuvert));
+    tiroir.setAttribute('aria-hidden', String(!estOuvert));
+  });
+
+  // Fermer automatiquement le tiroir lors d'un clic sur un lien
+  tiroir.querySelectorAll('.tiroir-lien, .btn').forEach(lien => {
+    lien.addEventListener('click', () => {
+      btnBurger.classList.remove('ouvert');
+      tiroir.classList.remove('ouvert');
+      btnBurger.setAttribute('aria-expanded', 'false');
+      tiroir.setAttribute('aria-hidden', 'true');
+    });
+  });
+}
+
+/**
+ * Affiche le loader avec 4 cartes skeleton shimmer animées
+ */
+function afficherLoaderSkeleton() {
+  const annuaire = document.getElementById('annuaire');
+  if (!annuaire) return;
+
+  annuaire.innerHTML = `
+    <div style="grid-column: 1 / -1; text-align: center; margin-bottom: 1.25rem;">
+      <div class="spinner-chargement" style="width: 32px; height: 32px; margin: 0 auto 0.75rem; border-color: rgba(11, 31, 58, 0.15); border-top-color: var(--marine-fonce);"></div>
+      <p style="color: var(--gris-texte-muet); font-size: 0.95rem; font-weight: 500;">Chargement de l'équipe des conseillers terrain...</p>
+    </div>
+    <div class="grille-skeleton" style="grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.5rem; width: 100%;">
+      ${[1, 2, 3, 4].map(() => `
+        <div class="carte-skeleton">
+          <div class="skeleton-hero skeleton-shimmer"></div>
+          <div class="skeleton-pied">
+            <div class="skeleton-ligne moyen skeleton-shimmer"></div>
+            <div class="skeleton-ligne court skeleton-shimmer"></div>
+            <div class="skeleton-btn skeleton-shimmer"></div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+/**
+ * Affiche un message d'erreur si la connexion à Supabase échoue et qu'aucune donnée n'est disponible
+ */
+function afficherErreurConnexion() {
+  const annuaire = document.getElementById('annuaire');
+  const compteur = document.getElementById('compteur-resultats');
+  if (!annuaire) return;
+
+  annuaire.innerHTML = `
+    <div class="erreur-connexion-cadre">
+      <div class="erreur-icone-alerte">⚠️</div>
+      <h3 style="font-family: var(--police-titre); font-size: 1.2rem; color: #B91C1C; margin-bottom: 0.5rem; font-weight: 700;">
+        Impossible de charger les conseillers
+      </h3>
+      <p style="color: #64748B; font-size: 0.92rem; margin-bottom: 1.25rem; line-height: 1.5;">
+        Impossible de contacter la base de données. Vérifiez votre connexion internet ou réessayez.
+      </p>
+      <button type="button" id="btn-reessayer-chargement" class="btn btn-primaire" style="margin: 0 auto;">
+        🔄 Réessayer
+      </button>
+    </div>
+  `;
+
+  if (compteur) compteur.textContent = '';
+
+  const btnReessayer = document.getElementById('btn-reessayer-chargement');
+  if (btnReessayer) {
+    btnReessayer.addEventListener('click', async () => {
+      await chargerCommerciauxDepuisSupabase();
+    });
+  }
+}
+
+/**
+ * Charge les commerciaux avec loader skeleton, fallback robuste et synchronisation
  */
 async function chargerCommerciauxDepuisSupabase() {
   const annuaire = document.getElementById('annuaire');
 
-  // 1. Affichage INSTANTANÉ des données locales pour éliminer tout temps d'attente
-  if (typeof commerciaux !== 'undefined' && Array.isArray(commerciaux) && commerciaux.length > 0) {
-    listeCommerciauxActifs = commerciaux.filter(c => c.actif !== false);
-    appliquerFiltres();
-  } else if (annuaire) {
-    annuaire.innerHTML = `
-      <div style="grid-column: 1 / -1; text-align: center; padding: 2.5rem 1rem;">
-        <div class="spinner-chargement" style="width: 32px; height: 32px; margin: 0 auto 1rem; border-color: rgba(11, 31, 58, 0.2); border-top-color: var(--marine-fonce);"></div>
-        <p style="color: var(--gris-texte-muet); font-size: 0.95rem;">Chargement des conseillers terrain Lou Ame Tay...</p>
-      </div>
-    `;
+  // Si aucune donnée n'est encore chargée, afficher le skeleton loader
+  if (listeCommerciauxActifs.length === 0) {
+    afficherLoaderSkeleton();
   }
 
-  // 2. Synchronisation en arrière-plan avec Supabase
+  let chargementReussi = false;
+
+  // 1. Tentative de chargement en direct depuis Supabase
   if (estSupabaseConfigure()) {
     try {
       const { data, error } = await supabase
@@ -67,11 +149,26 @@ async function chargerCommerciauxDepuisSupabase() {
 
       if (Array.isArray(data) && data.length > 0) {
         listeCommerciauxActifs = data;
+        chargementReussi = true;
         appliquerFiltres();
+        return;
       }
     } catch (err) {
-      console.warn('Erreur synchronisation Supabase, maintien des données locales :', err);
+      console.warn('Erreur chargement Supabase, repli sur le catalogue local :', err);
     }
+  }
+
+  // 2. Repli immédiat (fallback) sur data.js pour garantir que les 4 cartes sont TOUJOURS affichées
+  if (typeof commerciaux !== 'undefined' && Array.isArray(commerciaux) && commerciaux.length > 0) {
+    listeCommerciauxActifs = commerciaux.filter(c => c.actif !== false);
+    chargementReussi = true;
+    appliquerFiltres();
+    return;
+  }
+
+  // 3. Si aucun commercial n'a pu être chargé
+  if (!chargementReussi) {
+    afficherErreurConnexion();
   }
 }
 
@@ -200,19 +297,28 @@ function rendreGrilleCommerciaux(liste) {
         const champ = document.getElementById('recherche');
         if (champ) champ.value = '';
         categorieFiltreCourante = 'Tous';
-        document.querySelectorAll('.btn-filtre-cat').forEach(b => {
-          b.classList.toggle('active', b.getAttribute('data-categorie') === 'Tous');
+        document.querySelectorAll('.filtre-badge, .btn-filtre-cat').forEach(b => {
+          const estTous = b.getAttribute('data-categorie') === 'Tous';
+          b.classList.toggle('active', estTous);
+          b.classList.toggle('actif', estTous);
+          b.setAttribute('aria-pressed', String(estTous));
         });
         appliquerFiltres();
       });
     }
 
-    if (compteur) compteur.textContent = '0 conseiller trouvé';
+    if (compteur) {
+      compteur.textContent = '0 conseiller trouvé';
+    }
     return;
   }
 
   if (compteur) {
     compteur.textContent = `${liste.length} conseiller${liste.length > 1 ? 's' : ''} terrain disponible${liste.length > 1 ? 's' : ''}`;
+    // Réinitialise l'animation CSS d'apparition
+    compteur.style.animation = 'none';
+    void compteur.offsetWidth;
+    compteur.style.animation = 'fadeInSlideUp 0.35s ease-out forwards';
   }
 
   liste.forEach(commercial => {
@@ -352,12 +458,16 @@ function initialiserRechercheEtFiltres() {
     });
   }
 
-  // Écouteurs sur les boutons de catégories
-  const boutonsCat = document.querySelectorAll('.btn-filtre-cat');
+  // Écouteurs sur les boutons de catégories (classe .filtre-badge et rétrocompatibilité)
+  const boutonsCat = document.querySelectorAll('.filtre-badge, .btn-filtre-cat');
   boutonsCat.forEach(btn => {
     btn.addEventListener('click', () => {
-      boutonsCat.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+      boutonsCat.forEach(b => {
+        b.classList.remove('active', 'actif');
+        b.setAttribute('aria-pressed', 'false');
+      });
+      btn.classList.add('active', 'actif');
+      btn.setAttribute('aria-pressed', 'true');
       categorieFiltreCourante = btn.getAttribute('data-categorie') || 'Tous';
       appliquerFiltres();
     });

@@ -19,34 +19,56 @@
 </head>
 <body>
 
-  <!-- En-tête principal -->
-  <header class="entete">
+  <!-- En-tête principal Sticky -->
+  <header class="entete header-sticky">
     <div class="conteneur entete-contenu">
+      <!-- 1. Marque & Logo gauche -->
       <a href="index.html" class="marque-lien" aria-label="Accueil Lou Ame Tay">
         <img id="logo" src="images/logo.svg" alt="Lou Ame Tay" class="logo" width="48" height="48" loading="eager">
         <div class="marque-texte">
-          <span id="nom-entreprise" class="titre-marque">Lou Ame Tay 🍽️</span>
-          <span id="slogan-entreprise" class="slogan">La transition digitale de la restauration au Sénégal</span>
+          <span id="nom-entreprise" class="titre-marque">Lou Ame Tay 🐘</span>
+          <span id="slogan-entreprise" class="slogan">La transition digitale de la restauration et de l'hôtellerie au Sénégal</span>
         </div>
       </a>
 
-      <div class="nav-actions">
-        <!-- Sélecteur de Langue Trilingue -->
-        <div class="selecteur-langue-carte" aria-label="Choisir la langue">
-          <button type="button" class="btn-lang-switch active" data-lang="fr" title="Français">🇫🇷 FR</button>
-          <button type="button" class="btn-lang-switch" data-lang="wo" title="Wolof">🇸🇳 WO</button>
-          <button type="button" class="btn-lang-switch" data-lang="en" title="English">🇬🇧 EN</button>
+      <!-- 2. Navigation centrale -->
+      <nav class="header-nav" id="header-nav" aria-label="Navigation principale">
+        <a href="#offres" class="header-nav-lien" data-i18n="nav.offres">Nos formules</a>
+        <a href="#apropos" class="header-nav-lien" data-i18n="nav.apropos">L'entreprise</a>
+      </nav>
+
+      <!-- 3. Actions droite : Sélecteur Langue + CTA Site Officiel + Menu Burger Mobile -->
+      <div class="header-actions-droite">
+        <!-- Sélecteur de langue pilule HAUT À DROITE -->
+        <div class="langue-selector" aria-label="Choisir la langue">
+          <button type="button" class="btn-lang-switch active" data-lang="fr" aria-pressed="true" aria-label="Français" title="Français">🇫🇷 FR</button>
+          <button type="button" class="btn-lang-switch" data-lang="wo" aria-pressed="false" aria-label="Wolof" title="Wolof">🇸🇳 WO</button>
+          <button type="button" class="btn-lang-switch" data-lang="en" aria-pressed="false" aria-label="English" title="English">🇬🇧 EN</button>
         </div>
 
-        <a href="#offres" class="btn btn-retour" data-i18n="nav.offres">Nos formules</a>
-        <a href="#apropos" class="btn btn-retour" data-i18n="nav.apropos">L'entreprise</a>
-        <a href="login.html" class="btn btn-contour" title="Connexion Administration" data-i18n="nav.admin">
-          🔐 Espace Admin
-        </a>
-        <a id="nav-lien-site" href="https://www.louametay.com" target="_blank" rel="noopener noreferrer" class="btn btn-primaire" data-i18n="nav.site_officiel">
+        <a id="nav-lien-site" href="https://www.louametay.com" target="_blank" rel="noopener noreferrer" class="btn btn-primaire btn-cta-header" data-i18n="nav.site_officiel">
           Site officiel ↗
         </a>
+
+        <!-- Bouton Burger Mobile (< 768px) -->
+        <button type="button" class="btn-burger" id="btn-burger" aria-label="Ouvrir le menu de navigation" aria-expanded="false" aria-controls="menu-tiroir-mobile">
+          <span class="barre-burger"></span>
+          <span class="barre-burger"></span>
+          <span class="barre-burger"></span>
+        </button>
       </div>
+    </div>
+
+    <!-- Tiroir de Navigation Mobile (< 768px) -->
+    <div class="menu-tiroir-mobile" id="menu-tiroir-mobile" aria-hidden="true">
+      <nav class="nav-tiroir-liens">
+        <a href="#offres" class="tiroir-lien" data-i18n="nav.offres">Nos formules</a>
+        <a href="#apropos" class="tiroir-lien" data-i18n="nav.apropos">L'entreprise</a>
+        <a href="login.html" class="tiroir-lien lien-discret-admin">Administration</a>
+        <a href="https://www.louametay.com" target="_blank" rel="noopener noreferrer" class="btn btn-primaire" style="margin-top: 0.5rem; text-align: center;">
+          Site officiel ↗
+        </a>
+      </nav>
     </div>
   </header>
 
@@ -78,13 +100,13 @@
           <button type="button" id="btn-effacer-recherche" class="btn-effacer-recherche" aria-label="Effacer">✕</button>
         </div>
 
-        <!-- Filtres par Catégorie (Alignés avec la contrainte CHECK PostgreSQL) -->
+        <!-- Filtres par Catégorie avec classe .filtre-badge -->
         <div class="filtres-categories-annuaire" id="filtres-categories" role="group" aria-label="Filtrer par catégorie">
-          <button type="button" class="btn-filtre-cat active" data-categorie="Tous">Tous</button>
-          <button type="button" class="btn-filtre-cat" data-categorie="Direction">Direction</button>
-          <button type="button" class="btn-filtre-cat" data-categorie="Vente">Vente</button>
-          <button type="button" class="btn-filtre-cat" data-categorie="Support">Support</button>
-          <button type="button" class="btn-filtre-cat" data-categorie="Technique">Technique</button>
+          <button type="button" class="filtre-badge active" data-categorie="Tous" aria-pressed="true" aria-label="Afficher tous les conseillers">Tous</button>
+          <button type="button" class="filtre-badge" data-categorie="Direction" aria-pressed="false" aria-label="Filtrer par Direction">Direction</button>
+          <button type="button" class="filtre-badge" data-categorie="Vente" aria-pressed="false" aria-label="Filtrer par Vente">Vente</button>
+          <button type="button" class="filtre-badge" data-categorie="Support" aria-pressed="false" aria-label="Filtrer par Support">Support</button>
+          <button type="button" class="filtre-badge" data-categorie="Technique" aria-pressed="false" aria-label="Filtrer par Technique">Technique</button>
         </div>
 
         <p id="compteur-resultats" class="compteur-resultats" aria-live="polite"></p>
@@ -192,7 +214,9 @@
     </div>
   </footer>
 
-  <!-- Scripts -->
+  <!-- Scripts ordonnés avec injection préalable de l'environnement -->
+  <script src="js/env.js"></script>
+  <script type="module" src="js/supabase-client.js"></script>
   <script type="module" src="js/app.js"></script>
 </body>
 </html>

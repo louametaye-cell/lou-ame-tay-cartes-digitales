@@ -8,7 +8,7 @@
  */
 
 export const entreprise = {
-  nom: "Lou Ame Tay 🍽️",
+  nom: "Lou Ame Tay 🐘",
   slogan: "La transition digitale de la restauration et de l'hôtellerie au Sénégal.",
   description: "Lou Ame Tay est une solution SaaS 100% sénégalaise conçue pour moderniser les établissements de restauration et d'hôtellerie. Elle permet aux clients de consulter le menu et de passer commande directement depuis leur table en scannant un QR code, sans aucune application à télécharger.",
   siteWeb: "https://www.louametay.com",

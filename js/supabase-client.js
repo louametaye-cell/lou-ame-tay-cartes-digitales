@@ -11,7 +11,7 @@
  */
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-import { ENV } from './env.js';
+const ENV = (typeof window !== 'undefined' && (window.__ENV__ || window.ENV)) || {};
 
 // Identifiants par défaut (injectés par env.js pour LWS ou variables d'environnement Vite)
 const DEFAULT_SUPABASE_URL = ENV?.VITE_SUPABASE_URL || 'https://ugmdpjncplnlizhpongo.supabase.co';
