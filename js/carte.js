@@ -116,6 +116,12 @@ async function initialiserCarte() {
   // 3. Actions terrain (Modal RDV et Support direct WhatsApp)
   configurerActionsTerrain(commercial);
 
+  // 3b. Localisation & Itinéraire (Google Maps / Apple Maps)
+  afficherLocalisation(commercial);
+
+  // 3c. Système d'avis et notations clients (0 à 10)
+  initialiserAvis(commercial.id);
+
   // 4. vCard "Ajouter au contact" (.vcf)
   configurerVCard(commercial);
 
@@ -722,4 +728,324 @@ function afficherToast(message) {
   toast._timer = setTimeout(() => {
     toast.classList.remove('visible');
   }, 3200);
+}
+
+// ==============================================================================
+// 12. LOCALISATION & ITINÉRAIRE (GOOGLE MAPS / APPLE MAPS)
+// ==============================================================================
+export function afficherLocalisation(c) {
+  const section = document.getElementById('section-localisation');
+  const adresseEl = document.getElementById('loc-adresse');
+  const btn = document.getElementById('btn-itinerair');
+
+  if (!section || !btn || !adresseEl) return;
+
+  if (!c.adresse && !c.latitude && !c.maps_url) {
+    section.style.display = 'none';
+    return;
+  }
+
+  section.style.display = 'flex';
+  adresseEl.textContent = c.adresse || 'Voir l\'emplacement sur la carte';
+
+  let url = '#';
+  if (c.maps_url) {
+    url = c.maps_url;
+  } else if (c.latitude && c.longitude) {
+    url = `https://www.google.com/maps/dir/?api=1&destination=${c.latitude},${c.longitude}`;
+  } else if (c.adresse) {
+    url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(c.adresse)}`;
+  }
+
+  btn.href = url;
+
+  btn.addEventListener('click', () => {
+    trackerEvenement('itineraire_maps', c.id);
+  });
+}
+
+// ==============================================================================
+// 13. SYSTÈME D'AVIS & NOTATIONS CLIENTS (0 À 10)
+// ==============================================================================
+let noteSelectionnee = 0;
+
+export function afficherEtoiles(noteMoyenne) {
+  const nbEtoilesPleines = Math.round(Number(noteMoyenne) || 0);
+  const container = document.getElementById('avis-etoiles-affichees');
+  if (!container) return;
+
+  container.innerHTML = '';
+  for (let i = 1; i <= 10; i++) {
+    const span = document.createElement('span');
+    span.textContent = i <= nbEtoilesPleines ? '★' : '☆';
+    span.style.color = i <= nbEtoilesPleines ? '#C9A227' : '#CBD5E1';
+    span.style.fontSize = '22px';
+    span.style.cursor = 'default';
+    span.setAttribute('aria-hidden', 'true');
+    container.appendChild(span);
+  }
+}
+
+export function initialiserSelecteurNote() {
+  const container = document.getElementById('note-selector');
+  const input = document.getElementById('note-input');
+  const affichee = document.getElementById('note-affichee');
+  if (!container || !input || !affichee) return;
+
+  container.innerHTML = '';
+  for (let i = 1; i <= 10; i++) {
+    const span = document.createElement('span');
+    span.className = 'etoile';
+    span.textContent = '★';
+    span.dataset.valeur = String(i);
+    span.setAttribute('role', 'radio');
+    span.setAttribute('aria-label', `${i} sur 10`);
+    span.tabIndex = 0;
+
+    const appliquerNote = (val) => {
+      noteSelectionnee = val;
+      input.value = String(val);
+      affichee.textContent = String(val);
+      container.querySelectorAll('.etoile').forEach((e, idx) => {
+        const estActif = idx < val;
+        e.classList.toggle('active', estActif);
+        e.style.color = estActif ? '#C9A227' : '#CBD5E1';
+      });
+    };
+
+    span.addEventListener('click', () => appliquerNote(i));
+    span.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        appliquerNote(i);
+      }
+    });
+
+    span.addEventListener('mouseenter', () => {
+      container.querySelectorAll('.etoile').forEach((e, idx) => {
+        e.style.color = idx < i ? '#C9A227' : '#CBD5E1';
+      });
+    });
+
+    container.appendChild(span);
+  }
+
+  container.addEventListener('mouseleave', () => {
+    container.querySelectorAll('.etoile').forEach((e, idx) => {
+      e.style.color = idx < noteSelectionnee ? '#C9A227' : '#CBD5E1';
+    });
+  });
+}
+
+export async function chargerAvis(commercialId) {
+  const noteMoyenneEl = document.getElementById('note-moyenne');
+  const nbAvisEl = document.getElementById('nb-avis');
+  const listeEl = document.getElementById('liste-avis');
+  if (!noteMoyenneEl || !nbAvisEl || !listeEl) return;
+
+  try {
+    let noteMoyenne = 0;
+    let nbAvis = 0;
+
+    if (estSupabaseConfigure()) {
+      const { data: stats } = await supabase
+        .from('commerciaux_notes')
+        .select('*')
+        .eq('commercial_id', commercialId)
+        .maybeSingle();
+
+      if (stats) {
+        noteMoyenne = Number(stats.note_moyenne) || 0;
+        nbAvis = Number(stats.nb_avis) || 0;
+      }
+    }
+
+    noteMoyenneEl.textContent = noteMoyenne > 0 ? noteMoyenne.toFixed(1) : '—';
+    nbAvisEl.textContent = nbAvis > 0 ? `(${nbAvis} avis)` : '(aucun avis)';
+    afficherEtoiles(noteMoyenne);
+
+    let avis = [];
+    if (estSupabaseConfigure()) {
+      const { data, error } = await supabase
+        .from('avis')
+        .select('nom_visiteur, note, commentaire, created_at, restaurant_visiteur')
+        .eq('commercial_id', commercialId)
+        .eq('statut', 'publie')
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      if (!error && data) {
+        avis = data;
+      }
+    }
+
+    if (!avis || avis.length === 0) {
+      listeEl.innerHTML = '<p style="text-align:center; color:#94A3B8; padding:1.25rem 0; font-size:0.9rem;">Soyez le premier à laisser une note ✨</p>';
+      return;
+    }
+
+    listeEl.innerHTML = avis.map(a => `
+      <div class="avis-item">
+        <div class="avis-top">
+          <span class="avis-auteur">${escapeHtml(a.nom_visiteur || 'Client partenaire')}${a.restaurant_visiteur ? ` — <em>${escapeHtml(a.restaurant_visiteur)}</em>` : ''}</span>
+          <span class="avis-note">${a.note}/10 ⭐</span>
+        </div>
+        ${a.commentaire ? `<p class="avis-commentaire">${escapeHtml(a.commentaire)}</p>` : ''}
+        <span class="avis-date">${formaterDateAvis(a.created_at)}</span>
+      </div>
+    `).join('');
+
+  } catch (err) {
+    console.warn('Erreur chargement avis :', err);
+    noteMoyenneEl.textContent = '—';
+    nbAvisEl.textContent = '(aucun avis)';
+    afficherEtoiles(0);
+  }
+}
+
+export function initialiserAvis(commercialId) {
+  const sectionAvis = document.getElementById('section-avis');
+  const btnLaisserAvis = document.getElementById('btn-laisser-avis');
+  const formAvis = document.getElementById('formulaire-avis');
+  if (!sectionAvis) return;
+
+  initialiserSelecteurNote();
+
+  btnLaisserAvis?.addEventListener('click', () => {
+    formAvis?.classList.toggle('hidden');
+    if (!formAvis?.classList.contains('hidden')) {
+      formAvis?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  });
+
+  formAvis?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    await envoyerAvis(commercialId);
+  });
+
+  // Lazy loading : Ne charger que lorsque la section devient visible à l'écran
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          chargerAvis(commercialId);
+          obs.unobserve(entry.target);
+        }
+      });
+    }, { rootMargin: '200px' });
+    observer.observe(sectionAvis);
+  } else {
+    chargerAvis(commercialId);
+  }
+}
+
+async function envoyerAvis(commercialId) {
+  if (noteSelectionnee <= 0 || noteSelectionnee > 10) {
+    afficherToast('❌ Veuillez sélectionner une note entre 1 et 10 étoiles.');
+    return;
+  }
+
+  // 1. Anti-spam côté client : Vérifier localStorage (1 avis par commercial par 24h)
+  const cleAntiSpam = `LOUAMETAY_AVIS_${commercialId}`;
+  const dernierEnvoi = localStorage.getItem(cleAntiSpam);
+  if (dernierEnvoi) {
+    const tempsEcouleMs = Date.now() - Number(dernierEnvoi);
+    if (tempsEcouleMs < 24 * 60 * 60 * 1000) {
+      const heuresRestantes = Math.ceil((24 * 60 * 60 * 1000 - tempsEcouleMs) / (60 * 60 * 1000));
+      afficherToast(`⏳ Vous avez déjà noté ce conseiller. Prochain avis possible dans ~${heuresRestantes}h.`);
+      return;
+    }
+  }
+
+  const btnEnvoyer = document.getElementById('btn-envoyer-avis');
+  const commInput = document.getElementById('avis-commentaire');
+  const nomInput = document.getElementById('avis-nom');
+  const restauInput = document.getElementById('avis-restaurant');
+
+  const commentaire = commInput ? commInput.value.trim() : '';
+  const nom = nomInput ? nomInput.value.trim() : '';
+  const restaurant = restauInput ? restauInput.value.trim() : '';
+
+  if (btnEnvoyer) {
+    btnEnvoyer.disabled = true;
+    btnEnvoyer.textContent = 'Envoi de votre avis...';
+  }
+
+  try {
+    const ipHash = 'client_' + btoa(navigator.userAgent.substring(0, 30) + (window.screen ? window.screen.width : '0')).substring(0, 16);
+
+    const { error } = await supabase.from('avis').insert({
+      commercial_id: commercialId,
+      note: noteSelectionnee,
+      commentaire: commentaire || null,
+      nom_visiteur: nom || null,
+      restaurant_visiteur: restaurant || null,
+      ip_hash: ipHash,
+      user_agent: navigator.userAgent.substring(0, 200),
+      statut: 'publie'
+    });
+
+    if (error) {
+      console.error('Erreur Supabase envoi avis :', error);
+      if (error.message && error.message.includes('24 heures')) {
+        afficherToast('⏳ Vous avez déjà laissé un avis pour ce conseiller au cours des dernières 24 heures.');
+      } else {
+        afficherToast('❌ Erreur lors de l\'enregistrement. Veuillez réessayer.');
+      }
+      return;
+    }
+
+    // Sauvegarde anti-spam locale
+    localStorage.setItem(cleAntiSpam, String(Date.now()));
+
+    afficherToast('✅ Merci beaucoup pour votre avis !');
+
+    // Réinitialisation
+    if (commInput) commInput.value = '';
+    if (nomInput) nomInput.value = '';
+    if (restauInput) restauInput.value = '';
+    noteSelectionnee = 0;
+    const input = document.getElementById('note-input');
+    const affichee = document.getElementById('note-affichee');
+    if (input) input.value = '0';
+    if (affichee) affichee.textContent = '0';
+    document.querySelectorAll('#note-selector .etoile').forEach(e => {
+      e.classList.remove('active');
+      e.style.color = '#CBD5E1';
+    });
+
+    document.getElementById('formulaire-avis')?.classList.add('hidden');
+
+    // Recharger la moyenne et les avis immédiatement
+    await chargerAvis(commercialId);
+
+  } catch (err) {
+    console.error('Exception envoi avis :', err);
+    afficherToast('❌ Une erreur est survenue lors de l\'envoi.');
+  } finally {
+    if (btnEnvoyer) {
+      btnEnvoyer.disabled = false;
+      btnEnvoyer.textContent = '📩 Envoyer mon avis';
+    }
+  }
+}
+
+function escapeHtml(text) {
+  if (!text) return '';
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+function formaterDateAvis(iso) {
+  if (!iso) return "Récemment";
+  const d = new Date(iso);
+  const now = new Date();
+  const diffMs = now.getTime() - d.getTime();
+  const diffJours = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  if (diffMs < 24 * 60 * 60 * 1000 && diffJours <= 0) return "Aujourd'hui";
+  if (diffJours === 1) return "Hier";
+  if (diffJours > 1 && diffJours < 7) return `Il y a ${diffJours} jours`;
+  if (diffJours >= 7 && diffJours < 30) return `Il y a ${Math.floor(diffJours / 7)} sem.`;
+  return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
 }

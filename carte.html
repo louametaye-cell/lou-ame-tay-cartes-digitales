@@ -110,6 +110,26 @@
           </button>
         </nav>
 
+        <!-- Section Localisation Cliquable (Google Maps / Apple Maps) -->
+        <section class="carte-localisation" id="section-localisation">
+          <div class="loc-icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+          </div>
+          <div class="loc-info">
+            <h3 data-i18n="carte.loc_titre">Nous trouver</h3>
+            <p id="loc-adresse">Dakar, Plateau — Point E</p>
+          </div>
+          <a href="#" id="btn-itinerair" class="btn-direction" target="_blank" rel="noopener noreferrer">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+            </svg>
+            <span data-i18n="carte.itineraire">Itinéraire</span>
+          </a>
+        </section>
+
         <!-- 2. BOUTONS D'ACTION TERRAIN (RDV DÉMO & SUPPORT WHATSAPP) -->
         <div class="bloc-actions-terrain">
           <button type="button" id="btn-ouvrir-modal-rdv" class="btn-rdv-demo" title="Planifier une démonstration de commande à table">
@@ -139,6 +159,59 @@
             <p data-i18n="carte.horaires_desc">Intervention d'urgence jusqu'à 22h00 pour les services du soir</p>
           </div>
         </div>
+
+        <!-- Section Avis & Évaluation Clients (0 à 10) -->
+        <section class="carte-avis" id="section-avis" aria-label="Avis et notes des clients">
+          <div class="avis-header">
+            <h2>⭐ <span data-i18n="carte.avis_titre">Note des clients</span></h2>
+            <div class="avis-moyenne">
+              <span id="note-moyenne" class="note-num">—</span>
+              <span class="note-sep">/</span>
+              <span class="note-max">10</span>
+              <span id="nb-avis" class="note-count">(aucun avis)</span>
+            </div>
+          </div>
+
+          <!-- Étoiles visuelles (10 étoiles = 10/10) -->
+          <div class="avis-etoiles" id="avis-etoiles-affichees" aria-label="Évaluation par étoiles">
+            <!-- Rendu dynamique JS -->
+          </div>
+
+          <!-- Bouton pour laisser un avis -->
+          <button type="button" id="btn-laisser-avis" class="btn-avis">
+            ✍️ <span data-i18n="carte.laisser_avis">Laisser un avis</span>
+          </button>
+
+          <!-- Formulaire caché par défaut -->
+          <form id="formulaire-avis" class="form-avis hidden" novalidate>
+            <h3><span data-i18n="carte.votre_avis">Votre avis</span></h3>
+            
+            <label id="label-note-selector">Votre note (0 à 10) :</label>
+            <div class="note-selector" id="note-selector" role="radiogroup" aria-labelledby="label-note-selector">
+              <!-- 10 étoiles cliquables générées en JS -->
+            </div>
+            <input type="hidden" id="note-input" value="0">
+            <div class="note-valeur-affichee"><span id="note-affichee">0</span>/10</div>
+
+            <label for="avis-commentaire">Commentaire (optionnel) :</label>
+            <textarea id="avis-commentaire" maxlength="500" placeholder="Décrivez votre expérience avec ce conseiller..."></textarea>
+
+            <label for="avis-nom">Votre nom (optionnel) :</label>
+            <input type="text" id="avis-nom" maxlength="80" placeholder="Ex: M. Diop / Mme Fall">
+
+            <label for="avis-restaurant">Votre établissement (optionnel) :</label>
+            <input type="text" id="avis-restaurant" maxlength="120" placeholder="Ex: Restaurant Le Teranga">
+
+            <button type="submit" id="btn-envoyer-avis" class="btn-envoyer">
+              📩 Envoyer mon avis
+            </button>
+          </form>
+
+          <!-- Liste des derniers avis -->
+          <div id="liste-avis" class="liste-avis">
+            <!-- Chargé en JS depuis Supabase -->
+          </div>
+        </section>
 
         <!-- 5. SECTION "À PROPOS DE MOI" -->
         <section class="chimp-carte-blanche" aria-label="Biographie du conseiller">

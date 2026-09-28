@@ -136,6 +136,10 @@ export const commerciaux = [
     bio: "Spécialiste de la transformation digitale CHR (Cafés, Hôtels, Restaurants) au Sénégal. J'accompagne les propriétaires et gérants dans l'automatisation de la prise de commande à table, la réduction des temps d'attente et l'optimisation de leur rentabilité sur Thiès, Dakar et Mbour.",
     zone: "Dakar (Plateau, Almadies, Point E) & Thiès",
     disponibilite: "Disponible aujourd'hui pour démonstration en salle",
+    adresse: "Dakar, Plateau — Point E, Immeuble Horizon CHR",
+    latitude: 14.6928,
+    longitude: -17.4467,
+    maps_url: "https://www.google.com/maps/search/?api=1&query=Dakar+Point+E",
     reseaux: {
       linkedin: "https://linkedin.com/in/mamadou-diallo-louametay",
       facebook: "https://facebook.com/louametay.officiel",
@@ -156,6 +160,10 @@ export const commerciaux = [
     bio: "Spécialiste de la transformation digitale CHR (Cafés, Hôtels, Restaurants) au Sénégal. J'accompagne les propriétaires et gérants dans l'automatisation de la prise de commande à table, la réduction des temps d'attente et l'optimisation de leur rentabilité sur Thiès, Dakar et Mbour.",
     zone: "Axe Dakar — Thiès — Mbour — Saly Portudal",
     disponibilite: "En tournée d'installation — Joignable sur WhatsApp",
+    adresse: "Thiès, Quartier Dixième — Cité Malick Sy",
+    latitude: 14.7903,
+    longitude: -16.9260,
+    maps_url: "https://www.google.com/maps/search/?api=1&query=Thies+Senegal",
     reseaux: {
       linkedin: "https://linkedin.com/in/cheikh-ndiaye-louametay",
       facebook: "https://facebook.com/louametay.officiel",
@@ -176,6 +184,10 @@ export const commerciaux = [
     bio: "Spécialiste des formules Tàmbali et Nio Far dédiées aux restaurants de quartier, glaciers, fast-foods et cafés. Je vous démontre comment augmenter votre panier moyen de 25% grâce au menu QR code avec paiement Wave & Orange Money.",
     zone: "Thiès (Dixième, Cité Lamy, Randoulène) & Dakar Banlieue",
     disponibilite: "Disponible pour visite et calcul de rentabilité gratuit",
+    adresse: "Saly Portudal — Mbour, Zone Touristique & CHR",
+    latitude: 14.4437,
+    longitude: -17.0270,
+    maps_url: "https://www.google.com/maps/search/?api=1&query=Saly+Portudal",
     reseaux: {
       linkedin: "https://linkedin.com/in/fatou-sow-louametay",
       facebook: "https://facebook.com/louametay.officiel",
@@ -196,6 +208,10 @@ export const commerciaux = [
     bio: "Expert des solutions multisites pour resorts, hôtels de plage et chaînes de restauration. Je conçois des configurations sur-mesure combinant commande en chambre (room-service QR), commande transat/piscine et intégration caisse.",
     zone: "Petite Côte, Saly, Somone, Toubab Dialaw & Dakar",
     disponibilite: "Sur rendez-vous pour étude de projet hôtelier",
+    adresse: "Dakar, Almadies — Zone Hôtelière & Restauration",
+    latitude: 14.7450,
+    longitude: -17.5186,
+    maps_url: "https://www.google.com/maps/search/?api=1&query=Almadies+Dakar",
     reseaux: {
       linkedin: "https://linkedin.com/in/moussa-ba-louametay",
       facebook: "https://facebook.com/louametay.officiel",

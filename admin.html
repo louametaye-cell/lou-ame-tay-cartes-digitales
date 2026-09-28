@@ -55,6 +55,12 @@
         <span id="badge-compteur-leads" class="nav-badge-compteur">0</span>
       </button>
 
+      <button type="button" class="nav-onglet-btn" data-onglet="avis">
+        <span class="nav-icone" aria-hidden="true">⭐</span>
+        <span>Avis clients</span>
+        <span id="badge-compteur-avis" class="nav-badge-compteur">0</span>
+      </button>
+
       <button type="button" class="nav-onglet-btn" data-onglet="analytics">
         <span class="nav-icone" aria-hidden="true">📈</span>
         <span>Statistiques & Scans</span>
@@ -490,6 +496,113 @@
       </section>
 
       <!-- ==================================================================
+           VUE AVIS : GESTION & MODÉRATION DES AVIS CLIENTS (0 À 10)
+           ================================================================== -->
+      <section id="vue-avis" class="admin-vue">
+        <!-- Cartes statistiques des avis -->
+        <div class="stats-grille">
+          <div class="stat-carte">
+            <div class="stat-icone-fond icone-or">⭐</div>
+            <div class="stat-contenu">
+              <span class="stat-titre">Note Moyenne Globale</span>
+              <strong id="stat-avis-moyenne" class="stat-valeur">—</strong>
+              <span class="stat-precision">Sur 10 étoiles</span>
+            </div>
+          </div>
+
+          <div class="stat-carte">
+            <div class="stat-icone-fond icone-bleu">💬</div>
+            <div class="stat-contenu">
+              <span class="stat-titre">Total des Avis</span>
+              <strong id="stat-avis-total" class="stat-valeur">0</strong>
+              <span class="stat-precision">Reçus via les cartes</span>
+            </div>
+          </div>
+
+          <div class="stat-carte">
+            <div class="stat-icone-fond icone-vert">👁️</div>
+            <div class="stat-contenu">
+              <span class="stat-titre">Avis Publiés</span>
+              <strong id="stat-avis-publies" class="stat-valeur">0</strong>
+              <span class="stat-precision">Visibles publiquement</span>
+            </div>
+          </div>
+
+          <div class="stat-carte">
+            <div class="stat-icone-fond icone-orange">🚫</div>
+            <div class="stat-contenu">
+              <span class="stat-titre">Avis Masqués</span>
+              <strong id="stat-avis-masques" class="stat-valeur">0</strong>
+              <span class="stat-precision">Modérés par l'admin</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tableau des avis avec barre d'outils -->
+        <div class="admin-carte-tableau">
+          <div class="tableau-barre-outils">
+            <div class="outils-gauche">
+              <!-- Champ de recherche -->
+              <div class="champ-recherche-wrapper">
+                <span class="icone-recherche" aria-hidden="true">🔍</span>
+                <input 
+                  type="text" 
+                  id="recherche-avis" 
+                  class="champ-recherche-admin" 
+                  placeholder="Rechercher par visiteur, restaurant, commentaire, conseiller..."
+                >
+                <button type="button" id="btn-effacer-recherche-avis" class="btn-effacer-filtre">✕</button>
+              </div>
+
+              <!-- Filtre par note -->
+              <select id="filtre-note-avis" class="select-filtre-admin">
+                <option value="tous">Toutes les notes (0-10)</option>
+                <option value="excellence">⭐ 8 à 10 — Excellents</option>
+                <option value="moyen">⭐ 5 à 7 — Moyens</option>
+                <option value="critique">⚠️ Moins de 5 — Critiques</option>
+              </select>
+
+              <!-- Filtre par statut -->
+              <select id="filtre-statut-avis" class="select-filtre-admin">
+                <option value="tous">Tous les statuts</option>
+                <option value="publie">Publiés uniquement</option>
+                <option value="masque">Masqués uniquement</option>
+              </select>
+            </div>
+
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <button type="button" id="btn-exporter-avis-csv" class="btn btn-contour btn-sm">
+                📥 Exporter en CSV
+              </button>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="admin-table" id="table-avis" aria-label="Liste des avis et évaluations clients">
+              <thead>
+                <tr>
+                  <th>Date & Heure</th>
+                  <th>Conseiller</th>
+                  <th>Client / Établissement</th>
+                  <th>Note /10</th>
+                  <th>Commentaire</th>
+                  <th>Statut</th>
+                  <th style="text-align: right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-avis">
+                <tr>
+                  <td colspan="7" class="table-chargement">
+                    Chargement des avis clients...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================================================================
            VUE 4 : PARAMÈTRES, SÉCURITÉ & BASE DE DONNÉES (SUPABASE)
            ================================================================== -->
       <section id="vue-parametres" class="admin-vue">
@@ -742,6 +855,34 @@ VALUES
           <div class="champ-groupe">
             <label for="comm-disponibilite" class="champ-label">Disponibilité affichée</label>
             <input type="text" id="comm-disponibilite" class="champ-input" placeholder="Ex: Disponible pour démo en salle">
+          </div>
+        </div>
+
+        <!-- Ligne 4b : Adresse, Géolocalisation GPS & Google Maps -->
+        <div class="form-grille-2">
+          <div class="champ-groupe">
+            <label for="comm-adresse" class="champ-label">Adresse de référence terrain (pour Google Maps & itinéraire)</label>
+            <input type="text" id="comm-adresse" class="champ-input" placeholder="Ex: Dakar, Plateau — Point E, Immeuble Horizon">
+          </div>
+          <div class="champ-groupe">
+            <label for="comm-maps-url" class="champ-label">URL Google Maps personnalisée (optionnel)</label>
+            <input type="url" id="comm-maps-url" class="champ-input" placeholder="https://maps.google.com/...">
+          </div>
+        </div>
+
+        <div class="form-grille-3" style="align-items: flex-end; margin-bottom: 0.75rem;">
+          <div class="champ-groupe">
+            <label for="comm-latitude" class="champ-label">Latitude (GPS)</label>
+            <input type="number" id="comm-latitude" class="champ-input" step="0.00000001" placeholder="14.692800">
+          </div>
+          <div class="champ-groupe">
+            <label for="comm-longitude" class="champ-label">Longitude (GPS)</label>
+            <input type="number" id="comm-longitude" class="champ-input" step="0.00000001" placeholder="-17.446700">
+          </div>
+          <div class="champ-groupe">
+            <button type="button" id="btn-geoloc-auto" class="btn btn-contour btn-sm" style="width: 100%; height: 42px; margin-bottom: 2px;">
+              📍 Détecter ma position GPS
+            </button>
           </div>
         </div>
 

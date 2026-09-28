@@ -1891,3 +1891,286 @@ body {
   }
 }
 
+/* ==========================================================================
+   SECTIONS LOCALISATION & AVIS CLIENTS (STYLE QRCODECHIMP / LOU AME TAY)
+   ========================================================================== */
+
+/* Section Localisation */
+.carte-localisation {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  background: var(--blanc, #FFFFFF);
+  border-radius: 16px;
+  margin: 16px 0;
+  border-left: 4px solid var(--dore-primaire, #C9A227);
+  box-shadow: 0 4px 16px rgba(11, 31, 58, 0.06);
+}
+
+.loc-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--marine-fonce, #0B1F3A);
+  color: var(--dore-primaire, #C9A227);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.loc-info { flex: 1; min-width: 0; }
+.loc-info h3 {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--marine-fonce, #0B1F3A);
+  margin: 0 0 2px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.loc-info p {
+  font-size: 13.5px;
+  color: #475569;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-direction {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  background: var(--marine-fonce, #0B1F3A);
+  color: var(--blanc, #FFFFFF);
+  border-radius: 24px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 13px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.btn-direction:hover {
+  background: var(--dore-primaire, #C9A227);
+  color: var(--marine-fonce, #0B1F3A);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(201, 162, 39, 0.3);
+}
+
+/* Section Avis & Notations */
+.carte-avis {
+  padding: 24px 20px;
+  background: var(--blanc, #FFFFFF);
+  border-radius: 16px;
+  margin: 16px 0;
+  box-shadow: 0 4px 20px rgba(11, 31, 58, 0.08);
+  border: 1px solid rgba(11, 31, 58, 0.06);
+}
+
+.avis-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.avis-header h2 {
+  font-size: 18px;
+  color: var(--marine-fonce, #0B1F3A);
+  margin: 0;
+  font-family: var(--police-titre);
+  font-weight: 800;
+}
+
+.avis-moyenne {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.note-num {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--dore-primaire, #C9A227);
+  font-family: var(--police-titre);
+}
+.note-sep, .note-max {
+  font-size: 18px;
+  color: #94A3B8;
+  font-weight: 700;
+}
+.note-count {
+  font-size: 13px;
+  color: #64748B;
+  margin-left: 4px;
+}
+
+.avis-etoiles {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+  font-size: 24px;
+  letter-spacing: 2px;
+}
+
+.btn-avis {
+  width: 100%;
+  padding: 13px;
+  background: linear-gradient(135deg, #0B1F3A, #1a3a5f);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+.btn-avis:hover {
+  background: linear-gradient(135deg, #C9A227, #8a6f1a);
+  color: #0B1F3A;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(201, 162, 39, 0.3);
+}
+
+/* Formulaire d'avis */
+.form-avis {
+  margin-top: 18px;
+  padding: 18px;
+  background: #F8F9FA;
+  border-radius: 14px;
+  border: 1.5px solid #C9A227;
+  animation: fadeInDown 0.25s ease-out;
+}
+.form-avis.hidden { display: none; }
+.form-avis h3 {
+  color: var(--marine-fonce, #0B1F3A);
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+}
+
+.note-selector {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+  font-size: 28px;
+  cursor: pointer;
+  margin: 10px 0;
+  user-select: none;
+}
+.note-selector .etoile {
+  transition: transform 0.15s, color 0.15s;
+  color: #CBD5E1;
+  padding: 2px;
+}
+.note-selector .etoile.active {
+  color: #C9A227;
+  transform: scale(1.18);
+}
+.note-valeur-affichee {
+  text-align: center;
+  font-weight: 800;
+  color: var(--marine-fonce, #0B1F3A);
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+
+.form-avis label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--marine-fonce, #0B1F3A);
+  margin: 12px 0 5px;
+}
+.form-avis textarea,
+.form-avis input[type="text"] {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13.5px;
+  box-sizing: border-box;
+  background: #FFFFFF;
+}
+.form-avis textarea { min-height: 80px; resize: vertical; }
+
+.btn-envoyer {
+  width: 100%;
+  padding: 13px;
+  background: var(--dore-primaire, #C9A227);
+  color: var(--marine-fonce, #0B1F3A);
+  border: none;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 14.5px;
+  cursor: pointer;
+  margin-top: 14px;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+.btn-envoyer:hover {
+  background: var(--marine-fonce, #0B1F3A);
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* Liste des avis */
+.liste-avis {
+  margin-top: 20px;
+}
+.avis-item {
+  padding: 14px 0;
+  border-bottom: 1px solid #E2E8F0;
+}
+.avis-item:last-child { border-bottom: none; }
+.avis-item .avis-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.avis-item .avis-auteur {
+  font-weight: 700;
+  color: var(--marine-fonce, #0B1F3A);
+  font-size: 13.5px;
+}
+.avis-item .avis-note {
+  color: var(--dore-primaire, #C9A227);
+  font-weight: 800;
+  font-size: 14px;
+  background: #FEF3C7;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+.avis-item .avis-commentaire {
+  color: #334155;
+  font-size: 13.5px;
+  line-height: 1.5;
+  margin: 6px 0;
+}
+.avis-item .avis-date {
+  color: #94A3B8;
+  font-size: 12px;
+}
+
+@media (max-width: 480px) {
+  .carte-localisation {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .btn-direction {
+    width: 100%;
+    justify-content: center;
+  }
+  .note-selector {
+    font-size: 24px;
+    gap: 2px;
+  }
+}
+

@@ -39,8 +39,12 @@
     "formule_souhaitee": "Desired Plan",
     "envoyer": "🚀 Send My Request to the Advisor",
     "carte_inactive": "This card is no longer active",
-    "carte_inactive_desc": "This advisor's digital card has been temporarily deactivated by Lou Ame Tay management.",
-    "signature_email": "✉️ Generate my email signature"
+    "signature_email": "✉️ Generate my email signature",
+    "loc_titre": "Find us",
+    "itineraire": "Directions",
+    "avis_titre": "Customer Reviews",
+    "laisser_avis": "Leave a review",
+    "votre_avis": "Your review"
   },
   "formules": {
     "tambali": "Tàmbali Plan (15,000 FCFA/month)",

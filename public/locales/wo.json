@@ -39,8 +39,12 @@
     "formule_souhaitee": "Formule bi nga bëgg",
     "envoyer": "🚀 Yónneel sa laaj ci commercial bi",
     "carte_inactive": "Kaart bi dafa taxaw",
-    "carte_inactive_desc": "Njiitu Lou Ame Tay dafa taxawal kaartu liggéeykat bi ci ndànk-ndànk.",
-    "signature_email": "✉️ Généréel sama signature email"
+    "signature_email": "✉️ Généréel sama signature email",
+    "loc_titre": "Fékk nu fi",
+    "itineraire": "Yoon wi",
+    "avis_titre": "Gis-gisou kiliyaan yi",
+    "laisser_avis": "Bindeul sa gis-gis",
+    "votre_avis": "Sa gis-gis"
   },
   "formules": {
     "tambali": "Formule Tàmbali (15 000 FCFA/weer)",

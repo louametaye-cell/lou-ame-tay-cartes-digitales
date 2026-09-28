@@ -39,8 +39,12 @@
     "formule_souhaitee": "Formule souhaitée",
     "envoyer": "🚀 Envoyer ma demande au conseiller",
     "carte_inactive": "Cette carte n'est plus active",
-    "carte_inactive_desc": "La carte de ce conseiller commercial a été désactivée temporairement par la direction Lou Ame Tay.",
-    "signature_email": "✉️ Générer ma signature email"
+    "signature_email": "✉️ Générer ma signature email",
+    "loc_titre": "Nous trouver",
+    "itineraire": "Itinéraire",
+    "avis_titre": "Note des clients",
+    "laisser_avis": "Laisser un avis",
+    "votre_avis": "Votre avis"
   },
   "formules": {
     "tambali": "Formule Tàmbali (15 000 FCFA/mois)",

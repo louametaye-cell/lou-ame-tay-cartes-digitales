@@ -34,9 +34,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   initialiserModalCommercial();
   initialiserFiltresEtRecherche();
   initialiserLeadsCRM();
+  initialiserAvisAdmin();
   initialiserParametres();
   await chargerCommerciaux();
   await chargerLeads();
+  await chargerAvisAdmin();
 });
 
 /**
@@ -589,6 +591,29 @@ function initialiserModalCommercial() {
     }
   });
 
+  // Détection automatique de la position GPS
+  document.getElementById('btn-geoloc-auto')?.addEventListener('click', () => {
+    if (!navigator.geolocation) {
+      afficherToast('❌ La géolocalisation n\'est pas supportée par votre navigateur.');
+      return;
+    }
+    afficherToast('📍 Recherche de la position GPS...');
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const latInput = document.getElementById('comm-latitude');
+        const lngInput = document.getElementById('comm-longitude');
+        if (latInput) latInput.value = pos.coords.latitude.toFixed(6);
+        if (lngInput) lngInput.value = pos.coords.longitude.toFixed(6);
+        afficherToast(`✓ Position GPS détectée : ${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`);
+      },
+      (err) => {
+        console.error('Erreur GPS :', err);
+        afficherToast('❌ Échec géolocalisation : ' + err.message);
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  });
+
   // Soumission du formulaire (Création ou Mise à jour)
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -621,6 +646,10 @@ function initialiserModalCommercial() {
         email: document.getElementById('comm-email').value.trim(),
         zone: document.getElementById('comm-zone').value.trim() || 'Dakar — Thiès — Mbour',
         disponibilite: document.getElementById('comm-disponibilite').value.trim() || 'Disponible pour démo en salle',
+        adresse: document.getElementById('comm-adresse').value.trim() || null,
+        latitude: document.getElementById('comm-latitude').value ? parseFloat(document.getElementById('comm-latitude').value) : null,
+        longitude: document.getElementById('comm-longitude').value ? parseFloat(document.getElementById('comm-longitude').value) : null,
+        maps_url: document.getElementById('comm-maps-url').value.trim() || null,
         photo_url: photoUrl,
         bio: document.getElementById('comm-bio').value.trim(),
         linkedin: document.getElementById('comm-linkedin').value.trim(),
@@ -670,6 +699,10 @@ export function ouvrirModalNouveau() {
   document.getElementById('comm-actif').checked = true;
   document.getElementById('comm-zone').value = 'Axe Thiès — Dakar — Mbour';
   document.getElementById('comm-disponibilite').value = 'Disponible aujourd\'hui pour démo en salle';
+  document.getElementById('comm-adresse').value = '';
+  document.getElementById('comm-latitude').value = '';
+  document.getElementById('comm-longitude').value = '';
+  document.getElementById('comm-maps-url').value = '';
 
   if (titre) titre.textContent = '+ Nouveau Conseiller Commercial';
   if (btnTxt) btnTxt.textContent = 'Créer le conseiller';
@@ -702,6 +735,10 @@ function remplirFormulairePourEdition(id) {
   document.getElementById('comm-email').value = commercial.email || '';
   document.getElementById('comm-zone').value = commercial.zone || '';
   document.getElementById('comm-disponibilite').value = commercial.disponibilite || '';
+  document.getElementById('comm-adresse').value = commercial.adresse || '';
+  document.getElementById('comm-latitude').value = commercial.latitude || '';
+  document.getElementById('comm-longitude').value = commercial.longitude || '';
+  document.getElementById('comm-maps-url').value = commercial.maps_url || '';
   document.getElementById('comm-photo-url').value = commercial.photo_url || commercial.photo || '';
   document.getElementById('comm-bio').value = commercial.bio || '';
   document.getElementById('comm-linkedin').value = commercial.linkedin || '';
@@ -813,6 +850,7 @@ function basculerOnglet(nomOnglet) {
     dashboard: 'Tableau de bord',
     commerciaux: 'Gestion des commerciaux',
     leads: 'CRM — Leads & Devis Restauration',
+    avis: '⭐ Modération des Avis Clients & Notations',
     analytics: 'Statistiques, Scans & Performance',
     exports: 'Exports & QR Codes',
     parametres: 'Paramètres & Base de données'
@@ -823,6 +861,8 @@ function basculerOnglet(nomOnglet) {
 
   if (nomOnglet === 'leads') {
     chargerLeads();
+  } else if (nomOnglet === 'avis') {
+    chargerAvisAdmin();
   } else if (nomOnglet === 'analytics') {
     chargerAnalytics();
   }
@@ -1513,4 +1553,318 @@ function initialiserGraphiques(dailyStats) {
       }
     });
   }
+}
+
+// ==============================================================================
+// 26. GESTION ET MODÉRATION DES AVIS CLIENTS (SUPABASE)
+// ==============================================================================
+let listeAvis = [];
+let listeAvisFiltree = [];
+
+/**
+ * Initialisation des filtres et contrôles de la vue Avis
+ */
+export function initialiserAvisAdmin() {
+  const champRecherche = document.getElementById('recherche-avis');
+  const btnEffacer = document.getElementById('btn-effacer-recherche-avis');
+  const filtreNote = document.getElementById('filtre-note-avis');
+  const filtreStatut = document.getElementById('filtre-statut-avis');
+  const btnExportCSV = document.getElementById('btn-exporter-avis-csv');
+
+  function filtrer() {
+    const requete = (champRecherche?.value || '').toLowerCase().trim();
+    const note = filtreNote?.value || 'tous';
+    const statut = filtreStatut?.value || 'tous';
+
+    listeAvisFiltree = listeAvis.filter(a => {
+      const nomComm = a.commerciaux ? `${a.commerciaux.prenom} ${a.commerciaux.nom}` : '';
+      const texte = `${a.nom_visiteur || ''} ${a.restaurant_visiteur || ''} ${a.commentaire || ''} ${nomComm}`.toLowerCase();
+      const matchTexte = !requete || texte.includes(requete);
+
+      let matchNote = true;
+      if (note === 'excellence') matchNote = a.note >= 8;
+      else if (note === 'moyen') matchNote = a.note >= 5 && a.note < 8;
+      else if (note === 'critique') matchNote = a.note < 5;
+
+      const matchStatut = statut === 'tous' || a.statut === statut;
+
+      return matchTexte && matchNote && matchStatut;
+    });
+
+    rendreTableauAvis(listeAvisFiltree);
+  }
+
+  champRecherche?.addEventListener('input', filtrer);
+  filtreNote?.addEventListener('change', filtrer);
+  filtreStatut?.addEventListener('change', filtrer);
+
+  btnEffacer?.addEventListener('click', () => {
+    if (champRecherche) champRecherche.value = '';
+    filtrer();
+  });
+
+  btnExportCSV?.addEventListener('click', exporterAvisCSV);
+}
+
+/**
+ * Charge tous les avis clients depuis Supabase
+ */
+export async function chargerAvisAdmin() {
+  const tbody = document.getElementById('tbody-avis');
+  if (!tbody) return;
+
+  if (!estSupabaseConfigure()) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7" class="table-chargement" style="color: #B45309;">
+          ⚙️ Supabase non configuré pour la gestion des avis.
+        </td>
+      </tr>`;
+    return;
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('avis')
+      .select('*, commerciaux(id, prenom, nom, poste)')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    listeAvis = data || [];
+    listeAvisFiltree = [...listeAvis];
+
+    actualiserStatistiquesAvis(listeAvis);
+    rendreTableauAvis(listeAvisFiltree);
+
+  } catch (err) {
+    console.error('Erreur chargement avis admin :', err);
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7" class="table-vide">
+          <p style="color: #EF4444; padding: 1.5rem;">Erreur lors du chargement des avis : ${err.message}</p>
+        </td>
+      </tr>`;
+  }
+}
+
+/**
+ * Actualise les 4 cartes statistiques d'avis
+ */
+function actualiserStatistiquesAvis(liste) {
+  const total = liste.length;
+  const publies = liste.filter(a => a.statut === 'publie').length;
+  const masques = liste.filter(a => a.statut === 'masque').length;
+
+  let moyenne = '—';
+  if (total > 0) {
+    const sommeNotes = liste.reduce((acc, a) => acc + (Number(a.note) || 0), 0);
+    moyenne = (sommeNotes / total).toFixed(1);
+  }
+
+  const elMoyenne = document.getElementById('stat-avis-moyenne');
+  const elTotal = document.getElementById('stat-avis-total');
+  const elPublies = document.getElementById('stat-avis-publies');
+  const elMasques = document.getElementById('stat-avis-masques');
+  const elBadgeAvis = document.getElementById('badge-compteur-avis');
+
+  if (elMoyenne) elMoyenne.textContent = moyenne !== '—' ? `${moyenne}/10` : '—';
+  if (elTotal) elTotal.textContent = total;
+  if (elPublies) elPublies.textContent = publies;
+  if (elMasques) elMasques.textContent = masques;
+  if (elBadgeAvis) {
+    elBadgeAvis.textContent = total;
+    elBadgeAvis.style.display = total > 0 ? 'inline-block' : 'none';
+  }
+}
+
+/**
+ * Rendu du tableau des avis clients
+ */
+function rendreTableauAvis(liste) {
+  const tbody = document.getElementById('tbody-avis');
+  if (!tbody) return;
+
+  if (liste.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7" class="table-vide">
+          <div style="padding: 2.5rem; text-align: center;">
+            <p style="font-size: 1.05rem; color: #475569; margin-bottom: 0.5rem;">Aucun avis ne correspond à vos critères.</p>
+            <span style="font-size: 0.85rem; color: #94A3B8;">Les notes données par les restaurateurs s'afficheront ici en direct.</span>
+          </div>
+        </td>
+      </tr>`;
+    return;
+  }
+
+  tbody.innerHTML = liste.map(a => {
+    const comm = a.commerciaux;
+    const nomComm = comm ? `${comm.prenom} ${comm.nom}` : 'Conseiller';
+    const posteComm = comm ? (comm.poste || '') : '';
+    const dateStr = a.created_at ? new Date(a.created_at).toLocaleString('fr-FR', {
+      day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
+    }) : '—';
+
+    const estPublie = a.statut === 'publie';
+    const noteCouleur = a.note >= 8 ? '#15803D' : (a.note >= 5 ? '#B45309' : '#DC2626');
+    const noteFond = a.note >= 8 ? '#DCFCE7' : (a.note >= 5 ? '#FEF3C7' : '#FEE2E2');
+
+    return `
+      <tr>
+        <td style="white-space: nowrap; font-size: 0.82rem; color: #64748B;">
+          ${dateStr}
+        </td>
+        <td>
+          <strong>${escapeHtml(nomComm)}</strong>
+          <span style="display: block; font-size: 0.78rem; color: #64748B;">${escapeHtml(posteComm)}</span>
+        </td>
+        <td>
+          <strong>${escapeHtml(a.nom_visiteur || 'Client anonyme')}</strong>
+          ${a.restaurant_visiteur ? `<span style="display: block; font-size: 0.78rem; color: #C9A227; font-weight: 600;">🍽️ ${escapeHtml(a.restaurant_visiteur)}</span>` : ''}
+        </td>
+        <td>
+          <span style="display: inline-block; padding: 3px 9px; border-radius: 12px; font-weight: 800; font-size: 0.95rem; background: ${noteFond}; color: ${noteCouleur};">
+            ${a.note} / 10 ⭐
+          </span>
+        </td>
+        <td style="max-width: 280px;">
+          ${a.commentaire ? `<p style="margin: 0; font-size: 0.85rem; color: #334155; line-height: 1.4;">${escapeHtml(a.commentaire)}</p>` : '<span style="color: #94A3B8; font-style: italic; font-size: 0.8rem;">Aucun commentaire écrit</span>'}
+        </td>
+        <td>
+          <span class="badge-statut-pill ${estPublie ? 'statut-vert' : 'statut-gris'}">
+            ${estPublie ? '● Publié' : '○ Masqué'}
+          </span>
+        </td>
+        <td style="text-align: right; white-space: nowrap;">
+          <button 
+            type="button" 
+            class="btn btn-contour btn-xs btn-moderer-avis" 
+            data-id="${a.id}" 
+            data-statut="${estPublie ? 'masque' : 'publie'}"
+            title="${estPublie ? 'Masquer cet avis du public' : 'Rendre cet avis visible publiquement'}"
+          >
+            ${estPublie ? '👁️ Masquer' : '✓ Publier'}
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-contour btn-xs btn-supprimer-avis" 
+            data-id="${a.id}" 
+            title="Supprimer définitivement cet avis"
+            style="color: #DC2626; border-color: #FECACA; margin-left: 4px;"
+          >
+            🗑️
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  tbody.querySelectorAll('.btn-moderer-avis').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.getAttribute('data-id');
+      const nouveauStatut = btn.getAttribute('data-statut');
+      await basculerStatutAvis(id, nouveauStatut);
+    });
+  });
+
+  tbody.querySelectorAll('.btn-supprimer-avis').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.getAttribute('data-id');
+      if (confirm('Confirmez-vous la suppression définitive de cet avis client ?')) {
+        await supprimerAvis(id);
+      }
+    });
+  });
+}
+
+/**
+ * Modère un avis (bascule statut 'publie' <-> 'masque')
+ */
+export async function basculerStatutAvis(id, nouveauStatut) {
+  try {
+    const { error } = await supabase
+      .from('avis')
+      .update({ statut: nouveauStatut })
+      .eq('id', id);
+
+    if (error) throw error;
+
+    afficherToast(nouveauStatut === 'publie' ? '✓ Avis publié en ligne avec succès.' : 'Avis masqué du public.');
+    await chargerAvisAdmin();
+
+  } catch (err) {
+    console.error('Erreur modération avis :', err);
+    afficherToast('❌ Erreur modération : ' + err.message);
+  }
+}
+
+/**
+ * Supprime un avis de la base Supabase
+ */
+export async function supprimerAvis(id) {
+  try {
+    const { error } = await supabase
+      .from('avis')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+
+    afficherToast('✓ Avis supprimé de la base.');
+    await chargerAvisAdmin();
+
+  } catch (err) {
+    console.error('Erreur suppression avis :', err);
+    afficherToast('❌ Erreur suppression : ' + err.message);
+  }
+}
+
+/**
+ * Export des avis clients au format CSV
+ */
+function exporterAvisCSV() {
+  if (listeAvis.length === 0) {
+    afficherToast('⚠️ Aucun avis à exporter.');
+    return;
+  }
+
+  const entetes = ['ID', 'Date', 'Conseiller', 'Poste', 'Visiteur', 'Restaurant', 'Note /10', 'Commentaire', 'Statut'];
+  const lignes = listeAvis.map(a => {
+    const comm = a.commerciaux;
+    const nomComm = comm ? `${comm.prenom} ${comm.nom}` : '';
+    const posteComm = comm ? (comm.poste || '') : '';
+    const dateStr = a.created_at ? new Date(a.created_at).toISOString() : '';
+
+    return [
+      a.id,
+      dateStr,
+      `"${nomComm.replace(/"/g, '""')}"`,
+      `"${posteComm.replace(/"/g, '""')}"`,
+      `"${(a.nom_visiteur || '').replace(/"/g, '""')}"`,
+      `"${(a.restaurant_visiteur || '').replace(/"/g, '""')}"`,
+      a.note,
+      `"${(a.commentaire || '').replace(/"/g, '""')}"`,
+      a.statut
+    ].join(';');
+  });
+
+  const contenuCSV = '\uFEFF' + [entetes.join(';'), ...lignes].join('\n');
+  const blob = new Blob([contenuCSV], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `louametay_avis_clients_${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  afficherToast('✓ Export CSV des avis téléchargé avec succès.');
+}
+
+function escapeHtml(text) {
+  if (!text) return '';
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
 }
