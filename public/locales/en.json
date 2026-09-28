@@ -44,7 +44,9 @@
     "itineraire": "Directions",
     "avis_titre": "Customer Reviews",
     "laisser_avis": "Leave a review",
-    "votre_avis": "Your review"
+    "votre_avis": "Your review",
+    "video_titre": "Demo Video",
+    "carrousel_titre": "Our Deployments"
   },
   "formules": {
     "tambali": "Tàmbali Plan (15,000 FCFA/month)",

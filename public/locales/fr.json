@@ -44,7 +44,9 @@
     "itineraire": "Itinéraire",
     "avis_titre": "Note des clients",
     "laisser_avis": "Laisser un avis",
-    "votre_avis": "Votre avis"
+    "votre_avis": "Votre avis",
+    "video_titre": "Vidéo de démonstration",
+    "carrousel_titre": "Nos réalisations"
   },
   "formules": {
     "tambali": "Formule Tàmbali (15 000 FCFA/mois)",

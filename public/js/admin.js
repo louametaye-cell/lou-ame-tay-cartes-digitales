@@ -319,6 +319,85 @@ export async function uploadPhoto(fichier) {
 }
 
 /**
+ * Extraire l'ID YouTube depuis une URL complète ou un ID direct
+ * @param {string} input - URL ou ID
+ * @returns {string|null} ID à 11 caractères
+ */
+export function extraireYouTubeId(input) {
+  if (!input) return null;
+  const str = String(input).trim();
+  // Format direct : "dQw4w9WgXcQ"
+  if (/^[a-zA-Z0-9_-]{11}$/.test(str)) return str;
+  // Format URL : youtube.com/watch?v=ID, youtu.be/ID, youtube.com/embed/ID, youtube-nocookie.com/embed/ID, shorts/ID
+  const match = str.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/|youtube-nocookie\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
+  return match ? match[1] : null;
+}
+
+/**
+ * Téléversement des 3 images du carrousel vers Supabase Storage
+ * @param {string} commercialId - Identifiant du commercial
+ * @returns {Promise<Array<{url: string, titre: string, legende: string}>>}
+ */
+export async function uploadCarrouselImages(commercialId) {
+  const images = [];
+
+  for (let i = 0; i < 3; i++) {
+    const fileInput = document.querySelector(`.carrousel-file[data-index="${i}"]`);
+    const titreInput = document.querySelector(`.carrousel-titre[data-index="${i}"]`);
+    const urlInput = document.querySelector(`.carrousel-url[data-index="${i}"]`);
+
+    const titre = (titreInput?.value || '').trim();
+
+    // 1. Si un nouveau fichier est sélectionné : compression + upload
+    if (fileInput && fileInput.files && fileInput.files[0]) {
+      try {
+        const file = await compresserImage(fileInput.files[0]);
+        const ext = file.name ? (file.name.split('.').pop() || 'jpg') : 'jpg';
+        const cleanCommId = String(commercialId || 'nouveau').replace(/[^a-zA-Z0-9_-]/g, '');
+        const filePath = `carrousel/${cleanCommId}_slot${i}_${Date.now()}.${ext}`;
+
+        const { error } = await supabase.storage
+          .from('photos')
+          .upload(filePath, file, {
+            cacheControl: '3600',
+            upsert: true,
+            contentType: file.type || 'image/jpeg'
+          });
+
+        if (error) {
+          console.error(`Erreur upload carrousel slot ${i} :`, error);
+          continue;
+        }
+
+        const { data: urlData } = supabase.storage
+          .from('photos')
+          .getPublicUrl(filePath);
+
+        images.push({
+          url: urlData.publicUrl,
+          titre: titre || `Diapositive ${i + 1}`,
+          legende: titre || ''
+        });
+      } catch (err) {
+        console.error(`Exception carrousel upload slot ${i} :`, err);
+      }
+      continue;
+    }
+
+    // 2. Si une URL existante est conservée
+    if (urlInput && urlInput.value.trim()) {
+      images.push({
+        url: urlInput.value.trim(),
+        titre: titre || `Diapositive ${i + 1}`,
+        legende: titre || ''
+      });
+    }
+  }
+
+  return images;
+}
+
+/**
  * 8. Rendu du tableau complet des commerciaux
  */
 function rendreTableauCommerciaux(liste) {
@@ -614,6 +693,61 @@ function initialiserModalCommercial() {
     );
   });
 
+  // Prévisualisation en direct de la vidéo YouTube
+  const videoInput = document.getElementById('comm-video-youtube-id');
+  const previewVideoBloc = document.getElementById('comm-video-preview');
+  const imgVideoPreview = document.getElementById('img-video-preview');
+
+  const actualiserApercuVideo = () => {
+    const raw = videoInput?.value.trim() || '';
+    const ytId = extraireYouTubeId(raw);
+    if (ytId && previewVideoBloc && imgVideoPreview) {
+      imgVideoPreview.src = `https://img.youtube.com/vi/${ytId}/mqdefault.jpg`;
+      previewVideoBloc.style.display = 'block';
+    } else if (previewVideoBloc) {
+      previewVideoBloc.style.display = 'none';
+    }
+  };
+
+  videoInput?.addEventListener('input', actualiserApercuVideo);
+  videoInput?.addEventListener('paste', () => setTimeout(actualiserApercuVideo, 50));
+
+  // Prévisualisation et suppression des slots du carrousel d'images
+  for (let i = 0; i < 3; i++) {
+    const fileInputSlot = document.querySelector(`.carrousel-file[data-index="${i}"]`);
+    const imgPrev = document.querySelector(`.carrousel-img-preview[data-index="${i}"]`);
+    const txtPlaceholder = document.querySelector(`.carrousel-placeholder-txt[data-index="${i}"]`);
+    const btnSupprSlot = document.querySelector(`.btn-suppr-slot-carrousel[data-index="${i}"]`);
+    const urlInputSlot = document.querySelector(`.carrousel-url[data-index="${i}"]`);
+    const titreInputSlot = document.querySelector(`.carrousel-titre[data-index="${i}"]`);
+
+    fileInputSlot?.addEventListener('change', () => {
+      const f = fileInputSlot.files[0];
+      if (f) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          if (imgPrev) {
+            imgPrev.src = e.target.result;
+            imgPrev.style.display = 'block';
+          }
+          if (txtPlaceholder) txtPlaceholder.style.display = 'none';
+        };
+        reader.readAsDataURL(f);
+      }
+    });
+
+    btnSupprSlot?.addEventListener('click', () => {
+      if (fileInputSlot) fileInputSlot.value = '';
+      if (urlInputSlot) urlInputSlot.value = '';
+      if (titreInputSlot) titreInputSlot.value = '';
+      if (imgPrev) {
+        imgPrev.src = '';
+        imgPrev.style.display = 'none';
+      }
+      if (txtPlaceholder) txtPlaceholder.style.display = 'block';
+    });
+  }
+
   // Soumission du formulaire (Création ou Mise à jour)
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -635,6 +769,16 @@ function initialiserModalCommercial() {
         photoUrl = await uploadPhoto(fileInput.files[0]);
       }
 
+      // 1b. Upload des images du carrousel
+      txtSave.textContent = 'Téléversement carrousel...';
+      const carrouselImages = await uploadCarrouselImages(id || 'nouveau');
+
+      // 1c. Extraction de la vidéo YouTube
+      const rawVideoVal = document.getElementById('comm-video-youtube-id')?.value.trim() || '';
+      const videoYoutubeId = extraireYouTubeId(rawVideoVal);
+      const videoTitre = document.getElementById('comm-video-titre')?.value.trim() || null;
+      const videoDescription = document.getElementById('comm-video-description')?.value.trim() || null;
+
       // 2. Assemblage des données
       const donnees = {
         prenom: document.getElementById('comm-prenom').value.trim(),
@@ -652,6 +796,10 @@ function initialiserModalCommercial() {
         maps_url: document.getElementById('comm-maps-url').value.trim() || null,
         photo_url: photoUrl,
         bio: document.getElementById('comm-bio').value.trim(),
+        video_youtube_id: videoYoutubeId || null,
+        video_titre: videoTitre,
+        video_description: videoDescription,
+        carrousel_images: carrouselImages,
         linkedin: document.getElementById('comm-linkedin').value.trim(),
         facebook: document.getElementById('comm-facebook').value.trim(),
         instagram: document.getElementById('comm-instagram').value.trim(),
@@ -704,6 +852,30 @@ export function ouvrirModalNouveau() {
   document.getElementById('comm-longitude').value = '';
   document.getElementById('comm-maps-url').value = '';
 
+  // Vidéo
+  const vInput = document.getElementById('comm-video-youtube-id');
+  const vTitre = document.getElementById('comm-video-titre');
+  const vDesc = document.getElementById('comm-video-description');
+  const vPrev = document.getElementById('comm-video-preview');
+  if (vInput) vInput.value = '';
+  if (vTitre) vTitre.value = '';
+  if (vDesc) vDesc.value = '';
+  if (vPrev) vPrev.style.display = 'none';
+
+  // Carrousel
+  for (let i = 0; i < 3; i++) {
+    const fInput = document.querySelector(`.carrousel-file[data-index="${i}"]`);
+    const imgP = document.querySelector(`.carrousel-img-preview[data-index="${i}"]`);
+    const txtP = document.querySelector(`.carrousel-placeholder-txt[data-index="${i}"]`);
+    const tInput = document.querySelector(`.carrousel-titre[data-index="${i}"]`);
+    const uInput = document.querySelector(`.carrousel-url[data-index="${i}"]`);
+    if (fInput) fInput.value = '';
+    if (uInput) uInput.value = '';
+    if (tInput) tInput.value = '';
+    if (imgP) { imgP.src = ''; imgP.style.display = 'none'; }
+    if (txtP) txtP.style.display = 'block';
+  }
+
   if (titre) titre.textContent = '+ Nouveau Conseiller Commercial';
   if (btnTxt) btnTxt.textContent = 'Créer le conseiller';
   if (imgApercu) imgApercu.src = 'images/commercial1.jpg';
@@ -741,6 +913,61 @@ function remplirFormulairePourEdition(id) {
   document.getElementById('comm-maps-url').value = commercial.maps_url || '';
   document.getElementById('comm-photo-url').value = commercial.photo_url || commercial.photo || '';
   document.getElementById('comm-bio').value = commercial.bio || '';
+
+  // Média : Vidéo YouTube
+  const vId = commercial.video_youtube_id || '';
+  const vInput = document.getElementById('comm-video-youtube-id');
+  const vTitre = document.getElementById('comm-video-titre');
+  const vDesc = document.getElementById('comm-video-description');
+  const vPrev = document.getElementById('comm-video-preview');
+  const imgVPrev = document.getElementById('img-video-preview');
+
+  if (vInput) vInput.value = vId;
+  if (vTitre) vTitre.value = commercial.video_titre || '';
+  if (vDesc) vDesc.value = commercial.video_description || '';
+  if (vId && vPrev && imgVPrev) {
+    imgVPrev.src = `https://img.youtube.com/vi/${vId}/mqdefault.jpg`;
+    vPrev.style.display = 'block';
+  } else if (vPrev) {
+    vPrev.style.display = 'none';
+  }
+
+  // Média : Carrousel 3 images
+  let carrouselImgs = commercial.carrousel_images || [];
+  if (typeof carrouselImgs === 'string') {
+    try { carrouselImgs = JSON.parse(carrouselImgs); } catch (e) { carrouselImgs = []; }
+  }
+  if (!Array.isArray(carrouselImgs)) carrouselImgs = [];
+
+  for (let i = 0; i < 3; i++) {
+    const fInput = document.querySelector(`.carrousel-file[data-index="${i}"]`);
+    const imgP = document.querySelector(`.carrousel-img-preview[data-index="${i}"]`);
+    const txtP = document.querySelector(`.carrousel-placeholder-txt[data-index="${i}"]`);
+    const tInput = document.querySelector(`.carrousel-titre[data-index="${i}"]`);
+    const uInput = document.querySelector(`.carrousel-url[data-index="${i}"]`);
+
+    if (fInput) fInput.value = '';
+
+    const item = carrouselImgs[i];
+    if (item && item.url) {
+      if (uInput) uInput.value = item.url;
+      if (tInput) tInput.value = item.titre || item.legende || '';
+      if (imgP) {
+        imgP.src = item.url;
+        imgP.style.display = 'block';
+      }
+      if (txtP) txtP.style.display = 'none';
+    } else {
+      if (uInput) uInput.value = '';
+      if (tInput) tInput.value = '';
+      if (imgP) {
+        imgP.src = '';
+        imgP.style.display = 'none';
+      }
+      if (txtP) txtP.style.display = 'block';
+    }
+  }
+
   document.getElementById('comm-linkedin').value = commercial.linkedin || '';
   document.getElementById('comm-facebook').value = commercial.facebook || '';
   document.getElementById('comm-instagram').value = commercial.instagram || '';

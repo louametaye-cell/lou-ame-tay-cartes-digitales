@@ -128,6 +128,12 @@ async function initialiserCarte() {
   // 5. Section biographie, zone & coordonnées directes
   remplirBioEtDetails(commercial);
 
+  // 5b. Vidéo YouTube de démonstration
+  afficherVideo(commercial);
+
+  // 5c. Carrousel d'images de réalisations terrain
+  afficherCarrousel(commercial);
+
   // 6. Liste des formules Lou Ame Tay
   remplirOffresProduits(commercial);
 
@@ -1049,3 +1055,205 @@ function formaterDateAvis(iso) {
   if (diffJours >= 7 && diffJours < 30) return `Il y a ${Math.floor(diffJours / 7)} sem.`;
   return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
 }
+
+// ═══════════════════════════════════════════════════════════════════
+// 14. VIDÉO YOUTUBE DE DÉMONSTRATION (MINIATURE HD + NOCONTENT)
+// ═══════════════════════════════════════════════════════════════════
+function afficherVideo(commercial) {
+  const section = document.getElementById('section-video');
+  if (!section) return;
+  const videoId = commercial.video_youtube_id;
+  
+  if (!videoId) {
+    section.style.display = 'none';
+    return;
+  }
+  
+  section.style.display = 'block';
+  
+  // Charger la miniature YouTube HD
+  const poster = document.getElementById('video-poster');
+  if (poster) {
+    poster.src = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+    poster.onerror = () => {
+      // Fallback si maxresdefault n'est pas généré par YouTube
+      poster.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+    };
+  }
+  
+  const elTitre = document.getElementById('video-titre');
+  if (elTitre) {
+    elTitre.textContent = commercial.video_titre || 'Démo Lou Ame Tay';
+  }
+  
+  const elDesc = document.getElementById('video-description');
+  if (elDesc) {
+    if (commercial.video_description) {
+      elDesc.textContent = commercial.video_description;
+      elDesc.style.display = 'block';
+    } else {
+      elDesc.style.display = 'none';
+    }
+  }
+  
+  // Clic ou clavier → charger l'iframe YouTube sécurisée sans cookies tiers
+  const thumb = document.getElementById('video-thumbnail');
+  const iframeContainer = document.getElementById('video-iframe-container');
+  const iframe = document.getElementById('video-iframe');
+  
+  if (thumb && iframeContainer && iframe) {
+    const activerVideo = () => {
+      iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`;
+      thumb.style.display = 'none';
+      iframeContainer.classList.remove('hidden');
+      if (typeof trackerEvenement === 'function') {
+        trackerEvenement('video_play', commercial.id);
+      }
+    };
+    
+    thumb.addEventListener('click', activerVideo);
+    thumb.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        activerVideo();
+      }
+    });
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// 15. CARROUSEL D'IMAGES DES RÉALISATIONS (SWIPE + AUTOPLAY 4S)
+// ═══════════════════════════════════════════════════════════════════
+let carrouselIndex = 0;
+let carrouselInterval = null;
+let carrouselNbSlides = 0;
+
+function afficherCarrousel(commercial) {
+  const section = document.getElementById('section-carrousel');
+  if (!section) return;
+
+  let images = commercial.carrousel_images || [];
+  if (typeof images === 'string') {
+    try {
+      images = JSON.parse(images);
+    } catch (e) {
+      images = [];
+    }
+  }
+
+  // Minimum 2 images requis pour afficher un carrousel
+  if (!Array.isArray(images) || images.length < 2) {
+    section.style.display = 'none';
+    return;
+  }
+
+  section.style.display = 'block';
+
+  const track = document.getElementById('carrousel-track');
+  const dots = document.getElementById('carrousel-dots');
+  const prevBtn = document.getElementById('carrousel-prev');
+  const nextBtn = document.getElementById('carrousel-next');
+  const container = document.getElementById('carrousel-container');
+
+  if (!track || !dots) return;
+
+  // Génération des diapositives
+  track.innerHTML = images.map((img, i) => `
+    <div class="carrousel-slide" data-index="${i}">
+      <img src="${img.url}" alt="${escapeHtml(img.titre || 'Réalisation ' + (i + 1))}" loading="${i === 0 ? 'eager' : 'lazy'}">
+      ${(img.legende || img.titre) ? `
+        <div class="carrousel-slide-caption">${escapeHtml(img.titre || img.legende)}</div>
+      ` : ''}
+    </div>
+  `).join('');
+
+  // Génération des indicateurs (dots)
+  dots.innerHTML = images.map((_, i) => `
+    <button type="button" class="carrousel-dot ${i === 0 ? 'active' : ''}" 
+            data-index="${i}" 
+            aria-label="Aller à la diapositive ${i + 1}"></button>
+  `).join('');
+
+  carrouselNbSlides = images.length;
+  carrouselIndex = 0;
+  allerASlide(0);
+
+  // Navigation par dots
+  dots.querySelectorAll('.carrousel-dot').forEach(dot => {
+    dot.addEventListener('click', (e) => {
+      e.stopPropagation();
+      allerASlide(parseInt(dot.dataset.index, 10));
+      resetAutoPlay();
+    });
+  });
+
+  // Boutons Précédent / Suivant
+  prevBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    allerASlide(carrouselIndex - 1);
+    resetAutoPlay();
+  });
+
+  nextBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    allerASlide(carrouselIndex + 1);
+    resetAutoPlay();
+  });
+
+  // Swipe tactile sur smartphones et tablettes
+  let touchStartX = 0;
+  container?.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+  }, { passive: true });
+
+  container?.addEventListener('touchend', (e) => {
+    const diff = touchStartX - e.changedTouches[0].screenX;
+    if (Math.abs(diff) > 40) {
+      allerASlide(diff > 0 ? carrouselIndex + 1 : carrouselIndex - 1);
+      resetAutoPlay();
+    }
+  }, { passive: true });
+
+  // Pause au survol sur ordinateur
+  container?.addEventListener('mouseenter', () => {
+    if (carrouselInterval) clearInterval(carrouselInterval);
+  });
+  container?.addEventListener('mouseleave', () => {
+    demarrerAutoPlay();
+  });
+
+  // Démarrage du défilement automatique
+  demarrerAutoPlay();
+}
+
+function allerASlide(index) {
+  if (carrouselNbSlides <= 0) return;
+  // Boucle infinie gauche / droite
+  if (index < 0) index = carrouselNbSlides - 1;
+  if (index >= carrouselNbSlides) index = 0;
+
+  carrouselIndex = index;
+
+  const track = document.getElementById('carrousel-track');
+  if (track) {
+    track.style.transform = `translateX(-${index * 100}%)`;
+  }
+
+  // Mise à jour de la classe active sur les indicateurs
+  document.querySelectorAll('.carrousel-dot').forEach((dot, i) => {
+    dot.classList.toggle('active', i === index);
+  });
+}
+
+function demarrerAutoPlay() {
+  if (carrouselInterval) clearInterval(carrouselInterval);
+  carrouselInterval = setInterval(() => {
+    allerASlide(carrouselIndex + 1);
+  }, 4000); // 4 secondes
+}
+
+function resetAutoPlay() {
+  if (carrouselInterval) clearInterval(carrouselInterval);
+  demarrerAutoPlay();
+}
+

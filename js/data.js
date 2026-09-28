@@ -140,6 +140,14 @@ export const commerciaux = [
     latitude: 14.6928,
     longitude: -17.4467,
     maps_url: "https://www.google.com/maps/search/?api=1&query=Dakar+Point+E",
+    video_youtube_id: "dQw4w9WgXcQ",
+    video_titre: "Démo Lou Ame Tay — Menu QR & Commande à table",
+    video_description: "Découvrez en 2 minutes comment notre solution digitalise la prise de commande et booste le chiffre d'affaires de votre restaurant.",
+    carrousel_images: [
+      { url: "images/deploiement1.jpg", titre: "Écran Cuisine (KDS) en action", legende: "Gestion temps réel des commandes en brigade" },
+      { url: "images/deploiement2.jpg", titre: "Supports QR Chevalets Premium", legende: "Commande autonome à table par smartphone" },
+      { url: "images/deploiement3.jpg", titre: "Déploiement & Formation en salle", legende: "Prise en main immédiate par l'équipe de serveurs" }
+    ],
     reseaux: {
       linkedin: "https://linkedin.com/in/mamadou-diallo-louametay",
       facebook: "https://facebook.com/louametay.officiel",

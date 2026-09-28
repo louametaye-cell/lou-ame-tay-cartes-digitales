@@ -937,6 +937,102 @@ VALUES
           </div>
         </div>
 
+        <!-- Section Vidéo YouTube (optionnel) -->
+        <fieldset class="form-section-media">
+          <legend class="form-section-legend">🎥 Vidéo de démonstration YouTube (optionnel)</legend>
+          
+          <div class="champ-groupe">
+            <label for="comm-video-youtube-id" class="champ-label">ID YouTube ou URL de la vidéo</label>
+            <input type="text" id="comm-video-youtube-id" class="champ-input" placeholder="ex: dQw4w9WgXcQ ou https://youtu.be/dQw4w9WgXcQ">
+            <small class="form-hint" style="color: #64748B; font-size: 0.78rem; margin-top: 3px;">Collez l'URL complète YouTube ou uniquement l'ID à 11 caractères</small>
+          </div>
+
+          <div class="form-grille-2" style="margin-top: 0.5rem;">
+            <div class="champ-groupe">
+              <label for="comm-video-titre" class="champ-label">Titre de la vidéo</label>
+              <input type="text" id="comm-video-titre" class="champ-input" placeholder="Ex: Démo Lou Ame Tay — Menu QR" maxlength="100">
+            </div>
+            <div class="champ-groupe">
+              <label for="comm-video-description" class="champ-label">Description courte</label>
+              <input type="text" id="comm-video-description" class="champ-input" placeholder="Décrivez brièvement la démonstration..." maxlength="300">
+            </div>
+          </div>
+
+          <div class="video-preview-bloc" id="comm-video-preview" style="display: none; margin-top: 0.75rem;">
+            <span style="display: block; font-size: 0.8rem; font-weight: 700; color: #0B1F3A; margin-bottom: 4px;">Aperçu de la miniature YouTube :</span>
+            <div style="position: relative; width: 100%; max-width: 320px; aspect-ratio: 16/9; border-radius: 12px; overflow: hidden; background: #0B1F3A; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+              <img id="img-video-preview" src="" alt="Aperçu vidéo" style="width: 100%; height: 100%; object-fit: cover;">
+              <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;">
+                <svg width="48" height="34" viewBox="0 0 68 48"><path d="M66.52 7.74c-.78-2.93-2.49-5.41-5.42-6.19C55.79.13 34 0 34 0S12.21.13 6.9 1.55c-2.93.78-4.63 3.26-5.42 6.19C.06 13.05 0 24 0 24s.06 10.95 1.48 16.26c.78 2.93 2.49 5.41 5.42 6.19C12.21 47.87 34 48 34 48s21.79-.13 27.1-1.55c2.93-.78 4.64-3.26 5.42-6.19C67.94 34.95 68 24 68 24s-.06-10.95-1.48-16.26z" fill="#FF0000"/><path d="M45 24L27 14v20" fill="#fff"/></svg>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Section Carrousel d'images (3 max) -->
+        <fieldset class="form-section-media" style="margin-top: 1rem;">
+          <legend class="form-section-legend">📸 Carrousel d'images de réalisations (3 max)</legend>
+          <p style="font-size: 0.8rem; color: #64748B; margin-bottom: 0.75rem;">
+            Téléversez jusqu'à 3 photos de démonstrations, déploiements KDS ou photos en salle pour illustrer la carte du conseiller.
+          </p>
+
+          <div class="carrousel-upload-grid" id="carrousel-upload-grid">
+            <!-- Emplacement Image 1 -->
+            <div class="carrousel-upload-item" data-index="0">
+              <div class="carrousel-item-entete">
+                <span class="carrousel-slot-badge">Diapo 1</span>
+                <button type="button" class="btn-suppr-slot-carrousel" data-index="0" title="Vider cet emplacement">✕</button>
+              </div>
+              <div class="carrousel-preview-cadre" data-index="0">
+                <img class="carrousel-img-preview" data-index="0" src="" alt="Aperçu diapo 1" style="display: none;">
+                <div class="carrousel-placeholder-txt" data-index="0">📷 Aucune image</div>
+              </div>
+              <input type="file" accept="image/*" class="carrousel-file" data-index="0" id="carrousel-file-0" style="display: none;">
+              <label for="carrousel-file-0" class="btn btn-contour btn-xs" style="width: 100%; margin: 6px 0; text-align: center; cursor: pointer;">
+                📁 Choisir fichier
+              </label>
+              <input type="text" class="champ-input champ-xs carrousel-titre" placeholder="Titre (ex: Écran KDS)" data-index="0">
+              <input type="hidden" class="carrousel-url" data-index="0">
+            </div>
+
+            <!-- Emplacement Image 2 -->
+            <div class="carrousel-upload-item" data-index="1">
+              <div class="carrousel-item-entete">
+                <span class="carrousel-slot-badge">Diapo 2</span>
+                <button type="button" class="btn-suppr-slot-carrousel" data-index="1" title="Vider cet emplacement">✕</button>
+              </div>
+              <div class="carrousel-preview-cadre" data-index="1">
+                <img class="carrousel-img-preview" data-index="1" src="" alt="Aperçu diapo 2" style="display: none;">
+                <div class="carrousel-placeholder-txt" data-index="1">📷 Aucune image</div>
+              </div>
+              <input type="file" accept="image/*" class="carrousel-file" data-index="1" id="carrousel-file-1" style="display: none;">
+              <label for="carrousel-file-1" class="btn btn-contour btn-xs" style="width: 100%; margin: 6px 0; text-align: center; cursor: pointer;">
+                📁 Choisir fichier
+              </label>
+              <input type="text" class="champ-input champ-xs carrousel-titre" placeholder="Titre (ex: Chevalet QR)" data-index="1">
+              <input type="hidden" class="carrousel-url" data-index="1">
+            </div>
+
+            <!-- Emplacement Image 3 -->
+            <div class="carrousel-upload-item" data-index="2">
+              <div class="carrousel-item-entete">
+                <span class="carrousel-slot-badge">Diapo 3</span>
+                <button type="button" class="btn-suppr-slot-carrousel" data-index="2" title="Vider cet emplacement">✕</button>
+              </div>
+              <div class="carrousel-preview-cadre" data-index="2">
+                <img class="carrousel-img-preview" data-index="2" src="" alt="Aperçu diapo 3" style="display: none;">
+                <div class="carrousel-placeholder-txt" data-index="2">📷 Aucune image</div>
+              </div>
+              <input type="file" accept="image/*" class="carrousel-file" data-index="2" id="carrousel-file-2" style="display: none;">
+              <label for="carrousel-file-2" class="btn btn-contour btn-xs" style="width: 100%; margin: 6px 0; text-align: center; cursor: pointer;">
+                📁 Choisir fichier
+              </label>
+              <input type="text" class="champ-input champ-xs carrousel-titre" placeholder="Titre (ex: Formation brigade)" data-index="2">
+              <input type="hidden" class="carrousel-url" data-index="2">
+            </div>
+          </div>
+        </fieldset>
+
         <!-- Ligne 8 : Statut Actif / Inactif -->
         <div class="statut-switch-modal-ligne">
           <label class="switch-table">

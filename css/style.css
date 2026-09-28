@@ -2174,3 +2174,259 @@ body {
   }
 }
 
+/* ═══════════════════════════════════════════════════════════════════
+   15. SECTION VIDÉO YOUTUBE (VIGNETTE HD + PLAYBUTTON + NOCONTENT)
+   ═══════════════════════════════════════════════════════════════════ */
+.carte-video {
+  padding: 24px 20px;
+  background: #ffffff;
+  border-radius: 20px;
+  margin: 20px 0;
+  box-shadow: 0 8px 32px rgba(11, 31, 58, 0.08);
+}
+
+.video-header {
+  margin-bottom: 16px;
+}
+.video-header h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0B1F3A;
+  margin: 0;
+}
+
+.video-thumbnail {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  background: #0B1F3A;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.video-thumbnail:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(11, 31, 58, 0.2);
+}
+.video-thumbnail:focus {
+  outline: 3px solid #C9A227;
+  outline-offset: 2px;
+}
+
+.video-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Overlay sombre pour lisibilité */
+.video-thumbnail::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0) 40%, rgba(0,0,0,0.65) 100%);
+  pointer-events: none;
+}
+
+.video-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.play-button {
+  width: 80px;
+  height: 56px;
+  transition: transform 0.2s ease;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.4));
+}
+.video-thumbnail:hover .play-button {
+  transform: scale(1.1);
+}
+
+.video-title-overlay {
+  position: absolute;
+  bottom: 12px;
+  left: 14px;
+  right: 14px;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 14px;
+  z-index: 3;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.7);
+}
+
+.video-title-overlay::after {
+  content: '▶ Regarder sur YouTube';
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  opacity: 0.92;
+  margin-top: 4px;
+  color: #F8F9FA;
+}
+
+/* Iframe YouTube */
+.video-iframe-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #000000;
+}
+.video-iframe-container.hidden {
+  display: none !important;
+}
+.video-iframe-container iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.video-description {
+  margin-top: 12px;
+  font-size: 14px;
+  color: #475569;
+  line-height: 1.6;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   16. CARROUSEL D'IMAGES 3 SLIDES (FLUIDE 4S + OMBRE EXTERNE + SWIPE)
+   ═══════════════════════════════════════════════════════════════════ */
+.carte-carrousel {
+  padding: 24px 20px;
+  background: #ffffff;
+  border-radius: 20px;
+  margin: 20px 0;
+  box-shadow: 0 8px 32px rgba(11, 31, 58, 0.08);
+}
+
+.carrousel-header {
+  margin-bottom: 16px;
+}
+.carrousel-header h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0B1F3A;
+  margin: 0;
+}
+
+.carrousel-container {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  /* Ombre portée externe prononcée (style QRCodeChimp) */
+  box-shadow: 0 12px 40px rgba(11, 31, 58, 0.15);
+}
+
+.carrousel-track {
+  display: flex;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.carrousel-slide {
+  min-width: 100%;
+  aspect-ratio: 4 / 3; /* Format 4:3 sur desktop */
+  position: relative;
+  background: #F8F9FA;
+}
+
+.carrousel-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Légende sur l'image */
+.carrousel-slide-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px 20px;
+  background: linear-gradient(to top, rgba(11, 31, 58, 0.9) 0%, rgba(11, 31, 58, 0.4) 60%, transparent 100%);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Boutons prev/next */
+.carrousel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0B1F3A;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+  z-index: 3;
+  opacity: 0;
+}
+.carrousel-container:hover .carrousel-btn {
+  opacity: 1;
+}
+.carrousel-btn:hover {
+  background: #C9A227;
+  color: #ffffff;
+  transform: translateY(-50%) scale(1.1);
+}
+.carrousel-prev { left: 12px; }
+.carrousel-next { right: 12px; }
+
+/* Pagination */
+.carrousel-dots {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 3;
+}
+
+.carrousel-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+.carrousel-dot.active {
+  background: #C9A227;
+  width: 24px;
+  border-radius: 4px;
+}
+
+/* Responsive mobile */
+@media (max-width: 480px) {
+  .carrousel-btn { display: none !important; }
+  .carrousel-slide {
+    aspect-ratio: 1 / 1; /* Format carré sur mobile */
+  }
+}
+
+

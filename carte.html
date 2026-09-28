@@ -233,6 +233,71 @@
           </div>
         </section>
 
+        <!-- ═══════ SECTION VIDÉO YOUTUBE ═══════ -->
+        <section class="carte-video" id="section-video" aria-label="Vidéo de démonstration">
+          <div class="video-header">
+            <h2>🎥 <span data-i18n="carte.video_titre">Vidéo de démonstration</span></h2>
+          </div>
+          
+          <!-- Vignette cliquable (chargée en JS) -->
+          <div class="video-thumbnail" id="video-thumbnail" role="button" tabindex="0" aria-label="Lire la vidéo">
+            <img id="video-poster" src="" alt="Miniature de la vidéo" loading="lazy">
+            <div class="video-overlay">
+              <div class="play-button" aria-hidden="true">
+                <svg width="68" height="48" viewBox="0 0 68 48">
+                  <path d="M66.52 7.74c-.78-2.93-2.49-5.41-5.42-6.19C55.79.13 34 0 34 0S12.21.13 6.9 1.55c-2.93.78-4.63 3.26-5.42 6.19C.06 13.05 0 24 0 24s.06 10.95 1.48 16.26c.78 2.93 2.49 5.41 5.42 6.19C12.21 47.87 34 48 34 48s21.79-.13 27.1-1.55c2.93-.78 4.64-3.26 5.42-6.19C67.94 34.95 68 24 68 24s-.06-10.95-1.48-16.26z" fill="#FF0000"/>
+                  <path d="M45 24L27 14v20" fill="#fff"/>
+                </svg>
+              </div>
+            </div>
+            <div class="video-title-overlay">
+              <span id="video-titre">Démo Lou Ame Tay</span>
+            </div>
+          </div>
+          
+          <!-- Iframe YouTube (masquée par défaut, chargée au clic) -->
+          <div class="video-iframe-container hidden" id="video-iframe-container">
+            <iframe 
+              id="video-iframe"
+              src="" 
+              frameborder="0" 
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+              allowfullscreen
+              loading="lazy">
+            </iframe>
+          </div>
+          
+          <p class="video-description" id="video-description"></p>
+        </section>
+
+        <!-- ═══════ CARROUSEL D'IMAGES ═══════ -->
+        <section class="carte-carrousel" id="section-carrousel" aria-label="Nos réalisations">
+          <div class="carrousel-header">
+            <h2>📸 <span data-i18n="carte.carrousel_titre">Nos réalisations</span></h2>
+          </div>
+          
+          <div class="carrousel-container" id="carrousel-container">
+            <div class="carrousel-track" id="carrousel-track">
+              <!-- Slides générées en JS -->
+            </div>
+            
+            <!-- Boutons précédent / suivant (optionnels, cachés sur mobile) -->
+            <button class="carrousel-btn carrousel-prev" aria-label="Image précédente" id="carrousel-prev">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+            </button>
+            <button class="carrousel-btn carrousel-next" aria-label="Image suivante" id="carrousel-next">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+            
+            <!-- Pagination (3 points) -->
+            <div class="carrousel-dots" id="carrousel-dots"></div>
+          </div>
+        </section>
+
         <!-- 6. COORDONNÉES PROFESSIONNELLES DIRECTES -->
         <section class="chimp-carte-blanche" aria-label="Coordonnées directes">
           <h2 class="chimp-section-titre">
