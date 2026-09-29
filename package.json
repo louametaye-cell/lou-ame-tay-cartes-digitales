@@ -9,7 +9,9 @@
     "build": "vite build",
     "build:lws": "node -e \"fs.rmSync('dist', { recursive: true, force: true })\" && vite build && node scripts/prepare-lws.js",
     "preview": "vite preview",
-    "deploy": "netlify deploy --prod --dir=dist",
+    "deploy": "vercel --prod",
+    "deploy:vercel": "vercel --prod",
+    "deploy:netlify": "netlify deploy --prod --dir=dist",
     "clean": "node -e \"fs.rmSync('dist', { recursive: true, force: true })\"",
     "generate:images": "node scripts/generate-gallery-images.js"
   },
