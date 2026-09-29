@@ -1,0 +1,170 @@
+{
+  "project": "Lou Ame Tay",
+  "version": "2.0.0",
+  "date_creation": "2026-09-29",
+  "description": "Pack de compétences réutilisables, mémoires, patterns de code, prompts et assets business issus du développement du SaaS Lou Ame Tay (Cartes de Visite Digitales & Solutions CHR au Sénégal).",
+  "stack": {
+    "frontend": "HTML5, CSS3 Modern Tokens, Vanilla JavaScript ESM, PWA",
+    "backend": "Supabase BaaS (PostgreSQL 15, PostgREST, RLS, Storage)",
+    "hebergement": "LWS Apache (cPanel, .htaccess)",
+    "outils_metier": "qrcodejs, html2canvas, jsPDF, browser-image-compression, Playwright"
+  },
+  "skills": [
+    {
+      "id": "01",
+      "nom": "architecture_saas",
+      "titre": "Architecture SaaS Statique Découplée (BaaS Supabase + LWS + PWA)",
+      "description": "Conception d'une application SaaS à coût d'infrastructure nul avec frontend statique Apache et backend serverless Supabase.",
+      "tags": ["saas", "architecture", "supabase", "lws", "pwa", "decoupled"],
+      "duree_apprentissage": "30 min",
+      "prerequis": ["Bases HTML/JS ESM", "Compte Supabase", "Hébergement mutualisé Apache"],
+      "fichier": "SKILLS/01_architecture_saas.md"
+    },
+    {
+      "id": "02",
+      "nom": "supabase_patterns",
+      "titre": "Supabase Patterns (Auth, RLS, Storage, Realtime)",
+      "description": "Modélisation relationnelle avec UUID v4, requêtes PostgREST typées et téléversement de médias compressés.",
+      "tags": ["supabase", "database", "postgresql", "auth", "storage", "realtime"],
+      "duree_apprentissage": "35 min",
+      "prerequis": ["SQL PostgreSQL", "Client @supabase/supabase-js v2"],
+      "fichier": "SKILLS/02_supabase_patterns.md"
+    },
+    {
+      "id": "03",
+      "nom": "lws_deployment",
+      "titre": "Déploiement et Configuration LWS / Apache",
+      "description": "Règles .htaccess pour URLs propres, HTTPS forcé, en-têtes OWASP et exclusion de cache pour Service Worker.",
+      "tags": ["lws", "apache", "deployment", "htaccess", "cpanel", "ftp"],
+      "duree_apprentissage": "25 min",
+      "prerequis": ["Serveur Apache avec mod_rewrite", "Certificat SSL"],
+      "fichier": "SKILLS/03_lws_deployment.md"
+    },
+    {
+      "id": "04",
+      "nom": "pwa_offline",
+      "titre": "Progressive Web App (PWA) & Disponibilité Hors Ligne",
+      "description": "Web App Manifest, stratégie de cache Stale-While-Revalidate et fallback de données hors ligne.",
+      "tags": ["pwa", "service-worker", "offline", "manifest", "caching", "mobile"],
+      "duree_apprentissage": "30 min",
+      "prerequis": ["HTTPS", "Service Worker API"],
+      "fichier": "SKILLS/04_pwa_offline.md"
+    },
+    {
+      "id": "05",
+      "nom": "i18n_multi_langue",
+      "titre": "Internationalisation Multilingue (FR, Wolof, EN) sans Dépendance",
+      "description": "Moteur déclaratif data-i18n ultra-léger avec adaptation culturelle Wolof sénégalaise et persistance.",
+      "tags": ["i18n", "localization", "wolof", "multilingue", "vanilla-js"],
+      "duree_apprentissage": "20 min",
+      "prerequis": ["Fichiers JSON de traduction"],
+      "fichier": "SKILLS/05_i18n_multi_langue.md"
+    },
+    {
+      "id": "06",
+      "nom": "cartes_digitales",
+      "titre": "Conception de Cartes de Visite Digitales Haute Conversion",
+      "description": "Layout mobile-first inspiré de QRCodeChimp, ratio photo 4:5 avec dégradé sombre et boutons d'action tactiles.",
+      "tags": ["digital-card", "mobile-first", "qrcodechimp", "ux-ui", "vcard", "networking"],
+      "duree_apprentissage": "30 min",
+      "prerequis": ["CSS Flexbox/Grid", "Design mobile"],
+      "fichier": "SKILLS/06_cartes_digitales.md"
+    },
+    {
+      "id": "07",
+      "nom": "qr_code_export",
+      "titre": "Génération & Export de QR Codes HD (PNG 1000px & PDF 85x55mm)",
+      "description": "Rastérisation haute définition avec qrcodejs/html2canvas et composition de carte d'imprimeur 300 DPI via jsPDF.",
+      "tags": ["qrcode", "export-png", "jspdf", "html2canvas", "print", "high-res"],
+      "duree_apprentissage": "35 min",
+      "prerequis": ["qrcodejs", "html2canvas", "jsPDF"],
+      "fichier": "SKILLS/07_qr_code_export.md"
+    },
+    {
+      "id": "08",
+      "nom": "admin_dashboard",
+      "titre": "Tableau de Bord d'Administration SaaS & CRUD Temps Réel",
+      "description": "Back-office complet avec compression photo côté navigateur, switch actif/inactif 1-clic et alertes toast.",
+      "tags": ["admin", "dashboard", "crud", "image-compression", "toast", "realtime"],
+      "duree_apprentissage": "40 min",
+      "prerequis": ["Supabase Auth", "browser-image-compression"],
+      "fichier": "SKILLS/08_admin_dashboard.md"
+    },
+    {
+      "id": "09",
+      "nom": "analytics_leads",
+      "titre": "Analytics de Scans, Traçabilité Terrain & Lead Scoring Automatisé",
+      "description": "Enregistrement non-bloquant des scans, calcul de score prospect de 0 à 100 et alertes WhatsApp instantanées.",
+      "tags": ["analytics", "lead-scoring", "crm", "whatsapp-alert", "geolocation", "tracking"],
+      "duree_apprentissage": "30 min",
+      "prerequis": ["Tables Supabase scans/leads", "wa.me Click-to-Chat"],
+      "fichier": "SKILLS/09_analytics_leads.md"
+    },
+    {
+      "id": "10",
+      "nom": "securite_rls",
+      "titre": "Sécurité Row Level Security (RLS) & Durcissement Base de Données",
+      "description": "Principe du moindre privilège, cloisonnement strict des rôles anon et authenticated, protection anti-fuites.",
+      "tags": ["security", "rls", "postgresql", "supabase", "least-privilege", "owasp"],
+      "duree_apprentissage": "35 min",
+      "prerequis": ["PostgreSQL RLS", "Supabase JWT"],
+      "fichier": "SKILLS/10_securite_rls.md"
+    },
+    {
+      "id": "11",
+      "nom": "multi_agents_workflow",
+      "titre": "Méthodologie & Workflow de Développement Multi-Agents Haute Précision",
+      "description": "Démarche en 4 temps (diagnostic, correctif chirurgical, test Playwright E2E, packaging) et gestion d'artefacts.",
+      "tags": ["multi-agents", "workflow", "playwright", "e2e", "sprints", "artifacts"],
+      "duree_apprentissage": "25 min",
+      "prerequis": ["Playwright", "Outils d'édition de code"],
+      "fichier": "SKILLS/11_multi_agents_workflow.md"
+    },
+    {
+      "id": "12",
+      "nom": "business_chr_senegal",
+      "titre": "Business & Marché CHR au Sénégal (FinTech Wave/OM & FCFA)",
+      "description": "Grille tarifaire sans décimales, formules Tàmbali/Nio Far/Xéweul, intégration FinTech et argumentaires terrain.",
+      "tags": ["business", "senegal", "chr", "restaurant", "wave", "orange-money", "fcfa"],
+      "duree_apprentissage": "30 min",
+      "prerequis": ["Connaissance du secteur CHR Afrique de l'Ouest"],
+      "fichier": "SKILLS/12_business_chr_senegal.md"
+    }
+  ],
+  "memoires": [
+    { "id": "m0", "nom": "contexte_projet", "fichier": "MEMOIRE/00_contexte_projet.md" },
+    { "id": "m1", "nom": "historique_decisions", "fichier": "MEMOIRE/01_historique_decisions.md" },
+    { "id": "m2", "nom": "bugs_resolus", "fichier": "MEMOIRE/02_bugs_resolus.md" },
+    { "id": "m3", "nom": "prompts_valides", "fichier": "MEMOIRE/03_prompts_valides.md" },
+    { "id": "m4", "nom": "charte_graphique", "fichier": "MEMOIRE/04_charte_graphique.md" },
+    { "id": "m5", "nom": "personas_utilisateurs", "fichier": "MEMOIRE/05_personas_utilisateurs.md" },
+    { "id": "m6", "nom": "roadmap_produit", "fichier": "MEMOIRE/06_roadmap_produit.md" }
+  ],
+  "patterns": [
+    { "id": "p1", "nom": "supabase_client", "langage": "javascript", "fichier": "PATTERNS/supabase_client.md" },
+    { "id": "p2", "nom": "rls_policies", "langage": "sql", "fichier": "PATTERNS/rls_policies.md" },
+    { "id": "p3", "nom": "qr_export_png", "langage": "javascript", "fichier": "PATTERNS/qr_export_png.md" },
+    { "id": "p4", "nom": "pdf_generation", "langage": "javascript", "fichier": "PATTERNS/pdf_generation.md" },
+    { "id": "p5", "nom": "vcard_generation", "langage": "javascript", "fichier": "PATTERNS/vcard_generation.md" },
+    { "id": "p6", "nom": "pwa_service_worker", "langage": "javascript", "fichier": "PATTERNS/pwa_service_worker.md" },
+    { "id": "p7", "nom": "i18n_implementation", "langage": "javascript", "fichier": "PATTERNS/i18n_implementation.md" },
+    { "id": "p8", "nom": "modal_component", "langage": "javascript", "fichier": "PATTERNS/modal_component.md" },
+    { "id": "p9", "nom": "toast_notifications", "langage": "javascript", "fichier": "PATTERNS/toast_notifications.md" }
+  ],
+  "prompts": [
+    { "id": "pr1", "nom": "nouveau_projet_saas", "fichier": "PROMPTS/prompt_nouveau_projet_saas.md" },
+    { "id": "pr2", "nom": "ajout_fonctionnalite", "fichier": "PROMPTS/prompt_ajout_fonctionnalite.md" },
+    { "id": "pr3", "nom": "bug_fix", "fichier": "PROMPTS/prompt_bug_fix.md" },
+    { "id": "pr4", "nom": "audit_securite", "fichier": "PROMPTS/prompt_audit_securite.md" },
+    { "id": "pr5", "nom": "audit_pre_deploiement", "fichier": "PROMPTS/prompt_audit_pre_deploiement.md" },
+    { "id": "pr6", "nom": "formation_equipe", "fichier": "PROMPTS/prompt_formation_equipe.md" }
+  ],
+  "business": [
+    { "id": "b1", "nom": "marche_chr_senegal", "fichier": "BUSINESS/marche_chr_senegal.md" },
+    { "id": "b2", "nom": "concurrents_analyse", "fichier": "BUSINESS/concurrents_analyse.md" },
+    { "id": "b3", "nom": "modele_economique", "fichier": "BUSINESS/modele_economique.md" },
+    { "id": "b4", "nom": "plan_90_jours", "fichier": "BUSINESS/plan_90_jours.md" },
+    { "id": "b5", "nom": "kpis_direction", "fichier": "BUSINESS/kpis_direction.md" },
+    { "id": "b6", "nom": "formation_commerciaux", "fichier": "BUSINESS/formation_commerciaux.md" }
+  ]
+}

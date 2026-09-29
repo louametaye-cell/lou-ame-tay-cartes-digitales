@@ -20,9 +20,21 @@ import { initialiserI18n } from './i18n.js';
 import { genererSignatureEmail } from './qrcode-export.js';
 import { entreprise, commerciaux } from './data.js';
 import { jouerIntro, lancerAnimationIntro } from './intro-animation.js';
-import { echangerCarte, genererKitNetworking } from './networking.js';
+import { echangerCarte } from './networking.js';
+import { genererKitNetworking } from './kit-networking.js';
+import { genererCartePDF } from './carte-pdf.js';
+import { genererSignatureHTML, copierSignature } from './signature-email.js';
 import { ouvrirRdv, finaliserRdvFormulaire } from './rdv.js';
-import { trackerParrainage, partagerCarte, genererLienParrainage } from './parrainage.js';
+import { trackerParrainage, afficherBadgeParrainage, genererLienParrainage } from './parrainage.js';
+import { initialiserPartage, ouvrirModalPartage } from './partage.js';
+import { chargerTemoignages } from './temoignages.js';
+import { 
+  ouvrirWhatsAppIntelligent, 
+  construireMessageWhatsApp, 
+  enregistrerFormuleConsultee, 
+  enregistrerVisiteur 
+} from './whatsapp-intelligent.js';
+import { ajouterAuWallet } from './wallet-pass.js';
 import './pwa-install.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -48,17 +60,29 @@ async function initialiserCarte() {
 
   let commercial = null;
 
+  // Résolution d'équivalence entre identifiant court ('1', '2'...) et UUID Supabase
+  const numVersUuid = {
+    '1': '11111111-1111-1111-1111-111111111111',
+    '2': '22222222-2222-2222-2222-222222222222',
+    '3': '33333333-3333-3333-3333-333333333333',
+    '4': '44444444-4444-4444-4444-444444444444'
+  };
+  const resolvedId = numVersUuid[commercialId] || commercialId;
+
   // 1. Recherche dans Supabase
   if (estSupabaseConfigure()) {
     try {
-      const { data, error } = await supabase
-        .from('commerciaux')
-        .select('*')
-        .eq('id', commercialId)
-        .maybeSingle();
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(resolvedId);
+      if (isUuid) {
+        const { data, error } = await supabase
+          .from('commerciaux')
+          .select('*')
+          .eq('id', resolvedId)
+          .maybeSingle();
 
-      if (!error && data) {
-        commercial = data;
+        if (!error && data) {
+          commercial = data;
+        }
       }
     } catch (err) {
       console.warn('Erreur Supabase, vérification des données de secours :', err);
@@ -73,8 +97,12 @@ async function initialiserCarte() {
       '33333333-3333-3333-3333-333333333333': '3',
       '44444444-4444-4444-4444-444444444444': '4'
     };
-    const idEquiv = uuidVersNum[commercialId] || commercialId;
-    commercial = commerciaux.find(c => String(c.id) === String(commercialId) || String(c.id) === String(idEquiv));
+    const idEquiv = uuidVersNum[commercialId] || uuidVersNum[resolvedId] || commercialId;
+    commercial = commerciaux.find(c => 
+      String(c.id) === String(commercialId) || 
+      String(c.id) === String(resolvedId) || 
+      String(c.id) === String(idEquiv)
+    );
   }
 
   // 3. Vérification de l'existence du commercial
@@ -160,8 +188,10 @@ async function initialiserCarte() {
   afficherCompteur(commercial.id);
   afficherBadges(commercial.id);
   afficherClientsConfiance();
-  afficherTemoignages(commercial.id);
+  await chargerTemoignages(commercial.id);
   await trackerParrainage(commercial.id);
+  await afficherBadgeParrainage(commercial.id);
+  initialiserPartage(commercial);
 
   // Écouteurs des boutons exacts
   const btnEchange = document.getElementById('btn-echange');
@@ -223,7 +253,7 @@ async function initialiserCarte() {
   if (btnPartager) {
     btnPartager.onclick = () => {
       trackerEvenement('partager_carte', commercial.id);
-      partagerCarte(commercial);
+      ouvrirModalPartage(commercial);
     };
   }
 
@@ -232,8 +262,42 @@ async function initialiserCarte() {
   initialiserDemoMenu(commercial);
   initialiserWallet(commercial);
 
+  // Sprint 2 : Section Mes outils & Kit Networking
+  configurerSectionOutils(commercial);
+
   // 11. Section Entreprise Lou Ame Tay et galerie
   remplirEntreprise();
+}
+
+/**
+ * Configure les boutons de la section "Mes outils & Kit Networking"
+ * @param {Object} commercial 
+ */
+function configurerSectionOutils(commercial) {
+  const btnKitOutils = document.getElementById('btn-telecharger-kit-outils');
+  const btnPdfOutils = document.getElementById('btn-telecharger-pdf-outils');
+  const btnSigOutils = document.getElementById('btn-copier-signature-outils');
+
+  if (btnKitOutils) {
+    btnKitOutils.addEventListener('click', () => {
+      trackerEvenement('clic_kit_networking_zip', commercial.id);
+      genererKitNetworking(commercial);
+    });
+  }
+
+  if (btnPdfOutils) {
+    btnPdfOutils.addEventListener('click', () => {
+      trackerEvenement('clic_carte_pdf', commercial.id);
+      genererCartePDF(commercial);
+    });
+  }
+
+  if (btnSigOutils) {
+    btnSigOutils.addEventListener('click', () => {
+      trackerEvenement('clic_copie_signature', commercial.id);
+      copierSignature(commercial);
+    });
+  }
 }
 
 function afficherErreur(message) {
@@ -288,11 +352,11 @@ function configurerActionsRapides(c) {
   }
 
   if (btnWa && c.whatsapp) {
-    const num = c.whatsapp.replace(/\D/g, '');
-    const msg = encodeURIComponent(`Bonjour ${c.prenom}, je vous contacte via votre carte digitale Lou Ame Tay.`);
-    btnWa.href = `https://wa.me/${num}?text=${msg}`;
-    btnWa.addEventListener('click', () => {
+    btnWa.href = construireMessageWhatsApp(c);
+    btnWa.addEventListener('click', (e) => {
+      e.preventDefault();
       trackerEvenement('whatsapp', c.id);
+      ouvrirWhatsAppIntelligent(c);
     });
   } else if (btnWa) {
     btnWa.style.display = 'none';
@@ -308,7 +372,7 @@ function configurerActionsRapides(c) {
   if (btnPartage) {
     btnPartage.addEventListener('click', () => {
       trackerEvenement('partage', c.id);
-      partagerCarte(c);
+      ouvrirModalPartage(c);
     });
   }
 }
@@ -324,11 +388,11 @@ function configurerActionsTerrain(c) {
   const btnSupportDirect = document.getElementById('btn-support-direct-wa');
 
   if (btnSupportDirect) {
-    const fallbackWA = typeof entreprise !== 'undefined' ? entreprise.contact.whatsapp : "221762312003";
-    const numSupport = (c.whatsapp || fallbackWA).replace(/\D/g, '');
-    btnSupportDirect.href = `https://wa.me/${numSupport}?text=${encodeURIComponent(`Bonjour ${c.prenom}, j'ai besoin d'une assistance ou d'un devis pour mon restaurant.`)}`;
-    btnSupportDirect.addEventListener('click', () => {
+    btnSupportDirect.href = construireMessageWhatsApp(c);
+    btnSupportDirect.addEventListener('click', (e) => {
+      e.preventDefault();
       trackerEvenement('whatsapp', c.id);
+      ouvrirWhatsAppIntelligent(c);
     });
   }
 
@@ -449,9 +513,13 @@ function remplirBioEtDetails(c) {
 
   if (ligneWa && c.whatsapp) {
     const num = c.whatsapp.replace(/\D/g, '');
-    ligneWa.href = `https://wa.me/${num}`;
+    ligneWa.href = construireMessageWhatsApp(c);
     if (valWa) valWa.textContent = `+${num}`;
-    ligneWa.addEventListener('click', () => trackerEvenement('whatsapp', c.id));
+    ligneWa.addEventListener('click', (e) => {
+      e.preventDefault();
+      trackerEvenement('whatsapp', c.id);
+      ouvrirWhatsAppIntelligent(c);
+    });
   }
 
   if (ligneMail && c.email) {
@@ -473,7 +541,11 @@ function remplirOffresProduits(c) {
   entreprise.offres.forEach(offre => {
     const div = document.createElement('div');
     div.className = `carte-offre-item ${offre.populaire ? 'populaire' : ''}`;
-    const msgOffre = encodeURIComponent(`Bonjour ${c.prenom}, je suis intéressé par la ${offre.nom} (${offre.prix}) pour mon établissement.`);
+    div.addEventListener('click', () => {
+      enregistrerFormuleConsultee(offre.nom);
+    });
+
+    const urlWA = construireMessageWhatsApp(c, { formule: offre.nom });
 
     div.innerHTML = `
       <div class="carte-offre-haut">
@@ -485,14 +557,19 @@ function remplirOffresProduits(c) {
       <ul class="offre-details-liste">
         ${offre.details.map(d => `<li>${d}</li>`).join('')}
       </ul>
-      <a href="https://wa.me/${numWA}?text=${msgOffre}" target="_blank" rel="noopener noreferrer" class="btn btn-primaire btn-choisir-offre">
+      <a href="${urlWA}" target="_blank" rel="noopener noreferrer" class="btn btn-primaire btn-choisir-offre">
         Commander / Discuter de cette formule ➔
       </a>
     `;
 
     const btnCommander = div.querySelector('.btn-choisir-offre');
     if (btnCommander) {
-      btnCommander.addEventListener('click', () => trackerEvenement('whatsapp', c.id));
+      btnCommander.addEventListener('click', (e) => {
+        e.preventDefault();
+        trackerEvenement('whatsapp', c.id);
+        enregistrerFormuleConsultee(offre.nom);
+        ouvrirWhatsAppIntelligent(c, { formule: offre.nom });
+      });
     }
 
     conteneurOffres.appendChild(div);
@@ -606,6 +683,10 @@ function configurerFormulaireLeads(c) {
     const tel = document.getElementById('lead-tel').value.trim();
     const ville = document.getElementById('lead-ville').value;
     const formule = document.getElementById('lead-formule').value;
+
+    // Mémorisation du contexte pour enrichir le WhatsApp intelligent
+    enregistrerVisiteur(nom, etab);
+    if (formule) enregistrerFormuleConsultee(formule);
 
     if (btnSubmit) btnSubmit.disabled = true;
     if (btnSpinner) btnSpinner.style.display = 'inline-block';
@@ -1466,65 +1547,8 @@ export async function afficherClientsConfiance() {
 export const afficherLogosClients = afficherClientsConfiance;
 
 // ═══════════════════════════════════════════════════════════════════
-// SPRINT C3 : TÉMOIGNAGES CLIENTS
-// ═══════════════════════════════════════════════════════════════════
 export async function afficherTemoignages(commercialId) {
-  let temoignages = [
-    {
-      nom_client: "M. Babacar Ndiaye",
-      restaurant_client: "Le Patio (Saly)",
-      note: 10,
-      texte: "La commande QR Lou Ame Tay a révolutionné nos coups de feu. Les serveurs sont plus détendus et les ventes de desserts ont bondi de 25%."
-    },
-    {
-      nom_client: "Mme Aïssatou Ba",
-      restaurant_client: "Café de Rome (Dakar)",
-      note: 10,
-      texte: "L'écran cuisine KDS a éliminé toutes les erreurs de commande. Les clients adorent scanner et payer avec Wave en 1 seconde."
-    },
-    {
-      nom_client: "M. Ibrahima Diop",
-      restaurant_client: "L'Almadies Seafood",
-      note: 10,
-      texte: "L'équipe commerciale est intervenue en 48h chrono pour équiper nos 40 tables. Rentabilisé dès le premier mois !"
-    }
-  ];
-
-  if (estSupabaseConfigure()) {
-    try {
-      const { data } = await supabase
-        .from('temoignages')
-        .select('*')
-        .or(`commercial_id.eq.${commercialId},commercial_id.is.null`)
-        .eq('actif', true)
-        .limit(3);
-      if (data && data.length > 0) temoignages = data;
-    } catch (e) {
-      // Fallback
-    }
-  }
-
-  const grid = document.getElementById('temoignages-grid');
-  if (!grid || !temoignages.length) return;
-
-  grid.innerHTML = temoignages.map(t => `
-    <div class="temoignage-card">
-      ${t.video_youtube_id ? `
-        <div class="temoignage-video" style="cursor:pointer;" onclick="window.open('https://youtube.com/watch?v=${t.video_youtube_id}','_blank')">
-          <img src="https://img.youtube.com/vi/${t.video_youtube_id}/mqdefault.jpg" style="width:100%; border-radius:10px;">
-          <div class="play-icon" style="font-size:24px; text-align:center;">▶</div>
-        </div>
-      ` : ''}
-      <div class="temoignage-content">
-        <div class="temoignage-note">${'⭐'.repeat(Math.min(5, Math.round(t.note / 2)))} ${t.note}/10</div>
-        <p class="temoignage-texte">"${escapeHtml(t.texte)}"</p>
-        <div class="temoignage-auteur">
-          <strong>${escapeHtml(t.nom_client)}</strong>
-          ${t.restaurant_client ? `<span> — ${escapeHtml(t.restaurant_client)}</span>` : ''}
-        </div>
-      </div>
-    </div>
-  `).join('');
+  return await chargerTemoignages(commercialId);
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -2006,6 +2030,14 @@ function configurerModalPartage(c) {
 // BONUS 1 : APPLE & GOOGLE WALLET
 // ═══════════════════════════════════════════════════════════════════
 function initialiserWallet(c) {
+  const btnWallet = document.getElementById('btn-ajouter-wallet');
+  if (btnWallet) {
+    btnWallet.addEventListener('click', () => {
+      trackerEvenement('clic_wallet_pass', c.id);
+      ajouterAuWallet(c);
+    });
+  }
+
   const modalWallet = document.getElementById('modal-wallet');
   const fermerWallet = document.getElementById('fermer-modal-wallet');
   const btnApple = document.getElementById('btn-wallet-apple');
@@ -2017,17 +2049,11 @@ function initialiserWallet(c) {
   });
 
   btnApple?.addEventListener('click', () => {
-    const btnVCard = document.getElementById('btn-telecharger-vcard');
-    btnVCard?.click();
-    modalWallet?.classList.remove('active');
-    afficherToast("🍏 Contact prêt pour l'intégration Apple Wallet & Contacts !");
+    ajouterAuWallet(c);
   });
 
   btnGoogle?.addEventListener('click', () => {
-    const btnVCard = document.getElementById('btn-telecharger-vcard');
-    btnVCard?.click();
-    modalWallet?.classList.remove('active');
-    afficherToast("📱 Fiche contact prête pour Google Contacts & Wallet !");
+    ajouterAuWallet(c);
   });
 }
 
@@ -2196,5 +2222,6 @@ function mettreAJourPanierDemo() {
   totalEl.textContent = `${total.toLocaleString('fr-FR')} FCFA`;
   btnKds.disabled = false;
 }
+
 
 

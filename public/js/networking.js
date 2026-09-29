@@ -6,6 +6,7 @@
  */
 
 import { supabase } from './supabase-client.js';
+import { enregistrerVisiteur } from './whatsapp-intelligent.js';
 
 function showToast(msg, type = 'success') {
   const toast = document.getElementById('toast');
@@ -24,6 +25,11 @@ export async function echangerCarte(commercialId) {
   const form = document.getElementById('form-echange');
   if (!form) return;
   const data = Object.fromEntries(new FormData(form));
+
+  // Mémorisation pour contextualisation WhatsApp intelligent (B3)
+  if (data.nom) {
+    enregistrerVisiteur(data.nom, data.entreprise || '');
+  }
 
   try {
     const { error } = await supabase.from('echanges_cartes').insert({

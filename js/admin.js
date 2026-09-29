@@ -16,6 +16,8 @@ import { supabase, estSupabaseConfigure, enregistrerConfigurationSupabase, SUPAB
 import { telechargerQRCodePNG, ouvrirModalPreviewQR, telechargerToutesCartesPDF, exporterDonneesCSV } from './qrcode-export.js';
 import { getPrioriteLead } from './lead-scoring.js';
 import { commerciaux as commerciauxSecours } from './data.js';
+import { initialiserAdminV2, calculerEtAfficherKpisCEO, chargerParrainages } from './admin-v2.js';
+import { rafraichirTailleCarte } from './map-admin.js';
 
 // Variables d'état local
 let listeCommerciaux = [];
@@ -39,6 +41,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await chargerCommerciaux();
   await chargerLeads();
   await chargerAvisAdmin();
+  await initialiserAdminV2(listeCommerciaux, listeLeads);
 });
 
 /**
@@ -482,9 +485,9 @@ function rendreTableauCommerciaux(liste) {
         <!-- Actions -->
         <td style="text-align: right;">
           <div class="table-actions-cell">
-            <a href="${lienCarte}" target="_blank" class="btn-icone-action btn-voir" title="Voir la carte publique">
+            <button type="button" class="btn-icone-action btn-voir" onclick="voirProfil('${c.id}')" data-id="${c.id}" aria-label="Voir le profil" title="Voir le profil">
               👁️
-            </a>
+            </button>
             <button type="button" class="btn-icone-action btn-editer" data-id="${c.id}" title="Modifier">
               ✏️
             </button>
@@ -537,9 +540,9 @@ function rendreTableauDashboard(liste) {
           </span>
         </td>
         <td style="text-align: right;">
-          <a href="carte.html?id=${encodeURIComponent(c.id)}" target="_blank" class="btn btn-contour btn-xs">
+          <button type="button" onclick="voirProfil('${c.id}')" class="btn btn-contour btn-xs" aria-label="Voir la carte" title="Voir la carte">
             Voir carte ↗
-          </a>
+          </button>
         </td>
       </tr>
     `;
@@ -609,6 +612,32 @@ function attacherEvenementsTable(conteneur) {
       }
     });
   });
+
+  // Bouton Voir le profil 👁️
+  conteneur.querySelectorAll('.btn-voir').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const id = btn.getAttribute('data-id');
+      if (id) {
+        voirProfil(id);
+      }
+    });
+  });
+}
+
+/**
+ * Ouvre la carte du commercial dans un nouvel onglet avec son UUID réel
+ * @param {string} id - UUID Supabase du commercial
+ */
+export function voirProfil(id) {
+  if (!id) {
+    console.error('ID manquant pour voirProfil');
+    return;
+  }
+  window.open(`carte.html?id=${encodeURIComponent(id)}`, '_blank');
+}
+if (typeof window !== 'undefined') {
+  window.voirProfil = voirProfil;
 }
 
 /**
@@ -1092,10 +1121,11 @@ function basculerOnglet(nomOnglet) {
 
   const titrePage = document.getElementById('topbar-titre-page');
   const titres = {
-    dashboard: 'Tableau de bord',
+    dashboard: '📊 Pilotage Stratégique & Tableau de bord',
     commerciaux: 'Gestion des commerciaux',
     leads: 'CRM — Leads & Devis Restauration',
     avis: '⭐ Modération des Avis Clients & Notations',
+    parrainages: '📤 Suivi des Parrainages & Recommandations',
     analytics: 'Statistiques, Scans & Performance',
     exports: 'Exports & QR Codes',
     parametres: 'Paramètres & Base de données'
@@ -1104,10 +1134,14 @@ function basculerOnglet(nomOnglet) {
     titrePage.textContent = titres[nomOnglet];
   }
 
-  if (nomOnglet === 'leads') {
+  if (nomOnglet === 'dashboard') {
+    rafraichirTailleCarte();
+  } else if (nomOnglet === 'leads') {
     chargerLeads();
   } else if (nomOnglet === 'avis') {
     chargerAvisAdmin();
+  } else if (nomOnglet === 'parrainages') {
+    chargerParrainages();
   } else if (nomOnglet === 'analytics') {
     chargerAnalytics();
   }
@@ -1475,12 +1509,22 @@ function rendreTableauLeads(liste) {
 
         <!-- Statut 1-clic -->
         <td>
-          <select class="select-statut-lead" data-id="${lead.id}" data-statut="${statutActuel}">
-            <option value="nouveau" ${statutActuel === 'nouveau' ? 'selected' : ''}>Nouveau</option>
-            <option value="contacté" ${statutActuel === 'contacté' ? 'selected' : ''}>Contacté</option>
-            <option value="converti" ${statutActuel === 'converti' ? 'selected' : ''}>Converti</option>
-            <option value="perdu" ${statutActuel === 'perdu' ? 'selected' : ''}>Perdu</option>
-          </select>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <select class="select-statut-lead" data-id="${lead.id}" data-statut="${statutActuel}">
+              <option value="nouveau" ${statutActuel === 'nouveau' ? 'selected' : ''}>Nouveau</option>
+              <option value="contacté" ${statutActuel === 'contacté' ? 'selected' : ''}>Contacté / RDV</option>
+              <option value="démo" ${statutActuel === 'démo' ? 'selected' : ''}>Démo en salle</option>
+              <option value="converti" ${statutActuel === 'converti' ? 'selected' : ''}>Converti (Client)</option>
+              <option value="perdu" ${statutActuel === 'perdu' ? 'selected' : ''}>Perdu</option>
+            </select>
+            ${statutActuel !== 'converti' ? `
+              <button type="button" class="btn-convertir-rapide btn-convertir-lead-1clic" data-id="${lead.id}" title="Marquer ce prospect comme client converti">
+                🎯 Marquer converti
+              </button>
+            ` : `
+              <span style="font-size: 0.72rem; color: #15803D; font-weight: 700; text-align: center;">✓ Client Actif</span>
+            `}
+          </div>
         </td>
 
         <!-- Actions -->
@@ -1521,8 +1565,35 @@ function attacherEvenementsLeads(conteneur) {
         if (l) l.statut = nouveauStatut;
 
         afficherToast(`✓ Statut mis à jour : ${nouveauStatut.toUpperCase()}`);
+        calculerEtAfficherKpisCEO();
+        rendreTableauLeads(listeLeadsFiltree);
       } catch (err) {
         console.error('Erreur mise à jour statut lead :', err);
+        afficherToast('Erreur : ' + err.message);
+      }
+    });
+  });
+
+  // Action rapide "Marquer comme converti"
+  conteneur.querySelectorAll('.btn-convertir-lead-1clic').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const leadId = btn.getAttribute('data-id');
+      try {
+        const { error } = await supabase
+          .from('leads')
+          .update({ statut: 'converti' })
+          .eq('id', leadId);
+
+        if (error) throw error;
+
+        const l = listeLeads.find(item => item.id === leadId);
+        if (l) l.statut = 'converti';
+
+        afficherToast("🎉 Bravo ! Lead marqué comme Converti. Le MRR a été recalculé !");
+        calculerEtAfficherKpisCEO();
+        rendreTableauLeads(listeLeadsFiltree);
+      } catch (err) {
+        console.error('Erreur conversion lead :', err);
         afficherToast('Erreur : ' + err.message);
       }
     });
@@ -1544,6 +1615,7 @@ function attacherEvenementsLeads(conteneur) {
 
         afficherToast("✓ Lead supprimé avec succès.");
         await chargerLeads();
+        calculerEtAfficherKpisCEO();
       } catch (err) {
         afficherToast("Erreur suppression : " + err.message);
       }
@@ -1556,6 +1628,8 @@ function initialiserLeadsCRM() {
   const btnEffacer = document.getElementById('btn-effacer-recherche-leads');
   const filtreStatut = document.getElementById('filtre-statut-leads');
   const filtreFormule = document.getElementById('filtre-formule-leads');
+  const filtreVille = document.getElementById('filtre-ville-leads');
+  const filtrePeriode = document.getElementById('filtre-periode-leads');
   const btnActualiser = document.getElementById('btn-actualiser-leads');
   const btnExportCSV = document.getElementById('btn-export-leads-csv');
 
@@ -1563,13 +1637,28 @@ function initialiserLeadsCRM() {
     const requete = (champRecherche?.value || '').toLowerCase().trim();
     const statut = (filtreStatut?.value || 'tous').toLowerCase();
     const formule = (filtreFormule?.value || 'tous').toLowerCase();
+    const ville = (filtreVille?.value || 'tous').toLowerCase();
+    const periode = filtrePeriode?.value || 'tous';
+
+    const maintenant = Date.now();
+    const limite7j = maintenant - (7 * 24 * 3600 * 1000);
+    const limite30j = maintenant - (30 * 24 * 3600 * 1000);
 
     listeLeadsFiltree = listeLeads.filter(l => {
       const texte = `${l.restaurant_nom || ''} ${l.prospect_nom || ''} ${l.telephone || ''} ${l.ville || ''}`.toLowerCase();
       const matchTexte = !requete || texte.includes(requete);
       const matchStatut = statut === 'tous' || (l.statut || '').toLowerCase() === statut;
       const matchFormule = formule === 'tous' || (l.formule || '').toLowerCase() === formule;
-      return matchTexte && matchStatut && matchFormule;
+      const matchVille = ville === 'tous' || (l.ville || '').toLowerCase().includes(ville);
+
+      let matchPeriode = true;
+      if (l.created_at) {
+        const timeLead = new Date(l.created_at).getTime();
+        if (periode === '7j') matchPeriode = timeLead >= limite7j;
+        else if (periode === '30j') matchPeriode = timeLead >= limite30j;
+      }
+
+      return matchTexte && matchStatut && matchFormule && matchVille && matchPeriode;
     });
 
     rendreTableauLeads(listeLeadsFiltree);
@@ -1578,6 +1667,8 @@ function initialiserLeadsCRM() {
   champRecherche?.addEventListener('input', filtrer);
   filtreStatut?.addEventListener('change', filtrer);
   filtreFormule?.addEventListener('change', filtrer);
+  filtreVille?.addEventListener('change', filtrer);
+  filtrePeriode?.addEventListener('change', filtrer);
 
   btnEffacer?.addEventListener('click', () => {
     if (champRecherche) champRecherche.value = '';

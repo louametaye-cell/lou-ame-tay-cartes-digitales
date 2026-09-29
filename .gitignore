@@ -5,6 +5,7 @@ coverage/
 .DS_Store
 *.log
 *.zip
+!lou-ame-tay-memory/EXPORT/*.zip
 scratch/
 .env*
 !.env.example
