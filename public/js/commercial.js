@@ -20,6 +20,9 @@ import { genererKitNetworking } from './kit-networking.js';
 import { genererCartePDF } from './carte-pdf.js';
 import { genererSignatureHTML, copierSignature } from './signature-email.js';
 import { genererContratPDFA4 } from './contrat-pdf.js';
+import { genererPitchCommercial, PROFILS_ETABLISSEMENTS } from './gemini-copilot.js';
+import { initialiserModeOffline, empilerActionHorsLigne } from './offline-sync.js';
+import { ajouterAuWallet, telechargerPassDigitalNFC } from './wallet-pass.js';
 
 // État local de la session commerciale
 let commercialConnecte = null;
@@ -38,6 +41,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   initialiserNavigationOnglets();
   initialiserFormulaires();
   initialiserUploadJustificatif();
+  initialiserModeOffline({ supabase, afficherToastFn: afficherToast });
+  initialiserGeminiCopilotCommercial();
+  initialiserPassWalletCommercial();
+  lancerHeartbeatPresenceCommercial();
 
   // Vérifier si une session est déjà mémorisée
   const sessionSauvegardee = localStorage.getItem('LOUAMETAY_COMMERCIAL_SESSION');
@@ -1677,6 +1684,23 @@ export function initialiserModuleContratEtPaiement() {
             }]);
         }
 
+        // 1b. Inscription automatique de la commission dans la cagnotte du commercial
+        try {
+          const montantComm = Math.round(montantVal * (tauxCommissionCommercial / 100));
+          await supabase
+            .from('commissions')
+            .insert([{
+              commercial_id: commercialConnecte?.id,
+              restaurant_nom: resto,
+              montant_contrat: montantVal,
+              montant_commission: montantComm,
+              statut: 'VALIDE',
+              formule: formule
+            }]);
+        } catch (eComm) {
+          console.debug('Insertion commission :', eComm);
+        }
+
         // 2. Journalisation d'audit pour le CEO
         await enregistrerActivite({
           typeAction: 'CONTRAT_SIGNE',
@@ -1694,6 +1718,22 @@ export function initialiserModuleContratEtPaiement() {
           },
           commercialId: commercialConnecte?.id,
           commercialNom: commercialConnecte ? `${commercialConnecte.prenom} ${commercialConnecte.nom}` : 'Conseiller'
+        });
+      } else {
+        // Enregistrement résilient Sénégal Offline-First si pas de réseau
+        empilerActionHorsLigne({
+          type: 'SIGNE_CONTRAT',
+          table: 'leads',
+          payload: {
+            commercial_id: commercialConnecte?.id,
+            restaurant_nom: resto,
+            prospect_nom: gerant,
+            telephone: tel,
+            ville: ville,
+            formule: formule,
+            statut: 'SIGNE',
+            score: 100
+          }
         });
       }
 
@@ -1834,4 +1874,187 @@ function escapeHtml(str) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
+}
+
+// ==============================================================================
+// 13. MODULE GEMINI COPILOT (PITCH & PROSPECTION IA TERRAIN)
+// ==============================================================================
+function initialiserGeminiCopilotCommercial() {
+  const btnOuvrir = document.getElementById('btn-ouvrir-gemini-copilot');
+  const modal = document.getElementById('modal-gemini-copilot');
+  const btnFermer = document.getElementById('btn-fermer-modal-copilot');
+  const btnGenerer = document.getElementById('btn-generer-pitch-ia');
+  const selectZone = document.getElementById('copilot-profil-zone');
+  const selectFormule = document.getElementById('copilot-formule-visee');
+  const champResto = document.getElementById('copilot-resto-nom');
+  const zoneResultat = document.getElementById('zone-resultat-copilot');
+  const texteAccroche = document.getElementById('texte-accroche-orale');
+  const texteMsgWa = document.getElementById('texte-message-wa');
+  const divObjections = document.getElementById('liste-objections-copilot');
+  const btnCopier = document.getElementById('btn-copier-accroche');
+  const btnOuvrirWa = document.getElementById('btn-ouvrir-wa-copilot');
+
+  if (btnOuvrir && modal) {
+    btnOuvrir.addEventListener('click', () => {
+      modal.style.display = 'flex';
+      if (zoneResultat && zoneResultat.style.display === 'none') {
+        declencherGenerationPitch();
+      }
+    });
+  }
+
+  btnFermer?.addEventListener('click', () => {
+    if (modal) modal.style.display = 'none';
+  });
+
+  modal?.addEventListener('click', (e) => {
+    if (e.target === modal) modal.style.display = 'none';
+  });
+
+  function declencherGenerationPitch() {
+    const zoneId = selectZone?.value || 'almadies_lounge';
+    const formule = selectFormule?.value || 'Xéweul';
+    const restoNom = champResto?.value.trim() || 'Votre Restaurant';
+    const prenom = commercialConnecte?.prenom || 'Conseiller';
+    const nom = commercialConnecte?.nom || 'Lou Ame Tay';
+    const lienCarte = `https://louametay.online/carte.html?id=${encodeURIComponent(commercialConnecte?.id || 'demo')}`;
+
+    const pitch = genererPitchCommercial({
+      profilId: zoneId,
+      formule,
+      restoNom,
+      prenomCommercial: prenom,
+      nomCommercial: nom,
+      lienCarte
+    });
+
+    if (texteAccroche) texteAccroche.textContent = pitch.accrocheOrale;
+    if (texteMsgWa) texteMsgWa.textContent = pitch.messageWhatsApp;
+
+    if (divObjections) {
+      divObjections.innerHTML = pitch.objections.map(obj => `
+        <div style="margin-bottom: 8px; border-bottom: 1px dashed #FDE68A; padding-bottom: 6px;">
+          <div style="font-weight: 700; color: #92400E; margin-bottom: 2px;">${escapeHtml(obj.objection)}</div>
+          <div style="color: #451A03;">👉 ${escapeHtml(obj.reponse)}</div>
+        </div>
+      `).join('');
+    }
+
+    if (btnOuvrirWa) {
+      btnOuvrirWa.onclick = () => {
+        window.open(`https://wa.me/?text=${encodeURIComponent(pitch.messageWhatsApp)}`, '_blank');
+      };
+    }
+
+    if (btnCopier) {
+      btnCopier.onclick = async () => {
+        try {
+          await navigator.clipboard.writeText(pitch.accrocheOrale);
+          afficherToast('✓ Accroche verbale copiée dans le presse-papiers !');
+        } catch {
+          afficherToast('Sélectionnez le texte pour le copier.');
+        }
+      };
+    }
+
+    if (zoneResultat) {
+      zoneResultat.style.display = 'block';
+    }
+  }
+
+  btnGenerer?.addEventListener('click', declencherGenerationPitch);
+}
+
+// ==============================================================================
+// 14. MODULE PASS DIGITAL WALLET NFC (GOOGLE & APPLE WALLET)
+// ==============================================================================
+function initialiserPassWalletCommercial() {
+  const btnOuvrir = document.getElementById('btn-ouvrir-pass-wallet');
+  const modal = document.getElementById('modal-pass-wallet-comm');
+  const btnFermer = document.getElementById('btn-fermer-modal-wallet-comm');
+  const btnNfc = document.getElementById('btn-pass-telecharger-nfc');
+  const btnGoogle = document.getElementById('btn-pass-google-wallet');
+  const btnApple = document.getElementById('btn-pass-apple-wallet');
+
+  if (btnOuvrir && modal) {
+    btnOuvrir.addEventListener('click', () => {
+      modal.style.display = 'flex';
+    });
+  }
+
+  btnFermer?.addEventListener('click', () => {
+    if (modal) modal.style.display = 'none';
+  });
+
+  modal?.addEventListener('click', (e) => {
+    if (e.target === modal) modal.style.display = 'none';
+  });
+
+  btnNfc?.addEventListener('click', () => {
+    telechargerPassDigitalNFC(commercialConnecte);
+    afficherToast('✓ Pass Contact NFC téléchargé avec succès !');
+  });
+
+  btnGoogle?.addEventListener('click', () => {
+    ajouterAuWallet(commercialConnecte);
+  });
+
+  btnApple?.addEventListener('click', () => {
+    ajouterAuWallet(commercialConnecte);
+  });
+}
+
+// ==============================================================================
+// 15. RADAR DE PRÉSENCE EN DIRECT (HEARTBEAT TERRAIN AUTOMATIQUE)
+// ==============================================================================
+function lancerHeartbeatPresenceCommercial() {
+  async function emettreHeartbeat() {
+    if (!commercialConnecte || !commercialConnecte.id) return;
+
+    // Détecter l'onglet actif
+    const panneauActif = document.querySelector('.comm-panel.active')?.id || 'panel-perf';
+    const nomPanneau = {
+      'panel-perf': 'Tableau de Bord & Performances',
+      'panel-rdv-gps': 'Rendez-vous & Pointage GPS',
+      'panel-commissions': 'Commissions & Cagnotte',
+      'panel-depenses': 'Frais & Justificatifs Terrain',
+      'panel-prospects': 'CRM & Signature de Contrats',
+      'panel-outils': 'Kit Networking & Outils Pro',
+      'panel-annonces': 'Annonces Équipe',
+      'panel-avis': 'Avis Clients'
+    }[panneauActif] || 'Espace Commercial';
+
+    const payloadPresence = {
+      commercial_id: commercialConnecte.id,
+      commercial_nom: `${commercialConnecte.prenom} ${commercialConnecte.nom}`,
+      ecran_actif: nomPanneau,
+      ville: commercialConnecte.ville || 'Dakar',
+      horodatage: new Date().toISOString(),
+      en_ligne: true
+    };
+
+    try {
+      localStorage.setItem('lat_commercial_presence', JSON.stringify(payloadPresence));
+
+      if (estSupabaseConfigure() && supabase) {
+        await enregistrerActivite({
+          typeAction: 'HEARTBEAT_PRESENCE',
+          description: `Actif sur l'écran : ${nomPanneau}`,
+          details: {
+            ecran: nomPanneau,
+            ville: commercialConnecte.ville || 'Dakar',
+            appareil: navigator.userAgent
+          },
+          commercialId: commercialConnecte.id,
+          commercialNom: `${commercialConnecte.prenom} ${commercialConnecte.nom}`
+        });
+      }
+    } catch (err) {
+      console.debug('Heartbeat présence silencieux:', err);
+    }
+  }
+
+  // Émission immédiate puis toutes les 45 secondes
+  setTimeout(emettreHeartbeat, 3000);
+  setInterval(emettreHeartbeat, 45000);
 }

@@ -288,6 +288,63 @@
         </div>
 
         <!-- ==========================================================
+             RADAR TERRAIN EN DIRECT : QUI EST EN LIGNE (WHO IS ONLINE)
+             ========================================================== -->
+        <div class="panneau-table" style="margin-top: 1.25rem; border: 1.5px solid #0B1F3A; background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%);">
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; border-bottom: 1px solid var(--bordure); flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span class="point-pulsant" style="background: #10B981; width: 12px; height: 12px;"></span>
+              <div>
+                <h4 style="margin: 0; font-size: 1.05rem; color: #0B1F3A; font-weight: 800;">
+                  📡 Radar Terrain en Direct : Qui est en Ligne Right Now
+                </h4>
+                <p style="margin: 0; font-size: 0.8rem; color: var(--texte-muet);">
+                  Traçabilité en temps réel des conseillers terrain connectés sur smartphone
+                </p>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <span id="badge-agents-en-ligne-count" style="background: #ECFDF5; color: #065F46; border: 1px solid #10B981; padding: 4px 10px; border-radius: 20px; font-size: 0.78rem; font-weight: 800;">
+                🟢 0 Agent(s) Connecté(s)
+              </span>
+              <button type="button" id="btn-rafraichir-radar" class="comm-btn-contour" style="padding: 4px 10px; font-size: 0.78rem; cursor: pointer;">
+                🔄 Actualiser
+              </button>
+            </div>
+          </div>
+          <div id="conteneur-radar-agents" style="padding: 1rem 1.25rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px;">
+            <!-- Cartes des agents en ligne injectées dynamiquement -->
+          </div>
+        </div>
+
+        <!-- ==========================================================
+             SYNTHÈSE STRATÉGIQUE GEMINI COPILOT DU JOUR POUR LE CEO
+             ========================================================== -->
+        <div class="panneau-table" style="margin-top: 1.25rem; background: linear-gradient(135deg, #0B1F3A 0%, #17375e 100%); color: #FFFFFF; border-radius: 14px; padding: 1.25rem; box-shadow: 0 10px 25px rgba(11, 31, 58, 0.2);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(201, 162, 39, 0.2); border: 1px solid #C9A227; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+                ✨
+              </div>
+              <div>
+                <h4 style="margin: 0; font-size: 1.1rem; color: #F8E294; font-weight: 800;">
+                  Synthèse Exécutive Gemini Copilot (Analyse Quotidienne)
+                </h4>
+                <p style="margin: 0; font-size: 0.8rem; color: #CBD5E1;">
+                  Intelligence stratégique automatisée pour la Direction Générale (M. Mbaye Babacar GUEYE)
+                </p>
+              </div>
+            </div>
+            <button type="button" id="btn-generer-synthese-ceo-gemini" class="comm-btn-gold" style="padding: 8px 16px; font-size: 0.85rem; font-weight: 800; cursor: pointer; border-radius: 8px;">
+              <span>✨ Générer le Briefing du Jour</span>
+            </button>
+          </div>
+          <div id="bloc-resultat-synthese-gemini" style="background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 10px; padding: 1rem; display: none;">
+            <pre id="texte-synthese-gemini" style="font-family: inherit; font-size: 0.86rem; color: #F8FAFC; line-height: 1.55; margin: 0; white-space: pre-wrap;"></pre>
+          </div>
+        </div>
+
+        <!-- ==========================================================
              VISUELS CEO : GRAPH 30J & CARTE LEAFLET SÉNÉGAL
              ========================================================== -->
         <div class="ceo-visuals-grid">

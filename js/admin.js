@@ -19,6 +19,7 @@ import { commerciaux as commerciauxSecours } from './data.js';
 import { initialiserAdminV2, calculerEtAfficherKpisCEO, chargerParrainages } from './admin-v2.js';
 import { rafraichirTailleCarte } from './map-admin.js';
 import { genererContratPDFA4 } from './contrat-pdf.js';
+import { genererSyntheseCEODuJour } from './gemini-copilot.js';
 
 // Variables d'état local
 let listeCommerciaux = [];
@@ -43,6 +44,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   await chargerLeads();
   await chargerAvisAdmin();
   await initialiserAdminV2(listeCommerciaux, listeLeads);
+  initialiserRadarAgentsEnLigne();
+  initialiserSyntheseCEOGemini();
 });
 
 /**
@@ -3308,4 +3311,165 @@ document.addEventListener('DOMContentLoaded', () => {
   initialiserEcouteursAnnoncesAdmin();
   initialiserEcouteursAuditAdmin();
 });
+
+// ==============================================================================
+// 27. RADAR TERRAIN EN DIRECT (WHO IS ONLINE RIGHT NOW) — DIRECTION CEO
+// ==============================================================================
+async function actualiserRadarAgentsEnLigne() {
+  const conteneur = document.getElementById('conteneur-radar-agents');
+  const badgeCount = document.getElementById('badge-agents-en-ligne-count');
+  if (!conteneur) return;
+
+  let heartbeats = [];
+  try {
+    if (estSupabaseConfigure() && supabase) {
+      const { data } = await supabase
+        .from('journal_activites')
+        .select('*')
+        .eq('type_action', 'HEARTBEAT_PRESENCE')
+        .order('created_at', { ascending: false })
+        .limit(20);
+      if (Array.isArray(data)) heartbeats = data;
+    }
+  } catch (err) {
+    console.debug('Radar heartbeats silencieux:', err);
+  }
+
+  // Vérifier également dans le localStorage local
+  try {
+    const presenceLocale = localStorage.getItem('lat_commercial_presence');
+    if (presenceLocale) {
+      const parsed = JSON.parse(presenceLocale);
+      if (parsed && parsed.commercial_id) {
+        const existe = heartbeats.some(h => String(h.commercial_id) === String(parsed.commercial_id));
+        if (!existe) {
+          heartbeats.unshift({
+            commercial_id: parsed.commercial_id,
+            commercial_nom: parsed.commercial_nom,
+            created_at: parsed.horodatage,
+            details: {
+              ecran: parsed.ecran_actif,
+              ville: parsed.ville,
+              appareil: 'Mobile / Smartphone'
+            }
+          });
+        }
+      }
+    }
+  } catch (e) {}
+
+  const agents = listeCommerciaux.length > 0 ? listeCommerciaux : commerciauxSecours;
+  const maintenant = Date.now();
+  let connectesCount = 0;
+
+  const html = agents.map(agent => {
+    const hb = heartbeats.find(h => String(h.commercial_id) === String(agent.id) || (h.commercial_nom && h.commercial_nom.toLowerCase().includes(agent.prenom.toLowerCase())));
+
+    let statutBadge = '⚪ Déconnecté';
+    let couleurPastille = '#94A3B8';
+    let ecranActif = 'Hors-ligne';
+    let delaiTexte = 'Inactif aujourd\'hui';
+    let estEnLigne = false;
+
+    if (hb && hb.created_at) {
+      const diffMs = maintenant - new Date(hb.created_at).getTime();
+      const diffMinutes = Math.floor(diffMs / 60000);
+
+      if (diffMinutes < 3) {
+        statutBadge = '🟢 En Ligne';
+        couleurPastille = '#10B981';
+        ecranActif = hb.details?.ecran || 'Navigation CRM Terrain';
+        delaiTexte = diffMinutes === 0 ? 'À l\'instant (quelques sec.)' : `Il y a ${diffMinutes} min`;
+        estEnLigne = true;
+        connectesCount++;
+      } else if (diffMinutes < 15) {
+        statutBadge = '🟡 En pause';
+        couleurPastille = '#F59E0B';
+        ecranActif = hb.details?.ecran || 'Dernier écran visité';
+        delaiTexte = `Il y a ${diffMinutes} min`;
+      } else {
+        delaiTexte = `Dernière vue à ${new Date(hb.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`;
+      }
+    }
+
+    const telPur = String(agent.whatsapp || agent.telephone || '774587474').replace(/\D/g, '');
+    const photo = agent.photo_url || 'images/logo.svg';
+
+    return `
+      <div style="background: #FFFFFF; border: 1.5px solid ${estEnLigne ? '#10B981' : '#E2E8F0'}; border-radius: 12px; padding: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; flex-direction: column; gap: 8px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <img src="${photo}" alt="${agent.prenom}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid ${couleurPastille};">
+            <div>
+              <div style="font-weight: 800; color: #0B1F3A; font-size: 0.95rem;">${agent.prenom} ${agent.nom}</div>
+              <div style="font-size: 0.78rem; color: #64748B;">📍 ${agent.ville || 'Dakar'} • ${agent.role || 'Conseiller'}</div>
+            </div>
+          </div>
+          <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 0.75rem; font-weight: 800; background: ${estEnLigne ? '#ECFDF5' : '#F1F5F9'}; color: ${estEnLigne ? '#065F46' : '#64748B'}; padding: 4px 8px; border-radius: 20px;">
+            ${statutBadge}
+          </span>
+        </div>
+
+        <div style="background: #F8FAFC; border-radius: 8px; padding: 8px 10px; font-size: 0.78rem; color: #334155; line-height: 1.4;">
+          <div><strong>Écran actif :</strong> <span style="color: #1E3A8A;">${ecranActif}</span></div>
+          <div style="color: #64748B; font-size: 0.74rem; margin-top: 2px;">⏱️ ${delaiTexte}</div>
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-top: 2px;">
+          <a href="https://wa.me/221${telPur}?text=${encodeURIComponent(`Bonjour ${agent.prenom}, Direction Lou Ame Tay. Point d'étape sur tes visites terrain aujourd'hui.`)}" target="_blank" class="comm-btn-contour" style="flex: 1; text-align: center; text-decoration: none; padding: 6px; font-size: 0.76rem; border-color: #25D366; color: #166534; font-weight: 700; border-radius: 6px;">
+            💬 WhatsApp
+          </a>
+          <a href="tel:+221${telPur}" class="comm-btn-contour" style="flex: 1; text-align: center; text-decoration: none; padding: 6px; font-size: 0.76rem; font-weight: 700; border-radius: 6px;">
+            📞 Appeler
+          </a>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  conteneur.innerHTML = html;
+  if (badgeCount) {
+    badgeCount.textContent = `🟢 ${connectesCount} Agent(s) Connecté(s)`;
+  }
+}
+
+function initialiserRadarAgentsEnLigne() {
+  const btnRafraichir = document.getElementById('btn-rafraichir-radar');
+  btnRafraichir?.addEventListener('click', async () => {
+    afficherToast('Actualisation du radar terrain en direct... 📡');
+    await actualiserRadarAgentsEnLigne();
+  });
+
+  actualiserRadarAgentsEnLigne();
+  setInterval(actualiserRadarAgentsEnLigne, 30000);
+}
+
+// ==============================================================================
+// 28. SYNTHÈSE STRATÉGIQUE GEMINI COPILOT DU JOUR POUR LE CEO
+// ==============================================================================
+function initialiserSyntheseCEOGemini() {
+  const btnGenerer = document.getElementById('btn-generer-synthese-ceo-gemini');
+  const bloc = document.getElementById('bloc-resultat-synthese-gemini');
+  const texte = document.getElementById('texte-synthese-gemini');
+
+  btnGenerer?.addEventListener('click', () => {
+    btnGenerer.disabled = true;
+    btnGenerer.innerHTML = '<span>Analyse Gemini en cours... ⏳</span>';
+
+    setTimeout(() => {
+      const rapport = genererSyntheseCEODuJour({
+        leads: listeLeads,
+        commissions: typeof listeCommissionsAdmin !== 'undefined' ? listeCommissionsAdmin : [],
+        commerciaux: listeCommerciaux
+      });
+
+      if (texte) texte.textContent = rapport.briefingTexte;
+      if (bloc) bloc.style.display = 'block';
+
+      btnGenerer.disabled = false;
+      btnGenerer.innerHTML = '<span>✨ Actualiser le Briefing</span>';
+      afficherToast('✓ Synthèse stratégique Gemini Copilot générée avec succès ! ✨');
+    }, 500);
+  });
+}
 

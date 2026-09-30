@@ -1093,6 +1093,12 @@
       <button type="button" class="comm-tab-btn" data-panel="panel-avis">
         <span>⭐ Avis Clients</span>
       </button>
+      <button type="button" class="comm-tab-btn" id="btn-ouvrir-gemini-copilot" style="background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%); color: #FFFFFF; border: none; font-weight: 800;">
+        <span>✨ Copilot IA (Gemini)</span>
+      </button>
+      <button type="button" class="comm-tab-btn" id="btn-ouvrir-pass-wallet" style="background: #0B1F3A; color: #F8E294; border: 1px solid #C9A227; font-weight: 700;">
+        <span>💳 Mon Pass Wallet NFC</span>
+      </button>
     </nav>
 
     <!-- Contenu des Onglets -->
@@ -1899,11 +1905,126 @@
     </div>
   </div>
 
+  <!-- MODAL GEMINI COPILOT (PITCH & PROSPECTION IA TERRAIN) -->
+  <div class="comm-modal-overlay" id="modal-gemini-copilot">
+    <div class="comm-modal-card" style="max-width: 680px; max-height: 90vh; overflow-y: auto;">
+      <button type="button" class="comm-modal-close" id="btn-fermer-modal-copilot">✕</button>
+
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1rem; border-bottom: 1px solid var(--bordure); padding-bottom: 0.75rem;">
+        <div style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #fff;">
+          ✨
+        </div>
+        <div>
+          <h3 style="font-size: 1.25rem; color: var(--bleu-profond); margin: 0; font-weight: 800;">
+            Gemini Copilot — IA Terrain Lou Ame Tay
+          </h3>
+          <p style="margin: 0; font-size: 0.8rem; color: var(--texte-muet);">
+            Générateur de pitch percutant, message WhatsApp et parade aux objections
+          </p>
+        </div>
+      </div>
+
+      <div style="background: #F8FAFC; border: 1px solid var(--bordure); border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+          <div class="comm-form-group">
+            <label for="copilot-profil-zone">Zone & Profil de l'Établissement</label>
+            <select id="copilot-profil-zone" class="comm-input">
+              <option value="almadies_lounge">Almadies / Ngor / Virage — Lounge Chic & Vue Mer</option>
+              <option value="plateau_affaires">Plateau / Point E — Déjeuners d'Affaires Express</option>
+              <option value="saly_hotel">Saly / Petite Côte — Hôtels & Terrasses Balnéaires</option>
+              <option value="saloum_casamance">Casamance & Saloum — Écolodges & Auberges</option>
+              <option value="touba_fastfood">Touba / Kaolack — Fast-Food & Grand CHR</option>
+            </select>
+          </div>
+          <div class="comm-form-group">
+            <label for="copilot-formule-visee">Formule SaaS Ciblée</label>
+            <select id="copilot-formule-visee" class="comm-input">
+              <option value="Xéweul">Formule Xéweul (35 000 F — KDS + Menu QR)</option>
+              <option value="Nio Far">Formule Nio Far (25 000 F — Serveur Mobile)</option>
+              <option value="Tàmbali">Formule Tàmbali (15 000 F — Menu QR Seul)</option>
+              <option value="Sur Mesure">Sur Mesure (Multi-sites / Franchise)</option>
+            </select>
+          </div>
+        </div>
+        <div class="comm-form-group" style="margin-bottom: 0.75rem;">
+          <label for="copilot-resto-nom">Nom du Restaurant Visité (Optionnel)</label>
+          <input type="text" id="copilot-resto-nom" class="comm-input" placeholder="Ex: Chez Loutcha, Le Jardin Thaï, Hôtel Teranga...">
+        </div>
+        <button type="button" id="btn-generer-pitch-ia" class="comm-btn-primary" style="width: 100%; justify-content: center; background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 100%);">
+          <span>✨ Générer le Pitch & le Message WhatsApp</span>
+        </button>
+      </div>
+
+      <!-- Résultat Généré par Gemini -->
+      <div id="zone-resultat-copilot" style="display: none; animation: fadeIn 0.3s ease;">
+        <!-- 1. Accroche Orale -->
+        <div style="background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 10px; padding: 1rem; margin-bottom: 1rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <h4 style="margin: 0; color: #1E3A8A; font-size: 0.95rem; font-weight: 800;">
+              🗣️ L'Accroche Verbale Terrain (30 secondes)
+            </h4>
+            <button type="button" id="btn-copier-accroche" class="comm-btn-contour" style="padding: 4px 8px; font-size: 0.75rem;">
+              📋 Copier
+            </button>
+          </div>
+          <p id="texte-accroche-orale" style="font-size: 0.88rem; color: #1E293B; line-height: 1.5; margin: 0; font-style: italic;"></p>
+        </div>
+
+        <!-- 2. Message WhatsApp Prêt à l'Envoi -->
+        <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 10px; padding: 1rem; margin-bottom: 1rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <h4 style="margin: 0; color: #166534; font-size: 0.95rem; font-weight: 800;">
+              📲 Message WhatsApp de Prospection
+            </h4>
+            <button type="button" id="btn-ouvrir-wa-copilot" class="comm-btn-gold" style="padding: 4px 10px; font-size: 0.75rem;">
+              💬 Ouvrir WhatsApp
+            </button>
+          </div>
+          <pre id="texte-message-wa" style="font-family: inherit; font-size: 0.82rem; color: #1E293B; line-height: 1.45; margin: 0; white-space: pre-wrap; background: #FFFFFF; padding: 10px; border-radius: 8px; border: 1px solid #DCFCE7;"></pre>
+        </div>
+
+        <!-- 3. Parade aux Objections -->
+        <div style="background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 10px; padding: 1rem;">
+          <h4 style="margin: 0 0 0.5rem 0; color: #92400E; font-size: 0.95rem; font-weight: 800;">
+            🛡️ Parades aux Objections Fréquentes
+          </h4>
+          <div id="liste-objections-copilot" style="font-size: 0.82rem; color: #451A03; line-height: 1.45;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL PASS DIGITAL WALLET NFC -->
+  <div class="comm-modal-overlay" id="modal-pass-wallet-comm">
+    <div class="comm-modal-card" style="max-width: 480px; text-align: center;">
+      <button type="button" class="comm-modal-close" id="btn-fermer-modal-wallet-comm">✕</button>
+      <div style="font-size: 3rem; margin-bottom: 0.5rem;">💳</div>
+      <h3 style="font-size: 1.3rem; color: var(--bleu-profond); font-weight: 800; margin-bottom: 0.5rem;">
+        Mon Pass Digital Porte-Cartes
+      </h3>
+      <p style="font-size: 0.85rem; color: var(--texte-muet); margin-bottom: 1.5rem; line-height: 1.4;">
+        Enregistrez votre carte de conseiller Lou Ame Tay dans votre smartphone ou partagez-la par contact NFC avec vos prospects sans connexion internet.
+      </p>
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <button type="button" id="btn-pass-telecharger-nfc" class="comm-btn-primary" style="padding: 12px; justify-content: center; font-size: 0.9rem;">
+          <span>📲 Télécharger le Pass Contact NFC (.vcf universel)</span>
+        </button>
+        <button type="button" id="btn-pass-google-wallet" class="comm-btn-contour" style="padding: 12px; justify-content: center; font-size: 0.9rem; background: #1A73E8; color: #FFFFFF; border: none;">
+          <span>💳 Enregistrer dans Google Wallet (Android)</span>
+        </button>
+        <button type="button" id="btn-pass-apple-wallet" class="comm-btn-contour" style="padding: 12px; justify-content: center; font-size: 0.9rem; background: #000000; color: #FFFFFF; border: none;">
+          <span>🍏 Enregistrer dans Apple Wallet (.pkpass)</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Notification Toast -->
   <div id="toast" class="toast-notification" role="status" aria-live="polite"></div>
 
   <!-- Scripts -->
   <script src="js/env.js"></script>
+  <script type="module" src="js/pwa-install.js"></script>
   <script type="module" src="js/supabase-client.js"></script>
   <script type="module" src="js/commercial.js"></script>
 </body>

@@ -111,11 +111,51 @@ function afficherModalChoixWallet(commercial, baseUrl) {
   if (btnGoogle) btnGoogle.href = urlGoogle;
   if (btnVcf) {
     btnVcf.onclick = () => {
-      const btnEnregistrer = document.getElementById('btn-enregistrer-contact');
-      if (btnEnregistrer) btnEnregistrer.click();
+      telechargerPassDigitalNFC(commercial);
       modal.classList.remove('active', 'actif');
     };
   }
 
   modal.classList.add('active', 'actif');
+}
+
+/**
+ * Génère et télécharge une vCard 4.0 enrichie compatible NFC & Porte-cartes natif (iOS / Android)
+ * Fonctionne 100% hors-ligne sans dépendance serveur
+ */
+export function telechargerPassDigitalNFC(commercial) {
+  if (!commercial) return;
+  const prenom = commercial.prenom || 'Conseiller';
+  const nom = commercial.nom || 'Lou Ame Tay';
+  const tel = commercial.telephone || '+221 77 458 74 74';
+  const whatsapp = commercial.whatsapp || '221774587474';
+  const email = commercial.email || 'contact@louametay.online';
+  const role = commercial.role || 'Conseiller Commercial CHR';
+  const ville = commercial.ville || 'Dakar, Sénégal';
+  const siteUrl = 'https://louametay.online';
+
+  const vcard = [
+    'BEGIN:VCARD',
+    'VERSION:4.0',
+    `N:${nom};${prenom};;;`,
+    `FN:${prenom} ${nom}`,
+    `ORG:Lou Ame Tay SASU;Médias Graphisme Sénégal`,
+    `TITLE:${role}`,
+    `TEL;TYPE=cell,voice;VALUE=uri:tel:${tel.replace(/\s+/g, '')}`,
+    `EMAIL;TYPE=work:${email}`,
+    `URL:${siteUrl}`,
+    `ADR;TYPE=work:;;Grand Standing;Thiès;;;Sénégal`,
+    `NOTE:Plateforme Digitale de Commande sur Table & Gestion CHR (Menu QR Code + KDS Cuisine). Direction Générale : M. Mbaye Babacar GUEYE (+221 77 458 74 74). WhatsApp : https://wa.me/${whatsapp.replace(/\D/g, '')}`,
+    'CATEGORIES:Lou Ame Tay,CHR,Restaurant,Partenaire',
+    'END:VCARD'
+  ].join('\r\n');
+
+  const blob = new Blob([vcard], { type: 'text/vcard;charset=utf-8;' });
+  const lien = document.createElement('a');
+  lien.href = URL.createObjectURL(blob);
+  lien.download = `LouAmeTay_Pass_${prenom}_${nom}.vcf`;
+  document.body.appendChild(lien);
+  lien.click();
+  document.body.removeChild(lien);
+  URL.revokeObjectURL(lien.href);
 }

@@ -6,19 +6,28 @@
  * Stratégie : Network First pour le HTML / API, Cache First pour les assets statiques
  */
 
-const CACHE_NAME = 'lou-ame-tay-v2';
+const CACHE_NAME = 'lou-ame-tay-v3';
 
 const ASSETS_A_METTRE_EN_CACHE = [
   '/',
   '/index.html',
   '/carte.html',
   '/login.html',
+  '/commercial.html',
+  '/commercial',
+  '/admin.html',
   '/css/style.css',
   '/css/admin.css',
   '/js/data.js',
   '/js/app.js',
   '/js/carte.js',
+  '/js/commercial.js',
+  '/js/contrat-pdf.js',
+  '/js/gemini-copilot.js',
+  '/js/offline-sync.js',
+  '/js/wallet-pass.js',
   '/js/supabase-client.js',
+  '/js/audit.js',
   '/js/lead-scoring.js',
   '/js/analytics.js',
   '/js/notifications.js',
@@ -32,14 +41,20 @@ const ASSETS_A_METTRE_EN_CACHE = [
   '/images/commercial1.jpg',
   '/images/commercial2.jpg',
   '/images/commercial3.jpg',
-  '/images/commercial4.jpg'
+  '/images/commercial4.jpg',
+  '/images/image pour site web crm louame tay commercial/louametay-commerciale-terrain.jpg',
+  '/images/image pour site web crm louame tay commercial/louametay-contrat-signe.jpg',
+  '/images/image pour site web crm louame tay commercial/louametay-commerciale-vue-mer.jpg',
+  '/images/image pour site web crm louame tay commercial/louametay-demo-equipe.jpg'
 ];
 
 // Installation : mise en cache des assets essentiels
 self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_A_METTRE_EN_CACHE);
+      return cache.addAll(ASSETS_A_METTRE_EN_CACHE).catch((err) => {
+        console.warn('Certains assets optionnels n\'ont pu être mis en cache :', err);
+      });
     }).then(() => self.skipWaiting())
   );
 });
