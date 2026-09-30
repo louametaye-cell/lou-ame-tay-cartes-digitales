@@ -11,102 +11,172 @@
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/admin.css">
 </head>
-<body class="page-auth-fond">
+<body class="page-auth-fond page-auth-split">
 
-  <div class="auth-carte-conteneur">
-    <!-- En-tête de la carte de connexion -->
-    <div class="auth-en-tete">
-      <a href="index.html" class="auth-logo-lien" title="Retour à l'annuaire public">
-        <img src="images/logo.svg" alt="Logo Lou Ame Tay" class="auth-logo" width="64" height="64">
-      </a>
-      <h1 class="auth-titre">Espace Administration</h1>
-      <p class="auth-soustitre">Gestion des cartes de visite digitales & équipe terrain</p>
+  <div class="auth-split-wrapper">
+    <!-- 1. PANNEAU GAUCHE : IMMERSION TERRAIN & PILOTAGE DE DIRECTION -->
+    <div class="auth-panneau-visuel" id="auth-visuel-fond" style="background-image: url('images/auth/louametay-demo-equipe.jpg');">
+      <div class="auth-visuel-overlay"></div>
+      <div class="auth-visuel-contenu">
+        <div class="auth-badge-prestige">
+          <span class="badge-dot"></span>
+          <span>DIRECTION GÉNÉRALE & PILOTAGE 2.0</span>
+        </div>
+        <h2 class="auth-visuel-titre">Supervisez la force de vente terrain en temps réel.</h2>
+        <p class="auth-visuel-description">
+          Cartes de visite digitales, traçabilité des rendez-vous par GPS certifié, validation des notes de frais et pilotage des commissions en direct.
+        </p>
+
+        <!-- Mini-statuts de réassurance -->
+        <div class="auth-visuel-pills">
+          <div class="visuel-pill">
+            <span class="pill-icone">📍</span>
+            <span>Audit & Pointage GPS &lt; 250m certifié</span>
+          </div>
+          <div class="visuel-pill">
+            <span class="pill-icone">💰</span>
+            <span>Taux de commissions administrable</span>
+          </div>
+          <div class="visuel-pill">
+            <span class="pill-icone">🧾</span>
+            <span>Remboursements Wave & OM avec justificatif</span>
+          </div>
+        </div>
+
+        <!-- Galerie miniatures interactives -->
+        <div class="auth-mini-galerie">
+          <span class="mini-galerie-label">Ambiances terrain officielles Lou Ame Tay :</span>
+          <div class="mini-galerie-vignettes">
+            <button type="button" class="vignette-btn active" data-img="images/auth/louametay-demo-equipe.jpg" title="Démo Équipe en Restaurant">
+              <img src="images/auth/louametay-demo-equipe.jpg" alt="Démo Équipe">
+            </button>
+            <button type="button" class="vignette-btn" data-img="images/auth/louametay-contrat-signe.jpg" title="Signature de Contrat & Poignée de Main">
+              <img src="images/auth/louametay-contrat-signe.jpg" alt="Contrat Signé">
+            </button>
+            <button type="button" class="vignette-btn" data-img="images/auth/louametay-commerciale-vue-mer.jpg" title="Prospection Commerciale Vue Mer">
+              <img src="images/auth/louametay-commerciale-vue-mer.jpg" alt="Commerciale Vue Mer">
+            </button>
+            <button type="button" class="vignette-btn" data-img="images/auth/louametay-commerciale-terrain.jpg" title="Commerciale Terrain Dakar">
+              <img src="images/auth/louametay-commerciale-terrain.jpg" alt="Commerciale Terrain">
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Zone de message d'alerte / succès / erreur -->
-    <div id="auth-alerte" class="auth-message-alerte" style="display: none;" role="alert"></div>
-
-    <!-- Formulaire de connexion Supabase Auth -->
-    <form id="form-login" class="auth-formulaire">
-      <div class="champ-groupe">
-        <label for="email" class="champ-label">Adresse email administrateur</label>
-        <div class="input-avec-icone">
-          <span class="icone-champ" aria-hidden="true">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-              <polyline points="22,6 12,13 2,6"></polyline>
-            </svg>
-          </span>
-          <input 
-            type="email" 
-            id="email" 
-            name="email" 
-            class="champ-input" 
-            value="admin@louametay.com"
-            placeholder="admin@louametay.com" 
-            required 
-            autocomplete="email"
-          >
+    <!-- 2. PANNEAU DROIT : FORMULAIRE ADMIN -->
+    <div class="auth-panneau-formulaire">
+      <div class="auth-carte-interne">
+        <!-- En-tête de la carte de connexion -->
+        <div class="auth-en-tete">
+          <a href="index.html" class="auth-logo-lien" title="Retour à l'annuaire public">
+            <img src="images/logo.svg" alt="Logo Lou Ame Tay" class="auth-logo" width="60" height="60">
+          </a>
+          <h1 class="auth-titre">Espace Administration</h1>
+          <p class="auth-soustitre">Accès sécurisé réservé à la direction générale</p>
         </div>
-      </div>
 
-      <div class="champ-groupe">
-        <div class="champ-label-ligne">
-          <label for="password" class="champ-label">Mot de passe</label>
-          <a href="#" id="lien-mdp-oublie" class="lien-discret" title="Réinitialiser le mot de passe">Mot de passe oublié ?</a>
-        </div>
-        <div class="input-avec-icone" style="position: relative;">
-          <span class="icone-champ" aria-hidden="true">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-            </svg>
-          </span>
-          <input 
-            type="password" 
-            id="password" 
-            name="password" 
-            class="champ-input" 
-            placeholder="••••••••••••" 
-            required 
-            autocomplete="current-password"
-            style="padding-right: 42px;"
-          >
-          <button type="button" id="btn-toggle-mdp" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #64748B; padding: 4px;" title="Afficher/Masquer le mot de passe" aria-label="Afficher le mot de passe">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-              <circle cx="12" cy="12" r="3"></circle>
-            </svg>
+        <!-- Zone de message d'alerte / succès / erreur -->
+        <div id="auth-alerte" class="auth-message-alerte" style="display: none;" role="alert"></div>
+
+        <!-- Formulaire de connexion Supabase Auth -->
+        <form id="form-login" class="auth-formulaire">
+          <div class="champ-groupe">
+            <label for="email" class="champ-label">Adresse email administrateur</label>
+            <div class="input-avec-icone">
+              <span class="icone-champ" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                  <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
+              </span>
+              <input 
+                type="email" 
+                id="email" 
+                name="email" 
+                class="champ-input" 
+                value="admin@louametay.com"
+                placeholder="admin@louametay.com" 
+                required 
+                autocomplete="email"
+              >
+            </div>
+          </div>
+
+          <div class="champ-groupe">
+            <div class="champ-label-ligne">
+              <label for="password" class="champ-label">Mot de passe</label>
+              <a href="#" id="lien-mdp-oublie" class="lien-discret" title="Réinitialiser le mot de passe">Mot de passe oublié ?</a>
+            </div>
+            <div class="input-avec-icone" style="position: relative;">
+              <span class="icone-champ" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+              </span>
+              <input 
+                type="password" 
+                id="password" 
+                name="password" 
+                class="champ-input" 
+                placeholder="••••••••••••" 
+                required 
+                autocomplete="current-password"
+                style="padding-right: 42px;"
+              >
+              <button type="button" id="btn-toggle-mdp" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #64748B; padding: 4px;" title="Afficher/Masquer le mot de passe" aria-label="Afficher le mot de passe">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" id="btn-soumettre-login" class="btn btn-primaire btn-auth-soumettre">
+            <span id="btn-login-texte">Se connecter à l'espace admin</span>
+            <span id="btn-login-spinner" class="spinner-chargement" style="display: none;"></span>
           </button>
+        </form>
+
+        <!-- Pied de carte -->
+        <div class="auth-pied">
+          <a href="index.html" class="auth-retour-lien">
+            ← Retourner à l'annuaire public
+          </a>
+          <span class="auth-badge-securise" style="display: inline-flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#25D366" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+            Accès sécurisé SSL & Supabase RLS
+          </span>
         </div>
       </div>
-
-      <button type="submit" id="btn-soumettre-login" class="btn btn-primaire btn-auth-soumettre">
-        <span id="btn-login-texte">Se connecter à l'espace admin</span>
-        <span id="btn-login-spinner" class="spinner-chargement" style="display: none;"></span>
-      </button>
-    </form>
-
-    <!-- Pied de carte -->
-    <div class="auth-pied">
-      <a href="index.html" class="auth-retour-lien">
-        ← Retourner à l'annuaire public
-      </a>
-      <span class="auth-badge-securise" style="display: inline-flex; align-items: center; gap: 6px;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#25D366" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-        </svg>
-        Accès sécurisé SSL & Supabase RLS
-      </span>
     </div>
   </div>
 
   <script src="js/env.js"></script>
-  <!-- Script d'authentification Supabase -->
+  <!-- Script d'authentification Supabase & Switcher d'ambiance visuelle -->
   <script type="module">
     import { supabase, estSupabaseConfigure, enregistrerConfigurationSupabase, SUPABASE_URL, SUPABASE_ANON_KEY } from './js/supabase-client.js';
 
     document.addEventListener('DOMContentLoaded', async () => {
+      // 1. Switcher de visuels officiel
+      const panneauVisuel = document.getElementById('auth-visuel-fond');
+      const boutonsVignettes = document.querySelectorAll('.vignette-btn');
+      boutonsVignettes.forEach(btn => {
+        btn.addEventListener('click', () => {
+          boutonsVignettes.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const nouvelleImage = btn.getAttribute('data-img');
+          if (panneauVisuel && nouvelleImage) {
+            panneauVisuel.style.backgroundImage = `url('${nouvelleImage}')`;
+          }
+        });
+      });
+
+      // 2. Gestion de l'authentification
       const form = document.getElementById('form-login');
       const alerte = document.getElementById('auth-alerte');
       const btnSoumettre = document.getElementById('btn-soumettre-login');
@@ -116,7 +186,6 @@
       const btnToggleMdp = document.getElementById('btn-toggle-mdp');
       const inputMdp = document.getElementById('password');
 
-      // Afficher / masquer le mot de passe en clair
       if (btnToggleMdp && inputMdp) {
         btnToggleMdp.addEventListener('click', () => {
           const estPassword = inputMdp.type === 'password';
@@ -125,7 +194,6 @@
         });
       }
 
-      // Redirection immédiate si déjà connecté
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
@@ -136,7 +204,6 @@
         console.warn('Vérification session :', err);
       }
 
-      // Mot de passe oublié
       if (lienMdpOublie) {
         lienMdpOublie.addEventListener('click', async (e) => {
           e.preventDefault();
@@ -159,7 +226,6 @@
         });
       }
 
-      // Soumission formulaire connexion
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         cacherMessage();

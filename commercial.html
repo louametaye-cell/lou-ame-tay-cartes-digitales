@@ -109,42 +109,200 @@
       color: #fca5a5;
     }
 
-    /* Écran de connexion */
-    .comm-login-card {
-      max-width: 440px;
-      margin: 3rem auto;
+    /* Écran de connexion Split Pro avec dégradé et photos officielles */
+    .comm-login-split-card {
+      max-width: 980px;
+      margin: 2.5rem auto;
       background: #FFFFFF;
       border-radius: var(--arrondi);
-      padding: 2.25rem 2rem;
-      box-shadow: var(--ombre);
+      box-shadow: 0 25px 60px -15px rgba(11, 31, 58, 0.25);
       border: 1px solid var(--bordure);
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      overflow: hidden;
+      min-height: 560px;
+    }
+
+    .comm-login-visuel-panel {
+      position: relative;
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 2.5rem 2rem;
+      color: #FFFFFF;
+      transition: background-image 0.4s ease-in-out;
+    }
+
+    .comm-login-visuel-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(145deg, rgba(11, 31, 58, 0.92) 0%, rgba(15, 23, 42, 0.82) 50%, rgba(201, 162, 39, 0.38) 100%);
+      z-index: 1;
+    }
+
+    .comm-login-visuel-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .comm-badge-lux {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(201, 162, 39, 0.25);
+      border: 1px solid rgba(201, 162, 39, 0.6);
+      color: #F8E294;
+      padding: 5px 12px;
+      border-radius: 9999px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      backdrop-filter: blur(6px);
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      background: #22C55E;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #22C55E;
+    }
+
+    .comm-visuel-titre {
+      font-size: 1.55rem;
+      font-weight: 800;
+      line-height: 1.25;
+      color: #FFFFFF;
+      margin-bottom: 0.75rem;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+
+    .comm-visuel-desc {
+      font-size: 0.88rem;
+      line-height: 1.5;
+      color: rgba(255, 255, 255, 0.85);
+      margin-bottom: 1.25rem;
+    }
+
+    .comm-visuel-pills {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .comm-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      padding: 6px 12px;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      color: #FFFFFF;
+      font-weight: 600;
+    }
+
+    .comm-mini-switcher {
+      border-top: 1px solid rgba(255, 255, 255, 0.18);
+      padding-top: 0.85rem;
+    }
+
+    .comm-switcher-title {
+      display: block;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: rgba(255, 255, 255, 0.75);
+      margin-bottom: 0.4rem;
+      font-weight: 700;
+    }
+
+    .comm-switcher-thumbs {
+      display: flex;
+      gap: 6px;
+    }
+
+    .comm-thumb-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 2px solid transparent;
+      padding: 0;
+      cursor: pointer;
+      background: none;
+      transition: all 0.2s ease;
+      opacity: 0.65;
+    }
+
+    .comm-thumb-btn:hover,
+    .comm-thumb-btn.active {
+      opacity: 1;
+      border-color: #C9A227;
+      transform: scale(1.08);
+      box-shadow: 0 4px 10px rgba(201, 162, 39, 0.4);
+    }
+
+    .comm-thumb-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .comm-login-form-panel {
+      padding: 2.5rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       text-align: center;
     }
 
+    .comm-login-inner {
+      width: 100%;
+      max-width: 360px;
+    }
+
     .comm-login-avatar {
-      width: 72px;
-      height: 72px;
+      width: 64px;
+      height: 64px;
       background: rgba(201, 162, 39, 0.15);
       border: 2px solid var(--dore-lux);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 0 auto 1.5rem;
-      font-size: 2rem;
+      margin: 0 auto 1.25rem;
+      font-size: 1.75rem;
     }
 
-    .comm-login-card h2 {
-      font-size: 1.4rem;
-      color: var(--bleu-profond);
-      margin: 0 0 0.5rem;
-      font-weight: 800;
-    }
-
-    .comm-login-card p {
-      color: var(--texte-muet);
-      font-size: 0.9rem;
-      margin-bottom: 2rem;
+    @media (max-width: 860px) {
+      .comm-login-split-card {
+        grid-template-columns: 1fr;
+        max-width: 440px;
+        margin: 1.5rem auto;
+      }
+      .comm-login-visuel-panel {
+        min-height: 250px;
+        padding: 1.5rem;
+      }
+      .comm-visuel-titre {
+        font-size: 1.3rem;
+      }
+      .comm-visuel-desc,
+      .comm-visuel-pills {
+        display: none;
+      }
+      .comm-login-form-panel {
+        padding: 2rem 1.5rem;
+      }
     }
 
     .comm-form-group {
@@ -711,51 +869,108 @@
   </header>
 
   <!-- =========================================================================
-       2. ÉCRAN DE CONNEXION EXPRESS (CODE PIN)
+       2. ÉCRAN DE CONNEXION EXPRESS SPLIT PRO (CODE PIN & VISUELS OFFICIELS)
        ========================================================================= -->
-  <section id="section-connexion-comm" class="comm-login-card">
-    <div class="comm-login-avatar">💼</div>
-    <h2>Accès Espace Commercial</h2>
-    <p>Saisissez votre numéro WhatsApp ou votre e-mail avec votre code PIN personnel pour accéder à vos outils terrain.</p>
+  <section id="section-connexion-comm" class="comm-login-split-card">
+    <!-- CÔTÉ VISUEL GAUCHE : AMBIANCE FORCE DE VENTE 2.0 -->
+    <div class="comm-login-visuel-panel" id="comm-visuel-fond" style="background-image: url('images/auth/louametay-commerciale-vue-mer.jpg');">
+      <div class="comm-login-visuel-overlay"></div>
+      <div class="comm-login-visuel-content">
+        <div class="comm-badge-lux">
+          <span class="pulse-dot"></span>
+          <span>FORCE DE VENTE TERRAIN 2.0</span>
+        </div>
+        <h2 class="comm-visuel-titre">L'application mobile de terrain des conseillers Lou Ame Tay.</h2>
+        <p class="comm-visuel-desc">
+          Enregistrez vos prospects, pointez votre présence GPS sur place, suivez vos commissions et faites-vous rembourser vos frais de transport.
+        </p>
 
-    <form id="form-connexion-comm">
-      <div class="comm-form-group">
-        <label for="comm-login-identifiant">Numéro WhatsApp ou E-mail</label>
-        <input 
-          type="text" 
-          id="comm-login-identifiant" 
-          class="comm-input" 
-          placeholder="Ex: 771234567 ou email@louametay.com" 
-          required 
-          autocomplete="username"
-        >
+        <div class="comm-visuel-pills">
+          <div class="comm-pill">
+            <span>📍</span>
+            <span>Pointage GPS &lt; 250m en restaurant</span>
+          </div>
+          <div class="comm-pill">
+            <span>💰</span>
+            <span id="comm-pill-taux">Commissions directes sur contrats</span>
+          </div>
+          <div class="comm-pill">
+            <span>🧾</span>
+            <span>Remboursement transport Wave &amp; OM</span>
+          </div>
+        </div>
+
+        <div class="comm-mini-switcher">
+          <span class="comm-switcher-title">Photos officielles de terrain :</span>
+          <div class="comm-switcher-thumbs">
+            <button type="button" class="comm-thumb-btn active" data-img="images/auth/louametay-commerciale-vue-mer.jpg" title="Prospection Vue Mer">
+              <img src="images/auth/louametay-commerciale-vue-mer.jpg" alt="Vue Mer">
+            </button>
+            <button type="button" class="comm-thumb-btn" data-img="images/auth/louametay-contrat-signe.jpg" title="Signature & Commission">
+              <img src="images/auth/louametay-contrat-signe.jpg" alt="Signature Contrat">
+            </button>
+            <button type="button" class="comm-thumb-btn" data-img="images/auth/louametay-commerciale-terrain.jpg" title="Agent de Terrain Dakar">
+              <img src="images/auth/louametay-commerciale-terrain.jpg" alt="Terrain Dakar">
+            </button>
+            <button type="button" class="comm-thumb-btn" data-img="images/auth/louametay-demo-equipe.jpg" title="Démonstration Équipe Restaurant">
+              <img src="images/auth/louametay-demo-equipe.jpg" alt="Démo Équipe">
+            </button>
+          </div>
+        </div>
       </div>
+    </div>
 
-      <div class="comm-form-group">
-        <label for="comm-login-pin">Code PIN Secret (4 chiffres)</label>
-        <input 
-          type="password" 
-          id="comm-login-pin" 
-          class="comm-input" 
-          placeholder="••••" 
-          maxlength="6" 
-          required 
-          autocomplete="current-password"
-          inputmode="numeric"
-        >
+    <!-- CÔTÉ FORMULAIRE DROIT : CONNEXION RAPIDE CODE PIN -->
+    <div class="comm-login-form-panel">
+      <div class="comm-login-inner">
+        <div class="comm-login-avatar">💼</div>
+        <h2 style="font-size: 1.45rem; color: var(--bleu-profond); margin: 0 0 0.5rem; font-weight: 800;">Espace Conseiller Terrain</h2>
+        <p style="color: var(--texte-muet); font-size: 0.88rem; margin-bottom: 1.75rem;">Saisissez votre numéro WhatsApp ou votre e-mail avec votre code PIN secret.</p>
+
+        <form id="form-connexion-comm">
+          <div class="comm-form-group">
+            <label for="comm-login-identifiant">Numéro WhatsApp ou E-mail</label>
+            <input 
+              type="text" 
+              id="comm-login-identifiant" 
+              class="comm-input" 
+              placeholder="Ex: 771234567 ou email@louametay.com" 
+              required 
+              autocomplete="username"
+            >
+          </div>
+
+          <div class="comm-form-group">
+            <label for="comm-login-pin">Code PIN Secret (4 chiffres)</label>
+            <input 
+              type="password" 
+              id="comm-login-pin" 
+              class="comm-input" 
+              placeholder="••••" 
+              maxlength="6" 
+              required 
+              autocomplete="current-password"
+              inputmode="numeric"
+            >
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 1.5rem; text-align: left;">
+            <input type="checkbox" id="comm-remember" checked>
+            <label for="comm-remember" style="font-size: 0.85rem; color: var(--texte-muet); cursor: pointer;">
+              Rester connecté sur ce téléphone
+            </label>
+          </div>
+
+          <button type="submit" class="comm-btn-primary" id="btn-submit-login-comm">
+            <span>Ouvrir mon espace de travail</span> ➔
+          </button>
+        </form>
+
+        <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--bordure); font-size: 0.82rem; color: var(--texte-muet);">
+          <span>Besoin d'aide ? Contactez l'administrateur ou connectez-vous avec votre code PIN personnel (défaut : <strong>1234</strong>).</span>
+        </div>
       </div>
-
-      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 1.5rem; text-align: left;">
-        <input type="checkbox" id="comm-remember" checked>
-        <label for="comm-remember" style="font-size: 0.85rem; color: var(--texte-muet); cursor: pointer;">
-          Rester connecté sur ce téléphone
-        </label>
-      </div>
-
-      <button type="submit" class="comm-btn-primary" id="btn-submit-login-comm">
-        <span>Ouvrir mon espace de travail</span> ➔
-      </button>
-    </form>
+    </div>
   </section>
 
   <!-- =========================================================================
@@ -798,7 +1013,7 @@
         <span class="badge-count" id="badge-rdv-count">0</span>
       </button>
       <button type="button" class="comm-tab-btn" data-panel="panel-commissions">
-        <span>💰 Commissions 10%</span>
+        <span>💰 Commissions <span class="badge-taux-comm-dynamique">10%</span></span>
         <span class="badge-count" id="badge-commissions-solde">0 F</span>
       </button>
       <button type="button" class="comm-tab-btn" data-panel="panel-depenses">
@@ -958,7 +1173,7 @@
 
         <div class="comm-card">
           <div class="comm-card-header">
-            <h3 class="comm-card-title">📜 Historique de mes Commissions (Règle des 10%)</h3>
+            <h3 class="comm-card-title">📜 Historique de mes Commissions (<span class="badge-taux-comm-dynamique">10%</span> par contrat)</h3>
             <button type="button" class="comm-btn-outline" id="btn-demande-retrait">
               <span>Demander un virement Wave</span> 📲
             </button>
@@ -971,7 +1186,7 @@
                   <th>Restaurant</th>
                   <th>Formule</th>
                   <th>Montant Contrat</th>
-                  <th>Commission (10%)</th>
+                  <th id="th-comm-commercial-titre">Commission (10%)</th>
                   <th>Statut</th>
                   <th>Date</th>
                 </tr>
@@ -1284,7 +1499,7 @@
         🎯 Nouveau Prospect Terrain
       </h3>
       <p style="color: var(--texte-muet); font-size: 0.88rem; margin-bottom: 1.5rem;">
-        Enregistrez immédiatement un établissement visité pour le suivre et déclencher votre commission de 10% lors de la signature.
+        Enregistrez immédiatement un établissement visité pour le suivre et déclencher votre commission de <span class="badge-taux-comm-dynamique">10%</span> lors de la signature.
       </p>
 
       <form id="form-nouveau-prospect">

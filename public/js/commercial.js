@@ -57,7 +57,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 function afficherEcranConnexion() {
-  document.getElementById('section-connexion-comm').style.display = 'block';
+  const sec = document.getElementById('section-connexion-comm');
+  if (sec) sec.style.display = 'grid';
   document.getElementById('section-app-comm').style.display = 'none';
   document.getElementById('zone-header-actions').style.display = 'none';
 }
@@ -72,6 +73,20 @@ function afficherApplication() {
 // 2. AUTHENTIFICATION DU CONSEILLER (PIN + TÉLÉPHONE / EMAIL)
 // ==============================================================================
 function initialiserFormulaires() {
+  // Sélecteur d'ambiance visuelle officielle de terrain
+  const panneauVisuel = document.getElementById('comm-visuel-fond');
+  const thumbs = document.querySelectorAll('.comm-thumb-btn');
+  thumbs.forEach(btn => {
+    btn.addEventListener('click', () => {
+      thumbs.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const img = btn.getAttribute('data-img');
+      if (panneauVisuel && img) {
+        panneauVisuel.style.backgroundImage = `url('${img}')`;
+      }
+    });
+  });
+
   const formLogin = document.getElementById('form-connexion-comm');
   if (formLogin) {
     formLogin.addEventListener('submit', async (e) => {
@@ -688,8 +703,43 @@ async function pointerArriveeGPS(rdvId, boutonElement) {
 }
 
 // ==============================================================================
-// 7. MODULE COMMISSIONS (RÈGLE DES 10%)
+// 7. MODULE COMMISSIONS (TAUX DYNAMIQUE MODIFIABLE PAR L'ADMINISTRATION)
 // ==============================================================================
+let tauxCommissionCommercial = 10.0;
+
+async function chargerTauxCommissionCommercial() {
+  try {
+    const { data } = await supabase
+      .from('parametres_systeme')
+      .select('*')
+      .eq('cle', 'taux_commission_defaut')
+      .maybeSingle();
+
+    if (data && data.valeur) {
+      const v = typeof data.valeur === 'number' ? data.valeur : (data.valeur.taux || 10.0);
+      tauxCommissionCommercial = parseFloat(v) || 10.0;
+    } else {
+      const localTaux = localStorage.getItem('louametay_taux_commission');
+      if (localTaux) tauxCommissionCommercial = parseFloat(localTaux) || 10.0;
+    }
+  } catch (err) {
+    const localTaux = localStorage.getItem('louametay_taux_commission');
+    if (localTaux) tauxCommissionCommercial = parseFloat(localTaux) || 10.0;
+  }
+
+  // Mettre à jour tous les badges dynamiques
+  document.querySelectorAll('.badge-taux-comm-dynamique').forEach(el => {
+    el.textContent = `${tauxCommissionCommercial}%`;
+  });
+  const thTitre = document.getElementById('th-comm-commercial-titre');
+  if (thTitre) thTitre.textContent = `Commission (${tauxCommissionCommercial}%)`;
+
+  const pillTaux = document.getElementById('comm-pill-taux');
+  if (pillTaux) pillTaux.textContent = `Commissions directes (${tauxCommissionCommercial}%) sur contrats`;
+
+  return tauxCommissionCommercial;
+}
+
 async function chargerCommissions() {
   const cId = commercialConnecte.id;
   const tbody = document.getElementById('tbody-commissions-commercial');
@@ -699,6 +749,8 @@ async function chargerCommissions() {
   let totalRecu = 0;
 
   try {
+    await chargerTauxCommissionCommercial();
+
     const { data, error } = await supabase
       .from('commissions')
       .select('*')
@@ -708,7 +760,7 @@ async function chargerCommissions() {
     if (!error && Array.isArray(data) && data.length > 0) {
       listeCommissions = data;
     } else {
-      // Repli dynamique sur les leads signés pour calculer automatiquement les 10%
+      // Repli dynamique sur les leads signés pour calculer automatiquement les commissions
       const { data: leadsSignes } = await supabase
         .from('leads')
         .select('*')
@@ -718,7 +770,7 @@ async function chargerCommissions() {
       if (leadsSignes && leadsSignes.length > 0) {
         listeCommissions = leadsSignes.map(l => {
           const prixFormule = l.formule?.includes('Xéweul') ? 35000 : l.formule?.includes('Nio Far') ? 25000 : 15000;
-          const comm = Math.round(prixFormule * 0.10);
+          const comm = Math.round(prixFormule * (tauxCommissionCommercial / 100));
           return {
             id: l.id,
             restaurant_nom: l.restaurant_nom || 'Restaurant Partenaire',
@@ -740,13 +792,13 @@ async function chargerCommissions() {
           <td colspan="6" style="text-align: center; padding: 2.5rem; color: var(--texte-muet);">
             <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">💰</div>
             <strong>Aucune commission pour le moment.</strong><br>
-            Signez un contrat de formule (Tàmbali, Nio Far, Xéweul) pour percevoir automatiquement 10% sur chaque signature !
+            Signez un contrat de formule (Tàmbali, Nio Far, Xéweul) pour percevoir automatiquement ${tauxCommissionCommercial}% sur chaque signature !
           </td>
         </tr>`;
     } else {
       tbody.innerHTML = listeCommissions.map(c => {
         const montantContrat = Number(c.montant_contrat || 0);
-        const montantComm = Number(c.montant_commission || Math.round(montantContrat * 0.10));
+        const montantComm = Number(c.montant_commission || Math.round(montantContrat * (tauxCommissionCommercial / 100)));
 
         if (c.statut === 'VALIDE') totalDisponible += montantComm;
         else if (c.statut === 'EN_ATTENTE') totalAttente += montantComm;

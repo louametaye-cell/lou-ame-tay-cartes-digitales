@@ -77,10 +77,10 @@
         <span id="badge-compteur-depenses" class="nav-badge-compteur" style="display: none; background: #EF4444; color: #FFFFFF;">0</span>
       </button>
 
-      <!-- COMMISSIONS CONTRATS (10%) -->
+      <!-- COMMISSIONS CONTRATS (TAUX MODIFIABLE) -->
       <button type="button" class="nav-onglet-btn" data-onglet="commissions">
         <span class="nav-icone" aria-hidden="true">💰</span>
-        <span>Commissions 10%</span>
+        <span>Commissions <span id="badge-nav-taux-comm">10%</span></span>
       </button>
 
       <!-- ANNONCES & NOTES DE SERVICE ÉQUIPE -->
@@ -963,6 +963,32 @@
             </form>
           </div>
 
+          <!-- Carte Règle de Commission des Commerciaux -->
+          <div class="parametre-carte">
+            <div class="parametre-carte-entete">
+              <span class="parametre-icone">💰</span>
+              <div>
+                <h3 class="parametre-titre">Politique de Rémunération des Commerciaux</h3>
+                <p class="parametre-desc">Taux de commission standard appliqué à chaque contrat restaurant validé</p>
+              </div>
+            </div>
+
+            <form id="form-param-commission" class="parametre-form">
+              <div class="champ-groupe">
+                <label for="param-taux-commission-input" class="champ-label">Pourcentage de commission (%)</label>
+                <div class="input-avec-icone" style="position: relative;">
+                  <span class="icone-champ">⚡</span>
+                  <input type="number" id="param-taux-commission-input" class="champ-input" min="1" max="100" step="0.5" value="10" required>
+                  <span style="position: absolute; right: 12px; font-weight: 800; color: #C9A227;">%</span>
+                </div>
+              </div>
+
+              <button type="submit" id="btn-enregistrer-param-commission" class="btn btn-primaire btn-sm">
+                Enregistrer pour tous les commerciaux
+              </button>
+            </form>
+          </div>
+
           <!-- Carte Guide & Script SQL Supabase complet -->
           <div class="parametre-carte" style="grid-column: 1 / -1;">
             <div class="parametre-carte-entete">
@@ -1183,6 +1209,25 @@ VALUES
            VUE COMMISSIONS : SUIVI DES COMMISSIONS SUR CONTRATS (10%)
            ================================================================== -->
       <section id="vue-commissions" class="admin-vue">
+        <!-- Widget de configuration du taux de commission global -->
+        <div class="panneau-commission-taux-config">
+          <div class="commission-taux-info">
+            <span class="commission-taux-badge">⚡ RÈGLE DE RÉMUNÉRATION COMMERCIALE</span>
+            <h4>Taux de Commission Standard sur Contrats</h4>
+            <p>Ce taux s'applique automatiquement à tous les commerciaux pour chaque contrat restaurant validé.</p>
+          </div>
+          <div class="commission-taux-action">
+            <div class="input-taux-cadre">
+              <input type="number" id="input-taux-commission-global" min="1" max="100" step="0.5" value="10">
+              <span class="unite-pourcent">%</span>
+            </div>
+            <button type="button" id="btn-sauvegarder-taux-commission" class="btn btn-primaire btn-sm">
+              <span>Enregistrer le taux</span>
+            </button>
+            <span id="feedback-taux-commission" style="display: none; font-size: 0.82rem; color: #22C55E; font-weight: 700;">✓ Taux appliqué</span>
+          </div>
+        </div>
+
         <div class="stats-grille">
           <div class="stat-carte">
             <div class="stat-icone-fond icone-or">💰</div>
@@ -1247,7 +1292,7 @@ VALUES
                   <th>Restaurant Signé</th>
                   <th>Formule Lou Ame Tay</th>
                   <th>Montant Contrat</th>
-                  <th>Commission (10%)</th>
+                  <th id="th-commission-titre">Commission (10%)</th>
                   <th>Statut</th>
                   <th style="text-align: right;">Action Règlement</th>
                 </tr>

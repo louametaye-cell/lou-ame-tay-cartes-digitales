@@ -1410,6 +1410,14 @@ function initialiserParametres() {
       btnSoumettreMdp.textContent = 'Mettre à jour le mot de passe';
     }
   });
+
+  // Gestion du Taux de Commission Global dans les Paramètres
+  const formParamComm = document.getElementById('form-param-commission');
+  formParamComm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const val = document.getElementById('param-taux-commission-input')?.value;
+    await sauvegarderTauxCommissionGlobal(val);
+  });
 }
 
 function afficherBanniereAlerte(afficher) {
@@ -2685,10 +2693,113 @@ function initialiserEcouteursDepensesAdmin() {
 }
 
 // ==============================================================================
-// 24. MODULE ADMINISTRATEUR : COMMISSIONS CONTRATS (RÈGLE DES 10%)
+// 24. MODULE ADMINISTRATEUR : COMMISSIONS CONTRATS (TAUX MODIFIABLE & DYNAMIQUE)
 // ==============================================================================
 let listeCommissionsAdmin = [];
 let listeCommissionsAdminFiltree = [];
+let tauxCommissionGlobal = 10.0;
+
+export async function chargerTauxCommissionGlobal() {
+  try {
+    const { data } = await supabase
+      .from('parametres_systeme')
+      .select('*')
+      .eq('cle', 'taux_commission_defaut')
+      .maybeSingle();
+
+    if (data && data.valeur) {
+      const v = typeof data.valeur === 'number' ? data.valeur : (data.valeur.taux || 10.0);
+      tauxCommissionGlobal = parseFloat(v) || 10.0;
+    } else {
+      const localTaux = localStorage.getItem('louametay_taux_commission');
+      if (localTaux) tauxCommissionGlobal = parseFloat(localTaux) || 10.0;
+    }
+  } catch (err) {
+    const localTaux = localStorage.getItem('louametay_taux_commission');
+    if (localTaux) tauxCommissionGlobal = parseFloat(localTaux) || 10.0;
+  }
+
+  // Mettre à jour les interfaces
+  const inputGlobal = document.getElementById('input-taux-commission-global');
+  if (inputGlobal) inputGlobal.value = tauxCommissionGlobal;
+
+  const inputParam = document.getElementById('param-taux-commission-input');
+  if (inputParam) inputParam.value = tauxCommissionGlobal;
+
+  const badgeNav = document.getElementById('badge-nav-taux-comm');
+  if (badgeNav) badgeNav.textContent = `${tauxCommissionGlobal}%`;
+
+  const thTitre = document.getElementById('th-commission-titre');
+  if (thTitre) thTitre.textContent = `Commission (${tauxCommissionGlobal}%)`;
+
+  return tauxCommissionGlobal;
+}
+
+export async function sauvegarderTauxCommissionGlobal(nouveauTaux) {
+  const taux = parseFloat(nouveauTaux);
+  if (isNaN(taux) || taux < 0 || taux > 100) {
+    afficherToast('Veuillez saisir un pourcentage valide entre 0 et 100%.');
+    return;
+  }
+
+  const ancienTaux = tauxCommissionGlobal;
+  tauxCommissionGlobal = taux;
+
+  // 1. Sauvegarde locale immédiate
+  localStorage.setItem('louametay_taux_commission', taux.toString());
+
+  // 2. Mettre à jour les champs et libellés
+  const inputGlobal = document.getElementById('input-taux-commission-global');
+  if (inputGlobal) inputGlobal.value = taux;
+  const inputParam = document.getElementById('param-taux-commission-input');
+  if (inputParam) inputParam.value = taux;
+  const badgeNav = document.getElementById('badge-nav-taux-comm');
+  if (badgeNav) badgeNav.textContent = `${taux}%`;
+  const thTitre = document.getElementById('th-commission-titre');
+  if (thTitre) thTitre.textContent = `Commission (${taux}%)`;
+
+  // 3. Sauvegarde dans Supabase parametres_systeme
+  try {
+    await supabase.from('parametres_systeme').upsert({
+      cle: 'taux_commission_defaut',
+      valeur: { taux: taux, devise: 'FCFA', modifie_par: 'Direction Lou Ame Tay' },
+      description: 'Taux de commission standard appliqué à tous les commerciaux sur chaque contrat signé',
+      updated_at: new Date().toISOString()
+    });
+  } catch (err) {
+    console.warn('Note: Sauvegarde Supabase parametres_systeme (fallback local actif):', err);
+  }
+
+  // 4. Enregistrement dans le journal d'activités
+  try {
+    if (typeof enregistrerActivite === 'function') {
+      enregistrerActivite('ADMIN_ACTION', {
+        description: `Mise à jour du taux de commission global : ${taux}% (appliqué à tous les commerciaux)`,
+        details: { ancien_taux: ancienTaux, nouveau_taux: taux }
+      });
+    }
+  } catch (_) {}
+
+  // 5. Recalculer les commissions des leads non réglés
+  listeCommissionsAdmin.forEach(c => {
+    if (c.statut !== 'PAYE') {
+      c.montant_commission = Math.round((Number(c.montant_contrat) || 0) * (tauxCommissionGlobal / 100));
+    }
+  });
+
+  actualiserStatistiquesCommissions(listeCommissionsAdmin);
+  rendreTableauCommissions(listeCommissionsAdminFiltree);
+
+  // 6. Feedback visuel
+  const feedback = document.getElementById('feedback-taux-commission');
+  if (feedback) {
+    feedback.textContent = `✓ Taux de ${taux}% appliqué à tous les commerciaux`;
+    feedback.style.display = 'inline-block';
+    setTimeout(() => { feedback.style.display = 'none'; }, 4000);
+  }
+
+  afficherToast(`✓ Taux de commission mis à jour : ${taux}% pour tous les commerciaux !`);
+}
 
 export async function chargerCommissionsAdmin() {
   const tbody = document.getElementById('tbody-commissions-admin');
@@ -2697,6 +2808,8 @@ export async function chargerCommissionsAdmin() {
   tbody.innerHTML = '<tr><td colspan="7" class="table-chargement">Chargement des commissions...</td></tr>';
 
   try {
+    await chargerTauxCommissionGlobal();
+
     const { data, error } = await supabase
       .from('commissions')
       .select('*, commerciaux(id, prenom, nom, whatsapp)')
@@ -2721,7 +2834,7 @@ export async function chargerCommissionsAdmin() {
             restaurant_nom: l.restaurant_nom || 'Restaurant Partenaire',
             formule: l.formule || 'Formule Xéweul',
             montant_contrat: prix,
-            montant_commission: Math.round(prix * 0.10),
+            montant_commission: Math.round(prix * (tauxCommissionGlobal / 100)),
             statut: 'VALIDE',
             date_signature: l.created_at ? l.created_at.split('T')[0] : '2026-09-30'
           };
@@ -2735,6 +2848,12 @@ export async function chargerCommissionsAdmin() {
     actualiserStatistiquesCommissions(listeCommissionsAdmin);
     rendreTableauCommissions(listeCommissionsAdminFiltree);
 
+    // Initialiser l'écouteur du bouton de sauvegarde rapide du taux
+    document.getElementById('btn-sauvegarder-taux-commission')?.addEventListener('click', async () => {
+      const val = document.getElementById('input-taux-commission-global')?.value;
+      await sauvegarderTauxCommissionGlobal(val);
+    });
+
   } catch (err) {
     console.error('Erreur chargement commissions admin:', err);
     tbody.innerHTML = `<tr><td colspan="7" class="table-vide"><p style="color: #EF4444; padding: 1.5rem;">Erreur : ${err.message}</p></td></tr>`;
@@ -2747,7 +2866,7 @@ function actualiserStatistiquesCommissions(liste) {
   let payeesComms = 0;
 
   liste.forEach(c => {
-    const montant = Number(c.montant_commission || Math.round((Number(c.montant_contrat) || 0) * 0.10));
+    const montant = Number(c.montant_commission || Math.round((Number(c.montant_contrat) || 0) * (tauxCommissionGlobal / 100)));
     totalComms += montant;
     if (c.statut === 'VALIDE' || c.statut === 'EN_ATTENTE') attenteComms += montant;
     else if (c.statut === 'PAYE') payeesComms += montant;
@@ -2782,7 +2901,7 @@ function rendreTableauCommissions(liste) {
     const comm = c.commerciaux;
     const nomComm = comm ? `${escapeHtml(comm.prenom)} ${escapeHtml(comm.nom)}` : 'Conseiller direct';
     const montantContrat = Number(c.montant_contrat || 0);
-    const montantComm = Number(c.montant_commission || Math.round(montantContrat * 0.10));
+    const montantComm = Number(c.montant_commission || Math.round(montantContrat * (tauxCommissionGlobal / 100)));
 
     const badgeClass = c.statut === 'PAYE' ? 'badge-statut-actif' : c.statut === 'VALIDE' ? 'badge-statut-archive' : 'badge-statut-archive';
     const badgeLabel = c.statut === 'PAYE' ? 'Payée' : c.statut === 'VALIDE' ? 'Validée (À payer)' : 'En attente signature';
