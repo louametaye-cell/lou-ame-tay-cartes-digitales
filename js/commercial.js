@@ -1609,6 +1609,7 @@ export function initialiserModuleContratEtPaiement() {
     const gerant = document.getElementById('contrat-gerant')?.value.trim();
     const tel = document.getElementById('contrat-tel')?.value.trim();
     const ville = document.getElementById('contrat-ville')?.value.trim();
+    const ninea = document.getElementById('contrat-ninea')?.value.trim() || 'Non communiqué / En cours';
     const formule = selectFormule.value;
     const opt = selectFormule.options[selectFormule.selectedIndex];
     const montantVal = Number(opt?.getAttribute('data-prix') || 35000);
@@ -1624,15 +1625,18 @@ export function initialiserModuleContratEtPaiement() {
         ? 'Wave Business (+221 77 458 74 74)'
         : 'Orange Money (+221 77 458 74 74)';
 
-      const numContrat = `LAT-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+      const numContrat = `LAT-2026-${Math.floor(1000 + Math.random() * 9000)}`;
 
       const donneesContrat = {
         numeroContrat: numContrat,
         dateContrat: new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }),
+        heureContrat: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
         restaurantNom: resto,
         gerantNom: gerant,
         telephone: tel,
-        ville: ville || 'Sénégal',
+        adresse: ville || 'Dakar, Sénégal',
+        ville: ville || 'Dakar, Sénégal',
+        ninea: ninea,
         formule: formule,
         montantMensuel: `${montantStr}/mois`,
         montantAcompte: montantStr,
@@ -1706,7 +1710,7 @@ export function initialiserModuleContratEtPaiement() {
 
       // 5. Lien WhatsApp pour transmettre le récépissé au client
       const telPur = String(tel).replace(/\D/g, '');
-      const msgWa = `Bonjour M. ${gerant}, Lou Ame Tay vous remercie pour votre confiance ! Votre contrat d'abonnement SaaS pour le restaurant ${resto} (Formule ${formule}) est validé et votre acompte de ${montantStr} a bien été encaissé sous la réf ${refPaiement}. Direction Générale : M. GUEYE (+221 77 458 74 74).`;
+      const msgWa = `Bonjour M. ${gerant}, Lou Ame Tay SASU vous remercie pour votre confiance ! Votre contrat d'abonnement et licence SaaS pour l'établissement "${resto}" (Formule ${formule}) est officiellement validé et scellé. Votre acompte d'activation de ${montantStr} a bien été encaissé sous la réf ${refPaiement}. Direction Générale : M. Mbaye Babacar GUEYE (+221 77 458 74 74 / +221 77 130 36 78).`;
       const urlWa = `https://wa.me/${telPur.startsWith('221') ? telPur : '221' + telPur}?text=${encodeURIComponent(msgWa)}`;
       const btnWa = document.getElementById('btn-partager-contrat-wa');
       if (btnWa) btnWa.href = urlWa;
@@ -1738,6 +1742,9 @@ export function initialiserModuleContratEtPaiement() {
     document.getElementById('contrat-gerant').value = prospect?.prospect_nom || '';
     document.getElementById('contrat-tel').value = prospect?.telephone || '';
     document.getElementById('contrat-ville').value = prospect?.ville || '';
+    if (document.getElementById('contrat-ninea')) {
+      document.getElementById('contrat-ninea').value = prospect?.ninea || '';
+    }
 
     if (prospect?.formule && selectFormule) {
       for (let i = 0; i < selectFormule.options.length; i++) {
@@ -1766,12 +1773,15 @@ export function initialiserModuleContratEtPaiement() {
     afficherToast(`Génération du contrat officiel de "${prospect.restaurant_nom}"... 📄`);
 
     const donnees = {
-      numeroContrat: `LAT-${new Date().getFullYear()}-${String(prospect.id).slice(0, 4).toUpperCase()}`,
+      numeroContrat: `LAT-2026-${String(prospect.id || Math.floor(1000 + Math.random() * 9000)).slice(0, 4).toUpperCase()}`,
       dateContrat: prospect.created_at ? new Date(prospect.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) : new Date().toLocaleDateString('fr-FR'),
+      heureContrat: prospect.created_at ? new Date(prospect.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : new Date().toLocaleTimeString('fr-FR'),
       restaurantNom: prospect.restaurant_nom || 'Établissement Client',
       gerantNom: prospect.prospect_nom || 'M. le Gérant',
       telephone: prospect.telephone || '+221 -- --- -- --',
+      adresse: prospect.ville || 'Dakar, Sénégal',
       ville: prospect.ville || 'Dakar, Sénégal',
+      ninea: prospect.ninea || 'Non communiqué / En cours',
       formule: prospect.formule || 'Xéweul',
       montantMensuel: prospect.formule === 'Tàmbali' ? '15 000 FCFA/mois' : prospect.formule === 'Nio Far' ? '25 000 FCFA/mois' : '35 000 FCFA/mois',
       montantAcompte: prospect.formule === 'Tàmbali' ? '15 000 FCFA' : prospect.formule === 'Nio Far' ? '25 000 FCFA' : '35 000 FCFA',
@@ -1783,7 +1793,7 @@ export function initialiserModuleContratEtPaiement() {
 
     try {
       await genererContratPDFA4(donnees);
-      afficherToast('✓ Contrat PDF A4 téléchargé avec succès !');
+      afficherToast('✓ Contrat officiel PDF A4 téléchargé avec succès !');
     } catch (err) {
       console.error(err);
       afficherToast('Erreur lors du téléchargement du contrat PDF.');

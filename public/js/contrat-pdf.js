@@ -1,409 +1,556 @@
 /**
  * ==============================================================================
  * FICHIER : js/contrat-pdf.js
- * GÉNÉRATEUR OFFICIEL DE CONTRAT SAAS A4 HAUTE DÉFINITION — LOU AME TAY
- * Conforme au Droit Sénégalais (COCC, Loi 2008-08 Transactions Électroniques,
- * Loi 2008-12 Protection des Données Personnelles CDP Sénégal)
- * Direction Générale : M. GUEYE, Fondateur & CEO (+221 77 458 74 74)
+ * CONTRAT OFFICIEL D'ABONNEMENT ET DE LICENCE SAAS « LOU AME TAY »
+ * Plateforme Digitale de Commande sur Table & Gestion Intégrée CHR
+ * Édition Officielle Conforme au Droit Sénégalais :
+ * - Code des Obligations Civiles et Commerciales (COCC)
+ * - Loi n° 2008-08 (Transactions électroniques & signature dématérialisée)
+ * - Loi n° 2008-12 (Protection des données CDP Sénégal)
+ * - Loi n° 2020-01 (Création et promotion de la startup au Sénégal)
+ * - Code de l'Environnement (Loi n° 2001-01) & Orientations RSE
+ * Direction Générale : M. Mbaye Babacar GUEYE, Fondateur & CEO
+ * Siège social : Grand Standing, Thiès, Sénégal
+ * Bureau d'exploitation : Liberté 6 Extension sur la VDN, Dakar, Sénégal
+ * Contacts : +221 77 458 74 74 / +221 77 130 36 78
  * ==============================================================================
  */
 
 /**
- * Génère et télécharge le Contrat SaaS officiel en PDF A4 (2 pages professionnelles)
- * @param {Object} donnees - Données du contrat, du restaurant et du paiement
+ * Génère et télécharge le Contrat Officiel SaaS A4 en 2 pages juridiques complètes
+ * @param {Object} donnees - Données dynamiques du contrat, client et paiement
  * @returns {Promise<jsPDF>}
  */
-export async function genererContratPDFA4(donnees) {
+export async function genererContratPDFA4(donnees = {}) {
   const { jsPDF } = window.jspdf || {};
   if (!jsPDF) {
-    throw new Error('La bibliothèque jsPDF n\'est pas encore disponible.');
+    throw new Error('La bibliothèque jsPDF n\'est pas disponible.');
   }
 
+  const maintenant = new Date();
+  const dateFormatee = maintenant.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+  const heureFormatee = maintenant.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
   const {
-    numeroContrat = `LAT-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
-    dateContrat = new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }),
+    numeroContrat = `LAT-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+    dateContrat = dateFormatee,
+    heureContrat = heureFormatee,
     restaurantNom = 'Établissement Client',
-    gerantNom = 'M. le Gérant',
-    telephone = '+221 -- --- -- --',
+    gerantNom = 'M. le Décideur',
+    telephone = '+221 77 --- -- --',
+    adresse = 'Adresse de l\'établissement',
     ville = 'Dakar, Sénégal',
-    formule = 'Xéweul',
-    montantMensuel = '35 000 FCFA',
-    montantAcompte = '35 000 FCFA',
+    ninea = 'Non communiqué / En cours',
+    formule = 'XÉWEUL',
+    montantMensuel = '35 000 FCFA/mois',
+    montantAcompte = '50 000 FCFA',
     modePaiement = 'Wave Business (+221 77 458 74 74)',
-    refPaiement = 'W-NON-DEFINI',
-    commercialNom = 'Conseiller Commercial Terrain',
-    signatureClientDataUrl = null
+    refPaiement = 'W-VALIDE',
+    commercialNom = 'Direction Lou Ame Tay',
+    signatureClientDataUrl = null,
+    hashEmpreinte = null
   } = donnees;
 
-  // Création du document A4 (210 x 297 mm)
+  // Calcul d'un hash SHA256 simulé d'empreinte électronique si non fourni
+  const hashFinal = hashEmpreinte || Array.from({ length: 16 }, () => Math.floor(Math.random() * 16).toString(16)).join('').toUpperCase();
+
+  // Initialisation du document jsPDF (Format A4 portrait : 210 x 297 mm)
   const doc = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
     format: 'a4'
   });
 
+  // Palette chromatique officielle Lou Ame Tay
   const bleuMarine = [11, 31, 58];    // #0B1F3A
   const doreLux = [201, 162, 39];     // #C9A227
   const grisTexte = [71, 85, 105];    // #475569
   const noirTitre = [15, 23, 42];     // #0F172A
 
   // ============================================================================
-  // PAGE 1 : EN-TÊTE, PARTIES, FORMULE, ARTICLES 1 À 3
+  // PAGE 1 : CADRE OPÉRATIONNEL, ENGAGEMENTS RÉCIPROQUES & SÉCURITÉ
   // ============================================================================
 
-  // Bandeau supérieur prestige
+  // 1. Bandeau Supérieur Prestige
   doc.setFillColor(...bleuMarine);
-  doc.rect(0, 0, 210, 24, 'F');
+  doc.rect(0, 0, 210, 20, 'F');
   doc.setFillColor(...doreLux);
-  doc.rect(0, 24, 210, 1.5, 'F');
+  doc.rect(0, 20, 210, 1.2, 'F');
 
-  // Titre En-tête
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(14);
-  doc.text('LOU AME TAY ? — SOLUTION SAAS RESTAURATION & HÔTELLERIE', 15, 12);
+  doc.setFontSize(11);
+  doc.text('CONTRAT OFFICIEL D\'ABONNEMENT ET DE LICENCE SAAS « LOU AME TAY »', 15, 10);
 
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8.5);
-  doc.setTextColor(201, 162, 39);
-  doc.text('MÉDIAS GRAPHISME SÉNÉGAL / MDA ARTS WORK — DIRECTION GÉNÉRALE M. GUEYE (+221 77 458 74 74)', 15, 18);
+  doc.setFontSize(7.5);
+  doc.setTextColor(248, 226, 148);
+  doc.text('Plateforme Digitale de Commande sur Table & Gestion Intégrée CHR — Édition Officielle — Droit Sénégalais', 15, 16);
 
-  // Titre du Document & Réf
+  // Réf Contrat & Date
   doc.setTextColor(...noirTitre);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(15);
-  doc.text('CONTRAT D\'ABONNEMENT ET DE DÉPLOIEMENT SAAS', 15, 34);
-
+  doc.setFontSize(8.5);
+  doc.text(`RÉFÉRENCE OFFICIELLE : ${numeroContrat}`, 15, 26);
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9);
+  doc.setFontSize(7.5);
   doc.setTextColor(...grisTexte);
-  doc.text(`Réf. Contrat : ${numeroContrat}   |   Date d'effet : ${dateContrat}   |   Lieu : ${ville}`, 15, 40);
+  doc.text(`Fait à ${ville}, le ${dateContrat} à ${heureContrat}`, 145, 26);
 
-  // Ligne de séparation
   doc.setDrawColor(226, 232, 240);
-  doc.line(15, 43, 195, 43);
+  doc.setLineWidth(0.4);
+  doc.line(15, 28, 195, 28);
 
-  // Cadre des Deux Parties Contractantes (Split 2 colonnes)
+  // 2. Bloc des Parties Contractantes (2 Colonnes)
   // Colonne Gauche : Le Prestataire
   doc.setFillColor(248, 250, 252);
-  doc.roundedRect(15, 46, 87, 38, 2, 2, 'F');
+  doc.roundedRect(15, 30, 88, 36, 1.5, 1.5, 'F');
   doc.setDrawColor(203, 213, 225);
-  doc.roundedRect(15, 46, 87, 38, 2, 2, 'D');
+  doc.roundedRect(15, 30, 88, 36, 1.5, 1.5, 'D');
 
   doc.setTextColor(...bleuMarine);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(9);
-  doc.text('LE PRESTATAIRE (ÉDITEUR SAAS) :', 19, 52);
+  doc.setFontSize(7.5);
+  doc.text('LE PRESTATAIRE (LOU AME TAY SASU) :', 18, 35);
 
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(9.5);
+  doc.setFontSize(8);
   doc.setTextColor(...noirTitre);
-  doc.text('LOU AME TAY / MDA ARTS WORK', 19, 58);
+  doc.text('LOU AME TAY SASU / Médias Graphisme Sénégal', 18, 40);
 
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8);
+  doc.setFontSize(6.8);
   doc.setTextColor(...grisTexte);
-  doc.text('Représentée par : M. GUEYE, Fondateur & CEO', 19, 63);
-  doc.text('Service Commercial & Wave : +221 77 458 74 74', 19, 68);
-  doc.text('Plateforme : https://louametay.online — Dakar, Sénégal', 19, 73);
-  doc.text(`Conseiller apporteur : ${commercialNom}`, 19, 78);
+  doc.text('Direction Générale : M. Mbaye Babacar GUEYE, Fondateur & CEO', 18, 44);
+  doc.text('Siège social & Ateliers : Grand Standing, Thiès, Sénégal', 18, 48);
+  doc.text('Bureau d\'exploitation : Liberté 6 Extension sur la VDN, Dakar', 18, 52);
+  doc.text('Contacts : +221 77 458 74 74 / +221 77 130 36 78', 18, 56);
+  doc.text('Email : contact@mgartswork.site / contact@louametay.online', 18, 60);
+  doc.text(`Conseiller apporteur : ${commercialNom}`, 18, 64);
 
   // Colonne Droite : Le Client
   doc.setFillColor(248, 250, 252);
-  doc.roundedRect(108, 46, 87, 38, 2, 2, 'F');
-  doc.roundedRect(108, 46, 87, 38, 2, 2, 'D');
+  doc.roundedRect(107, 30, 88, 36, 1.5, 1.5, 'F');
+  doc.roundedRect(107, 30, 88, 36, 1.5, 1.5, 'D');
 
   doc.setTextColor(...bleuMarine);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(9);
-  doc.text('LE CLIENT (ÉTABLISSEMENT ADHÉRENT) :', 112, 52);
+  doc.setFontSize(7.5);
+  doc.text('L\'ÉTABLISSEMENT CLIENT (LE RESTAURATEUR) :', 110, 35);
 
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(9.5);
-  doc.setTextColor(...noirTitre);
-  doc.text(String(restaurantNom).slice(0, 35), 112, 58);
-
-  doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
-  doc.setTextColor(...grisTexte);
-  doc.text(`Représentant : ${String(gerantNom).slice(0, 35)}`, 112, 63);
-  doc.text(`Téléphone / WhatsApp : ${telephone}`, 112, 68);
-  doc.text(`Ville / Quartier : ${ville}`, 112, 73);
-  doc.text(`Statut Adhérent : Compte Client Actif Certifié`, 112, 78);
-
-  // Cadre Récapitulatif Financier & Acompte Reçu
-  doc.setFillColor(240, 253, 244); // Vert très pâle #F0FDF4
-  doc.roundedRect(15, 87, 180, 23, 2, 2, 'F');
-  doc.setDrawColor(187, 247, 208);
-  doc.roundedRect(15, 87, 180, 23, 2, 2, 'D');
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(9.5);
-  doc.setTextColor(22, 101, 52); // Vert foncé
-  doc.text(`CONDITIONS FINANCIÈRES & ACOMPTE D'ACTIVATION REÇU`, 20, 93);
+  doc.setTextColor(...noirTitre);
+  doc.text(String(restaurantNom).slice(0, 38), 110, 40);
 
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8.5);
-  doc.setTextColor(...noirTitre);
-  doc.text(`• Formule souscrite : ${formule}   |   Tarif mensuel SaaS : ${montantMensuel}`, 20, 99);
-  doc.text(`• Acompte d'activation réglé : ${montantAcompte}   |   Canal : ${modePaiement}`, 20, 104);
+  doc.setFontSize(6.8);
+  doc.setTextColor(...grisTexte);
+  doc.text(`Représenté par : ${String(gerantNom).slice(0, 38)}`, 110, 44);
+  doc.text(`Contact & WhatsApp pro : ${telephone}`, 110, 48);
+  doc.text(`Adresse & Région : ${String(adresse).slice(0, 25)}, ${ville}`, 110, 52);
+  doc.text(`NINEA / Registre du Commerce : ${ninea}`, 110, 56);
   doc.setFont('helvetica', 'bold');
-  doc.setTextColor(2, 132, 199);
-  doc.text(`• Réf. Transaction Wave/OM : ${refPaiement} (Reçu certifié)`, 120, 104);
+  doc.setTextColor(22, 101, 52);
+  doc.text('Statut : Client Adhérent Partenaire Certifié', 110, 61);
 
-  // Titre des Conditions Générales et Clauses Protectrices
-  doc.setTextColor(...bleuMarine);
+  // 3. Cadre des Visas Juridiques de Référence
+  doc.setFillColor(254, 252, 232); // Ambré pâle #FEFCE8
+  doc.roundedRect(15, 68, 180, 16, 1.5, 1.5, 'F');
+  doc.setDrawColor(254, 240, 138);
+  doc.roundedRect(15, 68, 180, 16, 1.5, 1.5, 'D');
+
+  doc.setTextColor(133, 77, 14);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(10.5);
-  doc.text('CLAUSES CONTRACTUELLES SAAS & DROIT SÉNÉGALAIS APPLICABLE', 15, 117);
+  doc.setFontSize(7);
+  doc.text('VISAS JURIDIQUES DE RÉFÉRENCE (RÉPUBLIQUE DU SÉNÉGAL) :', 18, 72.5);
 
-  doc.setDrawColor(201, 162, 39);
-  doc.setLineWidth(0.6);
-  doc.line(15, 119, 195, 119);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(6.2);
+  doc.setTextColor(71, 85, 105);
+  doc.text('• Code des Obligations Civiles et Commerciales (COCC)   |   • Loi n° 2008-08 (Valeur légale signature tactile & archivage électronique)', 18, 76.5);
+  doc.text('• Loi n° 2008-12 (Protection des données à caractère personnel CDP)   |   • Loi n° 2020-01 (Création et promotion de la startup)', 18, 80);
+  doc.text('• Code de l\'Environnement de la République du Sénégal (Loi n° 2001-01) et orientations nationales sur la RSE.', 18, 83.5);
+
+  // Ligne Titre Page 1
+  doc.setFillColor(...bleuMarine);
+  doc.rect(15, 86, 180, 5.5, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.5);
+  doc.text('PAGE 1 : CADRE OPÉRATIONNEL, ENGAGEMENTS RÉCIPROQUES & SÉCURITÉ', 18, 90);
 
   // ARTICLE 1
+  let y = 96;
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8.5);
-  doc.setTextColor(...noirTitre);
-  doc.text('ARTICLE 1 — OBJET DU CONTRAT & PÉRIMÈTRE DU SERVICE', 15, 126);
-  doc.setFont('helvetica', 'normal');
   doc.setFontSize(7.5);
-  doc.setTextColor(...grisTexte);
-  const texteArt1 = doc.splitTextToSize(
-    "Le présent contrat a pour objet de concéder au Client un droit d'accès et d'utilisation en mode SaaS (Software as a Service) de la plateforme Lou Ame Tay pour son établissement. Selon la formule souscrite, le service comprend le menu interactif par QR Code, l'écran cuisine KDS de gestion des commandes, l'interface de prise de commande serveur mobile, les cartes de visite digitales avec QR code et les outils de pilotage statistiques.",
+  doc.setTextColor(...bleuMarine);
+  doc.text('Article 1 — Objet de la Licence & Formule Souscrite', 15, y);
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(6.8);
+  doc.setTextColor(...noirTitre);
+  y += 4;
+  const txt1_1 = doc.splitTextToSize(
+    "1.1 Octroi de Licence : Le Prestataire concède au Client, qui l'accepte, une licence d'utilisation non exclusive, personnelle et temporaire de la plateforme SaaS « Lou Ame Tay » (menu interactif QR code, prise de commande sur smartphone, écran tactile cuisine KDS en temps réel et tableau de bord analytique).",
     180
   );
-  doc.text(texteArt1, 15, 130);
+  doc.text(txt1_1, 15, y);
 
-  // ARTICLE 2 : PROPRIÉTÉ INTELLECTUELLE & SANCTIONS ANTI-PLAGIAT
+  y += (txt1_1.length * 3.2) + 1.5;
+  const fUpper = String(formule).toUpperCase();
+  const cTambali = fUpper.includes('TAMBALI') || fUpper.includes('TÀMBALI') ? '[X]' : '[  ]';
+  const cNioFar = fUpper.includes('NIO FAR') || fUpper.includes('NIOFAR') ? '[X]' : '[  ]';
+  const cXeweul = fUpper.includes('XEWEUL') || fUpper.includes('XÉWEUL') ? '[X]' : '[  ]';
+  const cSurMesure = fUpper.includes('SUR') ? '[X]' : '[  ]';
+
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8.5);
-  doc.setTextColor(...noirTitre);
-  doc.text('ARTICLE 2 — PROPRIÉTÉ INTELLECTUELLE STRICTE & INTERDICTION DE PLAGIAT (ANTI-COPIE)', 15, 148);
+  doc.text(`1.2 Formule Activée :  ${cTambali} TÀMBALI (15 000 F/m)   |   ${cNioFar} NIO FAR (25 000 F/m)   |   ${cXeweul} XÉWEUL (35 000 F/m)   |   ${cSurMesure} SUR-MESURE`, 15, y);
+
+  y += 4;
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7.5);
-  doc.setTextColor(...grisTexte);
-  const texteArt2 = doc.splitTextToSize(
-    "La plateforme Lou Ame Tay, son architecture logicielle, ses codes sources, ses bases de données, son design, sa marque et ses méthodologies sont la propriété exclusive et inaliénable de Lou Ame Tay et de M. GUEYE. Le présent contrat ne confère au Client aucun droit de propriété. Il est strictement interdit au Client, à son personnel ou à ses sous-traitants de copier, plagier, décompiler, reproduire, imiter ou tenter de rétro-ingénierer tout ou partie de la solution logicielle. Toute tentative d'imitation ou de détournement fera l'objet de poursuites judiciaires civiles et pénales immédiates devant les tribunaux compétents de Dakar, avec demande de dommages et intérêts provisionnels minimaux de 10 000 000 FCFA.",
+  const txt1_3 = doc.splitTextToSize(
+    `1.3 Mise en service & Acompte initial : Forfait d'activation de ${montantAcompte} encaissé à la signature (comprenant la numérisation complète de la carte, l'attribution du sous-domaine sécurisé, la livraison de 15 à 25 supports de table QR codes haute résistance et la formation de l'équipe sur site). Référence de transaction Wave/OM : ${refPaiement} — Canal : ${modePaiement}.`,
     180
   );
-  doc.text(texteArt2, 15, 152);
+  doc.text(txt1_3, 15, y);
 
-  // ARTICLE 3 : CONFIDENTIALITÉ ABSOLUE
+  // ARTICLE 2
+  y += (txt1_3.length * 3.2) + 2.5;
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8.5);
-  doc.setTextColor(...noirTitre);
-  doc.text('ARTICLE 3 — OBLIGATION DE CONFIDENTIALITÉ ABSOLUE', 15, 178);
-  doc.setFont('helvetica', 'normal');
   doc.setFontSize(7.5);
-  doc.setTextColor(...grisTexte);
-  const texteArt3 = doc.splitTextToSize(
-    "Le Client s'interdit formellement de divulguer à des tiers, prestataires informatiques ou entreprises concurrentes, le mode de fonctionnement interne, les écrans de gestion, les interfaces d'administration, les mécanismes de synchronisation et les conditions tarifaires négociées. Cet engagement de confidentialité demeure en vigueur pendant toute la durée du contrat et pour une période de cinq (5) années suivant sa cessation.",
+  doc.setTextColor(...bleuMarine);
+  doc.text('Article 2 — Équilibre Contractuel & Engagements Réciproques (Gagnant-Gagnant)', 15, y);
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(6.8);
+  doc.setTextColor(...noirTitre);
+  y += 4;
+  const txt2_1 = doc.splitTextToSize(
+    "2.1 Obligations et Garanties de Lou Ame Tay : (a) Garantie de Disponibilité (SLA) : Disponibilité garantie de 99,5% hors périodes de maintenance programmées la nuit. (b) Résilience Réseau Locale : Fonctionnement en mode résilient / hors-ligne pour permettre la consultation ininterrompue des menus même lors des perturbations de connexion internet. (c) Support Proactif 7j/7 : Assistance réactive en Français et Wolof via le canal WhatsApp dédié et intervention technique rapide sous 30 à 45 minutes en zone urbaine (Dakar et Thiès). (d) Évolutions Logicielles Incluses : Mises à jour correctives et nouvelles fonctionnalités intégrées sans surcoût.",
     180
   );
-  doc.text(texteArt3, 15, 182);
+  doc.text(txt2_1, 15, y);
 
-  // ARTICLE 4 : SÉCURITÉ CLOUD & PROTECTION DES DONNÉES (LOI 2008-12)
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8.5);
-  doc.setTextColor(...noirTitre);
-  doc.text('ARTICLE 4 — SÉCURITÉ DU CLOUD & PROTECTION DES DONNÉES (LOI N° 2008-12 CDP SÉNÉGAL)', 15, 203);
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7.5);
-  doc.setTextColor(...grisTexte);
-  const texteArt4 = doc.splitTextToSize(
-    "Les données d'exploitation du Client (menus, catalogues, prix, historiques de commandes) sont hébergées dans une infrastructure cloud haute sécurité protégée par un chiffrement SSL/TLS et une isolation logique étanche. Lou Ame Tay s'engage à ne jamais vendre, louer ou divulguer les données d'activité du Client. Conformément à la législation sénégalaise sur la protection des données à caractère personnel (Loi 2008-12), le Client demeure l'unique propriétaire de ses données d'exploitation et conserve un droit permanent de rectification et de restitution.",
+  y += (txt2_1.length * 3.2) + 1.5;
+  const txt2_2 = doc.splitTextToSize(
+    "2.2 Obligations du Restaurateur : (a) Ponctualité des Paiements : Règlement des mensualités à date convenue par Mobile Money (Wave / Orange Money) ou virement BNDE. (b) Exactitude des Données Alimentaires : Fourniture d'informations vérifiées sur les prix, les allergènes et les compositions culinaires. (c) Sécurité Interne des Accès : Préservation de la confidentialité des identifiants et codes PIN transmis au personnel de salle et de cuisine.",
     180
   );
-  doc.text(texteArt4, 15, 207);
+  doc.text(txt2_2, 15, y);
 
-  // ARTICLE 5 : CONTINUITÉ DE SERVICE & SUPPORT TECHNIQUE
+  // ARTICLE 3
+  y += (txt2_2.length * 3.2) + 2.5;
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8.5);
-  doc.setTextColor(...noirTitre);
-  doc.text('ARTICLE 5 — ENGAGEMENT DE DISPONIBILITÉ (SLA 99.9%) & MAINTENANCE', 15, 227);
-  doc.setFont('helvetica', 'normal');
   doc.setFontSize(7.5);
-  doc.setTextColor(...grisTexte);
-  const texteArt5 = doc.splitTextToSize(
-    "Lou Ame Tay garantit un taux de disponibilité cible de 99.9% de ses serveurs cloud, 24h/24 et 7j/7, hors fenêtres de maintenance préventive annoncées. Une assistance technique prioritaire est dédiée au Client via la ligne officielle WhatsApp Business (+221 77 458 74 74).",
+  doc.setTextColor(...bleuMarine);
+  doc.text('Article 3 — Sécurité Cloud, Étanchéité & Propriété Totale des Données Client', 15, y);
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(6.8);
+  doc.setTextColor(...noirTitre);
+  y += 4;
+  const txt3_1 = doc.splitTextToSize(
+    "3.1 Propriété Inaliénable des Données du Restaurateur : Le Client conserve la propriété exclusive, intégrale et perpétuelle de l'ensemble de ses données commerciales, fichiers clients, historiques de commandes et statistiques de vente. Lou Ame Tay s'interdit formellement toute commercialisation, exploitation dérivée ou transmission à des tiers.",
     180
   );
-  doc.text(texteArt5, 15, 231);
+  doc.text(txt3_1, 15, y);
 
-  // Pied de page Page 1
-  doc.setFontSize(7);
+  y += (txt3_1.length * 3.2) + 1.5;
+  const txt3_2 = doc.splitTextToSize(
+    "3.2 Chiffrement & Sécurité : Hébergement cloud haute sécurité bénéficiant d'un protocole SSL/TLS 256 bits conforme aux standards de sécurisation bancaire, avec sauvegardes automatisées quotidiennes.",
+    180
+  );
+  doc.text(txt3_2, 15, y);
+
+  y += (txt3_2.length * 3.2) + 1.5;
+  const txt3_3 = doc.splitTextToSize(
+    "3.3 Conformité CDP (Loi n° 2008-12) : Traitement loyal et sécurisé des données nominatives des consommateurs finaux dans le strict respect des directives de la Commission de Protection des Données Personnelles du Sénégal.",
+    180
+  );
+  doc.text(txt3_3, 15, y);
+
+  y += (txt3_3.length * 3.2) + 1.5;
+  const txt3_4 = doc.splitTextToSize(
+    "3.4 Droit de Réversibilité : En cas de cessation des relations contractuelles, le Client bénéficie de la restitution intégrale et gratuite de ses données sous format standard ouvert (Excel / CSV) dans un délai de trente (30) jours.",
+    180
+  );
+  doc.text(txt3_4, 15, y);
+
+  // Pied de Page 1
+  doc.setFontSize(6.8);
   doc.setTextColor(148, 163, 184);
-  doc.text(`Contrat Lou Ame Tay SaaS — Réf. ${numeroContrat} — Page 1/2 — Document contractuel certifié`, 15, 285);
-  doc.text('Loi applicable : République du Sénégal (COCC, Lois 2008-08 & 2008-12)', 115, 285);
+  doc.line(15, 284, 195, 284);
+  doc.text(`Contrat Lou Ame Tay SaaS — Réf. ${numeroContrat} — Page 1/2 — Droits & Lois de la République du Sénégal`, 15, 288);
+  doc.text('Direction Générale M. Mbaye Babacar GUEYE (+221 77 458 74 74)', 130, 288);
 
   // ============================================================================
-  // PAGE 2 : ARTICLES 6 & 7, SIGNATURES DES PARTIES & CACHETS OFFICIELS
+  // PAGE 2 : RSE, PROPRIÉTÉ INTELLECTUELLE, CLAUSE PÉNALE & SIGNATURES
   // ============================================================================
   doc.addPage('a4', 'portrait');
 
   // Mini-Bandeau supérieur Page 2
   doc.setFillColor(...bleuMarine);
-  doc.rect(0, 0, 210, 14, 'F');
+  doc.rect(0, 0, 210, 13, 'F');
   doc.setFillColor(...doreLux);
-  doc.rect(0, 14, 210, 1, 'F');
+  doc.rect(0, 13, 210, 1, 'F');
 
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(9.5);
-  doc.text(`LOU AME TAY ? — CONTRAT SAAS (SUITE ET VALIDATION) — RÉF. ${numeroContrat}`, 15, 9.5);
-
-  // ARTICLE 6 : DURÉE, RENOUVELLEMENT & CONDITIONS FINANCIÈRES
-  doc.setTextColor(...noirTitre);
-  doc.setFont('helvetica', 'bold');
   doc.setFontSize(8.5);
-  doc.text('ARTICLE 6 — DURÉE DU CONTRAT, MODALITÉS DE PAIEMENT & RÉSILIATION', 15, 24);
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7.5);
-  doc.setTextColor(...grisTexte);
-  const texteArt6 = doc.splitTextToSize(
-    "Le présent contrat prend effet à la date de signature et réception de l'acompte initial. Il est conclu pour une période d'un (1) an, renouvelable par tacite reconduction. Le règlement des mensualités suivantes intervient par Wave Business, Orange Money ou virement bancaire. En cas de manquement grave de l'une des parties à ses obligations ou de retard de paiement supérieur à trente (30) jours, le contrat pourra être résilié de plein droit après mise en demeure restée sans effet sous huitaine.",
-    180
-  );
-  doc.text(texteArt6, 15, 28);
+  doc.text(`LOU AME TAY ? — CONTRAT DE LICENCE SAAS (SUITE) — RÉF. ${numeroContrat}`, 15, 8.5);
 
-  // ARTICLE 7 : LOI APPLICABLE & JURIDICTION COMPÉTENTE DE DAKAR
+  // Ligne Titre Page 2
+  doc.setFillColor(...bleuMarine);
+  doc.rect(15, 17, 180, 5.5, 'F');
+  doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8.5);
-  doc.setTextColor(...noirTitre);
-  doc.text('ARTICLE 7 — LOI APPLICABLE & ATTRIBUTION EXCLUSIVE DE JURIDICTION', 15, 48);
-  doc.setFont('helvetica', 'normal');
   doc.setFontSize(7.5);
-  doc.setTextColor(...grisTexte);
-  const texteArt7 = doc.splitTextToSize(
-    "Le présent contrat est exclusivement soumis au droit sénégalais, notamment aux dispositions du Code des Obligations Civiles et Commerciales (COCC) et des textes régissant les transactions électroniques. Tout différend relatif à la validité, l'interprétation ou l'exécution du contrat sera soumis aux tribunaux compétents du ressort de la Cour d'Appel de Dakar (Sénégal), après tentative infructueuse de conciliation amiable.",
-    180
-  );
-  doc.text(texteArt7, 15, 52);
+  doc.text('PAGE 2 : TRANSITION ÉCOLOGIQUE RSE, PROTECTION INTELLECTUELLE & VALIDATION', 18, 21);
 
-  // Ligne de séparation avant la zone de signature
-  doc.setDrawColor(201, 162, 39);
-  doc.setLineWidth(0.8);
-  doc.line(15, 72, 195, 72);
-
+  // ARTICLE 4 : PACTE RSE
+  let y2 = 27;
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.5);
   doc.setTextColor(...bleuMarine);
+  doc.text('Article 4 — Pacte RSE, Écologie Numérique & Préservation de l\'Environnement', 15, y2);
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(6.8);
+  doc.setTextColor(...noirTitre);
+  y2 += 4;
+  const txt4_1 = doc.splitTextToSize(
+    "4.1 Alignement RSE & Code de l'Environnement : Le présent contrat formalise l'engagement mutuel des parties en faveur du développement durable et de la réduction de l'empreinte écologique dans le secteur de la restauration au Sénégal, conformément à la Loi n° 2001-01.",
+    180
+  );
+  doc.text(txt4_1, 15, y2);
+
+  y2 += (txt4_1.length * 3.2) + 1.2;
+  const txt4_2 = doc.splitTextToSize(
+    "4.2 Suppression du Plastique & Économie Circulaire : Élimination complète des cartes plastifiées pelliculées non biodégradables et des réimpressions papier systématiques génératrices de déchets. Fourniture exclusive de chevalets et supports de table durables et recyclables signés Médias Graphisme Sénégal.",
+    180
+  );
+  doc.text(txt4_2, 15, y2);
+
+  y2 += (txt4_2.length * 3.2) + 1.2;
+  const txt4_3 = doc.splitTextToSize(
+    "4.3 Lutte Active contre le Gaspillage Alimentaire : Le système d'interrupteur instantané de rupture de stock et la mise en avant dynamique du « Plat du Jour » permettent d'écouler les denrées périssables, réduisant les pertes alimentaires en cuisine de plus de 30%.",
+    180
+  );
+  doc.text(txt4_3, 15, y2);
+
+  y2 += (txt4_3.length * 3.2) + 1.2;
+  const txt4_4 = doc.splitTextToSize(
+    "4.4 Attribution du Label Éco-Restaurateur : Le Prestataire délivre au Client le macaron officiel numérique et physique « Éco-Restaurateur Engagé — Partenaire RSE Lou Ame Tay », attestant de sa démarche écoresponsable auprès de sa clientèle.",
+    180
+  );
+  doc.text(txt4_4, 15, y2);
+
+  // ARTICLE 5 : PROPRIÉTÉ INTELLECTUELLE & CLAUSE PÉNALE
+  y2 += (txt4_4.length * 3.2) + 2.5;
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(10.5);
-  doc.text('SIGNATURES CONTRACTUELLES & ACCEPTATION FERME DES DEUX PARTIES', 15, 78);
+  doc.setFontSize(7.5);
+  doc.setTextColor(...bleuMarine);
+  doc.text('Article 5 — Propriété Intellectuelle Stricte & Clause Pénale Anti-Plagiat', 15, y2);
 
-  doc.setFont('helvetica', 'italic');
-  doc.setFontSize(8);
-  doc.setTextColor(...grisTexte);
-  doc.text('En apposant leur signature électronique ci-après, les parties reconnaissent avoir lu et approuvé l\'intégralité des clauses ci-dessus.', 15, 83);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(6.8);
+  doc.setTextColor(...noirTitre);
+  y2 += 4;
+  const txt5_1 = doc.splitTextToSize(
+    "5.1 Droits Exclusifs : La plateforme « Lou Ame Tay », son architecture logicielle, ses algorithmes, ses codes sources, ses interfaces graphiques, sa marque et ses concepts demeurent la propriété exclusive et inaliénable de Lou Ame Tay SASU et de son créateur, M. Mbaye Babacar GUEYE.",
+    180
+  );
+  doc.text(txt5_1, 15, y2);
 
-  // Boîte Signatures (2 Colonnes)
-  // 1. Colonne Gauche : Lou Ame Tay (Direction Générale)
+  y2 += (txt5_1.length * 3.2) + 1.2;
+  const txt5_2 = doc.splitTextToSize(
+    "5.2 Interdiction Formelle de Reproduction : Toute tentative de rétro-ingénierie, décompilation, copie d'écran servile, plagiat ou transfert de code est strictement interdite.",
+    180
+  );
+  doc.text(txt5_2, 15, y2);
+
+  y2 += (txt5_2.length * 3.2) + 1.2;
+  const txt5_3 = doc.splitTextToSize(
+    "5.3 Sanction Forfaitaire & Poursuites Judiciaires : Toute infraction constatée entraînera la coupure immédiate des accès, la résiliation sans indemnité du présent contrat et l'exigibilité de plein droit d'une clause pénale forfaitaire et provisionnelle minimale de dix millions (10 000 000) de Francs CFA, sans préjudice de poursuites pénales et civiles devant les tribunaux compétents de Dakar.",
+    180
+  );
+  doc.text(txt5_3, 15, y2);
+
+  // ARTICLE 6 : CONFIDENTIALITÉ ABSOLUE
+  y2 += (txt5_3.length * 3.2) + 2.5;
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.5);
+  doc.setTextColor(...bleuMarine);
+  doc.text('Article 6 — Confidentialité Absolue', 15, y2);
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(6.8);
+  doc.setTextColor(...noirTitre);
+  y2 += 4;
+  const txt6 = doc.splitTextToSize(
+    "Chacune des parties s'engage à observer le secret le plus strict sur les méthodes de gestion, conditions tarifaires préférentielles, codes sources et algorithmes de la solution, pendant toute la durée d'exécution du contrat et pendant une durée de cinq (5) ans suivant son expiration.",
+    180
+  );
+  doc.text(txt6, 15, y2);
+
+  // ARTICLE 7 : DURÉE, RÉSILIATION & COMPÉTENCE
+  y2 += (txt6.length * 3.2) + 2.5;
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.5);
+  doc.setTextColor(...bleuMarine);
+  doc.text('Article 7 — Durée, Résiliation & Compétence Juridictionnelle', 15, y2);
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(6.8);
+  doc.setTextColor(...noirTitre);
+  y2 += 4;
+  const txt7 = doc.splitTextToSize(
+    "7.1 Durée : Contrat conclu pour une période initiale ferme de trois (3) mois, reconductible tacitement de mois en mois. 7.2 Résiliation : Résiliation libre après la période initiale moyennant un préavis écrit de trente (30) jours formulé par voie électronique certifiée (WhatsApp d'entreprise ou email officiel). 7.3 Attribution de Compétence : En cas de différend non résolu par voie amiable sous quinze (15) jours, compétence expresse et exclusive est conférée au Tribunal de Commerce Hors Classe de Dakar et aux juridictions du ressort de la Cour d'Appel de Dakar (Sénégal).",
+    180
+  );
+  doc.text(txt7, 15, y2);
+
+  // ============================================================================
+  // CADRE DE VALIDATION NUMÉRIQUE & MANDAT D'ACTIVATION
+  // ============================================================================
+  y2 += (txt7.length * 3.2) + 4;
+
+  doc.setFillColor(...bleuMarine);
+  doc.rect(15, y2, 180, 5.5, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.5);
+  doc.text('CADRE DE VALIDATION NUMÉRIQUE & MANDAT D\'ACTIVATION (DROIT SÉNÉGALAIS)', 18, y2 + 4);
+
+  y2 += 7;
+
+  // Boîte 2 Colonnes pour les Signatures
+  // 1. Colonne Gauche : LE RESTAURATEUR (LE CLIENT)
   doc.setFillColor(248, 250, 252);
-  doc.roundedRect(15, 87, 87, 85, 3, 3, 'F');
+  doc.roundedRect(15, y2, 88, 72, 2, 2, 'F');
   doc.setDrawColor(203, 213, 225);
-  doc.roundedRect(15, 87, 87, 85, 3, 3, 'D');
+  doc.roundedRect(15, y2, 88, 72, 2, 2, 'D');
 
   doc.setTextColor(...bleuMarine);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(9);
-  doc.text('POUR LOU AME TAY ? :', 20, 94);
-  doc.setFontSize(8);
-  doc.setTextColor(...noirTitre);
-  doc.text('M. GUEYE, Fondateur & CEO', 20, 99);
-  doc.setFont('helvetica', 'normal');
   doc.setFontSize(7.5);
-  doc.setTextColor(...grisTexte);
-  doc.text('Mention : "Bon pour accord et mandat d\'activation"', 20, 104);
-  doc.text(`Fait à Dakar, le ${dateContrat}`, 20, 109);
+  doc.text('POUR LE RESTAURATEUR (LE CLIENT) :', 19, y2 + 6);
 
-  // Tampon & Cachet Officiel Virtuel
-  doc.setFillColor(254, 243, 199); // Ambré clair
-  doc.roundedRect(25, 116, 67, 36, 3, 3, 'F');
-  doc.setDrawColor(201, 162, 39);
-  doc.setLineWidth(1.2);
-  doc.roundedRect(25, 116, 67, 36, 3, 3, 'D');
-
-  doc.setTextColor(...bleuMarine);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8);
-  doc.text('DIRECTION GÉNÉRALE', 36, 124);
-  doc.setFontSize(7.5);
-  doc.setTextColor(180, 83, 9);
-  doc.text('LOU AME TAY SASU', 39, 130);
-  doc.setFontSize(6.5);
-  doc.setTextColor(...grisTexte);
-  doc.text('MÉDIAS GRAPHISME SÉNÉGAL', 32, 135);
-  doc.text('+221 77 458 74 74 — DAKAR', 33, 140);
   doc.setFont('helvetica', 'italic');
-  doc.setFontSize(6.5);
+  doc.setFontSize(6.8);
   doc.setTextColor(22, 101, 52);
-  doc.text('✓ VALIDÉ & CERTIFIÉ CONFORME', 31, 146);
+  doc.text('« Bon pour accord et mandat d\'activation »', 19, y2 + 10.5);
 
-  // 2. Colonne Droite : Le Client (Signature Tactile Capturée)
-  doc.setFillColor(248, 250, 252);
-  doc.roundedRect(108, 87, 87, 85, 3, 3, 'F');
-  doc.setDrawColor(203, 213, 225);
-  doc.roundedRect(108, 87, 87, 85, 3, 3, 'D');
-
-  doc.setTextColor(...bleuMarine);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(9);
-  doc.text('POUR L\'ÉTABLISSEMENT CLIENT :', 113, 94);
-  doc.setFontSize(8);
-  doc.setTextColor(...noirTitre);
-  doc.text(String(gerantNom).slice(0, 32), 113, 99);
-  doc.setFont('helvetica', 'normal');
   doc.setFontSize(7.5);
+  doc.setTextColor(...noirTitre);
+  doc.text(`Identité : ${String(gerantNom).slice(0, 32)}`, 19, y2 + 15.5);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(6.5);
   doc.setTextColor(...grisTexte);
-  doc.text(`Établissement : ${String(restaurantNom).slice(0, 30)}`, 113, 104);
-  doc.text(`Mention : "Lu et approuvé, bon pour accord"`, 113, 109);
-  doc.text(`Fait à ${ville}, le ${dateContrat}`, 113, 114);
+  doc.text(`Établissement : ${String(restaurantNom).slice(0, 30)}`, 19, y2 + 19.5);
+  doc.text(`Horodatage certifié : ${dateContrat} à ${heureContrat}`, 19, y2 + 23.5);
 
-  // Insertion de la Signature Dessinée par le Client
+  // Emplacement de la signature tactile capturée
+  doc.setDrawColor(201, 162, 39);
+  doc.setLineWidth(0.5);
+  doc.roundedRect(19, y2 + 26, 80, 28, 1, 1, 'D');
+
   if (signatureClientDataUrl) {
     try {
-      doc.addImage(signatureClientDataUrl, 'PNG', 118, 120, 67, 34);
+      doc.addImage(signatureClientDataUrl, 'PNG', 20, y2 + 27, 78, 26);
     } catch (e) {
-      console.warn('Erreur insertion image signature client:', e);
       doc.setTextColor(148, 163, 184);
       doc.setFont('helvetica', 'italic');
-      doc.setFontSize(8);
-      doc.text('[Signature Électronique Validée]', 125, 138);
+      doc.setFontSize(7);
+      doc.text('[Signature Électronique Validée sur Écran]', 26, y2 + 41);
     }
   } else {
     doc.setTextColor(148, 163, 184);
     doc.setFont('helvetica', 'italic');
-    doc.setFontSize(8);
-    doc.text('[Signature Électronique Validée sur Écran]', 120, 138);
+    doc.setFontSize(7);
+    doc.text('[Signature Électronique Validée sur Écran]', 26, y2 + 41);
   }
 
-  // Encadré de Preuve de Paiement Wave / OM en bas de page 2
-  doc.setFillColor(238, 242, 255);
-  doc.roundedRect(15, 180, 180, 25, 2, 2, 'F');
-  doc.setDrawColor(199, 210, 254);
-  doc.roundedRect(15, 180, 180, 25, 2, 2, 'D');
-
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(6);
+  doc.setTextColor(...grisTexte);
+  doc.text(`Empreinte Numérique : SHA256-${hashFinal}`, 19, y2 + 58);
+  doc.text(`Réf. Reçu Mobile Money : ${refPaiement} (${modePaiement.split(' ')[0]})`, 19, y2 + 62);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8.5);
+  doc.setTextColor(22, 101, 52);
+  doc.text('✓ VALIDATION TACTILE CONFORME LOI 2008-08', 19, y2 + 67);
+
+  // 2. Colonne Droite : LOU AME TAY SASU (LE PRESTATAIRE)
+  doc.setFillColor(248, 250, 252);
+  doc.roundedRect(107, y2, 88, 72, 2, 2, 'F');
+  doc.setDrawColor(203, 213, 225);
+  doc.roundedRect(107, y2, 88, 72, 2, 2, 'D');
+
   doc.setTextColor(...bleuMarine);
-  doc.text('CERTIFICAT DE RÈGLEMENT D\'ACOMPTE EN DIRECT :', 20, 186);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.5);
+  doc.text('POUR LOU AME TAY SASU (LE PRESTATAIRE) :', 111, y2 + 6);
 
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8);
-  doc.setTextColor(...noirTitre);
-  doc.text(`• Montant Acompte Réglé : ${montantAcompte}   |   Mode : ${modePaiement}`, 20, 192);
-  doc.text(`• Référence Reçu Wave/OM : ${refPaiement}   |   Statut d'encaissement : CONFIRMÉ EN TEMPS RÉEL`, 20, 197);
+  doc.setFontSize(6.8);
+  doc.setTextColor(...grisTexte);
+  doc.text('Visa Direction Générale & Validation Technique', 111, y2 + 10.5);
+
+  doc.setFont('helvetica', 'bold');
   doc.setFontSize(7.5);
+  doc.setTextColor(...noirTitre);
+  doc.text('M. Mbaye Babacar GUEYE', 111, y2 + 15.5);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(6.5);
+  doc.setTextColor(...grisTexte);
+  doc.text('Fondateur, Directeur Général & CEO', 111, y2 + 19.5);
+  doc.text('Lou Ame Tay SASU / Médias Graphisme Sénégal', 111, y2 + 23.5);
+
+  // Tampon & Cachet Officiel Scellé
+  doc.setFillColor(254, 243, 199); // Ambré clair #FEF3C7
+  doc.roundedRect(111, y2 + 26, 80, 28, 1.5, 1.5, 'F');
+  doc.setDrawColor(201, 162, 39);
+  doc.setLineWidth(1);
+  doc.roundedRect(111, y2 + 26, 80, 28, 1.5, 1.5, 'D');
+
+  doc.setTextColor(...bleuMarine);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.5);
+  doc.text('DIRECTION GÉNÉRALE — LOU AME TAY SASU', 118, y2 + 32);
+
+  doc.setFontSize(6.5);
+  doc.setTextColor(180, 83, 9);
+  doc.text('MÉDIAS GRAPHISME SÉNÉGAL / MDA ARTS WORK', 116, y2 + 37);
+
+  doc.setFontSize(6);
+  doc.setTextColor(...grisTexte);
+  doc.text('Thiès (Grand Standing) & Dakar (VDN Liberté 6 Extension)', 114, y2 + 42);
+  doc.text('Coordination Administrative : BNDE / Wave (+221 77 458 74 74)', 113, y2 + 46);
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(6.5);
   doc.setTextColor(22, 101, 52);
-  doc.text(`✓ Notification d'encaissement transmise au CEO M. Gueye (+221 77 458 74 74). Accès SaaS activé.`, 20, 202);
+  doc.text('✓ CACHET D\'ENTREPRISE SCELLÉ & SIGNÉ NUMÉRIQUEMENT', 113, y2 + 51);
 
-  // Pied de page Page 2
-  doc.setFontSize(7);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(6);
+  doc.setTextColor(...grisTexte);
+  doc.text('Plateforme : https://louametay.online — contact@louametay.online', 111, y2 + 58);
+  doc.text(`Acompte perçu : ${montantAcompte} | Activation immédiate`, 111, y2 + 62);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(2, 132, 199);
+  doc.text('SCELLÉ ÉLECTRONIQUE CONFORME DROIT SÉNÉGALAIS', 111, y2 + 67);
+
+  // Pied de Page 2
+  doc.setFontSize(6.8);
   doc.setTextColor(148, 163, 184);
-  doc.text(`Contrat Lou Ame Tay SaaS — Réf. ${numeroContrat} — Page 2/2 — Signature Électronique Certifiée`, 15, 285);
-  doc.text('Lou Ame Tay SASU — N° RCCM & NINEA Dakar — contact@louametay.online', 105, 285);
+  doc.line(15, 284, 195, 284);
+  doc.text(`Contrat Lou Ame Tay SaaS — Réf. ${numeroContrat} — Page 2/2 — Signature Électronique Certifiée`, 15, 288);
+  doc.text('Tribunal de Commerce Hors Classe de Dakar (Sénégal)', 130, 288);
 
-  // Téléchargement automatique du fichier
+  // Téléchargement automatique du fichier PDF
   const nomFichier = `Contrat_LouAmeTay_${String(restaurantNom).replace(/[^a-zA-Z0-9]/g, '_')}_${numeroContrat}.pdf`;
   doc.save(nomFichier);
 

@@ -1692,12 +1692,15 @@ function attacherEvenementsLeads(conteneur) {
       const montantAcompte = lead.formule === 'Tàmbali' ? '15 000 FCFA' : lead.formule === 'Nio Far' ? '25 000 FCFA' : '35 000 FCFA';
 
       const donnees = {
-        numeroContrat: `LAT-${new Date().getFullYear()}-${String(lead.id).slice(0, 4).toUpperCase()}`,
+        numeroContrat: `LAT-2026-${String(lead.id).slice(0, 4).toUpperCase()}`,
         dateContrat: lead.created_at ? new Date(lead.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) : new Date().toLocaleDateString('fr-FR'),
+        heureContrat: lead.created_at ? new Date(lead.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : new Date().toLocaleTimeString('fr-FR'),
         restaurantNom: lead.restaurant_nom || 'Établissement Client',
         gerantNom: lead.prospect_nom || 'M. le Gérant',
         telephone: lead.telephone || '+221 -- --- -- --',
+        adresse: lead.ville || 'Dakar, Sénégal',
         ville: lead.ville || 'Dakar, Sénégal',
+        ninea: lead.ninea || 'Non communiqué / En cours',
         formule: lead.formule || 'Xéweul',
         montantMensuel: `${montantAcompte}/mois`,
         montantAcompte: montantAcompte,
