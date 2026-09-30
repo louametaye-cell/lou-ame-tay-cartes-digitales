@@ -155,7 +155,7 @@
           </button>
         </nav>
 
-        <!-- SPRINT B & D : BARRE D'ACTION NETWORKING RAPIDE -->
+        <!-- SPRINT B & D : BARRE D'ACTION NETWORKING RAPIDE (100% VUE CLIENT) -->
         <div class="barre-networking-rapide">
           <button type="button" class="btn-echange" id="btn-echange" title="Échanger nos cartes de visite" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"></path><path d="M4 20L21 3"></path><path d="M21 16v5h-5"></path><path d="M15 15l6 6"></path><path d="M4 4l5 5"></path></svg>
@@ -164,10 +164,6 @@
           <button type="button" class="btn-rdv" id="btn-rdv" title="Réserver un créneau de démonstration" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
             <span>Réserver un créneau</span>
-          </button>
-          <button type="button" class="btn-kit" id="btn-kit" title="Télécharger mon kit networking" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
-            <span>Mon Kit</span>
           </button>
           <button type="button" class="btn-partager" id="btn-partager" title="Partager cette carte" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"></line><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"></line></svg>
@@ -712,49 +708,16 @@
           </form>
         </section>
 
-        <!-- 11. BOUTON SIGNATURE EMAIL PRO -->
-        <div style="text-align: center; margin-bottom: 1.5rem;">
-          <button type="button" id="btn-ouvrir-modal-signature" class="btn btn-contour" style="width: 100%; font-size: 0.85rem; display: inline-flex; align-items: center; justify-content: center; gap: 8px;" data-i18n="carte.signature_email">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect width="20" height="16" x="2" y="4" rx="2"></rect>
-              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+        <!-- ACCÈS PRIVÉ DISCRET POUR LE CONSEILLER TERRAIN -->
+        <div class="zone-acces-conseiller-carte" style="text-align: center; margin: 1.5rem 0 1rem;">
+          <a id="lien-espace-commercial" href="commercial.html" class="btn-acces-conseiller-discret" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.82rem; font-weight: 600; color: #64748B; text-decoration: none; padding: 8px 18px; border-radius: 20px; background: rgba(11, 31, 58, 0.04); border: 1px dashed #CBD5E1; transition: all 0.2s;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
             </svg>
-            <span>Obtenir ma signature email professionnelle</span>
-          </button>
+            <span>Vous êtes ce conseiller ? Espace de travail privé 🔒</span>
+          </a>
         </div>
-
-        <!-- SPRINT 2 : SECTION MES OUTILS & KIT NETWORKING -->
-        <section class="carte-outils" id="section-outils" aria-label="Mes outils & Kit Networking">
-          <h2 style="display: flex; align-items: center; gap: 8px;">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C9A227" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-            </svg>
-            <span data-i18n="carte.outils_titre">Mes outils & Kit Networking</span>
-          </h2>
-          <button type="button" class="btn-outil btn-outil-kit" id="btn-telecharger-kit-outils" title="Télécharger mon kit networking complet en ZIP" style="display: inline-flex; align-items: center; gap: 10px;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="7 10 12 15 17 10"></polyline>
-              <line x1="12" y1="15" x2="12" y2="3"></line>
-            </svg>
-            <span>Télécharger mon kit networking (.zip)</span>
-          </button>
-          <button type="button" class="btn-outil btn-outil-pdf" id="btn-telecharger-pdf-outils" title="Télécharger ma carte de visite 85x55mm prête à imprimer" style="display: inline-flex; align-items: center; gap: 10px;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="6 9 6 2 18 2 18 9"></polyline>
-              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-              <rect width="12" height="8" x="6" y="14"></rect>
-            </svg>
-            <span>Télécharger ma carte imprimable 85x55mm (.pdf)</span>
-          </button>
-          <button type="button" class="btn-outil btn-outil-signature" id="btn-copier-signature-outils" title="Copier ma signature email compatible Gmail et Outlook" style="display: inline-flex; align-items: center; gap: 10px;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
-              <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
-            </svg>
-            <span>Copier ma signature email (Gmail / Outlook)</span>
-          </button>
-        </section>
 
         <!-- 12. SECTION ENTREPRISE "LOU AME TAY", SITE WEB ET GALERIE -->
         <section class="chimp-carte-blanche chimp-entreprise-bloc" aria-label="L'entreprise Lou Ame Tay">

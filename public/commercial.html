@@ -15,6 +15,12 @@
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/admin.css">
 
+  <!-- Bibliothèques pour le QR Code, la Signature, le Kit ZIP et le PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
   <style>
     :root {
       --bleu-profond: #0B1F3A;
@@ -787,6 +793,10 @@
       <button type="button" class="comm-tab-btn active" data-panel="panel-perf">
         <span>📊 Performances</span>
       </button>
+      <button type="button" class="comm-tab-btn" data-panel="panel-rdv-gps">
+        <span>📍 RDV & Pointage GPS</span>
+        <span class="badge-count" id="badge-rdv-count">0</span>
+      </button>
       <button type="button" class="comm-tab-btn" data-panel="panel-commissions">
         <span>💰 Commissions 10%</span>
         <span class="badge-count" id="badge-commissions-solde">0 F</span>
@@ -798,6 +808,9 @@
       <button type="button" class="comm-tab-btn" data-panel="panel-prospects">
         <span>🎯 Mes Prospects</span>
         <span class="badge-count" id="badge-prospects-count">0</span>
+      </button>
+      <button type="button" class="comm-tab-btn" data-panel="panel-outils">
+        <span>🛠️ Kit & Outils Pro</span>
       </button>
       <button type="button" class="comm-tab-btn" data-panel="panel-annonces">
         <span>📢 Annonces Équipe</span>
@@ -870,6 +883,42 @@
             <button type="button" class="comm-btn-outline" id="btn-copier-lien">
               <span>Copier mon lien</span> 🔗
             </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           ONGLET : RENDEZ-VOUS & POINTAGE GPS (ANTI-FRAUDE & PROOF OF VISIT 2.0)
+           ===================================================================== -->
+      <section id="panel-rdv-gps" class="comm-panel">
+        <div class="comm-card" style="border-top: 4px solid var(--bleu-profond);">
+          <div class="comm-card-header">
+            <div>
+              <h3 class="comm-card-title">📍 Suivi des Rendez-vous & Pointage GPS Certifié</h3>
+              <p style="color: var(--texte-muet); font-size: 0.88rem; margin: 4px 0 0;">
+                Prouvez votre présence en restaurant (&lt; 200m). Les coordonnées GPS réelles et l'horodatage sont archivés en direct pour la direction.
+              </p>
+            </div>
+            <button type="button" class="comm-btn-gold" id="btn-ouvrir-modal-rdv-comm">
+              <span>+ Planifier un RDV Restaurant</span> 📅
+            </button>
+          </div>
+
+          <div class="comm-table-wrap">
+            <table class="comm-table">
+              <thead>
+                <tr>
+                  <th>Date & Heure</th>
+                  <th>Restaurant & Gérant</th>
+                  <th>Ville & Repère</th>
+                  <th>Pointage GPS</th>
+                  <th>Actions Terrain</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-rdv-commercial">
+                <tr><td colspan="5" style="text-align: center; color: var(--texte-muet); padding: 2rem;">Chargement des rendez-vous...</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </section>
@@ -1019,6 +1068,65 @@
                 <tr><td colspan="6" style="text-align: center; color: var(--texte-muet); padding: 2rem;">Chargement de vos prospects...</td></tr>
               </tbody>
             </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           ONGLET : KIT NETWORKING & OUTILS PRO DU CONSEILLER
+           ===================================================================== -->
+      <section id="panel-outils" class="comm-panel">
+        <div class="comm-card">
+          <div class="comm-card-header">
+            <h3 class="comm-card-title">🛠️ Mes Outils de Représentation Officielle Lou Ame Tay</h3>
+            <span style="font-size: 0.85rem; color: var(--texte-muet);">Kits numériques, supports imprimables et signature</span>
+          </div>
+          <p style="color: var(--texte-muet); font-size: 0.92rem; margin-bottom: 1.5rem;">
+            Ces outils sont strictement réservés à vos activités de conseiller terrain Lou Ame Tay.
+          </p>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem;">
+            <!-- Carte 1 : Kit ZIP -->
+            <div style="border: 1.5px solid var(--bordure); border-radius: var(--arrondi); padding: 1.5rem; background: #FFFFFF; display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">📦</div>
+                <h4 style="font-size: 1.1rem; color: var(--bleu-profond); margin: 0 0 0.5rem; font-weight: 800;">Kit Networking Complet (.ZIP)</h4>
+                <p style="color: var(--texte-muet); font-size: 0.85rem; line-height: 1.4; margin-bottom: 1.25rem;">
+                  Archive complète contenant vos QR Codes haute résolution, les logos officiels Lou Ame Tay et les brochures de présentation de nos formules.
+                </p>
+              </div>
+              <button type="button" class="comm-btn-outline" id="comm-btn-telecharger-kit" style="width: 100%; justify-content: center;">
+                <span>Télécharger mon Kit (.zip)</span> 📥
+              </button>
+            </div>
+
+            <!-- Carte 2 : Carte PDF Imprimable -->
+            <div style="border: 1.5px solid var(--bordure); border-radius: var(--arrondi); padding: 1.5rem; background: #FFFFFF; display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">📇</div>
+                <h4 style="font-size: 1.1rem; color: var(--bleu-profond); margin: 0 0 0.5rem; font-weight: 800;">Carte Imprimable 85x55mm (.PDF)</h4>
+                <p style="color: var(--texte-muet); font-size: 0.85rem; line-height: 1.4; margin-bottom: 1.25rem;">
+                  Fichier PDF vectoriel haute définition calibré pour les imprimeurs professionnels de Dakar et Thiès avec repères de coupe.
+                </p>
+              </div>
+              <button type="button" class="comm-btn-outline" id="comm-btn-telecharger-pdf" style="width: 100%; justify-content: center;">
+                <span>Télécharger le PDF d'impression</span> 📄
+              </button>
+            </div>
+
+            <!-- Carte 3 : Signature Email HTML -->
+            <div style="border: 1.5px solid var(--bordure); border-radius: var(--arrondi); padding: 1.5rem; background: #FFFFFF; display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">✉️</div>
+                <h4 style="font-size: 1.1rem; color: var(--bleu-profond); margin: 0 0 0.5rem; font-weight: 800;">Signature Email Pro (Gmail / Outlook)</h4>
+                <p style="color: var(--texte-muet); font-size: 0.85rem; line-height: 1.4; margin-bottom: 1.25rem;">
+                  Bloc HTML officiel avec photo, badge de conseiller officiel, numéro direct et liens directs vers la plateforme Lou Ame Tay.
+                </p>
+              </div>
+              <button type="button" class="comm-btn-gold" id="comm-btn-copier-signature" style="width: 100%; justify-content: center;">
+                <span>Copier ma Signature Email</span> 📋
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -1219,6 +1327,73 @@
 
         <button type="submit" class="comm-btn-primary" id="btn-submit-prospect" style="margin-top: 1rem;">
           <span>Enregistrer ce prospect</span> ➔
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODAL : PLANIFIER UN RENDEZ-VOUS RESTAURANT
+       ========================================================================= -->
+  <div class="comm-modal-overlay" id="modal-nouveau-rdv-comm">
+    <div class="comm-modal-card">
+      <button type="button" class="comm-modal-close" id="btn-fermer-modal-rdv-comm">✕</button>
+      <h3 style="font-size: 1.3rem; color: var(--bleu-profond); margin: 0 0 0.5rem; font-weight: 800;">
+        📍 Planifier un Rendez-vous Terrain
+      </h3>
+      <p style="color: var(--texte-muet); font-size: 0.88rem; margin-bottom: 1.5rem;">
+        Enregistrez votre visite pour certifier votre déplacement par GPS lors de votre arrivée sur place.
+      </p>
+
+      <form id="form-nouveau-rdv-comm">
+        <div class="comm-form-group">
+          <label for="rdv-resto">Nom du Restaurant / Établissement *</label>
+          <input type="text" id="rdv-resto" class="comm-input" placeholder="Ex: Restaurant Le Lagon 1" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="comm-form-group">
+            <label for="rdv-contact">Nom du Gérant / Décideur *</label>
+            <input type="text" id="rdv-contact" class="comm-input" placeholder="Ex: M. Oumar Sow" required>
+          </div>
+
+          <div class="comm-form-group">
+            <label for="rdv-tel">Téléphone / WhatsApp *</label>
+            <input type="tel" id="rdv-tel" class="comm-input" placeholder="Ex: 77 123 45 67" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="comm-form-group">
+            <label for="rdv-ville">Ville / Quartier *</label>
+            <select id="rdv-ville" class="comm-input" required>
+              <option value="Dakar Plateau">Dakar Plateau</option>
+              <option value="Dakar Almadies / Ngor">Dakar Almadies / Ngor</option>
+              <option value="Dakar Point E / Mermoz">Dakar Point E / Mermoz</option>
+              <option value="Thiès Ville">Thiès Ville</option>
+              <option value="Mbour / Saly">Mbour / Saly</option>
+              <option value="Autre">Autre localité</option>
+            </select>
+          </div>
+
+          <div class="comm-form-group">
+            <label for="rdv-date">Date & Heure du RDV *</label>
+            <input type="datetime-local" id="rdv-date" class="comm-input" required>
+          </div>
+        </div>
+
+        <div class="comm-form-group">
+          <label for="rdv-adresse">Adresse précise / Repère connu</label>
+          <input type="text" id="rdv-adresse" class="comm-input" placeholder="Ex: Corniche Est, face mer, Dakar">
+        </div>
+
+        <div class="comm-form-group">
+          <label for="rdv-notes">Objectif de la visite</label>
+          <input type="text" id="rdv-notes" class="comm-input" placeholder="Ex: Démo de commande sur tablette en salle">
+        </div>
+
+        <button type="submit" class="comm-btn-primary" id="btn-submit-rdv-comm" style="margin-top: 1rem;">
+          <span>Enregistrer le rendez-vous</span> ➔
         </button>
       </form>
     </div>

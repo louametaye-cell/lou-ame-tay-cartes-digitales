@@ -253,8 +253,11 @@ async function initialiserCarte() {
   initialiserSimulateurROI();
   initialiserWallet(commercial);
 
-  // Sprint 2 : Section Mes outils & Kit Networking
-  configurerSectionOutils(commercial);
+  // Lien sécurisé discret vers l'Espace Commercial Pro
+  const lienEspaceComm = document.getElementById('lien-espace-commercial');
+  if (lienEspaceComm && commercial?.id) {
+    lienEspaceComm.href = `commercial.html?id=${encodeURIComponent(commercial.id)}`;
+  }
 
   // 11. Section Entreprise Lou Ame Tay et galerie
   remplirEntreprise();

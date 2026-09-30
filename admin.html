@@ -89,6 +89,13 @@
         <span>Annonces Équipe</span>
       </button>
 
+      <!-- JOURNAL D'AUDIT, SÉCURITÉ & POINTAGES GPS -->
+      <button type="button" class="nav-onglet-btn" data-onglet="audit">
+        <span class="nav-icone" aria-hidden="true">📜</span>
+        <span>Audit & Connexions</span>
+        <span id="badge-compteur-audit" class="nav-badge-compteur" style="display: none; background: #3B82F6; color: #FFFFFF;">0</span>
+      </button>
+
       <button type="button" class="nav-onglet-btn" data-onglet="avis">
         <span class="nav-icone" aria-hidden="true">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1282,6 +1289,110 @@ VALUES
               </thead>
               <tbody id="tbody-annonces-admin">
                 <tr><td colspan="6" class="table-chargement">Chargement des annonces...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================================================================
+           VUE AUDIT : JOURNAL D'ACTIVITÉS, TRAÇABILITÉ & POINTAGES GPS EN DIRECT
+           ================================================================== -->
+      <section id="vue-audit" class="admin-vue">
+        <div class="panneau-entete" style="margin-bottom: 1.25rem;">
+          <div>
+            <h3 class="panneau-titre" style="font-size: 1.35rem; color: #0B1F3A;">📜 Journal d'Audit & Connexions en Temps Réel</h3>
+            <p class="panneau-soustitre">Traçabilité intégrale pour la direction : connexions des commerciaux, pointages GPS certifiés en restaurant, notes de frais soumises et alertes de sécurité.</p>
+          </div>
+          <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+            <button type="button" id="btn-actualiser-audit" class="btn btn-contour btn-sm">
+              ↻ Actualiser l'Audit
+            </button>
+            <button type="button" id="btn-export-audit-csv" class="btn btn-primaire btn-sm">
+              📥 Exporter le Journal (CSV)
+            </button>
+          </div>
+        </div>
+
+        <!-- KPIs d'Audit -->
+        <div class="stats-grille">
+          <div class="stat-carte">
+            <div class="stat-icone-fond icone-bleu">🔑</div>
+            <div class="stat-contenu">
+              <span class="stat-titre">Connexions Aujourd'hui</span>
+              <strong id="stat-audit-connexions" class="stat-valeur">0</strong>
+              <span class="stat-precision">Commerciaux identifiés</span>
+            </div>
+          </div>
+
+          <div class="stat-carte">
+            <div class="stat-icone-fond icone-vert">📍</div>
+            <div class="stat-contenu">
+              <span class="stat-titre">Pointages GPS Certifiés</span>
+              <strong id="stat-audit-checkins-valides" class="stat-valeur">0</strong>
+              <span class="stat-precision">Sur place (&lt; 250m)</span>
+            </div>
+          </div>
+
+          <div class="stat-carte">
+            <div class="stat-icone-fond icone-orange" style="background: rgba(239, 68, 68, 0.15); color: #EF4444;">🚨</div>
+            <div class="stat-contenu">
+              <span class="stat-titre">Alertes & Écarts GPS</span>
+              <strong id="stat-audit-checkins-suspects" class="stat-valeur" style="color: #EF4444;">0</strong>
+              <span class="stat-precision">Écarts constatés</span>
+            </div>
+          </div>
+
+          <div class="stat-carte">
+            <div class="stat-icone-fond icone-or">📜</div>
+            <div class="stat-contenu">
+              <span class="stat-titre">Total Événements Audit</span>
+              <strong id="stat-audit-total" class="stat-valeur">0</strong>
+              <span class="stat-precision">Logs infalsifiables</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tableau d'audit avec filtres -->
+        <div class="admin-carte-tableau">
+          <div class="tableau-barre-outils">
+            <div class="outils-gauche">
+              <div class="champ-recherche-wrapper">
+                <span class="icone-recherche" aria-hidden="true">🔍</span>
+                <input 
+                  type="text" 
+                  id="recherche-audit-admin" 
+                  class="champ-recherche-admin" 
+                  placeholder="Rechercher par conseiller, action, restaurant..."
+                >
+                <button type="button" id="btn-effacer-recherche-audit" class="btn-effacer-filtre">✕</button>
+              </div>
+
+              <select id="filtre-type-audit" class="select-filtre-admin">
+                <option value="tous">Toutes les actions</option>
+                <option value="CONNEXION_COMMERCIAL">🔑 Connexions commerciaux</option>
+                <option value="CHECKIN_GPS">📍 Pointages GPS</option>
+                <option value="NOTE_FRAIS_SOUMISE">🧾 Notes de frais</option>
+                <option value="NOUVEAU_PROSPECT">🎯 Nouveaux prospects</option>
+                <option value="SUSPECT">🚨 Alertes & Suspects uniquement</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="admin-table" id="table-audit">
+              <thead>
+                <tr>
+                  <th>Horodatage</th>
+                  <th>Action / Événement</th>
+                  <th>Conseiller / Acteur</th>
+                  <th>Détails & Preuves Techniques</th>
+                  <th>Appareil</th>
+                  <th style="text-align: right;">Statut</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-audit-admin">
+                <tr><td colspan="6" class="table-chargement">Chargement du journal d'audit...</td></tr>
               </tbody>
             </table>
           </div>

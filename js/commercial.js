@@ -9,6 +9,16 @@
  */
 
 import { supabase, estSupabaseConfigure, SUPABASE_URL } from './supabase-client.js';
+import { 
+  enregistrerActivite, 
+  calculerDistanceGPS, 
+  obtenirPositionActuelle, 
+  genererLienItineraireGoogle, 
+  genererLienGoogleCalendar 
+} from './audit.js';
+import { genererKitNetworking } from './kit-networking.js';
+import { genererCartePDF } from './carte-pdf.js';
+import { genererSignatureHTML, copierSignature } from './signature-email.js';
 
 // État local de la session commerciale
 let commercialConnecte = null;
@@ -16,6 +26,7 @@ let listeCommissions = [];
 let listeDepenses = [];
 let listeProspects = [];
 let listeAnnonces = [];
+let listeRdv = [];
 let fichierJustificatifEnCours = null;
 
 // ==============================================================================
@@ -89,9 +100,17 @@ function initialiserFormulaires() {
     });
   }
 
-  // Déconnexion
-  document.getElementById('btn-deconnexion-comm')?.addEventListener('click', () => {
+  // Déconnexion avec traçabilité d'audit
+  document.getElementById('btn-deconnexion-comm')?.addEventListener('click', async () => {
     if (confirm('Voulez-vous vraiment vous déconnecter de votre espace ?')) {
+      if (commercialConnecte) {
+        await enregistrerActivite({
+          typeAction: 'DECONNEXION_COMMERCIAL',
+          description: `Déconnexion volontaire du conseiller ${commercialConnecte.prenom} ${commercialConnecte.nom}`,
+          commercialId: commercialConnecte.id,
+          commercialNom: `${commercialConnecte.prenom} ${commercialConnecte.nom}`
+        });
+      }
       localStorage.removeItem('LOUAMETAY_COMMERCIAL_SESSION');
       commercialConnecte = null;
       afficherEcranConnexion();
@@ -103,6 +122,113 @@ function initialiserFormulaires() {
   document.getElementById('select-statut-dispo')?.addEventListener('change', async (e) => {
     const nouveauStatut = e.target.value;
     await mettreAJourDisponibilite(nouveauStatut);
+  });
+
+  // Modal Nouveau Rendez-vous Restaurant
+  document.getElementById('btn-ouvrir-modal-rdv-comm')?.addEventListener('click', () => {
+    document.getElementById('modal-nouveau-rdv-comm').style.display = 'flex';
+  });
+  document.getElementById('btn-fermer-modal-rdv-comm')?.addEventListener('click', () => {
+    document.getElementById('modal-nouveau-rdv-comm').style.display = 'none';
+  });
+
+  document.getElementById('form-nouveau-rdv-comm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('btn-submit-rdv-comm');
+    btn.disabled = true;
+    btn.innerHTML = '<span>Enregistrement...</span> ⏳';
+
+    try {
+      const resto = document.getElementById('rdv-resto').value.trim();
+      const contact = document.getElementById('rdv-contact').value.trim();
+      const tel = document.getElementById('rdv-tel').value.trim();
+      const ville = document.getElementById('rdv-ville').value;
+      const dateRdv = document.getElementById('rdv-date').value;
+      const adresse = document.getElementById('rdv-adresse').value.trim() || ville;
+      const notes = document.getElementById('rdv-notes').value.trim();
+
+      const villeCoord = COORDONNEES_VILLES_SENEGAL[ville] || COORDONNEES_VILLES_SENEGAL['Dakar Plateau'];
+
+      const { error: insertErr } = await supabase
+        .from('rendez_vous')
+        .insert([{
+          commercial_id: commercialConnecte.id,
+          restaurant_prospect: resto,
+          nom_prospect: contact,
+          telephone_prospect: tel,
+          date_rdv: new Date(dateRdv).toISOString(),
+          adresse_restaurant: adresse,
+          latitude_restaurant: villeCoord.lat,
+          longitude_restaurant: villeCoord.lon,
+          notes: notes,
+          statut: 'confirme',
+          checkin_statut: 'EN_ATTENTE'
+        }]);
+
+      if (insertErr) throw insertErr;
+
+      await enregistrerActivite({
+        typeAction: 'ADMIN_ACTION',
+        description: `Planification RDV : ${resto} (${contact}) prévu le ${new Date(dateRdv).toLocaleString('fr-FR')}`,
+        commercialId: commercialConnecte.id,
+        commercialNom: `${commercialConnecte.prenom} ${commercialConnecte.nom}`,
+        statut: 'SUCCES'
+      });
+
+      afficherToast('Rendez-vous planifié avec succès !');
+      document.getElementById('modal-nouveau-rdv-comm').style.display = 'none';
+      document.getElementById('form-nouveau-rdv-comm').reset();
+      await chargerRendezVous();
+
+    } catch (err) {
+      afficherToast(err.message || 'Erreur lors de l\'enregistrement du rendez-vous.');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<span>Enregistrer le rendez-vous</span> ➔';
+    }
+  });
+
+  // Outils Pro : Kit ZIP, Carte PDF, Signature HTML
+  document.getElementById('comm-btn-telecharger-kit')?.addEventListener('click', async () => {
+    if (!commercialConnecte) return;
+    afficherToast('Préparation de votre Kit Networking ZIP en cours... ⏳');
+    try {
+      await genererKitNetworking(commercialConnecte);
+      afficherToast('Kit Networking téléchargé avec succès ! 📦');
+      await enregistrerActivite({
+        typeAction: 'ADMIN_ACTION',
+        description: `Téléchargement du Kit Networking (.ZIP) par ${commercialConnecte.prenom} ${commercialConnecte.nom}`,
+        commercialId: commercialConnecte.id,
+        commercialNom: `${commercialConnecte.prenom} ${commercialConnecte.nom}`
+      });
+    } catch (err) {
+      console.error(err);
+      afficherToast('Erreur génération kit ZIP : ' + err.message);
+    }
+  });
+
+  document.getElementById('comm-btn-telecharger-pdf')?.addEventListener('click', async () => {
+    if (!commercialConnecte) return;
+    afficherToast('Génération de votre carte imprimable 85x55mm HD... 📄');
+    try {
+      await genererCartePDF(commercialConnecte);
+      afficherToast('Carte PDF imprimable téléchargée ! 🖨️');
+    } catch (err) {
+      console.error(err);
+      afficherToast('Erreur génération carte PDF : ' + err.message);
+    }
+  });
+
+  document.getElementById('comm-btn-copier-signature')?.addEventListener('click', async () => {
+    if (!commercialConnecte) return;
+    try {
+      const htmlSignature = genererSignatureHTML(commercialConnecte);
+      await copierSignature(htmlSignature);
+      afficherToast('Signature email professionnelle copiée dans le presse-papier ! 📋');
+    } catch (err) {
+      console.error(err);
+      afficherToast('Erreur copie signature.');
+    }
   });
 }
 
@@ -149,6 +275,20 @@ async function tenterConnexion(identifiant, pin, remember) {
       nom: conseiller.nom
     }));
   }
+
+  // Traçabilité immuable de connexion pour le CEO
+  await enregistrerActivite({
+    typeAction: 'CONNEXION_COMMERCIAL',
+    description: `Connexion du conseiller ${conseiller.prenom} ${conseiller.nom}`,
+    details: {
+      telephone: conseiller.telephone || conseiller.whatsapp,
+      email: conseiller.email,
+      session_memorisee: !!remember
+    },
+    commercialId: conseiller.id,
+    commercialNom: `${conseiller.prenom} ${conseiller.nom}`,
+    statut: 'SUCCES'
+  });
 
   afficherApplication();
   actualiserInterfaceConseiller();
@@ -290,6 +430,7 @@ async function chargerToutesLesDonnees() {
 
   await Promise.allSettled([
     chargerPerformances(),
+    chargerRendezVous(),
     chargerCommissions(),
     chargerDepenses(),
     chargerProspects(),
@@ -355,6 +496,194 @@ async function chargerPerformances() {
 
   } catch (err) {
     console.warn('Erreur chargement performances:', err);
+  }
+}
+
+// ==============================================================================
+// 6b. MODULE RENDEZ-VOUS & POINTAGE GPS CERTIFIÉ ("PROOF OF VISIT 2.0")
+// ==============================================================================
+
+const COORDONNEES_VILLES_SENEGAL = {
+  'Dakar Plateau': { lat: 14.6685, lon: -17.4326 },
+  'Dakar Almadies / Ngor': { lat: 14.7455, lon: -17.5186 },
+  'Dakar Point E / Mermoz': { lat: 14.7042, lon: -17.4667 },
+  'Thiès Ville': { lat: 14.7910, lon: -16.9260 },
+  'Mbour / Saly': { lat: 14.4447, lon: -16.9856 },
+  'Autre': { lat: 14.6928, lon: -17.4467 }
+};
+
+async function chargerRendezVous() {
+  if (!commercialConnecte) return;
+  const cId = commercialConnecte.id;
+  const tbody = document.getElementById('tbody-rdv-commercial');
+  if (!tbody) return;
+
+  try {
+    const { data, error } = await supabase
+      .from('rendez_vous')
+      .select('*')
+      .eq('commercial_id', cId)
+      .order('date_rdv', { ascending: false });
+
+    if (error || !Array.isArray(data) || data.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--texte-muet); padding: 2rem;">Aucun rendez-vous planifié pour le moment. Cliquez sur « + Planifier un RDV Restaurant » ci-dessus.</td></tr>`;
+      const badgeCount = document.getElementById('badge-rdv-count');
+      if (badgeCount) badgeCount.textContent = '0';
+      return;
+    }
+
+    listeRdv = data;
+    const badgeCount = document.getElementById('badge-rdv-count');
+    if (badgeCount) badgeCount.textContent = data.length;
+
+    tbody.innerHTML = data.map(rdv => {
+      const d = new Date(rdv.date_rdv);
+      const dateFormatee = isNaN(d.getTime()) ? 'Date non définie' : d.toLocaleDateString('fr-FR', {
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      // Statut GPS
+      let badgeGps = '<span class="comm-badge jaune">⏳ Non pointé</span>';
+      if (rdv.checkin_statut === 'VALIDE_SUR_PLACE') {
+        const distStr = rdv.checkin_distance_metres !== null ? `${rdv.checkin_distance_metres}m` : 'Validé';
+        const heureCheck = rdv.checkin_at ? new Date(rdv.checkin_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '';
+        badgeGps = `<span class="comm-badge vert">🟢 SUR PLACE (${distStr})</span><br><small style="color: #64748B; font-size: 0.72rem;">Pointé à ${heureCheck}</small>`;
+      } else if (rdv.checkin_statut === 'ECART_SUSPECT') {
+        const distStr = rdv.checkin_distance_metres !== null ? `${rdv.checkin_distance_metres}m` : '>200m';
+        badgeGps = `<span class="comm-badge rouge">🔴 ÉCART SUSPECT (${distStr})</span><br><small style="color: #EF4444; font-size: 0.72rem;">Distance > 200m</small>`;
+      }
+
+      // Liens Google
+      const lienMaps = genererLienItineraireGoogle(
+        rdv.restaurant_prospect,
+        rdv.latitude_restaurant,
+        rdv.longitude_restaurant
+      );
+      const lienGCal = genererLienGoogleCalendar({
+        titre: `Démo Lou Ame Tay : ${rdv.restaurant_prospect}`,
+        description: `Rendez-vous démo avec ${rdv.nom_prospect} (${rdv.telephone_prospect}). Objectif : ${rdv.notes || 'Présentation menu QR & caisse'}`,
+        lieu: `${rdv.restaurant_prospect}, ${rdv.adresse_restaurant || ''}`,
+        dateDebutISO: rdv.date_rdv
+      });
+
+      const boutonPointer = rdv.checkin_statut !== 'VALIDE_SUR_PLACE'
+        ? `<button type="button" class="comm-btn-gold btn-pointer-gps" data-id="${rdv.id}" style="padding: 5px 10px; font-size: 0.78rem;"><span>📍 Pointer GPS</span></button>`
+        : `<span style="font-size: 0.78rem; color: #16A34A; font-weight: 700;">✓ Certifié</span>`;
+
+      return `
+        <tr>
+          <td><strong>${dateFormatee}</strong></td>
+          <td>
+            <strong>${escapeHtml(rdv.restaurant_prospect)}</strong><br>
+            <small style="color: var(--texte-muet);">${escapeHtml(rdv.nom_prospect || '')} (${escapeHtml(rdv.telephone_prospect || '')})</small>
+          </td>
+          <td>
+            <span>${escapeHtml(rdv.adresse_restaurant || 'Sénégal')}</span>
+          </td>
+          <td>${badgeGps}</td>
+          <td>
+            <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+              ${boutonPointer}
+              <a href="${lienMaps}" target="_blank" rel="noopener noreferrer" class="comm-btn-outline" style="padding: 5px 8px; font-size: 0.78rem;" title="Itinéraire Google Maps">🗺️ Maps</a>
+              <a href="${lienGCal}" target="_blank" rel="noopener noreferrer" class="comm-btn-outline" style="padding: 5px 8px; font-size: 0.78rem;" title="Ajouter à Google Calendar">📅 G-Cal</a>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    // Attacher événements de pointage GPS
+    document.querySelectorAll('.btn-pointer-gps').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const id = e.currentTarget.getAttribute('data-id');
+        await pointerArriveeGPS(id, e.currentTarget);
+      });
+    });
+
+  } catch (err) {
+    console.warn('Erreur chargement rendez-vous:', err);
+  }
+}
+
+async function pointerArriveeGPS(rdvId, boutonElement) {
+  const rdv = listeRdv.find(r => r.id === rdvId);
+  if (!rdv) return;
+
+  if (boutonElement) {
+    boutonElement.disabled = true;
+    boutonElement.innerHTML = '<span>Signal GPS...</span> 🛰️';
+  }
+  afficherToast('Recherche du signal satellite GPS de haute précision... 🛰️');
+
+  try {
+    const coords = await obtenirPositionActuelle();
+
+    // Déterminer les coordonnées théoriques du restaurant
+    let latResto = rdv.latitude_restaurant;
+    let lonResto = rdv.longitude_restaurant;
+
+    if (!latResto || !lonResto) {
+      // Déduction par rapport à la ville du RDV
+      const villeRef = COORDONNEES_VILLES_SENEGAL[rdv.adresse_restaurant] || COORDONNEES_VILLES_SENEGAL['Dakar Plateau'];
+      latResto = villeRef.lat;
+      lonResto = villeRef.lon;
+    }
+
+    const distanceMetres = calculerDistanceGPS(coords.latitude, coords.longitude, latResto, lonResto);
+    const estValide = distanceMetres !== null && distanceMetres <= 250; // Tolérance de 250m
+    const statutCheckin = estValide ? 'VALIDE_SUR_PLACE' : 'ECART_SUSPECT';
+
+    // Mise à jour dans Supabase
+    const { error: updateErr } = await supabase
+      .from('rendez_vous')
+      .update({
+        checkin_at: new Date().toISOString(),
+        checkin_latitude: coords.latitude,
+        checkin_longitude: coords.longitude,
+        checkin_distance_metres: distanceMetres,
+        checkin_statut: statutCheckin,
+        statut: 'effectue'
+      })
+      .eq('id', rdvId);
+
+    if (updateErr) throw updateErr;
+
+    // Journal d'audit pour le CEO
+    await enregistrerActivite({
+      typeAction: 'CHECKIN_GPS',
+      description: `Pointage GPS : Visite au restaurant "${rdv.restaurant_prospect}" (${distanceMetres}m de distance constatée)`,
+      details: {
+        rdv_id: rdvId,
+        restaurant: rdv.restaurant_prospect,
+        distance_metres: distanceMetres,
+        precision_gps: coords.precision,
+        position_relevee: { lat: coords.latitude, lon: coords.longitude },
+        position_restaurant: { lat: latResto, lon: lonResto }
+      },
+      commercialId: commercialConnecte.id,
+      commercialNom: `${commercialConnecte.prenom} ${commercialConnecte.nom}`,
+      statut: estValide ? 'SUCCES' : 'SUSPECT'
+    });
+
+    if (estValide) {
+      afficherToast(`✅ Pointage certifié sur place ! Vous êtes à ${distanceMetres}m du restaurant.`);
+    } else {
+      afficherToast(`⚠️ Attention : Vous êtes à ${distanceMetres}m du restaurant. L'écart est consigné.`);
+    }
+
+    await chargerRendezVous();
+
+  } catch (err) {
+    console.error('Erreur GPS:', err);
+    afficherToast(err.message || 'Impossible de récupérer la position GPS.');
+    if (boutonElement) {
+      boutonElement.disabled = false;
+      boutonElement.innerHTML = '<span>📍 Pointer GPS</span>';
+    }
   }
 }
 
@@ -578,6 +907,22 @@ function initialiserUploadJustificatif() {
 
         if (insertErr) throw insertErr;
 
+        // Journalisation de la dépense pour le CEO
+        await enregistrerActivite({
+          typeAction: 'NOTE_FRAIS_SOUMISE',
+          description: `Note de frais soumise : ${motif} (${montant.toLocaleString('fr-FR')} FCFA) - ${categorie}`,
+          details: {
+            motif,
+            categorie,
+            montant,
+            date_depense: dateDepense,
+            justificatif_url: urlJustificatif
+          },
+          commercialId: commercialConnecte.id,
+          commercialNom: `${commercialConnecte.prenom} ${commercialConnecte.nom}`,
+          statut: 'SUCCES'
+        });
+
         // Succès
         afficherToast('Note de frais soumise avec succès ! En attente de validation admin.');
         document.getElementById('modal-nouvelle-depense').style.display = 'none';
@@ -739,6 +1084,22 @@ function initialiserProspects() {
           }]);
 
         if (error) throw error;
+
+        // Journalisation du prospect pour le CEO
+        await enregistrerActivite({
+          typeAction: 'NOUVEAU_PROSPECT',
+          description: `Nouveau prospect enregistré : ${resto} (${ville}) - Formule ${formule}`,
+          details: {
+            restaurant: resto,
+            contact: nom,
+            telephone: tel,
+            ville,
+            formule
+          },
+          commercialId: commercialConnecte.id,
+          commercialNom: `${commercialConnecte.prenom} ${commercialConnecte.nom}`,
+          statut: 'SUCCES'
+        });
 
         afficherToast('Prospect enregistré avec succès ! Suivi actif.');
         document.getElementById('modal-nouveau-prospect').style.display = 'none';

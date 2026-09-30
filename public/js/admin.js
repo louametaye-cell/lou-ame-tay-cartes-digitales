@@ -1149,6 +1149,7 @@ function basculerOnglet(nomOnglet) {
     depenses: '🧾 Gestion des Notes de Frais & Dépenses Terrain',
     commissions: '💰 Suivi des Commissions & Contrats (10%)',
     annonces: '📢 Diffusion d\'Annonces & Notes de Service Équipe',
+    audit: '📜 Journal d\'Audit, Connexions & Pointages GPS',
     avis: '⭐ Modération des Avis Clients & Notations',
     parrainages: '📤 Suivi des Parrainages & Recommandations',
     analytics: 'Statistiques, Scans & Performance',
@@ -1169,6 +1170,8 @@ function basculerOnglet(nomOnglet) {
     chargerCommissionsAdmin();
   } else if (nomOnglet === 'annonces') {
     chargerAnnoncesAdmin();
+  } else if (nomOnglet === 'audit') {
+    chargerAuditAdmin();
   } else if (nomOnglet === 'avis') {
     chargerAvisAdmin();
   } else if (nomOnglet === 'parrainages') {
@@ -2956,9 +2959,188 @@ function initialiserEcouteursAnnoncesAdmin() {
   });
 }
 
+// ==============================================================================
+// 20. MODULE JOURNAL D'AUDIT EN TEMPS RÉEL & TRAÇABILITÉ (CEO SÉNÉGAL)
+// ==============================================================================
+
+let listeAuditAdmin = [];
+
+export async function chargerAuditAdmin() {
+  const tbody = document.getElementById('tbody-audit-admin');
+  if (!tbody) return;
+
+  try {
+    const { data, error } = await supabase
+      .from('journal_activites')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(150);
+
+    if (error) {
+      console.warn('Erreur lecture journal_activites (table en cours de création ?):', error.message);
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--texte-muet); padding: 2rem;">Aucun événement d'audit enregistré pour le moment. Exécutez le script SQL 11 dans Supabase si nécessaire.</td></tr>`;
+      return;
+    }
+
+    listeAuditAdmin = data || [];
+
+    // Calcul des statistiques
+    const aujourdhui = new Date().toISOString().split('T')[0];
+    const connexionsAuj = listeAuditAdmin.filter(a => a.type_action === 'CONNEXION_COMMERCIAL' && a.created_at && a.created_at.startsWith(aujourdhui)).length;
+    const checkinsValides = listeAuditAdmin.filter(a => a.type_action === 'CHECKIN_GPS' && a.statut === 'SUCCES').length;
+    const checkinsSuspects = listeAuditAdmin.filter(a => a.statut === 'SUSPECT' || a.statut === 'ALERTE').length;
+
+    const elConnexions = document.getElementById('stat-audit-connexions');
+    if (elConnexions) elConnexions.textContent = connexionsAuj;
+    const elValides = document.getElementById('stat-audit-checkins-valides');
+    if (elValides) elValides.textContent = checkinsValides;
+    const elSuspects = document.getElementById('stat-audit-checkins-suspects');
+    if (elSuspects) elSuspects.textContent = checkinsSuspects;
+    const elTotal = document.getElementById('stat-audit-total');
+    if (elTotal) elTotal.textContent = listeAuditAdmin.length;
+
+    // Badge sidebar
+    const badgeAudit = document.getElementById('badge-compteur-audit');
+    if (badgeAudit) {
+      badgeAudit.textContent = listeAuditAdmin.length > 0 ? `${listeAuditAdmin.length}` : '0';
+      badgeAudit.style.display = listeAuditAdmin.length > 0 ? 'inline-block' : 'none';
+    }
+
+    filtrerEtRendreAudit();
+
+  } catch (err) {
+    console.warn('Erreur chargement journal audit:', err);
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--texte-muet); padding: 2rem;">Impossible de charger le journal d'audit : ${escapeHtml(err.message || '')}</td></tr>`;
+  }
+}
+
+function filtrerEtRendreAudit() {
+  const tbody = document.getElementById('tbody-audit-admin');
+  if (!tbody) return;
+
+  const texteRecherche = (document.getElementById('recherche-audit-admin')?.value || '').toLowerCase().trim();
+  const filtreType = document.getElementById('filtre-type-audit')?.value || 'tous';
+
+  let filtered = [...listeAuditAdmin];
+
+  if (filtreType === 'SUSPECT') {
+    filtered = filtered.filter(a => a.statut === 'SUSPECT' || a.statut === 'ALERTE');
+  } else if (filtreType !== 'tous') {
+    filtered = filtered.filter(a => a.type_action === filtreType);
+  }
+
+  if (texteRecherche) {
+    filtered = filtered.filter(a => {
+      const nom = (a.commercial_nom || '').toLowerCase();
+      const desc = (a.description || '').toLowerCase();
+      const action = (a.type_action || '').toLowerCase();
+      return nom.includes(texteRecherche) || desc.includes(texteRecherche) || action.includes(texteRecherche);
+    });
+  }
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--texte-muet); padding: 2rem;">Aucun événement ne correspond à vos filtres.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(item => {
+    const d = new Date(item.created_at);
+    const dateStr = isNaN(d.getTime()) ? '—' : d.toLocaleString('fr-FR', {
+      day: 'numeric',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+
+    // Badge action
+    let badgeAction = '<span class="comm-badge bleu">⚡ ' + escapeHtml(item.type_action) + '</span>';
+    if (item.type_action === 'CONNEXION_COMMERCIAL') {
+      badgeAction = '<span class="comm-badge vert">🔑 Connexion</span>';
+    } else if (item.type_action === 'DECONNEXION_COMMERCIAL') {
+      badgeAction = '<span class="comm-badge jaune">🚪 Déconnexion</span>';
+    } else if (item.type_action === 'CHECKIN_GPS') {
+      badgeAction = '<span class="comm-badge bleu">📍 Pointage GPS</span>';
+    } else if (item.type_action === 'NOTE_FRAIS_SOUMISE') {
+      badgeAction = '<span class="comm-badge jaune">🧾 Note de frais</span>';
+    } else if (item.type_action === 'NOUVEAU_PROSPECT') {
+      badgeAction = '<span class="comm-badge vert">🎯 Nouveau prospect</span>';
+    }
+
+    // Statut
+    let badgeStatut = '<span class="comm-badge vert">🟢 VALIDÉ</span>';
+    if (item.statut === 'SUSPECT' || item.statut === 'ALERTE') {
+      badgeStatut = '<span class="comm-badge rouge">🔴 ALERTE / SUSPECT</span>';
+    } else if (item.statut === 'REFUS') {
+      badgeStatut = '<span class="comm-badge rouge">✕ REFUSÉ</span>';
+    }
+
+    const appareil = item.details?.appareil || (item.user_agent && item.user_agent.includes('iPhone') ? 'iPhone' : item.user_agent && item.user_agent.includes('Android') ? 'Android' : 'Desktop');
+
+    return `
+      <tr>
+        <td style="font-size: 0.82rem; color: #475569; white-space: nowrap;"><strong>${dateStr}</strong></td>
+        <td>${badgeAction}</td>
+        <td><strong>${escapeHtml(item.commercial_nom || 'Système')}</strong></td>
+        <td>
+          <div style="font-size: 0.88rem; color: #0F172A;">${escapeHtml(item.description || '')}</div>
+          ${item.details?.distance_metres !== undefined ? `<small style="color: ${item.details.distance_metres <= 250 ? '#16A34A' : '#DC2626'}; font-weight: 700;">Distance restaurant : ${item.details.distance_metres}m</small>` : ''}
+        </td>
+        <td><span style="font-size: 0.8rem; color: #64748B;">📱 ${escapeHtml(appareil)}</span></td>
+        <td style="text-align: right;">${badgeStatut}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function initialiserEcouteursAuditAdmin() {
+  document.getElementById('btn-actualiser-audit')?.addEventListener('click', chargerAuditAdmin);
+  document.getElementById('filtre-type-audit')?.addEventListener('change', filtrerEtRendreAudit);
+  document.getElementById('recherche-audit-admin')?.addEventListener('input', filtrerEtRendreAudit);
+  document.getElementById('btn-effacer-recherche-audit')?.addEventListener('click', () => {
+    const input = document.getElementById('recherche-audit-admin');
+    if (input) {
+      input.value = '';
+      filtrerEtRendreAudit();
+    }
+  });
+
+  // Export CSV de l'audit
+  document.getElementById('btn-export-audit-csv')?.addEventListener('click', () => {
+    if (listeAuditAdmin.length === 0) {
+      afficherToast('Aucune donnée d\'audit à exporter.');
+      return;
+    }
+
+    let csvContent = 'data:text/csv;charset=utf-8,\uFEFF';
+    csvContent += 'Date,Type Action,Commercial,Description,Statut,Appareil,User Agent\n';
+
+    listeAuditAdmin.forEach(a => {
+      const date = a.created_at ? new Date(a.created_at).toISOString() : '';
+      const type = `"${(a.type_action || '').replace(/"/g, '""')}"`;
+      const nom = `"${(a.commercial_nom || '').replace(/"/g, '""')}"`;
+      const desc = `"${(a.description || '').replace(/"/g, '""')}"`;
+      const statut = `"${(a.statut || '').replace(/"/g, '""')}"`;
+      const app = `"${(a.details?.appareil || '').replace(/"/g, '""')}"`;
+      const ua = `"${(a.user_agent || '').replace(/"/g, '""')}"`;
+      csvContent += `${date},${type},${nom},${desc},${statut},${app},${ua}\n`;
+    });
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `audit_connexions_louametay_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    afficherToast('✓ Journal d\'audit exporté en CSV.');
+  });
+}
+
 // Initialisation globale au chargement
 document.addEventListener('DOMContentLoaded', () => {
   initialiserEcouteursDepensesAdmin();
   initialiserEcouteursAnnoncesAdmin();
+  initialiserEcouteursAuditAdmin();
 });
 
