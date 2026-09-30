@@ -109,42 +109,63 @@
       color: #fca5a5;
     }
 
-    /* Écran de connexion Split Pro avec dégradé et photos officielles */
-    .comm-login-split-card {
-      max-width: 980px;
-      margin: 2.5rem auto;
-      background: #FFFFFF;
-      border-radius: var(--arrondi);
-      box-shadow: 0 25px 60px -15px rgba(11, 31, 58, 0.25);
-      border: 1px solid var(--bordure);
+    /* =========================================================================
+       ÉCRAN DE CONNEXION PLEIN ÉCRAN RESPONSIVE (PC, TABLETTE, SMARTPHONE)
+       AVEC DIAPORAMA AUTOMATIQUE ET DÉGRADÉ IMMERSIF SIGNATURE LOU AME TAY
+       ========================================================================= */
+    .comm-login-fullscreen {
+      min-height: 100vh;
+      width: 100%;
       display: grid;
-      grid-template-columns: 1.15fr 1fr;
-      overflow: hidden;
-      min-height: 560px;
+      grid-template-columns: 1.15fr 0.85fr;
+      position: relative;
+      background: #FFFFFF;
+      overflow-x: hidden;
     }
 
-    .comm-login-visuel-panel {
+    /* Container du diaporama pleine hauteur */
+    .comm-diaporama-container {
       position: relative;
-      background-size: cover;
-      background-position: center;
+      height: 100vh;
+      min-height: 600px;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
-      padding: 2.5rem 2rem;
+      padding: 3.5rem 3rem;
       color: #FFFFFF;
-      transition: background-image 0.4s ease-in-out;
     }
 
-    .comm-login-visuel-overlay {
+    /* Slides de photos officielles de terrain */
+    .comm-slide {
       position: absolute;
       inset: 0;
-      background: linear-gradient(145deg, rgba(11, 31, 58, 0.92) 0%, rgba(15, 23, 42, 0.82) 50%, rgba(201, 162, 39, 0.38) 100%);
+      background-size: cover;
+      background-position: center;
+      opacity: 0;
+      transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), transform 6s ease-out;
+      transform: scale(1.05);
       z-index: 1;
     }
 
-    .comm-login-visuel-content {
-      position: relative;
+    .comm-slide.active {
+      opacity: 1;
+      transform: scale(1);
       z-index: 2;
+    }
+
+    /* Dégradé immersif signature Lou Ame Tay */
+    .comm-diaporama-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(145deg, rgba(11, 31, 58, 0.92) 0%, rgba(15, 23, 42, 0.82) 50%, rgba(201, 162, 39, 0.38) 100%);
+      z-index: 3;
+    }
+
+    .comm-diaporama-content {
+      position: relative;
+      z-index: 4;
+      max-width: 600px;
     }
 
     .comm-badge-lux {
@@ -154,154 +175,204 @@
       background: rgba(201, 162, 39, 0.25);
       border: 1px solid rgba(201, 162, 39, 0.6);
       color: #F8E294;
-      padding: 5px 12px;
+      padding: 6px 14px;
       border-radius: 9999px;
-      font-size: 0.72rem;
+      font-size: 0.75rem;
       font-weight: 800;
       letter-spacing: 0.5px;
       text-transform: uppercase;
-      margin-bottom: 1rem;
-      backdrop-filter: blur(6px);
+      margin-bottom: 1.25rem;
+      backdrop-filter: blur(8px);
     }
 
     .pulse-dot {
-      width: 7px;
-      height: 7px;
+      width: 8px;
+      height: 8px;
       background: #22C55E;
       border-radius: 50%;
-      box-shadow: 0 0 8px #22C55E;
+      box-shadow: 0 0 10px #22C55E;
     }
 
     .comm-visuel-titre {
-      font-size: 1.55rem;
+      font-family: var(--police-titre);
+      font-size: 2.2rem;
       font-weight: 800;
-      line-height: 1.25;
+      line-height: 1.2;
       color: #FFFFFF;
-      margin-bottom: 0.75rem;
-      text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      margin-bottom: 1rem;
+      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
     }
 
     .comm-visuel-desc {
-      font-size: 0.88rem;
-      line-height: 1.5;
-      color: rgba(255, 255, 255, 0.85);
-      margin-bottom: 1.25rem;
+      font-size: 1rem;
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 2rem;
     }
 
-    .comm-visuel-pills {
+    /* Puces discrètes du diaporama */
+    .comm-diaporama-dots {
       display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .comm-pill {
-      display: inline-flex;
-      align-items: center;
       gap: 8px;
-      background: rgba(255, 255, 255, 0.12);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      padding: 6px 12px;
-      border-radius: 10px;
-      font-size: 0.8rem;
-      color: #FFFFFF;
-      font-weight: 600;
+      align-items: center;
     }
 
-    .comm-mini-switcher {
-      border-top: 1px solid rgba(255, 255, 255, 0.18);
-      padding-top: 0.85rem;
-    }
-
-    .comm-switcher-title {
-      display: block;
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: rgba(255, 255, 255, 0.75);
-      margin-bottom: 0.4rem;
-      font-weight: 700;
-    }
-
-    .comm-switcher-thumbs {
-      display: flex;
-      gap: 6px;
-    }
-
-    .comm-thumb-btn {
-      width: 44px;
-      height: 44px;
-      border-radius: 8px;
-      overflow: hidden;
-      border: 2px solid transparent;
-      padding: 0;
+    .comm-dot {
+      width: 24px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.35);
+      border-radius: 2px;
       cursor: pointer;
-      background: none;
-      transition: all 0.2s ease;
-      opacity: 0.65;
+      transition: all 0.3s ease;
     }
 
-    .comm-thumb-btn:hover,
-    .comm-thumb-btn.active {
-      opacity: 1;
-      border-color: #C9A227;
-      transform: scale(1.08);
-      box-shadow: 0 4px 10px rgba(201, 162, 39, 0.4);
+    .comm-dot.active {
+      width: 48px;
+      background: #C9A227;
+      box-shadow: 0 0 10px rgba(201, 162, 39, 0.6);
     }
 
-    .comm-thumb-btn img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    .comm-login-form-panel {
-      padding: 2.5rem 2rem;
+    /* Panneau formulaire droit */
+    .comm-form-container {
+      height: 100vh;
+      overflow-y: auto;
       display: flex;
       align-items: center;
       justify-content: center;
-      text-align: center;
+      padding: 3rem 2.5rem;
+      background: #FFFFFF;
     }
 
     .comm-login-inner {
       width: 100%;
-      max-width: 360px;
+      max-width: 400px;
+      text-align: center;
     }
 
-    .comm-login-avatar {
-      width: 64px;
-      height: 64px;
-      background: rgba(201, 162, 39, 0.15);
-      border: 2px solid var(--dore-lux);
-      border-radius: 50%;
+    .comm-login-logo {
+      width: 58px;
+      height: 58px;
+      margin-bottom: 1rem;
+      display: inline-block;
+    }
+
+    .comm-login-title {
+      font-family: var(--police-titre);
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: var(--bleu-profond);
+      margin: 0 0 0.5rem;
+    }
+
+    .comm-login-subtitle {
+      color: var(--texte-muet);
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+      line-height: 1.4;
+    }
+
+    .input-avec-icone-comm {
+      position: relative;
       display: flex;
       align-items: center;
-      justify-content: center;
-      margin: 0 auto 1.25rem;
-      font-size: 1.75rem;
     }
 
-    @media (max-width: 860px) {
-      .comm-login-split-card {
-        grid-template-columns: 1fr;
-        max-width: 440px;
-        margin: 1.5rem auto;
+    .icone-champ-comm {
+      position: absolute;
+      left: 14px;
+      font-size: 1.1rem;
+      pointer-events: none;
+    }
+
+    .input-avec-icone-comm .comm-input {
+      padding-left: 44px;
+    }
+
+    .comm-remember-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 1.75rem;
+      text-align: left;
+    }
+
+    .comm-remember-wrap label {
+      font-size: 0.85rem;
+      color: var(--texte-muet);
+      cursor: pointer;
+      margin: 0;
+    }
+
+    .comm-login-footer {
+      margin-top: 2rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--bordure);
+      font-size: 0.82rem;
+      color: var(--texte-muet);
+      line-height: 1.45;
+    }
+
+    /* RESPONSIVE TABLETTE (max-width: 1024px) */
+    @media (max-width: 1024px) {
+      .comm-login-fullscreen {
+        grid-template-columns: 1fr 1fr;
       }
-      .comm-login-visuel-panel {
-        min-height: 250px;
-        padding: 1.5rem;
+      .comm-diaporama-container {
+        padding: 2.5rem 2rem;
       }
       .comm-visuel-titre {
-        font-size: 1.3rem;
+        font-size: 1.75rem;
       }
-      .comm-visuel-desc,
-      .comm-visuel-pills {
+    }
+
+    /* RESPONSIVE SMARTPHONE (max-width: 768px) */
+    @media (max-width: 768px) {
+      .comm-login-fullscreen {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        background: #0B1F3A;
+      }
+
+      /* Sur mobile : le diaporama passe en arrière-plan complet de tout l'écran */
+      .comm-diaporama-container {
+        position: fixed;
+        inset: 0;
+        height: 100vh;
+        width: 100vw;
+        padding: 1.5rem;
+        z-index: 1;
+        justify-content: flex-start;
+      }
+
+      .comm-diaporama-content {
         display: none;
       }
-      .comm-login-form-panel {
-        padding: 2rem 1.5rem;
+
+      .comm-form-container {
+        position: relative;
+        z-index: 5;
+        height: auto;
+        min-height: 100vh;
+        background: transparent;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem 1rem;
+      }
+
+      .comm-login-inner {
+        background: rgba(255, 255, 255, 0.96);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-radius: 20px;
+        padding: 2.25rem 1.75rem;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.45);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+      }
+
+      .comm-login-title {
+        font-size: 1.45rem;
       }
     }
 
@@ -869,96 +940,85 @@
   </header>
 
   <!-- =========================================================================
-       2. ÉCRAN DE CONNEXION EXPRESS SPLIT PRO (CODE PIN & VISUELS OFFICIELS)
+       2. ÉCRAN DE CONNEXION EXPRESS PLEIN ÉCRAN (DIAPORAMA & CODE PIN)
        ========================================================================= -->
-  <section id="section-connexion-comm" class="comm-login-split-card">
-    <!-- CÔTÉ VISUEL GAUCHE : AMBIANCE FORCE DE VENTE 2.0 -->
-    <div class="comm-login-visuel-panel" id="comm-visuel-fond" style="background-image: url('images/auth/louametay-commerciale-vue-mer.jpg');">
-      <div class="comm-login-visuel-overlay"></div>
-      <div class="comm-login-visuel-content">
+  <section id="section-connexion-comm" class="comm-login-fullscreen">
+    <!-- CÔTÉ VISUEL GAUCHE : FOND DIAPORAMA IMMERSIF AVEC DÉGRADÉ -->
+    <div class="comm-diaporama-container">
+      <div class="comm-slide active" style="background-image: url('images/auth/louametay-commerciale-vue-mer.jpg');"></div>
+      <div class="comm-slide" style="background-image: url('images/auth/louametay-contrat-signe.jpg');"></div>
+      <div class="comm-slide" style="background-image: url('images/auth/louametay-demo-equipe.jpg');"></div>
+      <div class="comm-slide" style="background-image: url('images/auth/louametay-commerciale-terrain.jpg');"></div>
+      
+      <!-- Dégradé Signature Lou Ame Tay -->
+      <div class="comm-diaporama-overlay"></div>
+
+      <!-- Contenu textuel épuré sur l'image -->
+      <div class="comm-diaporama-content">
         <div class="comm-badge-lux">
           <span class="pulse-dot"></span>
           <span>FORCE DE VENTE TERRAIN 2.0</span>
         </div>
         <h2 class="comm-visuel-titre">L'application mobile de terrain des conseillers Lou Ame Tay.</h2>
         <p class="comm-visuel-desc">
-          Enregistrez vos prospects, pointez votre présence GPS sur place, suivez vos commissions et faites-vous rembourser vos frais de transport.
+          Enregistrez vos prospects, pointez votre présence GPS sur place, suivez vos commissions et faites-vous rembourser vos frais de transport en toute simplicité.
         </p>
 
-        <div class="comm-visuel-pills">
-          <div class="comm-pill">
-            <span>📍</span>
-            <span>Pointage GPS &lt; 250m en restaurant</span>
-          </div>
-          <div class="comm-pill">
-            <span>💰</span>
-            <span id="comm-pill-taux">Commissions directes sur contrats</span>
-          </div>
-          <div class="comm-pill">
-            <span>🧾</span>
-            <span>Remboursement transport Wave &amp; OM</span>
-          </div>
-        </div>
-
-        <div class="comm-mini-switcher">
-          <span class="comm-switcher-title">Photos officielles de terrain :</span>
-          <div class="comm-switcher-thumbs">
-            <button type="button" class="comm-thumb-btn active" data-img="images/auth/louametay-commerciale-vue-mer.jpg" title="Prospection Vue Mer">
-              <img src="images/auth/louametay-commerciale-vue-mer.jpg" alt="Vue Mer">
-            </button>
-            <button type="button" class="comm-thumb-btn" data-img="images/auth/louametay-contrat-signe.jpg" title="Signature & Commission">
-              <img src="images/auth/louametay-contrat-signe.jpg" alt="Signature Contrat">
-            </button>
-            <button type="button" class="comm-thumb-btn" data-img="images/auth/louametay-commerciale-terrain.jpg" title="Agent de Terrain Dakar">
-              <img src="images/auth/louametay-commerciale-terrain.jpg" alt="Terrain Dakar">
-            </button>
-            <button type="button" class="comm-thumb-btn" data-img="images/auth/louametay-demo-equipe.jpg" title="Démonstration Équipe Restaurant">
-              <img src="images/auth/louametay-demo-equipe.jpg" alt="Démo Équipe">
-            </button>
-          </div>
+        <!-- Indicateurs discrets de diaporama -->
+        <div class="comm-diaporama-dots">
+          <span class="comm-dot active" data-index="0" title="Vue Mer & Prospection"></span>
+          <span class="comm-dot" data-index="1" title="Signature Contrat"></span>
+          <span class="comm-dot" data-index="2" title="Démo Équipe Restaurant"></span>
+          <span class="comm-dot" data-index="3" title="Terrain Dakar"></span>
         </div>
       </div>
     </div>
 
-    <!-- CÔTÉ FORMULAIRE DROIT : CONNEXION RAPIDE CODE PIN -->
-    <div class="comm-login-form-panel">
+    <!-- CÔTÉ FORMULAIRE DROIT : CONNEXION PLEINE PAGE -->
+    <div class="comm-form-container">
       <div class="comm-login-inner">
-        <div class="comm-login-avatar">💼</div>
-        <h2 style="font-size: 1.45rem; color: var(--bleu-profond); margin: 0 0 0.5rem; font-weight: 800;">Espace Conseiller Terrain</h2>
-        <p style="color: var(--texte-muet); font-size: 0.88rem; margin-bottom: 1.75rem;">Saisissez votre numéro WhatsApp ou votre e-mail avec votre code PIN secret.</p>
+        <a href="index.html" class="comm-login-logo-link" title="Retour à l'annuaire public">
+          <img src="images/logo.svg" alt="Lou Ame Tay" class="comm-login-logo" width="58" height="58">
+        </a>
+        <h1 class="comm-login-title">Espace Conseiller Terrain</h1>
+        <p class="comm-login-subtitle">Saisissez votre numéro WhatsApp ou votre e-mail avec votre code PIN secret.</p>
 
         <form id="form-connexion-comm">
           <div class="comm-form-group">
             <label for="comm-login-identifiant">Numéro WhatsApp ou E-mail</label>
-            <input 
-              type="text" 
-              id="comm-login-identifiant" 
-              class="comm-input" 
-              placeholder="Ex: 771234567 ou email@louametay.com" 
-              required 
-              autocomplete="username"
-            >
+            <div class="input-avec-icone-comm">
+              <span class="icone-champ-comm">📱</span>
+              <input 
+                type="text" 
+                id="comm-login-identifiant" 
+                class="comm-input" 
+                placeholder="Ex: 771234567 ou email@louametay.com" 
+                required 
+                autocomplete="username"
+              >
+            </div>
           </div>
 
           <div class="comm-form-group">
             <label for="comm-login-pin">Code PIN Secret (4 chiffres)</label>
-            <input 
-              type="password" 
-              id="comm-login-pin" 
-              class="comm-input" 
-              placeholder="••••" 
-              maxlength="6" 
-              required 
-              autocomplete="current-password"
-              inputmode="numeric"
-            >
+            <div class="input-avec-icone-comm">
+              <span class="icone-champ-comm">🔒</span>
+              <input 
+                type="password" 
+                id="comm-login-pin" 
+                class="comm-input" 
+                placeholder="••••" 
+                maxlength="6" 
+                required 
+                autocomplete="current-password"
+                inputmode="numeric"
+              >
+            </div>
           </div>
 
-          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 1.5rem; text-align: left;">
+          <div class="comm-remember-wrap">
             <input type="checkbox" id="comm-remember" checked>
-            <label for="comm-remember" style="font-size: 0.85rem; color: var(--texte-muet); cursor: pointer;">
-              Rester connecté sur ce téléphone
-            </label>
+            <label for="comm-remember">Rester connecté sur ce téléphone</label>
           </div>
 
           <button type="submit" class="comm-btn-primary" id="btn-submit-login-comm">
@@ -966,7 +1026,7 @@
           </button>
         </form>
 
-        <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--bordure); font-size: 0.82rem; color: var(--texte-muet);">
+        <div class="comm-login-footer">
           <span>Besoin d'aide ? Contactez l'administrateur ou connectez-vous avec votre code PIN personnel (défaut : <strong>1234</strong>).</span>
         </div>
       </div>

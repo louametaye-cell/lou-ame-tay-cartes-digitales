@@ -33,6 +33,7 @@ let fichierJustificatifEnCours = null;
 // 1. INITIALISATION DE LA PAGE & GESTION DE SESSION
 // ==============================================================================
 document.addEventListener('DOMContentLoaded', async () => {
+  initialiserDiaporama();
   initialiserNavigationOnglets();
   initialiserFormulaires();
   initialiserUploadJustificatif();
@@ -52,41 +53,67 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  // Si non connecté, afficher l'écran de connexion
+  // Si non connecté, afficher l'écran de connexion plein écran
   afficherEcranConnexion();
 });
+
+// Gestion du Diaporama Automatique Plein Écran
+let diaporamaTimer = null;
+let slideIndex = 0;
+
+function initialiserDiaporama() {
+  const slides = document.querySelectorAll('.comm-slide');
+  const dots = document.querySelectorAll('.comm-dot');
+  if (slides.length === 0) return;
+
+  function afficherSlide(index) {
+    slides.forEach((s, i) => s.classList.toggle('active', i === index));
+    dots.forEach((d, i) => d.classList.toggle('active', i === index));
+    slideIndex = index;
+  }
+
+  dots.forEach(dot => {
+    dot.addEventListener('click', () => {
+      const idx = parseInt(dot.getAttribute('data-index'), 10);
+      afficherSlide(idx);
+      reinitialiserTimer();
+    });
+  });
+
+  function slideSuivante() {
+    slideIndex = (slideIndex + 1) % slides.length;
+    afficherSlide(slideIndex);
+  }
+
+  function reinitialiserTimer() {
+    if (diaporamaTimer) clearInterval(diaporamaTimer);
+    diaporamaTimer = setInterval(slideSuivante, 4500);
+  }
+
+  reinitialiserTimer();
+}
 
 function afficherEcranConnexion() {
   const sec = document.getElementById('section-connexion-comm');
   if (sec) sec.style.display = 'grid';
   document.getElementById('section-app-comm').style.display = 'none';
   document.getElementById('zone-header-actions').style.display = 'none';
+  const header = document.querySelector('.comm-header');
+  if (header) header.style.display = 'none';
 }
 
 function afficherApplication() {
   document.getElementById('section-connexion-comm').style.display = 'none';
   document.getElementById('section-app-comm').style.display = 'block';
   document.getElementById('zone-header-actions').style.display = 'block';
+  const header = document.querySelector('.comm-header');
+  if (header) header.style.display = 'flex';
 }
 
 // ==============================================================================
 // 2. AUTHENTIFICATION DU CONSEILLER (PIN + TÉLÉPHONE / EMAIL)
 // ==============================================================================
 function initialiserFormulaires() {
-  // Sélecteur d'ambiance visuelle officielle de terrain
-  const panneauVisuel = document.getElementById('comm-visuel-fond');
-  const thumbs = document.querySelectorAll('.comm-thumb-btn');
-  thumbs.forEach(btn => {
-    btn.addEventListener('click', () => {
-      thumbs.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      const img = btn.getAttribute('data-img');
-      if (panneauVisuel && img) {
-        panneauVisuel.style.backgroundImage = `url('${img}')`;
-      }
-    });
-  });
-
   const formLogin = document.getElementById('form-connexion-comm');
   if (formLogin) {
     formLogin.addEventListener('submit', async (e) => {
