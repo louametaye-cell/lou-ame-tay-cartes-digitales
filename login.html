@@ -14,9 +14,17 @@
 <body class="page-auth-fond page-auth-split">
 
   <div class="auth-split-wrapper">
-    <!-- 1. PANNEAU GAUCHE : IMMERSION TERRAIN & PILOTAGE DE DIRECTION -->
-    <div class="auth-panneau-visuel" id="auth-visuel-fond" style="background-image: url('images/auth/louametay-demo-equipe.jpg');">
+    <!-- 1. PANNEAU GAUCHE : IMMERSION TERRAIN & PILOTAGE DE DIRECTION (DIAPORAMA & DÉGRADÉ) -->
+    <div class="auth-panneau-visuel" id="auth-visuel-container">
+      <div class="auth-slide active" style="background-image: url('images/auth/louametay-demo-equipe.jpg');"></div>
+      <div class="auth-slide" style="background-image: url('images/auth/louametay-contrat-signe.jpg');"></div>
+      <div class="auth-slide" style="background-image: url('images/auth/louametay-commerciale-vue-mer.jpg');"></div>
+      <div class="auth-slide" style="background-image: url('images/auth/louametay-commerciale-terrain.jpg');"></div>
+
+      <!-- Dégradé Signature Lou Ame Tay -->
       <div class="auth-visuel-overlay"></div>
+
+      <!-- Contenu textuel épuré sur l'image -->
       <div class="auth-visuel-contenu">
         <div class="auth-badge-prestige">
           <span class="badge-dot"></span>
@@ -27,39 +35,12 @@
           Cartes de visite digitales, traçabilité des rendez-vous par GPS certifié, validation des notes de frais et pilotage des commissions en direct.
         </p>
 
-        <!-- Mini-statuts de réassurance -->
-        <div class="auth-visuel-pills">
-          <div class="visuel-pill">
-            <span class="pill-icone">📍</span>
-            <span>Audit & Pointage GPS &lt; 250m certifié</span>
-          </div>
-          <div class="visuel-pill">
-            <span class="pill-icone">💰</span>
-            <span>Taux de commissions administrable</span>
-          </div>
-          <div class="visuel-pill">
-            <span class="pill-icone">🧾</span>
-            <span>Remboursements Wave & OM avec justificatif</span>
-          </div>
-        </div>
-
-        <!-- Galerie miniatures interactives -->
-        <div class="auth-mini-galerie">
-          <span class="mini-galerie-label">Ambiances terrain officielles Lou Ame Tay :</span>
-          <div class="mini-galerie-vignettes">
-            <button type="button" class="vignette-btn active" data-img="images/auth/louametay-demo-equipe.jpg" title="Démo Équipe en Restaurant">
-              <img src="images/auth/louametay-demo-equipe.jpg" alt="Démo Équipe">
-            </button>
-            <button type="button" class="vignette-btn" data-img="images/auth/louametay-contrat-signe.jpg" title="Signature de Contrat & Poignée de Main">
-              <img src="images/auth/louametay-contrat-signe.jpg" alt="Contrat Signé">
-            </button>
-            <button type="button" class="vignette-btn" data-img="images/auth/louametay-commerciale-vue-mer.jpg" title="Prospection Commerciale Vue Mer">
-              <img src="images/auth/louametay-commerciale-vue-mer.jpg" alt="Commerciale Vue Mer">
-            </button>
-            <button type="button" class="vignette-btn" data-img="images/auth/louametay-commerciale-terrain.jpg" title="Commerciale Terrain Dakar">
-              <img src="images/auth/louametay-commerciale-terrain.jpg" alt="Commerciale Terrain">
-            </button>
-          </div>
+        <!-- Indicateurs discrets de diaporama -->
+        <div class="auth-diaporama-dots">
+          <span class="auth-dot active" data-index="0" title="Démo Équipe"></span>
+          <span class="auth-dot" data-index="1" title="Signature Contrat"></span>
+          <span class="auth-dot" data-index="2" title="Prospection Vue Mer"></span>
+          <span class="auth-dot" data-index="3" title="Commerciale Terrain"></span>
         </div>
       </div>
     </div>
@@ -162,19 +143,45 @@
     import { supabase, estSupabaseConfigure, enregistrerConfigurationSupabase, SUPABASE_URL, SUPABASE_ANON_KEY } from './js/supabase-client.js';
 
     document.addEventListener('DOMContentLoaded', async () => {
-      // 1. Switcher de visuels officiel
-      const panneauVisuel = document.getElementById('auth-visuel-fond');
-      const boutonsVignettes = document.querySelectorAll('.vignette-btn');
-      boutonsVignettes.forEach(btn => {
-        btn.addEventListener('click', () => {
-          boutonsVignettes.forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          const nouvelleImage = btn.getAttribute('data-img');
-          if (panneauVisuel && nouvelleImage) {
-            panneauVisuel.style.backgroundImage = `url('${nouvelleImage}')`;
+      // 1. Diaporama automatique immersif (4 photos de terrain officielles avec dégradé Lou Ame Tay)
+      const slides = document.querySelectorAll('.auth-slide');
+      const dots = document.querySelectorAll('.auth-dot');
+      let indexActuel = 0;
+      let intervalDiaporama = null;
+
+      function afficherSlide(index) {
+        if (!slides.length) return;
+        indexActuel = (index + slides.length) % slides.length;
+        slides.forEach((slide, i) => {
+          slide.classList.toggle('active', i === indexActuel);
+        });
+        dots.forEach((dot, i) => {
+          dot.classList.toggle('active', i === indexActuel);
+        });
+      }
+
+      function slideSuivante() {
+        afficherSlide(indexActuel + 1);
+      }
+
+      function demarrerDiaporama() {
+        if (intervalDiaporama) clearInterval(intervalDiaporama);
+        intervalDiaporama = setInterval(slideSuivante, 4500);
+      }
+
+      dots.forEach(dot => {
+        dot.addEventListener('click', () => {
+          const idx = parseInt(dot.getAttribute('data-index'), 10);
+          if (!isNaN(idx)) {
+            afficherSlide(idx);
+            demarrerDiaporama();
           }
         });
       });
+
+      if (slides.length > 1) {
+        demarrerDiaporama();
+      }
 
       // 2. Gestion de l'authentification
       const form = document.getElementById('form-login');
