@@ -70,6 +70,25 @@
         <span id="badge-compteur-leads" class="nav-badge-compteur">0</span>
       </button>
 
+      <!-- GESTION DES DÉPENSES & FRAIS DE DÉPLACEMENT -->
+      <button type="button" class="nav-onglet-btn" data-onglet="depenses">
+        <span class="nav-icone" aria-hidden="true">🧾</span>
+        <span>Notes de Frais</span>
+        <span id="badge-compteur-depenses" class="nav-badge-compteur" style="display: none; background: #EF4444; color: #FFFFFF;">0</span>
+      </button>
+
+      <!-- COMMISSIONS CONTRATS (10%) -->
+      <button type="button" class="nav-onglet-btn" data-onglet="commissions">
+        <span class="nav-icone" aria-hidden="true">💰</span>
+        <span>Commissions 10%</span>
+      </button>
+
+      <!-- ANNONCES & NOTES DE SERVICE ÉQUIPE -->
+      <button type="button" class="nav-onglet-btn" data-onglet="annonces">
+        <span class="nav-icone" aria-hidden="true">📢</span>
+        <span>Annonces Équipe</span>
+      </button>
+
       <button type="button" class="nav-onglet-btn" data-onglet="avis">
         <span class="nav-icone" aria-hidden="true">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1052,6 +1071,223 @@ VALUES
         </div>
       </section>
 
+      <!-- ==================================================================
+           VUE DÉPENSES : GESTION DES NOTES DE FRAIS & JUSTIFICATIFS TERRAIN
+           ================================================================== -->
+      <section id="vue-depenses" class="admin-vue">
+        <!-- KPIs Statistiques Dépenses -->
+        <div class="stats-grille">
+          <div class="stat-carte">
+            <div class="stat-icone-fond icone-bleu">🧾</div>
+            <div class="stat-contenu">
+              <span class="stat-titre">Total Frais ce Mois</span>
+              <strong id="stat-depenses-mois" class="stat-valeur">0 FCFA</strong>
+              <span class="stat-precision">Transport, repas, carburant</span>
+            </div>
+          </div>
+
+          <div class="stat-carte">
+            <div class="stat-icone-fond icone-orange">⏳</div>
+            <div class="stat-contenu">
+              <span class="stat-titre">En Attente d'Approbation</span>
+              <strong id="stat-depenses-attente" class="stat-valeur">0 FCFA</strong>
+              <span class="stat-precision" id="stat-depenses-attente-nb">0 note(s) à vérifier</span>
+            </div>
+          </div>
+
+          <div class="stat-carte">
+            <div class="stat-icone-fond icone-vert">✅</div>
+            <div class="stat-contenu">
+              <span class="stat-titre">Total Remboursé</span>
+              <strong id="stat-depenses-rembourse" class="stat-valeur">0 FCFA</strong>
+              <span class="stat-precision">Payé sur Wave / OM</span>
+            </div>
+          </div>
+
+          <div class="stat-carte">
+            <div class="stat-icone-fond icone-or">📊</div>
+            <div class="stat-contenu">
+              <span class="stat-titre">Demandes Traitées</span>
+              <strong id="stat-depenses-nb" class="stat-valeur">0</strong>
+              <span class="stat-precision">Toutes catégories confondues</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Table de validation des notes de frais -->
+        <div class="admin-carte-tableau">
+          <div class="tableau-barre-outils">
+            <div class="outils-gauche">
+              <div class="champ-recherche-wrapper">
+                <span class="icone-recherche" aria-hidden="true">🔍</span>
+                <input 
+                  type="text" 
+                  id="recherche-depenses-admin" 
+                  class="champ-recherche-admin" 
+                  placeholder="Rechercher par commercial, motif, catégorie..."
+                >
+                <button type="button" id="btn-effacer-recherche-depenses" class="btn-effacer-filtre">✕</button>
+              </div>
+
+              <select id="filtre-statut-depenses" class="select-filtre-admin">
+                <option value="tous">Tous les statuts</option>
+                <option value="EN_ATTENTE" selected>⏳ En attente de validation</option>
+                <option value="APPROUVE">🟢 Approuvés (à rembourser)</option>
+                <option value="REMBOURSE">💳 Remboursés</option>
+                <option value="REFUSE">🔴 Refusés</option>
+              </select>
+
+              <select id="filtre-cat-depenses" class="select-filtre-admin">
+                <option value="tous">Toutes catégories</option>
+                <option value="Transport">🚖 Transport (Taxi, Tiak-tiak)</option>
+                <option value="Repas">🍽️ Repas</option>
+                <option value="Carburant">⛽ Carburant / Péage</option>
+                <option value="Autre">📌 Autre</option>
+              </select>
+            </div>
+
+            <button type="button" id="btn-actualiser-depenses" class="btn btn-contour btn-sm">
+              ↻ Actualiser
+            </button>
+          </div>
+
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Commercial</th>
+                  <th>Date</th>
+                  <th>Motif & Catégorie</th>
+                  <th>Montant</th>
+                  <th>Preuve (Photo Reçu / Wave)</th>
+                  <th>Statut</th>
+                  <th style="text-align: right;">Actions de Contrôle</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-depenses-admin">
+                <tr><td colspan="7" class="table-chargement">Chargement des notes de frais...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================================================================
+           VUE COMMISSIONS : SUIVI DES COMMISSIONS SUR CONTRATS (10%)
+           ================================================================== -->
+      <section id="vue-commissions" class="admin-vue">
+        <div class="stats-grille">
+          <div class="stat-carte">
+            <div class="stat-icone-fond icone-or">💰</div>
+            <div class="stat-contenu">
+              <span class="stat-titre">Total Commissions Générées</span>
+              <strong id="stat-commissions-total" class="stat-valeur">0 FCFA</strong>
+              <span class="stat-precision">10% sur les signatures</span>
+            </div>
+          </div>
+
+          <div class="stat-carte">
+            <div class="stat-icone-fond icone-orange">⏳</div>
+            <div class="stat-contenu">
+              <span class="stat-titre">Commissions à Régler</span>
+              <strong id="stat-commissions-attente" class="stat-valeur">0 FCFA</strong>
+              <span class="stat-precision">En attente de paiement Wave/OM</span>
+            </div>
+          </div>
+
+          <div class="stat-carte">
+            <div class="stat-icone-fond icone-vert">💳</div>
+            <div class="stat-contenu">
+              <span class="stat-titre">Commissions Payées</span>
+              <strong id="stat-commissions-payees" class="stat-valeur">0 FCFA</strong>
+              <span class="stat-precision">Décaissées avec succès</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="admin-carte-tableau">
+          <div class="tableau-barre-outils">
+            <div class="outils-gauche">
+              <div class="champ-recherche-wrapper">
+                <span class="icone-recherche" aria-hidden="true">🔍</span>
+                <input 
+                  type="text" 
+                  id="recherche-commissions-admin" 
+                  class="champ-recherche-admin" 
+                  placeholder="Rechercher par commercial, restaurant, formule..."
+                >
+                <button type="button" id="btn-effacer-recherche-commissions" class="btn-effacer-filtre">✕</button>
+              </div>
+
+              <select id="filtre-statut-commissions" class="select-filtre-admin">
+                <option value="tous">Tous les statuts</option>
+                <option value="VALIDE">🟢 Validées (à payer)</option>
+                <option value="PAYE">💳 Payées</option>
+                <option value="EN_ATTENTE">⏳ En attente de signature</option>
+              </select>
+            </div>
+
+            <button type="button" id="btn-actualiser-commissions" class="btn btn-contour btn-sm">
+              ↻ Actualiser
+            </button>
+          </div>
+
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Commercial</th>
+                  <th>Restaurant Signé</th>
+                  <th>Formule Lou Ame Tay</th>
+                  <th>Montant Contrat</th>
+                  <th>Commission (10%)</th>
+                  <th>Statut</th>
+                  <th style="text-align: right;">Action Règlement</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-commissions-admin">
+                <tr><td colspan="7" class="table-chargement">Chargement des commissions...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================================================================
+           VUE ANNONCES : DIFFUSION DE NOTES DE SERVICE & RÉUNIONS
+           ================================================================== -->
+      <section id="vue-annonces" class="admin-vue">
+        <div class="panneau-entete" style="margin-bottom: 1.25rem;">
+          <div>
+            <h3 class="panneau-titre" style="font-size: 1.35rem; color: #0B1F3A;">📢 Mur d'Annonces & Communication Interne</h3>
+            <p class="panneau-soustitre">Publiez des messages, convocations de réunion ou challenges de bonus visibles instantanément par tous les conseillers sur leur smartphone.</p>
+          </div>
+          <button type="button" id="btn-ouvrir-modal-annonce" class="btn btn-primaire btn-sm">
+            + Publier une annonce
+          </button>
+        </div>
+
+        <div class="admin-carte-tableau">
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Type & Priorité</th>
+                  <th>Titre de l'Annonce</th>
+                  <th>Contenu du Message</th>
+                  <th>Auteur</th>
+                  <th>Date</th>
+                  <th style="text-align: right;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-annonces-admin">
+                <tr><td colspan="6" class="table-chargement">Chargement des annonces...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
     </main>
   </div>
 
@@ -1099,19 +1335,23 @@ VALUES
           </div>
         </div>
 
-        <!-- Ligne 3 : Téléphone, WhatsApp et Email -->
-        <div class="form-grille-3">
+        <!-- Ligne 3 : Téléphone, WhatsApp, Email et Code PIN -->
+        <div class="form-grille-4">
           <div class="champ-groupe">
             <label for="comm-telephone" class="champ-label">Téléphone direct *</label>
             <input type="tel" id="comm-telephone" class="champ-input" placeholder="+221 77 123 45 67" required>
           </div>
           <div class="champ-groupe">
-            <label for="comm-whatsapp" class="champ-label">WhatsApp Pro (sans + ni espaces) *</label>
+            <label for="comm-whatsapp" class="champ-label">WhatsApp Pro *</label>
             <input type="text" id="comm-whatsapp" class="champ-input" placeholder="221762312003" required>
           </div>
           <div class="champ-groupe">
             <label for="comm-email" class="champ-label">Email professionnel *</label>
             <input type="email" id="comm-email" class="champ-input" placeholder="moussa.diop@louametay.com" required>
+          </div>
+          <div class="champ-groupe">
+            <label for="comm-pin" class="champ-label">Code PIN Espace Commercial</label>
+            <input type="text" id="comm-pin" class="champ-input" placeholder="1234" maxlength="6" value="1234" title="Code PIN à 4 chiffres permettant au commercial de se connecter à son espace personnel">
           </div>
         </div>
 
@@ -1497,6 +1737,153 @@ VALUES
         </button>
         <span style="font-size: 0.8rem; color: #64748B;">Idéal pour l'impression sur chevalets de table, cartes PVC et dépliants</span>
       </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MODAL 4 : APERÇU HD DU JUSTIFICATIF DE DÉPENSE (REÇU / CAPTURE WAVE)
+       ====================================================================== -->
+  <div id="modal-justificatif-admin" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal-contenu" style="max-width: 600px; text-align: center;">
+      <button type="button" id="btn-fermer-justificatif-admin" class="btn-fermer-modal">✕</button>
+      <h3 style="font-family: var(--police-titre); font-size: 1.25rem; color: var(--marine-fonce); font-weight: 800; margin-bottom: 0.25rem;">
+        🔍 Justificatif de Dépense
+      </h3>
+      <p id="justificatif-admin-sous-titre" style="color: var(--gris-texte-muet); font-size: 0.88rem; margin-bottom: 1rem;">
+        Contrôle d'authenticité de la note de frais
+      </p>
+
+      <div style="background: #F8FAFC; padding: 12px; border-radius: 12px; border: 1px solid var(--gris-bordure); margin-bottom: 1rem;">
+        <img id="img-justificatif-admin-hd" src="" alt="Preuve" style="max-width: 100%; max-height: 60vh; border-radius: 8px; object-fit: contain;">
+      </div>
+
+      <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+        <a id="btn-ouvrir-justificatif-externe" href="#" target="_blank" class="btn btn-contour btn-sm">
+          Ouvrir en plein écran ↗
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MODAL 5 : VALIDATION DU REMBOURSEMENT (WAVE / ORANGE MONEY / ESPÈCES)
+       ====================================================================== -->
+  <div id="modal-rembourser-depense" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal-contenu" style="max-width: 480px;">
+      <button type="button" id="btn-fermer-rembourser-depense" class="btn-fermer-modal">✕</button>
+      <h3 style="font-family: var(--police-titre); font-size: 1.25rem; color: var(--marine-fonce); font-weight: 800; margin-bottom: 0.5rem;">
+        💳 Valider le Remboursement
+      </h3>
+      <p id="desc-remboursement-depense" style="color: var(--gris-texte-muet); font-size: 0.88rem; margin-bottom: 1.25rem;">
+        Confirmez le décaissement de cette note de frais.
+      </p>
+
+      <form id="form-valider-remboursement">
+        <input type="hidden" id="remboursement-depense-id">
+
+        <div class="champ-groupe" style="margin-bottom: 1rem;">
+          <label class="champ-label">Moyen de Remboursement *</label>
+          <select id="remboursement-moyen" class="champ-select" required>
+            <option value="Wave" selected>Wave (Transfert mobile instantané)</option>
+            <option value="Orange Money">Orange Money</option>
+            <option value="Especes">Espèces / Remise directe en main propre</option>
+            <option value="Virement">Virement bancaire</option>
+          </select>
+        </div>
+
+        <div class="champ-groupe" style="margin-bottom: 1.5rem;">
+          <label class="champ-label">Référence de Transaction Wave / OM (Facultatif)</label>
+          <input type="text" id="remboursement-ref" class="champ-input" placeholder="Ex: WV-928172 ou reçu espèces">
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+          <button type="button" id="btn-annuler-remboursement" class="btn btn-contour btn-sm">
+            Annuler
+          </button>
+          <button type="submit" class="btn btn-primaire btn-sm" id="btn-confirmer-remboursement-submit">
+            ✅ Confirmer le Remboursement
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MODAL 6 : REFUS D'UNE NOTE DE FRAIS
+       ====================================================================== -->
+  <div id="modal-refuser-depense" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal-contenu" style="max-width: 460px;">
+      <button type="button" id="btn-fermer-refuser-depense" class="btn-fermer-modal">✕</button>
+      <h3 style="font-family: var(--police-titre); font-size: 1.25rem; color: #DC2626; font-weight: 800; margin-bottom: 0.5rem;">
+        ❌ Refuser la Note de Frais
+      </h3>
+      <p style="color: var(--gris-texte-muet); font-size: 0.88rem; margin-bottom: 1.25rem;">
+        Indiquez au commercial la raison du refus (reçu illisible, montant injustifié, etc.).
+      </p>
+
+      <form id="form-refuser-depense">
+        <input type="hidden" id="refus-depense-id">
+
+        <div class="champ-groupe" style="margin-bottom: 1.5rem;">
+          <label class="champ-label">Motif du Refus *</label>
+          <textarea id="refus-depense-motif" class="champ-input" rows="3" placeholder="Ex: Reçu flou et illisible. Merci de reprendre la photo." required></textarea>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+          <button type="button" id="btn-annuler-refus" class="btn btn-contour btn-sm">
+            Annuler
+          </button>
+          <button type="submit" class="btn btn-danger btn-sm" id="btn-confirmer-refus-submit">
+            Rejeter la demande
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MODAL 7 : PUBLIER UNE ANNONCE D'ÉQUIPE (DIFFUSION DIRECTION)
+       ====================================================================== -->
+  <div id="modal-nouvelle-annonce" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal-contenu" style="max-width: 520px;">
+      <button type="button" id="btn-fermer-modal-annonce" class="btn-fermer-modal">✕</button>
+      <h3 style="font-family: var(--police-titre); font-size: 1.25rem; color: var(--marine-fonce); font-weight: 800; margin-bottom: 0.5rem;">
+        📢 Diffuser une Annonce d'Équipe
+      </h3>
+      <p style="color: var(--gris-texte-muet); font-size: 0.88rem; margin-bottom: 1.25rem;">
+        Ce message apparaîtra immédiatement sur l'espace personnel de tous les conseillers commerciaux.
+      </p>
+
+      <form id="form-nouvelle-annonce">
+        <div class="champ-groupe" style="margin-bottom: 1rem;">
+          <label class="champ-label">Titre de l'Annonce *</label>
+          <input type="text" id="annonce-titre" class="champ-input" placeholder="Ex: Réunion Commerciale ce Lundi à 09h00" required>
+        </div>
+
+        <div class="champ-groupe" style="margin-bottom: 1rem;">
+          <label class="champ-label">Type & Priorité *</label>
+          <select id="annonce-type" class="champ-select" required>
+            <option value="info" selected>🔵 Information générale</option>
+            <option value="reunion">📅 Convocation Réunion d'équipe</option>
+            <option value="bonus">🎁 Challenge & Prime de Signature</option>
+            <option value="urgent">🚨 Urgent / Consigne prioritaire</option>
+          </select>
+        </div>
+
+        <div class="champ-groupe" style="margin-bottom: 1.5rem;">
+          <label class="champ-label">Message / Consignes détaillées *</label>
+          <textarea id="annonce-contenu" class="champ-input" rows="4" placeholder="Ex: Ordre du jour de la réunion, détails du challenge bonus de 5 000 FCFA par contrat Xéweul..." required></textarea>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+          <button type="button" id="btn-annuler-annonce" class="btn btn-contour btn-sm">
+            Annuler
+          </button>
+          <button type="submit" class="btn btn-primaire btn-sm" id="btn-publier-annonce-submit">
+            🚀 Diffuser à l'Équipe
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 

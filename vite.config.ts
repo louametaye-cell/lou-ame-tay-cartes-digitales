@@ -17,6 +17,7 @@ export default defineConfig(() => {
           carte: path.resolve(import.meta.dirname, 'carte.html'),
           login: path.resolve(import.meta.dirname, 'login.html'),
           admin: path.resolve(import.meta.dirname, 'admin.html'),
+          commercial: path.resolve(import.meta.dirname, 'commercial.html'),
           notfound: path.resolve(import.meta.dirname, '404.html'),
         },
       },

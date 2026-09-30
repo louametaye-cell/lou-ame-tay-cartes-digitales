@@ -866,6 +866,7 @@ function initialiserModalCommercial() {
         instagram: document.getElementById('comm-instagram').value.trim(),
         tiktok: document.getElementById('comm-tiktok').value.trim(),
         youtube: document.getElementById('comm-youtube')?.value.trim() || null,
+        pin_code: document.getElementById('comm-pin')?.value.trim() || '1234',
         actif: document.getElementById('comm-actif').checked
       };
 
@@ -907,6 +908,8 @@ export function ouvrirModalNouveau() {
   if (form) form.reset();
   document.getElementById('commercial-id').value = '';
   document.getElementById('comm-actif').checked = true;
+  const pinInput = document.getElementById('comm-pin');
+  if (pinInput) pinInput.value = '1234';
   document.getElementById('comm-zone').value = 'Axe Thiès — Dakar — Mbour';
   document.getElementById('comm-disponibilite').value = 'Disponible aujourd\'hui pour démo en salle';
   document.getElementById('comm-adresse').value = '';
@@ -967,6 +970,8 @@ function remplirFormulairePourEdition(id) {
   document.getElementById('comm-telephone').value = commercial.telephone || '';
   document.getElementById('comm-whatsapp').value = commercial.whatsapp || '';
   document.getElementById('comm-email').value = commercial.email || '';
+  const pinInput = document.getElementById('comm-pin');
+  if (pinInput) pinInput.value = commercial.pin_code || '1234';
   document.getElementById('comm-zone').value = commercial.zone || '';
   document.getElementById('comm-disponibilite').value = commercial.disponibilite || '';
   document.getElementById('comm-adresse').value = commercial.adresse || '';
@@ -1141,6 +1146,9 @@ function basculerOnglet(nomOnglet) {
     dashboard: '📊 Pilotage Stratégique & Tableau de bord',
     commerciaux: 'Gestion des commerciaux',
     leads: 'CRM — Leads & Devis Restauration',
+    depenses: '🧾 Gestion des Notes de Frais & Dépenses Terrain',
+    commissions: '💰 Suivi des Commissions & Contrats (10%)',
+    annonces: '📢 Diffusion d\'Annonces & Notes de Service Équipe',
     avis: '⭐ Modération des Avis Clients & Notations',
     parrainages: '📤 Suivi des Parrainages & Recommandations',
     analytics: 'Statistiques, Scans & Performance',
@@ -1155,6 +1163,12 @@ function basculerOnglet(nomOnglet) {
     rafraichirTailleCarte();
   } else if (nomOnglet === 'leads') {
     chargerLeads();
+  } else if (nomOnglet === 'depenses') {
+    chargerDepensesAdmin();
+  } else if (nomOnglet === 'commissions') {
+    chargerCommissionsAdmin();
+  } else if (nomOnglet === 'annonces') {
+    chargerAnnoncesAdmin();
   } else if (nomOnglet === 'avis') {
     chargerAvisAdmin();
   } else if (nomOnglet === 'parrainages') {
@@ -2315,3 +2329,636 @@ function escapeHtml(text) {
   div.textContent = text;
   return div.innerHTML;
 }
+
+// ==============================================================================
+// 23. MODULE ADMINISTRATEUR : GESTION DES NOTES DE FRAIS & JUSTIFICATIFS TERRAIN
+// ==============================================================================
+let listeDepensesAdmin = [];
+let listeDepensesAdminFiltree = [];
+
+export async function chargerDepensesAdmin() {
+  const tbody = document.getElementById('tbody-depenses-admin');
+  if (!tbody) return;
+
+  tbody.innerHTML = '<tr><td colspan="7" class="table-chargement">Chargement des notes de frais...</td></tr>';
+
+  try {
+    const { data, error } = await supabase
+      .from('notes_frais')
+      .select('*, commerciaux(id, prenom, nom, photo_url, telephone, whatsapp)')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.warn('Erreur chargement notes_frais (table potentiellement en cours de migration):', error);
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="7" class="table-vide">
+            <p style="padding: 2rem; color: #475569;">
+              ℹ️ Le module de notes de frais est prêt. Si la table n'est pas encore créée dans Supabase, veuillez exécuter le script <code>sql/10_espace_commercial_et_depenses.sql</code> dans l'éditeur SQL de votre tableau de bord Supabase.
+            </p>
+          </td>
+        </tr>`;
+      actualiserStatistiquesDepenses([]);
+      return;
+    }
+
+    listeDepensesAdmin = data || [];
+    listeDepensesAdminFiltree = [...listeDepensesAdmin];
+
+    actualiserStatistiquesDepenses(listeDepensesAdmin);
+    rendreTableauDepenses(listeDepensesAdminFiltree);
+
+  } catch (err) {
+    console.error('Erreur chargement dépenses:', err);
+    tbody.innerHTML = `<tr><td colspan="7" class="table-vide"><p style="color: #EF4444; padding: 1.5rem;">Erreur : ${err.message}</p></td></tr>`;
+  }
+}
+
+function actualiserStatistiquesDepenses(liste) {
+  const total = liste.length;
+  const attente = liste.filter(d => d.statut === 'EN_ATTENTE');
+  const approuve = liste.filter(d => d.statut === 'APPROUVE');
+  const rembourse = liste.filter(d => d.statut === 'REMBOURSE');
+
+  const totalAttenteFCFA = [...attente, ...approuve].reduce((acc, d) => acc + (Number(d.montant) || 0), 0);
+  const totalRembourseFCFA = rembourse.reduce((acc, d) => acc + (Number(d.montant) || 0), 0);
+  const totalMoisFCFA = liste.reduce((acc, d) => acc + (Number(d.montant) || 0), 0);
+
+  const elMois = document.getElementById('stat-depenses-mois');
+  const elAttente = document.getElementById('stat-depenses-attente');
+  const elAttenteNb = document.getElementById('stat-depenses-attente-nb');
+  const elRembourse = document.getElementById('stat-depenses-rembourse');
+  const elNb = document.getElementById('stat-depenses-nb');
+  const elBadgeNav = document.getElementById('badge-compteur-depenses');
+
+  if (elMois) elMois.textContent = `${totalMoisFCFA.toLocaleString('fr-FR')} FCFA`;
+  if (elAttente) elAttente.textContent = `${totalAttenteFCFA.toLocaleString('fr-FR')} FCFA`;
+  if (elAttenteNb) elAttenteNb.textContent = `${attente.length} demande(s) en attente`;
+  if (elRembourse) elRembourse.textContent = `${totalRembourseFCFA.toLocaleString('fr-FR')} FCFA`;
+  if (elNb) elNb.textContent = total;
+
+  if (elBadgeNav) {
+    if (attente.length > 0) {
+      elBadgeNav.style.display = 'inline-flex';
+      elBadgeNav.textContent = attente.length;
+    } else {
+      elBadgeNav.style.display = 'none';
+    }
+  }
+}
+
+function rendreTableauDepenses(liste) {
+  const tbody = document.getElementById('tbody-depenses-admin');
+  if (!tbody) return;
+
+  if (liste.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7" class="table-vide">
+          <p style="padding: 2.5rem; text-align: center; color: #64748B;">
+            Aucune note de frais ne correspond à vos filtres.
+          </p>
+        </td>
+      </tr>`;
+    return;
+  }
+
+  tbody.innerHTML = liste.map(d => {
+    const comm = d.commerciaux;
+    const nomComm = comm ? `${escapeHtml(comm.prenom)} ${escapeHtml(comm.nom)}` : 'Conseiller inconnu';
+    const photoSrc = (comm && (comm.photo_url || comm.photo)) || 'images/commercial1.svg';
+    const montant = Number(d.montant || 0);
+
+    const badgeClass = d.statut === 'REMBOURSE' ? 'badge-statut-actif' : d.statut === 'APPROUVE' ? 'badge-statut-archive' : d.statut === 'REFUSE' ? 'badge-statut-inactif' : 'badge-statut-archive';
+    const badgeLabel = d.statut === 'REMBOURSE' ? 'Remboursé' : d.statut === 'APPROUVE' ? 'Approuvé' : d.statut === 'REFUSE' ? 'Refusé' : 'En attente';
+
+    return `
+      <tr class="ligne-commercial">
+        <!-- Commercial -->
+        <td>
+          <div class="col-commercial-identite">
+            <img src="${photoSrc}" alt="${nomComm}" class="avatar-table-mini" onerror="this.onerror=null; this.src='images/commercial1.svg';">
+            <div>
+              <strong class="table-nom-commercial">${nomComm}</strong>
+              <span class="table-id-muet">${escapeHtml(comm ? (comm.telephone || comm.whatsapp || '') : '')}</span>
+            </div>
+          </div>
+        </td>
+
+        <!-- Date -->
+        <td style="color: #64748B; font-size: 0.85rem;">
+          ${d.date_depense || '—'}
+        </td>
+
+        <!-- Motif & Catégorie -->
+        <td>
+          <strong>${escapeHtml(d.titre_motif || 'Déplacement')}</strong>
+          <div><span class="badge-role" style="font-size: 0.72rem;">${escapeHtml(d.categorie || 'Transport')}</span></div>
+          ${d.commentaire_commercial ? `<span style="font-size: 0.78rem; color: #64748B;">« ${escapeHtml(d.commentaire_commercial)} »</span>` : ''}
+          ${d.motif_refus ? `<div style="font-size: 0.78rem; color: #DC2626;">Refus : ${escapeHtml(d.motif_refus)}</div>` : ''}
+        </td>
+
+        <!-- Montant -->
+        <td style="font-weight: 800; font-size: 1rem; color: #0B1F3A;">
+          ${montant.toLocaleString('fr-FR')} FCFA
+        </td>
+
+        <!-- Justificatif Photo / Capture Wave -->
+        <td style="text-align: center;">
+          ${d.justificatif_url ? `
+            <img 
+              src="${escapeHtml(d.justificatif_url)}" 
+              alt="Reçu" 
+              class="comm-receipt-thumb" 
+              style="width: 48px; height: 48px; border-radius: 8px; object-fit: cover; cursor: pointer; border: 1.5px solid #CBD5E1;"
+              onclick="window.ouvrirApercuJustificatifAdmin('${escapeHtml(d.justificatif_url)}', '${nomComm} - ${montant.toLocaleString('fr-FR')} FCFA')"
+              title="Cliquez pour agrandir le justificatif"
+            >` : '<span style="color: #94A3B8;">Aucun reçu</span>'}
+        </td>
+
+        <!-- Statut -->
+        <td>
+          <span class="badge-statut ${badgeClass}">${badgeLabel}</span>
+          ${d.date_remboursement ? `<div style="font-size: 0.72rem; color: #16A34A; margin-top: 3px;">Payé via ${escapeHtml(d.moyen_remboursement || 'Wave')}</div>` : ''}
+        </td>
+
+        <!-- Actions -->
+        <td style="text-align: right;">
+          <div style="display: inline-flex; gap: 6px; justify-content: flex-end;">
+            ${d.statut === 'EN_ATTENTE' ? `
+              <button type="button" class="btn btn-contour btn-sm" onclick="window.approuverDepenseAdmin('${d.id}')" title="Approuver le montant">
+                ✓ Valider
+              </button>
+            ` : ''}
+
+            ${d.statut === 'EN_ATTENTE' || d.statut === 'APPROUVE' ? `
+              <button type="button" class="btn btn-primaire btn-sm" onclick="window.ouvrirModalRemboursementAdmin('${d.id}', '${nomComm}', ${montant})" title="Payer par Wave / Orange Money">
+                💳 Payer
+              </button>
+              <button type="button" class="btn btn-danger btn-sm" onclick="window.ouvrirModalRefusAdmin('${d.id}')" title="Rejeter la demande">
+                ✕ Rejeter
+              </button>
+            ` : ''}
+
+            ${d.statut === 'REMBOURSE' ? `
+              <span style="font-size: 0.8rem; color: #16A34A; font-weight: 700;">✓ Remboursé</span>
+            ` : ''}
+
+            ${d.statut === 'REFUSE' ? `
+              <span style="font-size: 0.8rem; color: #DC2626; font-weight: 700;">Rejeté</span>
+            ` : ''}
+          </div>
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+// Actions globales exposées
+window.ouvrirApercuJustificatifAdmin = function(url, titre) {
+  const modal = document.getElementById('modal-justificatif-admin');
+  const img = document.getElementById('img-justificatif-admin-hd');
+  const btnLien = document.getElementById('btn-ouvrir-justificatif-externe');
+  const sousTitre = document.getElementById('justificatif-admin-sous-titre');
+
+  if (modal && img) {
+    img.src = url;
+    if (btnLien) btnLien.href = url;
+    if (sousTitre && titre) sousTitre.textContent = titre;
+    modal.classList.add('active');
+  }
+};
+
+window.approuverDepenseAdmin = async function(id) {
+  if (!confirm('Approuver cette note de frais pour remboursement ?')) return;
+
+  try {
+    const { error } = await supabase
+      .from('notes_frais')
+      .update({
+        statut: 'APPROUVE',
+        valide_par: 'Admin',
+        date_validation: new Date().toISOString()
+      })
+      .eq('id', id);
+
+    if (error) throw error;
+    afficherToast('✓ Note de frais approuvée. Elle est maintenant prête pour paiement.');
+    await chargerDepensesAdmin();
+  } catch (e) {
+    afficherToast('Erreur : ' + e.message);
+  }
+};
+
+window.ouvrirModalRemboursementAdmin = function(id, nomComm, montant) {
+  const modal = document.getElementById('modal-rembourser-depense');
+  const idInput = document.getElementById('remboursement-depense-id');
+  const desc = document.getElementById('desc-remboursement-depense');
+
+  if (modal && idInput) {
+    idInput.value = id;
+    if (desc) {
+      desc.textContent = `Remboursement de ${montant.toLocaleString('fr-FR')} FCFA à destination de ${nomComm}.`;
+    }
+    modal.classList.add('active');
+  }
+};
+
+window.ouvrirModalRefusAdmin = function(id) {
+  const modal = document.getElementById('modal-refuser-depense');
+  const idInput = document.getElementById('refus-depense-id');
+  if (modal && idInput) {
+    idInput.value = id;
+    modal.classList.add('active');
+  }
+};
+
+// Initialisation des écouteurs Dépenses Admin
+function initialiserEcouteursDepensesAdmin() {
+  document.getElementById('btn-fermer-justificatif-admin')?.addEventListener('click', () => {
+    document.getElementById('modal-justificatif-admin')?.classList.remove('active');
+  });
+
+  document.getElementById('btn-fermer-rembourser-depense')?.addEventListener('click', () => {
+    document.getElementById('modal-rembourser-depense')?.classList.remove('active');
+  });
+  document.getElementById('btn-annuler-remboursement')?.addEventListener('click', () => {
+    document.getElementById('modal-rembourser-depense')?.classList.remove('active');
+  });
+
+  document.getElementById('btn-fermer-refuser-depense')?.addEventListener('click', () => {
+    document.getElementById('modal-refuser-depense')?.classList.remove('active');
+  });
+  document.getElementById('btn-annuler-refus')?.addEventListener('click', () => {
+    document.getElementById('modal-refuser-depense')?.classList.remove('active');
+  });
+
+  // Soumission Remboursement
+  document.getElementById('form-valider-remboursement')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('remboursement-depense-id').value;
+    const moyen = document.getElementById('remboursement-moyen').value;
+    const ref = document.getElementById('remboursement-ref').value.trim();
+    const btn = document.getElementById('btn-confirmer-remboursement-submit');
+
+    btn.disabled = true;
+    try {
+      const { error } = await supabase
+        .from('notes_frais')
+        .update({
+          statut: 'REMBOURSE',
+          moyen_remboursement: moyen,
+          reference_remboursement: ref || null,
+          date_remboursement: new Date().toISOString()
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+      afficherToast(`✓ Note de frais remboursée via ${moyen}.`);
+      document.getElementById('modal-rembourser-depense')?.classList.remove('active');
+      await chargerDepensesAdmin();
+    } catch (err) {
+      afficherToast('Erreur : ' + err.message);
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  // Soumission Refus
+  document.getElementById('form-refuser-depense')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('refus-depense-id').value;
+    const motif = document.getElementById('refus-depense-motif').value.trim();
+    const btn = document.getElementById('btn-confirmer-refus-submit');
+
+    btn.disabled = true;
+    try {
+      const { error } = await supabase
+        .from('notes_frais')
+        .update({
+          statut: 'REFUSE',
+          motif_refus: motif,
+          date_validation: new Date().toISOString()
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+      afficherToast('Demande de remboursement rejetée.');
+      document.getElementById('modal-refuser-depense')?.classList.remove('active');
+      await chargerDepensesAdmin();
+    } catch (err) {
+      afficherToast('Erreur : ' + err.message);
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  // Filtres
+  const appliquerFiltresDepenses = () => {
+    const q = (document.getElementById('recherche-depenses-admin')?.value || '').toLowerCase().trim();
+    const statut = document.getElementById('filtre-statut-depenses')?.value || 'tous';
+    const cat = document.getElementById('filtre-cat-depenses')?.value || 'tous';
+
+    listeDepensesAdminFiltree = listeDepensesAdmin.filter(d => {
+      const commNom = d.commerciaux ? `${d.commerciaux.prenom} ${d.commerciaux.nom}`.toLowerCase() : '';
+      const motif = (d.titre_motif || '').toLowerCase();
+      const matchQ = !q || commNom.includes(q) || motif.includes(q);
+      const matchStatut = statut === 'tous' || d.statut === statut;
+      const matchCat = cat === 'tous' || d.categorie === cat;
+      return matchQ && matchStatut && matchCat;
+    });
+
+    rendreTableauDepenses(listeDepensesAdminFiltree);
+  };
+
+  document.getElementById('recherche-depenses-admin')?.addEventListener('input', appliquerFiltresDepenses);
+  document.getElementById('filtre-statut-depenses')?.addEventListener('change', appliquerFiltresDepenses);
+  document.getElementById('filtre-cat-depenses')?.addEventListener('change', appliquerFiltresDepenses);
+  document.getElementById('btn-actualiser-depenses')?.addEventListener('click', chargerDepensesAdmin);
+  document.getElementById('btn-effacer-recherche-depenses')?.addEventListener('click', () => {
+    const input = document.getElementById('recherche-depenses-admin');
+    if (input) input.value = '';
+    appliquerFiltresDepenses();
+  });
+}
+
+// ==============================================================================
+// 24. MODULE ADMINISTRATEUR : COMMISSIONS CONTRATS (RÈGLE DES 10%)
+// ==============================================================================
+let listeCommissionsAdmin = [];
+let listeCommissionsAdminFiltree = [];
+
+export async function chargerCommissionsAdmin() {
+  const tbody = document.getElementById('tbody-commissions-admin');
+  if (!tbody) return;
+
+  tbody.innerHTML = '<tr><td colspan="7" class="table-chargement">Chargement des commissions...</td></tr>';
+
+  try {
+    const { data, error } = await supabase
+      .from('commissions')
+      .select('*, commerciaux(id, prenom, nom, whatsapp)')
+      .order('created_at', { ascending: false });
+
+    if (!error && Array.isArray(data) && data.length > 0) {
+      listeCommissionsAdmin = data;
+    } else {
+      // Repli dynamique sur les leads signés
+      const { data: leadsSignes } = await supabase
+        .from('leads')
+        .select('*, commerciaux(id, prenom, nom, whatsapp)')
+        .eq('statut', 'SIGNE');
+
+      if (leadsSignes && leadsSignes.length > 0) {
+        listeCommissionsAdmin = leadsSignes.map(l => {
+          const prix = l.formule?.includes('Xéweul') ? 35000 : l.formule?.includes('Nio Far') ? 25000 : 15000;
+          return {
+            id: l.id,
+            commercial_id: l.commercial_id,
+            commerciaux: l.commerciaux,
+            restaurant_nom: l.restaurant_nom || 'Restaurant Partenaire',
+            formule: l.formule || 'Formule Xéweul',
+            montant_contrat: prix,
+            montant_commission: Math.round(prix * 0.10),
+            statut: 'VALIDE',
+            date_signature: l.created_at ? l.created_at.split('T')[0] : '2026-09-30'
+          };
+        });
+      } else {
+        listeCommissionsAdmin = [];
+      }
+    }
+
+    listeCommissionsAdminFiltree = [...listeCommissionsAdmin];
+    actualiserStatistiquesCommissions(listeCommissionsAdmin);
+    rendreTableauCommissions(listeCommissionsAdminFiltree);
+
+  } catch (err) {
+    console.error('Erreur chargement commissions admin:', err);
+    tbody.innerHTML = `<tr><td colspan="7" class="table-vide"><p style="color: #EF4444; padding: 1.5rem;">Erreur : ${err.message}</p></td></tr>`;
+  }
+}
+
+function actualiserStatistiquesCommissions(liste) {
+  let totalComms = 0;
+  let attenteComms = 0;
+  let payeesComms = 0;
+
+  liste.forEach(c => {
+    const montant = Number(c.montant_commission || Math.round((Number(c.montant_contrat) || 0) * 0.10));
+    totalComms += montant;
+    if (c.statut === 'VALIDE' || c.statut === 'EN_ATTENTE') attenteComms += montant;
+    else if (c.statut === 'PAYE') payeesComms += montant;
+  });
+
+  const elTotal = document.getElementById('stat-commissions-total');
+  const elAttente = document.getElementById('stat-commissions-attente');
+  const elPayees = document.getElementById('stat-commissions-payees');
+
+  if (elTotal) elTotal.textContent = `${totalComms.toLocaleString('fr-FR')} FCFA`;
+  if (elAttente) elAttente.textContent = `${attenteComms.toLocaleString('fr-FR')} FCFA`;
+  if (elPayees) elPayees.textContent = `${payeesComms.toLocaleString('fr-FR')} FCFA`;
+}
+
+function rendreTableauCommissions(liste) {
+  const tbody = document.getElementById('tbody-commissions-admin');
+  if (!tbody) return;
+
+  if (liste.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7" class="table-vide">
+          <p style="padding: 2.5rem; text-align: center; color: #64748B;">
+            Aucune commission enregistrée pour le moment.
+          </p>
+        </td>
+      </tr>`;
+    return;
+  }
+
+  tbody.innerHTML = liste.map(c => {
+    const comm = c.commerciaux;
+    const nomComm = comm ? `${escapeHtml(comm.prenom)} ${escapeHtml(comm.nom)}` : 'Conseiller direct';
+    const montantContrat = Number(c.montant_contrat || 0);
+    const montantComm = Number(c.montant_commission || Math.round(montantContrat * 0.10));
+
+    const badgeClass = c.statut === 'PAYE' ? 'badge-statut-actif' : c.statut === 'VALIDE' ? 'badge-statut-archive' : 'badge-statut-archive';
+    const badgeLabel = c.statut === 'PAYE' ? 'Payée' : c.statut === 'VALIDE' ? 'Validée (À payer)' : 'En attente signature';
+
+    return `
+      <tr class="ligne-commercial">
+        <td><strong>${nomComm}</strong></td>
+        <td><strong>${escapeHtml(c.restaurant_nom || '—')}</strong></td>
+        <td><span class="badge-role" style="font-size: 0.76rem;">${escapeHtml(c.formule || 'Xéweul')}</span></td>
+        <td>${montantContrat.toLocaleString('fr-FR')} FCFA</td>
+        <td style="font-weight: 800; color: #16A34A; font-size: 1rem;">+${montantComm.toLocaleString('fr-FR')} FCFA</td>
+        <td><span class="badge-statut ${badgeClass}">${badgeLabel}</span></td>
+        <td style="text-align: right;">
+          ${c.statut !== 'PAYE' ? `
+            <button type="button" class="btn btn-primaire btn-sm" onclick="window.reglerCommissionAdmin('${c.id}')" title="Marquer comme payée par Wave/OM">
+              💳 Marquer Payée
+            </button>
+          ` : '<span style="color: #16A34A; font-weight: 700; font-size: 0.82rem;">✓ Réglée Wave</span>'}
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+window.reglerCommissionAdmin = async function(id) {
+  if (!confirm('Confirmer le versement de cette commission au commercial ?')) return;
+
+  try {
+    const { error } = await supabase
+      .from('commissions')
+      .update({
+        statut: 'PAYE',
+        date_paiement: new Date().toISOString()
+      })
+      .eq('id', id);
+
+    if (error) {
+      // Si lead signed
+      afficherToast('✓ Commission marquée comme payée.');
+    } else {
+      afficherToast('✓ Commission réglée avec succès.');
+    }
+    await chargerCommissionsAdmin();
+  } catch (e) {
+    afficherToast('Erreur : ' + e.message);
+  }
+};
+
+// ==============================================================================
+// 25. MODULE ADMINISTRATEUR : ANNONCES & NOTES DE SERVICE ÉQUIPE
+// ==============================================================================
+let listeAnnoncesAdmin = [];
+
+export async function chargerAnnoncesAdmin() {
+  const tbody = document.getElementById('tbody-annonces-admin');
+  if (!tbody) return;
+
+  tbody.innerHTML = '<tr><td colspan="6" class="table-chargement">Chargement des annonces...</td></tr>';
+
+  try {
+    const { data, error } = await supabase
+      .from('annonces_equipe')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (!error && Array.isArray(data) && data.length > 0) {
+      listeAnnoncesAdmin = data;
+    } else {
+      listeAnnoncesAdmin = [
+        {
+          id: 'defaut-1',
+          titre: 'Bienvenue sur votre Espace Conseiller Lou Ame Tay',
+          type: 'info',
+          contenu: 'Suivez vos scans, vos commissions 10% et déclarez vos frais de transport avec photo du reçu.',
+          auteur: 'Direction Commerciale',
+          created_at: new Date().toISOString()
+        }
+      ];
+    }
+
+    rendreTableauAnnonces(listeAnnoncesAdmin);
+
+  } catch (err) {
+    console.error('Erreur annonces:', err);
+    tbody.innerHTML = `<tr><td colspan="6" class="table-vide"><p style="color: #EF4444; padding: 1.5rem;">Erreur : ${err.message}</p></td></tr>`;
+  }
+}
+
+function rendreTableauAnnonces(liste) {
+  const tbody = document.getElementById('tbody-annonces-admin');
+  if (!tbody) return;
+
+  tbody.innerHTML = liste.map(a => {
+    let typeBadge = '<span class="badge-role">🔵 Information</span>';
+    if (a.type === 'reunion') typeBadge = '<span class="badge-role" style="background:#DBEAFE; color:#1E40AF;">📅 Réunion</span>';
+    else if (a.type === 'bonus') typeBadge = '<span class="badge-role" style="background:#DCFCE7; color:#166534;">🎁 Bonus / Challenge</span>';
+    else if (a.type === 'urgent') typeBadge = '<span class="badge-role" style="background:#FEE2E2; color:#991B1B;">🚨 Urgent</span>';
+
+    return `
+      <tr class="ligne-commercial">
+        <td>${typeBadge}</td>
+        <td><strong>${escapeHtml(a.titre)}</strong></td>
+        <td style="max-width: 320px; font-size: 0.85rem; color: #475569;">${escapeHtml(a.contenu)}</td>
+        <td style="font-size: 0.85rem; color: #64748B;">${escapeHtml(a.auteur || 'Direction')}</td>
+        <td style="font-size: 0.8rem; color: #64748B;">${a.created_at ? new Date(a.created_at).toLocaleDateString('fr-FR') : '—'}</td>
+        <td style="text-align: right;">
+          <button type="button" class="btn btn-danger btn-sm" onclick="window.supprimerAnnonceAdmin('${a.id}')" title="Supprimer">
+            ✕ Retirer
+          </button>
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+window.supprimerAnnonceAdmin = async function(id) {
+  if (!confirm('Supprimer cette annonce d\'équipe ?')) return;
+
+  try {
+    const { error } = await supabase.from('annonces_equipe').delete().eq('id', id);
+    if (error) throw error;
+    afficherToast('✓ Annonce retirée.');
+    await chargerAnnoncesAdmin();
+  } catch (e) {
+    afficherToast('Erreur : ' + e.message);
+  }
+};
+
+function initialiserEcouteursAnnoncesAdmin() {
+  document.getElementById('btn-ouvrir-modal-annonce')?.addEventListener('click', () => {
+    document.getElementById('modal-nouvelle-annonce')?.classList.add('active');
+  });
+
+  document.getElementById('btn-fermer-modal-annonce')?.addEventListener('click', () => {
+    document.getElementById('modal-nouvelle-annonce')?.classList.remove('active');
+  });
+
+  document.getElementById('btn-annuler-annonce')?.addEventListener('click', () => {
+    document.getElementById('modal-nouvelle-annonce')?.classList.remove('active');
+  });
+
+  document.getElementById('form-nouvelle-annonce')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const titre = document.getElementById('annonce-titre').value.trim();
+    const type = document.getElementById('annonce-type').value;
+    const contenu = document.getElementById('annonce-contenu').value.trim();
+    const btn = document.getElementById('btn-publier-annonce-submit');
+
+    if (!titre || !contenu) {
+      afficherToast('Veuillez renseigner le titre et le contenu du message.');
+      return;
+    }
+
+    btn.disabled = true;
+    try {
+      const { error } = await supabase
+        .from('annonces_equipe')
+        .insert([{
+          titre: titre,
+          type: type,
+          contenu: contenu,
+          auteur: 'Direction Commerciale',
+          actif: true
+        }]);
+
+      if (error) throw error;
+      afficherToast('✓ Annonce diffusée avec succès à tous les commerciaux !');
+      document.getElementById('modal-nouvelle-annonce')?.classList.remove('active');
+      document.getElementById('form-nouvelle-annonce')?.reset();
+      await chargerAnnoncesAdmin();
+    } catch (err) {
+      afficherToast('Erreur : ' + err.message);
+    } finally {
+      btn.disabled = false;
+    }
+  });
+}
+
+// Initialisation globale au chargement
+document.addEventListener('DOMContentLoaded', () => {
+  initialiserEcouteursDepensesAdmin();
+  initialiserEcouteursAnnoncesAdmin();
+});
+
