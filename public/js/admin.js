@@ -18,6 +18,7 @@ import { getPrioriteLead } from './lead-scoring.js';
 import { commerciaux as commerciauxSecours } from './data.js';
 import { initialiserAdminV2, calculerEtAfficherKpisCEO, chargerParrainages } from './admin-v2.js';
 import { rafraichirTailleCarte } from './map-admin.js';
+import { genererContratPDFA4 } from './contrat-pdf.js';
 
 // Variables d'état local
 let listeCommerciaux = [];
@@ -1581,7 +1582,12 @@ function rendreTableauLeads(liste) {
 
         <!-- Actions -->
         <td style="text-align: right;">
-          <div style="display: flex; gap: 0.4rem; justify-content: flex-end; align-items: center;">
+          <div style="display: flex; gap: 0.4rem; justify-content: flex-end; align-items: center; flex-wrap: wrap;">
+            ${(statutActuel === 'converti' || lead.statut === 'SIGNE') ? `
+              <button type="button" class="btn-telecharger-contrat-admin" data-id="${lead.id}" title="Télécharger le contrat officiel signé (PDF A4)" style="background: #0B1F3A; color: #F8E294; border: 1px solid #C9A227; padding: 4px 8px; font-size: 0.78rem; font-weight: 700; border-radius: 6px; cursor: pointer;">
+                📄 Contrat
+              </button>
+            ` : ''}
             <a href="https://wa.me/${telNet}?text=${msgRelance}" target="_blank" rel="noopener noreferrer" class="btn-wa-direct-lead" title="Contacter sur WhatsApp">
               💬 WhatsApp
             </a>
@@ -1670,6 +1676,43 @@ function attacherEvenementsLeads(conteneur) {
         calculerEtAfficherKpisCEO();
       } catch (err) {
         afficherToast("Erreur suppression : " + err.message);
+      }
+    });
+  });
+
+  // Téléchargement du contrat officiel PDF A4 par le CEO
+  conteneur.querySelectorAll('.btn-telecharger-contrat-admin').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const leadId = btn.getAttribute('data-id');
+      const lead = listeLeads.find(item => String(item.id) === String(leadId));
+      if (!lead) return;
+
+      afficherToast(`Génération du contrat officiel de "${lead.restaurant_nom || 'Client'}"... 📄`);
+
+      const montantAcompte = lead.formule === 'Tàmbali' ? '15 000 FCFA' : lead.formule === 'Nio Far' ? '25 000 FCFA' : '35 000 FCFA';
+
+      const donnees = {
+        numeroContrat: `LAT-${new Date().getFullYear()}-${String(lead.id).slice(0, 4).toUpperCase()}`,
+        dateContrat: lead.created_at ? new Date(lead.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) : new Date().toLocaleDateString('fr-FR'),
+        restaurantNom: lead.restaurant_nom || 'Établissement Client',
+        gerantNom: lead.prospect_nom || 'M. le Gérant',
+        telephone: lead.telephone || '+221 -- --- -- --',
+        ville: lead.ville || 'Dakar, Sénégal',
+        formule: lead.formule || 'Xéweul',
+        montantMensuel: `${montantAcompte}/mois`,
+        montantAcompte: montantAcompte,
+        modePaiement: 'Wave Business (+221 77 458 74 74)',
+        refPaiement: 'W-VALIDÉ-CEO',
+        commercialNom: lead.commerciaux ? `${lead.commerciaux.prenom} ${lead.commerciaux.nom}` : 'Attribution Direction',
+        signatureClientDataUrl: null
+      };
+
+      try {
+        await genererContratPDFA4(donnees);
+        afficherToast("✓ Contrat PDF A4 officiel téléchargé !");
+      } catch (err) {
+        console.error('Erreur génération contrat admin:', err);
+        afficherToast("Erreur génération contrat : " + err.message);
       }
     });
   });

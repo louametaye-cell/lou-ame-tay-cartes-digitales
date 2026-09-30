@@ -19,6 +19,7 @@ import {
 import { genererKitNetworking } from './kit-networking.js';
 import { genererCartePDF } from './carte-pdf.js';
 import { genererSignatureHTML, copierSignature } from './signature-email.js';
+import { genererContratPDFA4 } from './contrat-pdf.js';
 
 // État local de la session commerciale
 let commercialConnecte = null;
@@ -272,6 +273,9 @@ function initialiserFormulaires() {
       afficherToast('Erreur copie signature.');
     }
   });
+
+  // Initialisation du Module Contrat SaaS & Paiement Direct Wave / OM
+  initialiserModuleContratEtPaiement();
 }
 
 /**
@@ -1244,6 +1248,19 @@ async function chargerProspects() {
 
       const badgeClass = l.statut === 'SIGNE' ? 'vert' : l.statut === 'EN_COURS' ? 'bleu' : 'jaune';
 
+      const boutonAction = l.statut === 'SIGNE'
+        ? `<button type="button" class="comm-btn-gold btn-telecharger-contrat-existant" data-id="${l.id}" style="font-size: 0.78rem; padding: 5px 10px;" title="Télécharger le contrat officiel signé (PDF A4)">
+             <span>Contrat A4</span> 📄
+           </button>`
+        : `<div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+             <button type="button" class="comm-btn-primary btn-signer-contrat-prospect" data-id="${l.id}" style="font-size: 0.78rem; padding: 5px 10px; background: linear-gradient(135deg, #16a34a, #0d7031); border: none;" title="Faire signer le contrat tactile et encaisser l'acompte Wave/OM">
+               <span>Signer & Wave</span> ✍️
+             </button>
+             <a href="${urlWa}" target="_blank" class="comm-btn-outline" style="font-size: 0.78rem; padding: 5px 8px;" title="Relancer sur WhatsApp">
+               <span>Relancer</span> 💬
+             </a>
+           </div>`;
+
       return `
         <tr>
           <td><strong>${escapeHtml(l.restaurant_nom || '—')}</strong><br><span style="font-size: 0.78rem; color: var(--texte-muet);">${escapeHtml(l.ville || '')}</span></td>
@@ -1251,13 +1268,26 @@ async function chargerProspects() {
           <td>${escapeHtml(l.telephone || '—')}</td>
           <td><span class="comm-badge bleu">${escapeHtml(l.formule || 'Xéweul')}</span></td>
           <td><span class="comm-badge ${badgeClass}">${escapeHtml(l.statut || 'Nouveau')}</span></td>
-          <td>
-            <a href="${urlWa}" target="_blank" class="comm-btn-outline" style="font-size: 0.78rem; padding: 5px 10px;" title="Relancer sur WhatsApp">
-              <span>Relancer</span> 💬
-            </a>
-          </td>
+          <td>${boutonAction}</td>
         </tr>`;
     }).join('');
+
+    // Écouteurs sur les boutons de contrat par prospect
+    tbody.querySelectorAll('.btn-signer-contrat-prospect').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-id');
+        const prospect = listeProspects.find(p => String(p.id) === String(id));
+        if (prospect) ouvrirModalContrat(prospect);
+      });
+    });
+
+    tbody.querySelectorAll('.btn-telecharger-contrat-existant').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.getAttribute('data-id');
+        const prospect = listeProspects.find(p => String(p.id) === String(id));
+        if (prospect) await telechargerContratExistant(prospect);
+      });
+    });
 
   } catch (err) {
     console.warn('Erreur chargement prospects:', err);
@@ -1372,6 +1402,404 @@ async function chargerAvis() {
 
   } catch (err) {
     console.warn('Erreur chargement avis:', err);
+  }
+}
+
+// ==============================================================================
+// 11b. MODULE CONTRAT SAAS OFFICIEL, SIGNATURE TACTILE & PAIEMENT WAVE / OM
+// ==============================================================================
+let dernierContratGenere = null;
+let modePaiementChoisi = 'wave';
+let qrCodeWaveInstance = null;
+const TELEPHONE_WAVE_CEO = '221774587474';
+
+export function initialiserModuleContratEtPaiement() {
+  const modal = document.getElementById('modal-signer-contrat');
+  if (!modal) return;
+
+  const btnFermer = document.getElementById('btn-fermer-modal-contrat');
+  const btnOuvrir = document.getElementById('btn-ouvrir-modal-contrat');
+  const formContrat = document.getElementById('form-contrat-saas');
+  const ecranSucces = document.getElementById('ecran-succes-contrat');
+  const canvas = document.getElementById('canvas-signature-client');
+  const btnEffacer = document.getElementById('btn-effacer-signature');
+  const aideSignature = document.getElementById('aide-signature');
+  const selectFormule = document.getElementById('contrat-formule');
+  const inputAcompte = document.getElementById('contrat-acompte');
+  const btnDeepLinkWave = document.getElementById('btn-deep-link-wave');
+  const qrContainerWave = document.getElementById('contrat-qrcode-wave');
+  const tabWave = document.getElementById('tab-choix-wave');
+  const tabOM = document.getElementById('tab-choix-om');
+  const blocWave = document.getElementById('bloc-paiement-wave');
+  const blocOM = document.getElementById('bloc-paiement-om');
+  const texteSucces = document.getElementById('texte-succes-contrat');
+  const btnTelechargerPdfDirect = document.getElementById('btn-telecharger-pdf-direct');
+
+  if (!canvas) return;
+
+  // 1. Gestion du Canvas Tactile de Signature
+  const ctx = canvas.getContext('2d');
+  let estEnTrainDeDessiner = false;
+  let aAuMoinsUnTrait = false;
+
+  function ajusterTailleCanvas() {
+    const rect = canvas.getBoundingClientRect();
+    const ratio = window.devicePixelRatio || 1;
+    if (rect.width > 0) {
+      canvas.width = rect.width * ratio;
+      canvas.height = rect.height * ratio;
+      ctx.scale(ratio, ratio);
+      ctx.lineWidth = 2.5;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.strokeStyle = '#0B1F3A';
+    }
+  }
+
+  function getCoords(e) {
+    const rect = canvas.getBoundingClientRect();
+    let clientX, clientY;
+    if (e.touches && e.touches.length > 0) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    } else if (e.changedTouches && e.changedTouches.length > 0) {
+      clientX = e.changedTouches[0].clientX;
+      clientY = e.changedTouches[0].clientY;
+    } else {
+      clientX = e.clientX;
+      clientY = e.clientY;
+    }
+    return {
+      x: clientX - rect.left,
+      y: clientY - rect.top
+    };
+  }
+
+  function demarrerDessin(e) {
+    estEnTrainDeDessiner = true;
+    aAuMoinsUnTrait = true;
+    if (aideSignature) aideSignature.style.display = 'none';
+    const pos = getCoords(e);
+    ctx.beginPath();
+    ctx.moveTo(pos.x, pos.y);
+    if (e.cancelable && e.type.startsWith('touch')) e.preventDefault();
+  }
+
+  function dessiner(e) {
+    if (!estEnTrainDeDessiner) return;
+    const pos = getCoords(e);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+    if (e.cancelable && e.type.startsWith('touch')) e.preventDefault();
+  }
+
+  function arreterDessin() {
+    estEnTrainDeDessiner = false;
+  }
+
+  // Événements Pointer (couvre souris, tactile et stylet)
+  canvas.addEventListener('pointerdown', demarrerDessin);
+  canvas.addEventListener('pointermove', dessiner);
+  window.addEventListener('pointerup', arreterDessin);
+  window.addEventListener('pointercancel', arreterDessin);
+
+  // Fallback tactile iOS/Android
+  canvas.addEventListener('touchstart', demarrerDessin, { passive: false });
+  canvas.addEventListener('touchmove', dessiner, { passive: false });
+  window.addEventListener('touchend', arreterDessin);
+
+  btnEffacer?.addEventListener('click', () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    aAuMoinsUnTrait = false;
+    if (aideSignature) aideSignature.style.display = 'block';
+  });
+
+  // 2. Mise à jour dynamique du montant et du QR Code Wave
+  function actualiserMontantEtWave() {
+    if (!selectFormule) return;
+    const opt = selectFormule.options[selectFormule.selectedIndex];
+    const prix = Number(opt?.getAttribute('data-prix') || 35000);
+    if (inputAcompte) inputAcompte.value = `${prix.toLocaleString('fr-FR')} FCFA`;
+
+    const urlWave = `https://wave.com/send?phone=${TELEPHONE_WAVE_CEO}&amount=${prix}`;
+    if (btnDeepLinkWave) {
+      btnDeepLinkWave.href = urlWave;
+      btnDeepLinkWave.innerHTML = `<span>Ouvrir Wave (${prix.toLocaleString('fr-FR')} FCFA) ↗</span>`;
+    }
+
+    if (qrContainerWave && typeof QRCode !== 'undefined') {
+      qrContainerWave.innerHTML = '';
+      try {
+        qrCodeWaveInstance = new QRCode(qrContainerWave, {
+          text: urlWave,
+          width: 96,
+          height: 96,
+          colorDark: '#0B1F3A',
+          colorLight: '#FFFFFF',
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      } catch (err) {
+        console.warn('QR Code Wave non initialisé:', err);
+      }
+    }
+  }
+
+  selectFormule?.addEventListener('change', actualiserMontantEtWave);
+
+  // 3. Bascule des onglets de paiement Wave / OM
+  tabWave?.addEventListener('click', () => {
+    modePaiementChoisi = 'wave';
+    tabWave.style.background = '#00D2FF';
+    tabWave.style.color = '#0B1F3A';
+    tabOM.style.background = 'transparent';
+    tabOM.style.color = '#FFFFFF';
+    if (blocWave) blocWave.style.display = 'flex';
+    if (blocOM) blocOM.style.display = 'none';
+  });
+
+  tabOM?.addEventListener('click', () => {
+    modePaiementChoisi = 'om';
+    tabOM.style.background = '#FF7900';
+    tabOM.style.color = '#FFFFFF';
+    tabWave.style.background = 'transparent';
+    tabWave.style.color = '#FFFFFF';
+    if (blocWave) blocWave.style.display = 'none';
+    if (blocOM) blocOM.style.display = 'block';
+  });
+
+  // 4. Ouverture et Fermeture du Modal
+  btnOuvrir?.addEventListener('click', () => ouvrirModalContrat());
+  btnFermer?.addEventListener('click', () => { modal.style.display = 'none'; });
+
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) modal.style.display = 'none';
+  });
+
+  // 5. Bouton de re-téléchargement direct
+  btnTelechargerPdfDirect?.addEventListener('click', async () => {
+    if (dernierContratGenere) {
+      afficherToast('Téléchargement du contrat en cours... 📄');
+      await genererContratPDFA4(dernierContratGenere);
+    }
+  });
+
+  // 6. Validation finale du formulaire de contrat
+  formContrat?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    if (!aAuMoinsUnTrait) {
+      afficherToast('⚠️ Veuillez faire apposer la signature tactile du client sur le cadre.');
+      return;
+    }
+
+    const accord = document.getElementById('check-clauses-accord')?.checked;
+    if (!accord) {
+      afficherToast('⚠️ Veuillez cocher l\'acceptation des clauses contractuelles.');
+      return;
+    }
+
+    const refPaiement = document.getElementById('contrat-ref-paiement')?.value.trim();
+    if (!refPaiement) {
+      afficherToast('⚠️ Veuillez renseigner la référence du reçu Wave ou Orange Money.');
+      return;
+    }
+
+    const leadId = document.getElementById('contrat-lead-id')?.value;
+    const resto = document.getElementById('contrat-resto')?.value.trim();
+    const gerant = document.getElementById('contrat-gerant')?.value.trim();
+    const tel = document.getElementById('contrat-tel')?.value.trim();
+    const ville = document.getElementById('contrat-ville')?.value.trim();
+    const formule = selectFormule.value;
+    const opt = selectFormule.options[selectFormule.selectedIndex];
+    const montantVal = Number(opt?.getAttribute('data-prix') || 35000);
+    const montantStr = `${montantVal.toLocaleString('fr-FR')} FCFA`;
+
+    const btnSubmit = document.getElementById('btn-valider-contrat-final');
+    btnSubmit.disabled = true;
+    btnSubmit.innerHTML = '<span>Validation & Génération PDF en cours...</span> ⏳';
+
+    try {
+      const signatureDataUrl = canvas.toDataURL('image/png');
+      const modePaiementActif = modePaiementChoisi === 'wave'
+        ? 'Wave Business (+221 77 458 74 74)'
+        : 'Orange Money (+221 77 458 74 74)';
+
+      const numContrat = `LAT-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+
+      const donneesContrat = {
+        numeroContrat: numContrat,
+        dateContrat: new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }),
+        restaurantNom: resto,
+        gerantNom: gerant,
+        telephone: tel,
+        ville: ville || 'Sénégal',
+        formule: formule,
+        montantMensuel: `${montantStr}/mois`,
+        montantAcompte: montantStr,
+        modePaiement: modePaiementActif,
+        refPaiement: refPaiement,
+        commercialNom: commercialConnecte ? `${commercialConnecte.prenom} ${commercialConnecte.nom}` : 'Conseiller Lou Ame Tay',
+        signatureClientDataUrl: signatureDataUrl
+      };
+
+      // 1. Sauvegarde dans Supabase
+      if (estSupabaseConfigure() && supabase) {
+        if (leadId) {
+          await supabase
+            .from('leads')
+            .update({
+              restaurant_nom: resto,
+              prospect_nom: gerant,
+              telephone: tel,
+              ville: ville,
+              formule: formule,
+              statut: 'SIGNE',
+              score: 100
+            })
+            .eq('id', leadId);
+        } else {
+          await supabase
+            .from('leads')
+            .insert([{
+              commercial_id: commercialConnecte?.id,
+              restaurant_nom: resto,
+              prospect_nom: gerant,
+              telephone: tel,
+              ville: ville,
+              formule: formule,
+              statut: 'SIGNE',
+              source: 'Terrain - Contrat Signé Wave',
+              score: 100
+            }]);
+        }
+
+        // 2. Journalisation d'audit pour le CEO
+        await enregistrerActivite({
+          typeAction: 'CONTRAT_SIGNE',
+          description: `Contrat SaaS validé & Acompte réglé (${montantStr}) pour "${resto}" (${ville}) - Réf: ${refPaiement}`,
+          details: {
+            numeroContrat: numContrat,
+            restaurant: resto,
+            gerant: gerant,
+            telephone: tel,
+            ville: ville,
+            formule: formule,
+            montantAcompte: montantStr,
+            modePaiement: modePaiementActif,
+            refPaiement: refPaiement
+          },
+          commercialId: commercialConnecte?.id,
+          commercialNom: commercialConnecte ? `${commercialConnecte.prenom} ${commercialConnecte.nom}` : 'Conseiller'
+        });
+      }
+
+      // 3. Génération & Téléchargement du contrat PDF A4 officiel
+      await genererContratPDFA4(donneesContrat);
+      dernierContratGenere = donneesContrat;
+
+      // 4. Affichage de l'écran de succès
+      if (formContrat) formContrat.style.display = 'none';
+      if (ecranSucces) ecranSucces.style.display = 'block';
+      if (texteSucces) {
+        texteSucces.textContent = `Félicitations ! Le contrat officiel pour "${resto}" a été scellé. L'acompte de ${montantStr} a été encaissé sous la référence ${refPaiement}.`;
+      }
+
+      // 5. Lien WhatsApp pour transmettre le récépissé au client
+      const telPur = String(tel).replace(/\D/g, '');
+      const msgWa = `Bonjour M. ${gerant}, Lou Ame Tay vous remercie pour votre confiance ! Votre contrat d'abonnement SaaS pour le restaurant ${resto} (Formule ${formule}) est validé et votre acompte de ${montantStr} a bien été encaissé sous la réf ${refPaiement}. Direction Générale : M. GUEYE (+221 77 458 74 74).`;
+      const urlWa = `https://wa.me/${telPur.startsWith('221') ? telPur : '221' + telPur}?text=${encodeURIComponent(msgWa)}`;
+      const btnWa = document.getElementById('btn-partager-contrat-wa');
+      if (btnWa) btnWa.href = urlWa;
+
+      afficherToast('✓ Contrat scellé et PDF A4 téléchargé avec succès ! 🎉');
+
+      // 6. Rafraîchissement des données de la session
+      await chargerProspects();
+      await chargerCommissions();
+      await chargerKPIs();
+
+    } catch (err) {
+      console.error('Erreur signature contrat:', err);
+      afficherToast('Erreur : ' + (err.message || 'Impossible de valider le contrat.'));
+    } finally {
+      btnSubmit.disabled = false;
+      btnSubmit.innerHTML = '<span>Valider le Contrat & Télécharger le PDF A4 📄</span>';
+    }
+  });
+
+  // Fonction globale d'ouverture
+  window.ouvrirModalContrat = function(prospect = null) {
+    if (formContrat) formContrat.reset();
+    if (formContrat) formContrat.style.display = 'block';
+    if (ecranSucces) ecranSucces.style.display = 'none';
+
+    document.getElementById('contrat-lead-id').value = prospect?.id || '';
+    document.getElementById('contrat-resto').value = prospect?.restaurant_nom || '';
+    document.getElementById('contrat-gerant').value = prospect?.prospect_nom || '';
+    document.getElementById('contrat-tel').value = prospect?.telephone || '';
+    document.getElementById('contrat-ville').value = prospect?.ville || '';
+
+    if (prospect?.formule && selectFormule) {
+      for (let i = 0; i < selectFormule.options.length; i++) {
+        if (selectFormule.options[i].value.toLowerCase().includes(prospect.formule.toLowerCase())) {
+          selectFormule.selectedIndex = i;
+          break;
+        }
+      }
+    }
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    aAuMoinsUnTrait = false;
+    if (aideSignature) aideSignature.style.display = 'block';
+
+    modal.style.display = 'flex';
+    actualiserMontantEtWave();
+
+    setTimeout(() => {
+      ajusterTailleCanvas();
+    }, 60);
+  };
+
+  // Fonction globale de téléchargement pour un contrat déjà signé
+  window.telechargerContratExistant = async function(prospect) {
+    if (!prospect) return;
+    afficherToast(`Génération du contrat officiel de "${prospect.restaurant_nom}"... 📄`);
+
+    const donnees = {
+      numeroContrat: `LAT-${new Date().getFullYear()}-${String(prospect.id).slice(0, 4).toUpperCase()}`,
+      dateContrat: prospect.created_at ? new Date(prospect.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) : new Date().toLocaleDateString('fr-FR'),
+      restaurantNom: prospect.restaurant_nom || 'Établissement Client',
+      gerantNom: prospect.prospect_nom || 'M. le Gérant',
+      telephone: prospect.telephone || '+221 -- --- -- --',
+      ville: prospect.ville || 'Dakar, Sénégal',
+      formule: prospect.formule || 'Xéweul',
+      montantMensuel: prospect.formule === 'Tàmbali' ? '15 000 FCFA/mois' : prospect.formule === 'Nio Far' ? '25 000 FCFA/mois' : '35 000 FCFA/mois',
+      montantAcompte: prospect.formule === 'Tàmbali' ? '15 000 FCFA' : prospect.formule === 'Nio Far' ? '25 000 FCFA' : '35 000 FCFA',
+      modePaiement: 'Wave Business (+221 77 458 74 74)',
+      refPaiement: 'W-VALIDÉ-TERRAIN',
+      commercialNom: commercialConnecte ? `${commercialConnecte.prenom} ${commercialConnecte.nom}` : 'Conseiller Lou Ame Tay',
+      signatureClientDataUrl: null
+    };
+
+    try {
+      await genererContratPDFA4(donnees);
+      afficherToast('✓ Contrat PDF A4 téléchargé avec succès !');
+    } catch (err) {
+      console.error(err);
+      afficherToast('Erreur lors du téléchargement du contrat PDF.');
+    }
+  };
+}
+
+function ouvrirModalContrat(prospect = null) {
+  if (typeof window.ouvrirModalContrat === 'function') {
+    window.ouvrirModalContrat(prospect);
+  }
+}
+
+async function telechargerContratExistant(prospect) {
+  if (typeof window.telechargerContratExistant === 'function') {
+    await window.telechargerContratExistant(prospect);
   }
 }
 

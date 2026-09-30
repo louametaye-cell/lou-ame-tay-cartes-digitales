@@ -1322,9 +1322,14 @@
         <div class="comm-card">
           <div class="comm-card-header">
             <h3 class="comm-card-title">🎯 Mes Prospects & Devis en cours</h3>
-            <button type="button" class="comm-btn-gold" id="btn-ouvrir-modal-prospect">
-              <span>+ Nouveau Prospect Terrain</span>
-            </button>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button type="button" class="comm-btn-gold" id="btn-ouvrir-modal-contrat">
+                <span>✍️ Signer un Contrat (Wave/OM)</span>
+              </button>
+              <button type="button" class="comm-btn-outline" id="btn-ouvrir-modal-prospect">
+                <span>+ Nouveau Prospect</span>
+              </button>
+            </div>
           </div>
 
           <div class="comm-table-wrap">
@@ -1336,7 +1341,7 @@
                   <th>Contact</th>
                   <th>Formule</th>
                   <th>Statut</th>
-                  <th>Action</th>
+                  <th>Actions & Contrat</th>
                 </tr>
               </thead>
               <tbody id="tbody-prospects-commercial">
@@ -1710,6 +1715,182 @@
           <span>Ouvrir en plein écran ↗</span>
         </a>
       </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       7. MODAL : CONTRAT OFFICIEL SAAS, SIGNATURE TACTILE & PAIEMENT WAVE / OM
+       ========================================================================= -->
+  <div class="comm-modal-overlay" id="modal-signer-contrat">
+    <div class="comm-modal-card" style="max-width: 650px; max-height: 90vh; overflow-y: auto;">
+      <button type="button" class="comm-modal-close" id="btn-fermer-modal-contrat">✕</button>
+      
+      <!-- En-tête du modal -->
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1rem; border-bottom: 1px solid var(--bordure); padding-bottom: 0.75rem;">
+        <img src="images/logo.svg" alt="Logo" style="width: 44px; height: 44px;">
+        <div>
+          <h3 style="font-size: 1.25rem; color: var(--bleu-profond); margin: 0; font-weight: 800;">
+            Contrat d'Abonnement SaaS Lou Ame Tay
+          </h3>
+          <p style="margin: 0; font-size: 0.8rem; color: var(--texte-muet);">
+            Direction Générale — M. GUEYE, Fondateur & CEO | Tél: +221 77 458 74 74
+          </p>
+        </div>
+      </div>
+
+      <!-- Formulaire Contrat & Signature -->
+      <form id="form-contrat-saas">
+        <input type="hidden" id="contrat-lead-id" value="">
+
+        <!-- Étape 1 : Coordonnées Client & Formule -->
+        <div style="background: #F8FAFC; border: 1px solid var(--bordure); border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
+          <h4 style="font-size: 0.92rem; color: var(--bleu-profond); margin: 0 0 0.75rem 0; font-weight: 700;">
+            1. Informations de l'Établissement & du Gérant
+          </h4>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="comm-form-group">
+              <label for="contrat-resto">Nom du Restaurant / Établissement *</label>
+              <input type="text" id="contrat-resto" class="comm-input" placeholder="Ex: Restaurant Le Teranga" required>
+            </div>
+            <div class="comm-form-group">
+              <label for="contrat-gerant">Nom complet du Décideur / Gérant *</label>
+              <input type="text" id="contrat-gerant" class="comm-input" placeholder="Ex: M. Ibrahima Ndiaye" required>
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="comm-form-group">
+              <label for="contrat-tel">Téléphone / WhatsApp *</label>
+              <input type="tel" id="contrat-tel" class="comm-input" placeholder="Ex: 77 123 45 67" required>
+            </div>
+            <div class="comm-form-group">
+              <label for="contrat-ville">Ville / Région *</label>
+              <input type="text" id="contrat-ville" class="comm-input" placeholder="Ex: Dakar, Saly, Touba..." required>
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 10px;">
+            <div class="comm-form-group">
+              <label for="contrat-formule">Formule SaaS souscrite *</label>
+              <select id="contrat-formule" class="comm-input">
+                <option value="Xéweul" data-prix="35000">Formule Xéweul (35 000 FCFA/mois — KDS + Menu QR)</option>
+                <option value="Nio Far" data-prix="25000">Formule Nio Far (25 000 FCFA/mois — Serveur Mobile)</option>
+                <option value="Tàmbali" data-prix="15000">Formule Tàmbali (15 000 FCFA/mois — Menu QR Seul)</option>
+                <option value="Sur Mesure" data-prix="50000">Sur Mesure (50 000 FCFA/mois — Multi-sites)</option>
+              </select>
+            </div>
+            <div class="comm-form-group">
+              <label for="contrat-acompte">Acompte d'activation (1er mois) *</label>
+              <input type="text" id="contrat-acompte" class="comm-input" value="35 000 FCFA" readonly style="font-weight: 800; color: #16a34a; background: #ECFDF5;">
+            </div>
+          </div>
+        </div>
+
+        <!-- Étape 2 : Signature Électronique Tactile -->
+        <div style="background: #FFFFFF; border: 1px solid var(--bordure); border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <h4 style="font-size: 0.92rem; color: var(--bleu-profond); margin: 0; font-weight: 700;">
+              2. Signature Électronique du Client (Doigt sur écran tactile) *
+            </h4>
+            <button type="button" id="btn-effacer-signature" style="background: none; border: none; color: #DC2626; font-size: 0.78rem; font-weight: 600; cursor: pointer;">
+              🔄 Recommencer
+            </button>
+          </div>
+          <div style="border: 2px dashed #CBD5E1; border-radius: 8px; background: #FAFBFD; position: relative;">
+            <canvas id="canvas-signature-client" width="550" height="150" style="width: 100%; height: 140px; touch-action: none; cursor: crosshair; display: block;"></canvas>
+            <div id="aide-signature" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #94A3B8; font-size: 0.85rem; pointer-events: none;">
+              ✍️ Signez ici avec votre doigt ou stylet
+            </div>
+          </div>
+
+          <!-- Clauses de garantie et consentement -->
+          <div style="margin-top: 0.85rem; background: #F1F5F9; padding: 10px; border-radius: 8px; font-size: 0.76rem; color: #475569; line-height: 1.45;">
+            <strong>Engagement & Clauses Protectrices :</strong> Le client accepte expressément le contrat SaaS Lou Ame Tay. Sont formellement stipulées : 
+            <strong>(1) Confidentialité absolue</strong> sur le logiciel, 
+            <strong>(2) Propriété intellectuelle exclusive</strong> de Lou Ame Tay / M. Gueye avec interdiction formelle de copie ou plagiat sous peine de poursuites pénales et civiles à Dakar, 
+            <strong>(3) Sécurité & hébergement Cloud</strong> conforme à la loi sénégalaise n° 2008-12 sur la protection des données.
+          </div>
+
+          <label style="display: flex; align-items: center; gap: 8px; margin-top: 0.75rem; font-size: 0.82rem; color: var(--bleu-profond); font-weight: 600; cursor: pointer;">
+            <input type="checkbox" id="check-clauses-accord" required>
+            <span>Je confirme que le client a lu, approuvé les clauses et apposé sa signature ci-dessus.</span>
+          </label>
+        </div>
+
+        <!-- Étape 3 : Paiement d'acompte direct Wave & Orange Money -->
+        <div style="background: linear-gradient(145deg, #0B1F3A 0%, #17375e 100%); color: #FFFFFF; border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem; box-shadow: 0 8px 20px rgba(11, 31, 58, 0.15);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <h4 style="font-size: 1rem; color: #F8E294; margin: 0; font-weight: 800;">
+              3. Règlement Immédiat de l'Acompte
+            </h4>
+            <span style="font-size: 0.75rem; background: rgba(201, 162, 39, 0.25); border: 1px solid #C9A227; color: #F8E294; padding: 3px 8px; border-radius: 9999px; font-weight: 700;">
+              Compte Officiel Lou Ame Tay
+            </span>
+          </div>
+
+          <!-- Onglets de sélection Wave vs OM -->
+          <div style="display: flex; gap: 8px; margin-bottom: 1rem;">
+            <button type="button" class="btn-paiement-tab active" data-mode="wave" id="tab-choix-wave" style="flex: 1; padding: 8px; border-radius: 8px; border: 1.5px solid #00D2FF; background: #00D2FF; color: #0B1F3A; font-weight: 800; font-size: 0.85rem; cursor: pointer;">
+              📲 Wave Business (+221 77 458 74 74)
+            </button>
+            <button type="button" class="btn-paiement-tab" data-mode="om" id="tab-choix-om" style="flex: 1; padding: 8px; border-radius: 8px; border: 1.5px solid #FF7900; background: transparent; color: #FFFFFF; font-weight: 800; font-size: 0.85rem; cursor: pointer;">
+              🟠 Orange Money (+221 77 458 74 74)
+            </button>
+          </div>
+
+          <!-- Bloc Wave -->
+          <div id="bloc-paiement-wave" style="display: flex; gap: 15px; align-items: center; background: rgba(255, 255, 255, 0.08); padding: 12px; border-radius: 10px; margin-bottom: 1rem;">
+            <div id="contrat-qrcode-wave" style="background: #FFFFFF; padding: 6px; border-radius: 8px; display: inline-block; min-width: 100px; min-height: 100px;"></div>
+            <div style="flex: 1;">
+              <div style="font-size: 0.82rem; color: #E2E8F0;">Scannez avec l'app Wave du client :</div>
+              <div style="font-size: 1.15rem; font-weight: 800; color: #00D2FF; margin: 2px 0;">+221 77 458 74 74</div>
+              <div style="font-size: 0.8rem; color: #F8E294; margin-bottom: 6px;">Bénéficiaire : <strong>M. GUEYE (Lou Ame Tay)</strong></div>
+              <a id="btn-deep-link-wave" href="https://wave.com/send?phone=221774587474&amount=35000" target="_blank" class="comm-btn-gold" style="font-size: 0.8rem; padding: 6px 12px; display: inline-flex;">
+                <span>Ouvrir Wave sur ce téléphone ↗</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Bloc OM (Caché par défaut) -->
+          <div id="bloc-paiement-om" style="display: none; background: rgba(255, 255, 255, 0.08); padding: 12px; border-radius: 10px; margin-bottom: 1rem;">
+            <div style="font-size: 0.85rem; color: #E2E8F0;">Transfert Orange Money direct vers le compte officiel :</div>
+            <div style="font-size: 1.25rem; font-weight: 800; color: #FF7900; margin: 4px 0;">+221 77 458 74 74</div>
+            <div style="font-size: 0.8rem; color: #CBD5E1;">Nom du récepteur : <strong>M. GUEYE (Direction Lou Ame Tay)</strong></div>
+          </div>
+
+          <!-- Saisie obligatoire de la référence de transaction -->
+          <div class="comm-form-group" style="margin-bottom: 0;">
+            <label for="contrat-ref-paiement" style="color: #F8E294; font-weight: 700; font-size: 0.85rem;">
+              Référence du Reçu Wave / OM * (Reçu SMS ou écran du client)
+            </label>
+            <input type="text" id="contrat-ref-paiement" class="comm-input" placeholder="Ex: W-8294103 ou OM-749102" required style="background: #0F172A; border-color: #C9A227; color: #FFFFFF; font-weight: 700;">
+          </div>
+        </div>
+
+        <!-- Boutons d'action -->
+        <button type="submit" class="comm-btn-primary" id="btn-valider-contrat-final" style="font-size: 1rem; padding: 14px;">
+          <span>Valider le Contrat & Télécharger le PDF A4 📄</span>
+        </button>
+      </form>
+
+      <!-- Écran de succès post-signature avec bouton de téléchargement direct -->
+      <div id="ecran-succes-contrat" style="display: none; text-align: center; padding: 2rem 1rem;">
+        <div style="font-size: 3rem; margin-bottom: 0.5rem;">🎉</div>
+        <h3 style="font-size: 1.4rem; color: #16a34a; font-weight: 800; margin-bottom: 0.5rem;">
+          Contrat Scellé & Validé avec Succès !
+        </h3>
+        <p style="color: var(--texte-muet); font-size: 0.9rem; margin-bottom: 1.5rem;" id="texte-succes-contrat">
+          L'acompte a été enregistré et le contrat a été signé électroniquement.
+        </p>
+
+        <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+          <button type="button" class="comm-btn-primary" id="btn-telecharger-pdf-direct" style="padding: 12px 20px;">
+            <span>Télécharger le Contrat PDF A4 📄</span>
+          </button>
+          <a id="btn-partager-contrat-wa" href="#" target="_blank" class="comm-btn-gold" style="padding: 12px 20px;">
+            <span>Envoyer le reçu au Client par WhatsApp 💬</span>
+          </a>
+        </div>
+      </div>
+
     </div>
   </div>
 
