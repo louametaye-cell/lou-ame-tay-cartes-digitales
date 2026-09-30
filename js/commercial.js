@@ -2109,7 +2109,7 @@ export function afficherEcranOnboardingContrat(agent) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // Pré-remplissage des champs
+  // Pré-remplissage des champs Étape 1
   const prenom = agent.prenom || '';
   const nom = agent.nom || '';
   const nomComplet = `${prenom} ${nom}`.trim() || 'Conseiller Commercial';
@@ -2122,43 +2122,300 @@ export function afficherEcranOnboardingContrat(agent) {
   const elTel = document.getElementById('onboarding-telephone');
   if (elTel) elTel.value = telephone;
 
+  const elSecEmail = document.getElementById('onboarding-sec-email');
+  if (elSecEmail && !elSecEmail.value) elSecEmail.value = agent.secondary_email || '';
+
+  const elSecPhone = document.getElementById('onboarding-sec-phone');
+  if (elSecPhone && !elSecPhone.value) elSecPhone.value = agent.secondary_phone || '';
+
   const elCni = document.getElementById('onboarding-cni');
-  if (elCni && !elCni.value) elCni.value = agent.cni || '';
+  if (elCni && !elCni.value) elCni.value = agent.cni_number || agent.cni || '';
 
-  const elPayout = document.getElementById('onboarding-payout');
-  if (elPayout && !elPayout.value) elPayout.value = agent.payout_phone || telephone;
+  const elPayout = document.getElementById('onboarding-payout-phone');
+  if (elPayout && !elPayout.value) elPayout.value = agent.payout_phone || agent.telephone || telephone;
 
+  const elPayoutName = document.getElementById('onboarding-payout-name');
+  if (elPayoutName && !elPayoutName.value) elPayoutName.value = agent.payout_account_name || nomComplet;
+
+  const elUrgNom = document.getElementById('onboarding-urg-nom');
+  if (elUrgNom && !elUrgNom.value) elUrgNom.value = agent.emergency_name || '';
+
+  const elUrgTel = document.getElementById('onboarding-urg-tel');
+  if (elUrgTel && !elUrgTel.value) elUrgTel.value = agent.emergency_phone || '';
+
+  // Étape 2 (Carte Digitale)
+  const elJob = document.getElementById('onboarding-job-title');
+  if (elJob && agent.poste) elJob.value = agent.poste;
+
+  const elPrevNom = document.getElementById('wizard-preview-nom');
+  if (elPrevNom) elPrevNom.textContent = nomComplet;
+
+  const elPrevPoste = document.getElementById('wizard-preview-poste');
+  if (elPrevPoste) elPrevPoste.textContent = elJob?.value || 'Conseiller Digital CHR';
+
+  const elPrevPayout = document.getElementById('wizard-preview-payout');
+  if (elPrevPayout) elPrevPayout.textContent = `Ligne certifiée : ${elPayout?.value || telephone}`;
+
+  // Badge et références contrat
   const elBadgeMatricule = document.getElementById('onboarding-matricule-badge');
   if (elBadgeMatricule) elBadgeMatricule.textContent = `Réf. Contrat : ${refMatricule}`;
 
   const elTxtMatricule = document.getElementById('txt-scroll-matricule');
   if (elTxtMatricule) elTxtMatricule.textContent = refMatricule;
 
-  const elPrevNom = document.getElementById('contrat-agent-preview-nom');
-  if (elPrevNom) elPrevNom.textContent = nomComplet;
+  const elContratNom = document.getElementById('contrat-agent-preview-nom');
+  if (elContratNom) elContratNom.textContent = nomComplet;
 
-  const elPrevCni = document.getElementById('contrat-agent-preview-cni');
-  if (elPrevCni) elPrevCni.textContent = agent.cni || elCni?.value || '[À renseigner ci-dessus]';
-
-  const elPrevPayout = document.getElementById('contrat-agent-preview-payout');
-  if (elPrevPayout) elPrevPayout.textContent = agent.payout_phone || elPayout?.value || telephone || '[À renseigner ci-dessus]';
+  // Réinitialiser le Wizard à l'Étape 1
+  basculerEtapeWizard(1);
 }
 
 /**
- * Initialise les gestionnaires d'événements de l'onboarding contractuel :
- * Canvas tactile, scroll de lecture obligatoire et soumission finale avec génération PDF A4
+ * Fonction interne pour basculer entre les étapes 1, 2 et 3 du Wizard
+ * @param {number} etape - Numéro d'étape (1, 2 ou 3)
+ */
+function basculerEtapeWizard(etape) {
+  const p1 = document.getElementById('panneau-wizard-etape-1');
+  const p2 = document.getElementById('panneau-wizard-etape-2');
+  const p3 = document.getElementById('panneau-wizard-etape-3');
+
+  const b1 = document.getElementById('wizard-badge-step-1');
+  const b2 = document.getElementById('wizard-badge-step-2');
+  const b3 = document.getElementById('wizard-badge-step-3');
+
+  if (p1) p1.style.display = etape === 1 ? 'block' : 'none';
+  if (p2) p2.style.display = etape === 2 ? 'block' : 'none';
+  if (p3) p3.style.display = etape === 3 ? 'block' : 'none';
+
+  // Mise à jour de l'apparence des badges Stepper
+  function styleActif(el, numEl, numTxt) {
+    el.style.background = '#C9A227';
+    el.style.color = '#0B1F3A';
+    el.style.border = 'none';
+    numEl.textContent = numTxt;
+  }
+  function styleValide(el, numEl) {
+    el.style.background = '#166534';
+    el.style.color = '#FFFFFF';
+    el.style.border = 'none';
+    numEl.textContent = '✓';
+  }
+  function styleInactif(el, numEl, numTxt) {
+    el.style.background = 'rgba(255,255,255,0.1)';
+    el.style.color = '#CBD5E1';
+    el.style.border = '1px solid rgba(255,255,255,0.2)';
+    numEl.textContent = numTxt;
+  }
+
+  const n1 = document.getElementById('wizard-num-1');
+  const n2 = document.getElementById('wizard-num-2');
+  const n3 = document.getElementById('wizard-num-3');
+
+  if (etape === 1) {
+    styleActif(b1, n1, '1');
+    styleInactif(b2, n2, '2');
+    styleInactif(b3, n3, '3');
+  } else if (etape === 2) {
+    styleValide(b1, n1);
+    styleActif(b2, n2, '2');
+    styleInactif(b3, n3, '3');
+  } else if (etape === 3) {
+    styleValide(b1, n1);
+    styleValide(b2, n2);
+    styleActif(b3, n3, '3');
+  }
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/**
+ * Initialise l'ensemble du Wizard d'onboarding en 3 étapes :
+ * Étape 1 : Coordonnées, Mobile Money, CNI Recto/Verso, Urgence, Locomotion
+ * Étape 2 : Photo de profil (Caméra directe ou Galerie), Titre, Aperçu interactif
+ * Étape 3 : Contrat officiel LAT-COM-2026 complet avec injection dynamique, défilement et signature tactile
  */
 export function initialiserOnboardingContratAgent() {
-  const form = document.getElementById('form-onboarding-contrat');
-  if (!form) return;
+  const btnToStep2 = document.getElementById('btn-wizard-to-step-2');
+  const btnBackTo1 = document.getElementById('btn-wizard-back-to-1');
+  const btnToStep3 = document.getElementById('btn-wizard-to-step-3');
+  const btnBackTo2 = document.getElementById('btn-wizard-back-to-2');
+
+  let cniFrontDataUrl = '';
+  let cniBackDataUrl = '';
+  let avatarPhotoDataUrl = '';
+
+  // --------------------------------------------------------------------------
+  // A. ÉTAPE 1 : VALIDATION & GESTION DES FICHIERS CNI
+  // --------------------------------------------------------------------------
+  const inputCniFront = document.getElementById('onboarding-cni-front-file');
+  const inputCniBack = document.getElementById('onboarding-cni-back-file');
+
+  inputCniFront?.addEventListener('change', (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        cniFrontDataUrl = ev.target?.result;
+        const img = document.getElementById('cni-front-preview-img');
+        const box = document.getElementById('cni-front-preview-box');
+        if (img && box) {
+          img.src = cniFrontDataUrl;
+          box.style.display = 'block';
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  inputCniBack?.addEventListener('change', (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        cniBackDataUrl = ev.target?.result;
+        const img = document.getElementById('cni-back-preview-img');
+        const box = document.getElementById('cni-back-preview-box');
+        if (img && box) {
+          img.src = cniBackDataUrl;
+          box.style.display = 'block';
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // Clic [ CONTINUER VERS L'ÉTAPE 2 (CARTE DIGITALE) ➔ ]
+  btnToStep2?.addEventListener('click', () => {
+    const cni = document.getElementById('onboarding-cni')?.value.trim();
+    const payoutPhone = document.getElementById('onboarding-payout-phone')?.value.trim();
+    const payoutName = document.getElementById('onboarding-payout-name')?.value.trim();
+    const urgNom = document.getElementById('onboarding-urg-nom')?.value.trim();
+    const urgTel = document.getElementById('onboarding-urg-tel')?.value.trim();
+
+    if (!cni || cni.length < 5) {
+      afficherToast('Veuillez renseigner votre numéro de CNI / CEDEAO ou Passeport.');
+      document.getElementById('onboarding-cni')?.focus();
+      return;
+    }
+
+    if (!payoutPhone || payoutPhone.length < 8) {
+      afficherToast('Veuillez renseigner le numéro Mobile Money pour vos commissions.');
+      document.getElementById('onboarding-payout-phone')?.focus();
+      return;
+    }
+
+    if (!payoutName || payoutName.length < 3) {
+      afficherToast('Veuillez renseigner le nom exact du titulaire du compte Mobile Money.');
+      document.getElementById('onboarding-payout-name')?.focus();
+      return;
+    }
+
+    if (!urgNom || !urgTel) {
+      afficherToast('Veuillez renseigner le contact d\'urgence complet.');
+      document.getElementById('onboarding-urg-nom')?.focus();
+      return;
+    }
+
+    // Mise à jour de l'aperçu dynamique de la carte à l'étape 2
+    const elPrevPayout = document.getElementById('wizard-preview-payout');
+    const operateur = document.getElementById('onboarding-payout-operator')?.value;
+    if (elPrevPayout) {
+      elPrevPayout.textContent = `${operateur === 'WAVE' ? '🌊 Wave' : '🍊 OM'} : ${payoutPhone}`;
+    }
+
+    const zone = document.getElementById('onboarding-zone')?.value;
+    const elPrevZone = document.getElementById('wizard-preview-zone');
+    if (elPrevZone) elPrevZone.textContent = `📍 ${zone}`;
+
+    basculerEtapeWizard(2);
+  });
+
+  // --------------------------------------------------------------------------
+  // B. ÉTAPE 2 : PHOTO DE PROFIL HD & CARTE DE VISITE DIGITALE
+  // --------------------------------------------------------------------------
+  btnBackTo1?.addEventListener('click', () => basculerEtapeWizard(1));
+
+  const btnCamera = document.getElementById('btn-declencher-camera');
+  const btnGalerie = document.getElementById('btn-declencher-galerie');
+  const inputCamera = document.getElementById('input-wizard-camera');
+  const inputGalerie = document.getElementById('input-wizard-gallery');
+
+  btnCamera?.addEventListener('click', () => inputCamera?.click());
+  btnGalerie?.addEventListener('click', () => inputGalerie?.click());
+
+  function traiterPhotoSelectionnee(file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      avatarPhotoDataUrl = ev.target?.result;
+      const prevAvatar = document.getElementById('wizard-preview-avatar');
+      if (prevAvatar) prevAvatar.src = avatarPhotoDataUrl;
+      afficherToast('Photo de profil chargée avec succès ! ✨');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  inputCamera?.addEventListener('change', (e) => traiterPhotoSelectionnee(e.target.files?.[0]));
+  inputGalerie?.addEventListener('change', (e) => traiterPhotoSelectionnee(e.target.files?.[0]));
+
+  // Synchronisation dynamique du titre commercial
+  const inputJob = document.getElementById('onboarding-job-title');
+  inputJob?.addEventListener('input', (e) => {
+    const el = document.getElementById('wizard-preview-poste');
+    if (el) el.textContent = e.target.value.trim() || 'Conseiller Digital CHR';
+  });
+
+  // Clic [ CONTINUER VERS LE CONTRAT (ÉTAPE 3) ➔ ]
+  btnToStep3?.addEventListener('click', () => {
+    const job = inputJob?.value.trim();
+    if (!job) {
+      afficherToast('Veuillez renseigner votre titre professionnel.');
+      inputJob?.focus();
+      return;
+    }
+
+    // Injection automatique de toutes les données saisies dans le texte du contrat LAT-COM-2026
+    const cni = document.getElementById('onboarding-cni')?.value.trim();
+    const operateur = document.getElementById('onboarding-payout-operator')?.value;
+    const payoutPhone = document.getElementById('onboarding-payout-phone')?.value.trim();
+    const payoutName = document.getElementById('onboarding-payout-name')?.value.trim();
+    const zone = document.getElementById('onboarding-zone')?.value;
+    const locomotion = document.getElementById('onboarding-locomotion')?.value;
+
+    const elPrevCni = document.getElementById('contrat-agent-preview-cni');
+    if (elPrevCni) elPrevCni.textContent = cni;
+
+    const elPrevPayout = document.getElementById('contrat-agent-preview-payout');
+    if (elPrevPayout) elPrevPayout.textContent = `${operateur === 'WAVE' ? 'Wave' : 'Orange Money'} (${payoutPhone})`;
+
+    const elPrevTitu = document.getElementById('contrat-agent-preview-titulaire');
+    if (elPrevTitu) elPrevTitu.textContent = payoutName;
+
+    const elPrevZone = document.getElementById('contrat-agent-preview-zone');
+    if (elPrevZone) elPrevZone.textContent = zone;
+
+    const elPrevLocomotion = document.getElementById('contrat-agent-preview-locomotion');
+    if (elPrevLocomotion) {
+      elPrevLocomotion.textContent = {
+        'MOTO_SCOOTER': 'Moto / Scooter',
+        'VEHICULE_PERSO': 'Véhicule Personnel',
+        'TRANSPORT_COMMUN': 'Transports en Commun'
+      }[locomotion] || locomotion;
+    }
+
+    basculerEtapeWizard(3);
+  });
+
+  // --------------------------------------------------------------------------
+  // C. ÉTAPE 3 : DÉFILEMENT, SIGNATURE TACTILE & SCELLAGE DU CONTRAT
+  // --------------------------------------------------------------------------
+  btnBackTo2?.addEventListener('click', () => basculerEtapeWizard(2));
 
   const canvas = document.getElementById('canvas-signature-agent');
   const btnEffacer = document.getElementById('btn-effacer-sig-agent');
   const aideSignature = document.getElementById('aide-signature-agent');
   const cadreScroll = document.getElementById('cadre-scroll-contrat-agent');
   const statutDefilement = document.getElementById('statut-defilement-contrat');
-  const inputCni = document.getElementById('onboarding-cni');
-  const inputPayout = document.getElementById('onboarding-payout');
 
   let signatureApposee = false;
   let ctx = null;
@@ -2231,7 +2488,6 @@ export function initialiserOnboardingContratAgent() {
     canvas.addEventListener('touchend', arreterDessin);
   }
 
-  // Effacer la signature
   btnEffacer?.addEventListener('click', () => {
     if (ctx && canvas) {
       ctx.save();
@@ -2243,17 +2499,6 @@ export function initialiserOnboardingContratAgent() {
     }
   });
 
-  // Synchronisation dynamique des champs dans la prévisualisation contractuelle
-  inputCni?.addEventListener('input', (e) => {
-    const el = document.getElementById('contrat-agent-preview-cni');
-    if (el) el.textContent = e.target.value.trim() || '[Renseigné ci-dessus]';
-  });
-
-  inputPayout?.addEventListener('input', (e) => {
-    const el = document.getElementById('contrat-agent-preview-payout');
-    if (el) el.textContent = e.target.value.trim() || '[Renseigné ci-dessus]';
-  });
-
   // Détection du défilement intégral du contrat
   if (cadreScroll && statutDefilement) {
     cadreScroll.addEventListener('scroll', () => {
@@ -2262,48 +2507,36 @@ export function initialiserOnboardingContratAgent() {
         statutDefilement.textContent = '✅ Lecture complète validée';
         statutDefilement.style.color = '#065F46';
         statutDefilement.style.background = '#ECFDF5';
+        statutDefilement.style.borderColor = '#A7F3D0';
       }
     });
   }
 
-  // Soumission du formulaire d'onboarding
-  form.addEventListener('submit', async (e) => {
+  // Soumission finale du formulaire d'onboarding (Étape 3)
+  const form = document.getElementById('form-onboarding-contrat');
+  form?.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!commercialConnecte) {
-      afficherToast('Erreur : Aucun conseiller commercial actif identifié.');
+      afficherToast('Erreur : Aucun conseiller commercial identifié.');
       return;
     }
 
-    const cni = inputCni?.value.trim() || '';
-    const payout = inputPayout?.value.trim() || '';
     const accord = document.getElementById('check-accord-onboarding')?.checked;
 
-    if (!cni || cni.length < 5) {
-      afficherToast('Veuillez renseigner votre numéro de CNI ou passeport CEDEAO.');
-      inputCni?.focus();
-      return;
-    }
-
-    if (!payout || payout.length < 8) {
-      afficherToast('Veuillez renseigner une ligne certifiée Wave ou Orange Money valide.');
-      inputPayout?.focus();
-      return;
-    }
-
     if (!signatureApposee || !canvas) {
-      afficherToast('Veuillez apposer votre signature tactile dans le cadre prévu avant de continuer.');
+      afficherToast('Veuillez apposer votre signature tactile dans le cadre prévu avant de valider.');
       return;
     }
 
     if (!accord) {
-      afficherToast('Veuillez cocher la case d\'engagement pour attester de votre accord sur les 9 articles.');
+      afficherToast('Veuillez cocher la case d\'acceptation des 9 articles du contrat.');
       return;
     }
 
     const btnSubmit = document.getElementById('btn-valider-contrat-agent-final');
     if (btnSubmit) {
       btnSubmit.disabled = true;
-      btnSubmit.innerHTML = '<span>Certification & Homologation en cours...</span> ⏳';
+      btnSubmit.innerHTML = '<span>Scellage & Homologation en cours...</span> ⏳';
     }
 
     try {
@@ -2311,18 +2544,61 @@ export function initialiserOnboardingContratAgent() {
       const signatureDataUrl = canvas.toDataURL('image/png');
       const dateSignature = new Date().toISOString();
 
+      // Récupération de l'intégralité des données du Wizard 3 Étapes
+      const secEmail = document.getElementById('onboarding-sec-email')?.value.trim() || null;
+      const secPhone = document.getElementById('onboarding-sec-phone')?.value.trim() || null;
+      const payoutOperator = document.getElementById('onboarding-payout-operator')?.value || 'WAVE';
+      const payoutPhone = document.getElementById('onboarding-payout-phone')?.value.trim() || commercialConnecte.telephone;
+      const payoutName = document.getElementById('onboarding-payout-name')?.value.trim() || `${commercialConnecte.prenom} ${commercialConnecte.nom}`;
+      const cni = document.getElementById('onboarding-cni')?.value.trim() || '';
+      const urgNom = document.getElementById('onboarding-urg-nom')?.value.trim() || '';
+      const urgRelation = document.getElementById('onboarding-urg-relation')?.value || 'Parent';
+      const urgTel = document.getElementById('onboarding-urg-tel')?.value.trim() || '';
+      const locomotion = document.getElementById('onboarding-locomotion')?.value || 'MOTO_SCOOTER';
+      const zone = document.getElementById('onboarding-zone')?.value || 'Thiès Centre & Grand Standing';
+      const jobTitle = document.getElementById('onboarding-job-title')?.value.trim() || 'Conseiller Digital CHR';
+      const linkedin = document.getElementById('onboarding-linkedin')?.value.trim() || null;
+
       const donneesMiseAJour = {
-        has_signed_contract: true,
-        contrat_statut: 'SIGNE',
-        contrat_reference: matricule,
+        // Étape 1 : Coordonnées, Mobile Money & KYC
+        secondary_email: secEmail,
+        secondary_phone: secPhone,
+        payout_operator: payoutOperator,
+        payout_phone: payoutPhone,
+        payout_account_name: payoutName,
+        cni_number: cni,
         cni: cni,
-        payout_phone: payout,
+        cni_front_url: cniFrontDataUrl || null,
+        cni_back_url: cniBackDataUrl || null,
+        emergency_name: urgNom,
+        emergency_relation: urgRelation,
+        emergency_phone: urgTel,
+        transport_mode: locomotion,
+        assigned_territory: zone,
+        zone: zone,
+
+        // Étape 2 : Carte de Visite Digitale
+        job_title: jobTitle,
+        poste: jobTitle,
+        linkedin_url: linkedin,
+        photo_url: avatarPhotoDataUrl || commercialConnecte.photo_url || 'images/commercial1.jpg',
+
+        // Étape 3 : Scellage Contractuel
+        has_signed_contract: true,
+        contract_status: 'SIGNED',
+        contrat_statut: 'SIGNE',
+        contract_reference: matricule,
+        contrat_reference: matricule,
+        contract_signed_at: dateSignature,
         contrat_signe_le: dateSignature,
+        contract_signature_url: signatureDataUrl,
         contrat_signature_url: signatureDataUrl,
-        contrat_sign_ip: 'Session Mobile Sécurisée'
+        contract_sign_ip: 'Session Mobile Sécurisée',
+        contrat_sign_ip: 'Session Mobile Sécurisée',
+        onboarding_step: 4
       };
 
-      // Sauvegarde dans Supabase
+      // Sauvegarde dans Supabase si configuré
       if (estSupabaseConfigure() && supabase) {
         const { error: errUpdate } = await supabase
           .from('commerciaux')
@@ -2337,7 +2613,7 @@ export function initialiserOnboardingContratAgent() {
       // Mise à jour de l'état local
       Object.assign(commercialConnecte, donneesMiseAJour);
 
-      // Mise à jour de la session locale permanente
+      // Sauvegarde dans la session locale permanente
       localStorage.setItem('LOUAMETAY_COMMERCIAL_SESSION', JSON.stringify({
         id: commercialConnecte.id,
         prenom: commercialConnecte.prenom,
@@ -2346,17 +2622,20 @@ export function initialiserOnboardingContratAgent() {
         contrat_statut: 'SIGNE'
       }));
 
-      // Journalisation immuable dans l'audit
+      // Journalisation d'audit immuable
       try {
         await enregistrerActivite({
           typeAction: 'SIGNATURE_CONTRAT_AGENT',
-          description: `Signature officielle du contrat ${matricule} par ${commercialConnecte.prenom} ${commercialConnecte.nom} (CNI: ${cni})`,
+          description: `Wizard d'Onboarding validé & Contrat ${matricule} scellé par ${commercialConnecte.prenom} ${commercialConnecte.nom} (${payoutOperator}: ${payoutPhone})`,
           commercialId: commercialConnecte.id,
           commercialNom: `${commercialConnecte.prenom} ${commercialConnecte.nom}`,
           details: {
             matricule: matricule,
             cni: cni,
-            payout_phone: payout,
+            payout_operator: payoutOperator,
+            payout_phone: payoutPhone,
+            transport: locomotion,
+            zone: zone,
             contrat_signe_le: dateSignature
           },
           statut: 'SUCCES'
@@ -2365,9 +2644,9 @@ export function initialiserOnboardingContratAgent() {
         console.warn('Erreur journalisation signature contrat agent:', errAudit);
       }
 
-      afficherToast('🎉 Contrat d\'Agent Commercial signé et homologué avec succès !');
+      afficherToast('🎉 Compte commercial activé avec succès ! Bienvenue chez Lou Ame Tay.');
 
-      // Génération et téléchargement immédiat du PDF A4 officiel
+      // Génération et téléchargement immédiat du PDF A4 officiel 2 pages
       try {
         afficherToast('Génération de votre exemplaire officiel PDF A4 en cours... 📄');
         await genererContratCommercialPDFA4({
@@ -2375,9 +2654,9 @@ export function initialiserOnboardingContratAgent() {
           agentNom: commercialConnecte.nom || '',
           agentPrenom: commercialConnecte.prenom || '',
           agentCni: cni,
-          agentAdresse: commercialConnecte.adresse || 'Dakar / Thiès, Sénégal',
-          agentTelephone: commercialConnecte.telephone || commercialConnecte.whatsapp || payout,
-          agentPayoutPhone: payout,
+          agentAdresse: zone || 'Dakar / Thiès, Sénégal',
+          agentTelephone: commercialConnecte.telephone || payoutPhone,
+          agentPayoutPhone: `${payoutOperator} : ${payoutPhone} (${payoutName})`,
           signatureAgentDataUrl: signatureDataUrl,
           clientIp: 'Session Mobile Sécurisée'
         });
@@ -2396,7 +2675,7 @@ export function initialiserOnboardingContratAgent() {
     } finally {
       if (btnSubmit) {
         btnSubmit.disabled = false;
-        btnSubmit.innerHTML = '<span>VALIDER ET SIGNER MON CONTRAT D\'AGENT 📄</span>';
+        btnSubmit.innerHTML = '<span>VALIDER ET ACTIVER MON COMPTE COMMERCIAL 🚀</span>';
       }
     }
   });

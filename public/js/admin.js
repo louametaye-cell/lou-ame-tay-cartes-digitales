@@ -758,13 +758,47 @@ export function ouvrirModalContratAgentAdmin(commercial) {
   if (elCni) elCni.textContent = cni;
 
   const elPayout = document.getElementById('admin-contrat-agent-payout');
-  if (elPayout) elPayout.textContent = payout;
+  if (elPayout) elPayout.textContent = `${commercial.payout_operator || 'Wave'} : ${payout}`;
+
+  const elTitulaire = document.getElementById('admin-contrat-agent-titulaire');
+  if (elTitulaire) elTitulaire.textContent = commercial.payout_account_name || nomComplet;
+
+  const elTransport = document.getElementById('admin-contrat-agent-transport');
+  if (elTransport) {
+    elTransport.textContent = {
+      'MOTO_SCOOTER': '🛵 Moto / Scooter',
+      'VEHICULE_PERSO': '🚗 Véhicule Personnel',
+      'TRANSPORT_COMMUN': '🚌 Transports en Commun'
+    }[commercial.transport_mode] || commercial.transport_mode || '🛵 Moto / Scooter';
+  }
+
+  const elZone = document.getElementById('admin-contrat-agent-zone');
+  if (elZone) elZone.textContent = commercial.assigned_territory || commercial.zone || 'Dakar / Thiès';
+
+  const elUrgence = document.getElementById('admin-contrat-agent-urgence');
+  if (elUrgence) {
+    elUrgence.textContent = commercial.emergency_name 
+      ? `${commercial.emergency_name} (${commercial.emergency_relation || 'Parent'} : ${commercial.emergency_phone || '-'})`
+      : 'Non renseigné';
+  }
 
   const elDate = document.getElementById('admin-contrat-agent-date');
   if (elDate) elDate.textContent = dateSigne;
 
   const elIp = document.getElementById('admin-contrat-agent-ip');
   if (elIp) elIp.textContent = ip;
+
+  // Aperçu des pièces d'identité KYC
+  const boxKyc = document.getElementById('admin-contrat-kyc-box');
+  const imgFront = document.getElementById('admin-cni-front-img');
+  const imgBack = document.getElementById('admin-cni-back-img');
+  if (boxKyc && (commercial.cni_front_url || commercial.cni_back_url)) {
+    boxKyc.style.display = 'block';
+    if (imgFront && commercial.cni_front_url) imgFront.src = commercial.cni_front_url;
+    if (imgBack && commercial.cni_back_url) imgBack.src = commercial.cni_back_url;
+  } else if (boxKyc) {
+    boxKyc.style.display = 'none';
+  }
 
   const imgSig = document.getElementById('admin-contrat-sig-img');
   const zoneSig = document.getElementById('admin-contrat-zone-sig');

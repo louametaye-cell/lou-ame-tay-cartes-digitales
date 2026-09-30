@@ -1,0 +1,81 @@
+// ==============================================================================
+// PRISMA SCHEMA — LOU AME TAY SAAS (CHR SÉNÉGAL)
+// Wizard d'Onboarding Commercial 3 Étapes & Sécurité RH / KYC
+// ==============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  RESTAURATEUR
+  COMMERCIAL
+}
+
+enum PayoutOperator {
+  WAVE
+  ORANGE_MONEY
+}
+
+enum TransportMode {
+  MOTO_SCOOTER
+  VEHICULE_PERSO
+  TRANSPORT_COMMUN
+}
+
+enum ContractStatus {
+  PENDING
+  SIGNED
+  REVOKED
+}
+
+model User {
+  id                    String          @id @default(uuid())
+  email                 String          @unique
+  fullName              String
+  phone                 String          // Numéro principal WhatsApp
+  role                  Role            @default(COMMERCIAL)
+  
+  // ÉTAPE 1 : Contacts & Mobile Money
+  secondaryEmail        String?
+  secondaryPhone        String?
+  payoutOperator        PayoutOperator?
+  payoutPhone           String?
+  payoutAccountName     String?         // Nom titulaire Mobile Money (vérifié avec CNI)
+  
+  // ÉTAPE 1 : KYC & Urgence
+  cniNumber             String?
+  cniFrontUrl           String?
+  cniBackUrl            String?
+  emergencyName         String?
+  emergencyRelation     String?         // Ex: Parent, Conjoint, Frère/Sœur
+  emergencyPhone        String?
+  
+  // ÉTAPE 1 : Logistique & GPS Chrono Agent
+  transportMode         TransportMode?
+  assignedTerritory     String?         // Zone géographique prioritaire de prospection
+  
+  // ÉTAPE 2 : Carte de Visite Digitale
+  avatarUrl             String?         // Photo de profil HD (Caméra directe ou Galerie)
+  jobTitle              String?         @default("Conseiller Digital CHR")
+  linkedinUrl           String?
+  whatsappDirectUrl     String?
+  
+  // ÉTAPE 3 : Statut Contractuel (LAT-COM-2026)
+  onboardingStep        Int             @default(1) // 1, 2, 3 ou 4 (Terminé & Validé)
+  hasSignedContract     Boolean         @default(false)
+  contractStatus        ContractStatus  @default(PENDING)
+  contractReference     String?         // LAT-COM-2026-XXXX
+  contractSignedAt      DateTime?
+  contractSignatureUrl  String?         // Image signature tactile (Base64 / Storage)
+  contractSignIp        String?         // IP certifiée lors du scellage
+  
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+}

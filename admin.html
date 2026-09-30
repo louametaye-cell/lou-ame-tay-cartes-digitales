@@ -2134,11 +2134,34 @@ VALUES
       </div>
 
       <div style="background: #F8FAFC; border: 1px solid var(--gris-bordure); border-radius: 10px; padding: 1rem; margin-bottom: 1rem; font-size: 0.82rem; line-height: 1.6; color: #334155;">
-        <div><strong>Mandataire :</strong> <span id="admin-contrat-agent-nom">---</span></div>
-        <div><strong>Numéro CNI / CEDEAO :</strong> <span id="admin-contrat-agent-cni">---</span></div>
-        <div><strong>Ligne versement Mobile Money :</strong> <span id="admin-contrat-agent-payout">---</span></div>
-        <div><strong>Date & Heure de signature :</strong> <span id="admin-contrat-agent-date">---</span></div>
-        <div><strong>Empreinte & Traçabilité :</strong> <span id="admin-contrat-agent-ip">Session Mobile Sécurisée</span></div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+          <div><strong>Mandataire :</strong> <span id="admin-contrat-agent-nom">---</span></div>
+          <div><strong>Numéro CNI :</strong> <span id="admin-contrat-agent-cni">---</span></div>
+          <div><strong>Ligne Mobile Money :</strong> <span id="admin-contrat-agent-payout">---</span></div>
+          <div><strong>Titulaire du compte :</strong> <span id="admin-contrat-agent-titulaire">---</span></div>
+          <div><strong>Moyen de locomotion :</strong> <span id="admin-contrat-agent-transport">---</span></div>
+          <div><strong>Zone d'affectation :</strong> <span id="admin-contrat-agent-zone">---</span></div>
+          <div><strong>Contact d'urgence :</strong> <span id="admin-contrat-agent-urgence">---</span></div>
+          <div><strong>Date de signature :</strong> <span id="admin-contrat-agent-date">---</span></div>
+        </div>
+        <div style="margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--gris-bordure);">
+          <strong>Empreinte & Traçabilité :</strong> <span id="admin-contrat-agent-ip">Session Mobile Sécurisée</span>
+        </div>
+      </div>
+
+      <!-- Aperçu CNI KYC Recto / Verso -->
+      <div id="admin-contrat-kyc-box" style="display: none; margin-bottom: 1rem;">
+        <div style="font-size: 0.75rem; color: #64748B; margin-bottom: 6px; font-weight: 700;">Pièce d'Identité CNI (Dossier KYC RH) :</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div style="border: 1px solid #CBD5E1; border-radius: 8px; padding: 6px; text-align: center; background: #fff;">
+            <div style="font-size: 0.7rem; font-weight: 700; color: #475569; margin-bottom: 4px;">Face Avant (Recto)</div>
+            <img id="admin-cni-front-img" src="" alt="CNI Recto" style="max-height: 70px; border-radius: 4px; display: inline-block;">
+          </div>
+          <div style="border: 1px solid #CBD5E1; border-radius: 8px; padding: 6px; text-align: center; background: #fff;">
+            <div style="font-size: 0.7rem; font-weight: 700; color: #475569; margin-bottom: 4px;">Face Arrière (Verso)</div>
+            <img id="admin-cni-back-img" src="" alt="CNI Verso" style="max-height: 70px; border-radius: 4px; display: inline-block;">
+          </div>
+        </div>
       </div>
 
       <!-- Aperçu Signature -->
