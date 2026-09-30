@@ -15,7 +15,9 @@ let leadsGlobal = [];
 let commerciauxGlobal = [];
 let avisGlobal = [];
 let parrainagesGlobal = [];
+let rdvsGlobal = [];
 let timerAutoRefresh = null;
+let canalRealtimeSupabase = null;
 
 // Objectifs mensuels CEO
 const CIBLES_CEO = {
@@ -44,6 +46,19 @@ export async function initialiserAdminV2(commerciaux = [], leads = []) {
   commerciauxGlobal = commerciaux;
   leadsGlobal = leads;
 
+  // Charger les rendez-vous terrain pour la carte des points chauds
+  if (estSupabaseConfigure() && supabase) {
+    try {
+      const { data: rdvs } = await supabase
+        .from('rendez_vous')
+        .select('*')
+        .order('date_rdv', { ascending: false });
+      if (rdvs) rdvsGlobal = rdvs;
+    } catch (e) {
+      console.debug('RDVs non chargés pour la carte:', e);
+    }
+  }
+
   // 1. Initialiser le Dashboard CEO
   calculerEtAfficherKpisCEO();
   initialiserVisuelsCEO();
@@ -52,7 +67,10 @@ export async function initialiserAdminV2(commerciaux = [], leads = []) {
   initialiserModuleParrainages();
   await chargerParrainages();
 
-  // 3. Configurer l'auto-refresh temps réel toutes les 30 secondes
+  // 3. Activer l'abonnement WebSocket Realtime Supabase (<1s)
+  initialiserAbonnementsRealtime();
+
+  // 4. Configurer l'auto-refresh temps réel en fallback (toutes les 30 secondes)
   demarrerAutoRefreshTempsReel();
 }
 
@@ -195,12 +213,43 @@ export function initialiserVisuelsCEO() {
   // Graphique Leads 30 jours
   initialiserGraphiqueLeads30Jours('chart-leads-30j-ceo', leadsGlobal);
 
-  // Carte Sénégal des points chauds
-  initialiserCarteSenegalLeads('map-senegal-leads', leadsGlobal);
+  // Carte Sénégal des 9 points chauds nationaux (Leads + RDVs)
+  initialiserCarteSenegalLeads('map-senegal-leads', leadsGlobal, rdvsGlobal);
 }
 
 /**
- * Démarre le rafraîchissement temps réel automatique toutes les 30s
+ * Active l'écoute WebSocket Supabase Realtime pour une actualisation instantanée (< 1s)
+ */
+function initialiserAbonnementsRealtime() {
+  if (!estSupabaseConfigure() || !supabase) return;
+  if (canalRealtimeSupabase) return;
+
+  try {
+    canalRealtimeSupabase = supabase
+      .channel('admin-realtime-hotspots')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'leads' }, async (payload) => {
+        console.log('⚡ [Realtime Supabase] Nouveau lead / conversion reçu :', payload.eventType);
+        const badgeRefresh = document.getElementById('indicateur-temps-reel-pulse');
+        if (badgeRefresh) {
+          badgeRefresh.style.transform = 'scale(1.25)';
+          setTimeout(() => { badgeRefresh.style.transform = 'scale(1)'; }, 400);
+        }
+        await actualiserDonneesSilencieusement();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'rendez_vous' }, async (payload) => {
+        console.log('⚡ [Realtime Supabase] Nouveau RDV / pointage GPS terrain :', payload.eventType);
+        await actualiserDonneesSilencieusement();
+      })
+      .subscribe((status) => {
+        console.log('📡 [Supabase Realtime] Statut du canal :', status);
+      });
+  } catch (err) {
+    console.warn('Fallback WebSocket Realtime :', err);
+  }
+}
+
+/**
+ * Démarre le rafraîchissement temps réel automatique toutes les 30s en fallback
  */
 function demarrerAutoRefreshTempsReel() {
   if (timerAutoRefresh) clearInterval(timerAutoRefresh);
@@ -222,16 +271,26 @@ async function actualiserDonneesSilencieusement() {
   if (!estSupabaseConfigure()) return;
 
   try {
-    const { data: leads } = await supabase
-      .from('leads')
-      .select('*, commerciaux(prenom, nom, telephone, whatsapp)')
-      .order('created_at', { ascending: false });
+    const [resLeads, resRdvs] = await Promise.all([
+      supabase
+        .from('leads')
+        .select('*, commerciaux(prenom, nom, telephone, whatsapp)')
+        .order('created_at', { ascending: false }),
+      supabase
+        .from('rendez_vous')
+        .select('*')
+        .order('date_rdv', { ascending: false })
+    ]);
 
-    if (leads) {
-      leadsGlobal = leads;
-      calculerEtAfficherKpisCEO();
-      initialiserVisuelsCEO();
+    if (resLeads && resLeads.data) {
+      leadsGlobal = resLeads.data;
     }
+    if (resRdvs && resRdvs.data) {
+      rdvsGlobal = resRdvs.data;
+    }
+
+    calculerEtAfficherKpisCEO();
+    initialiserVisuelsCEO();
   } catch (err) {
     console.debug('Refresh silencieux en cours :', err);
   }

@@ -551,6 +551,12 @@ const COORDONNEES_VILLES_SENEGAL = {
   'Dakar Point E / Mermoz': { lat: 14.7042, lon: -17.4667 },
   'Thiès Ville': { lat: 14.7910, lon: -16.9260 },
   'Mbour / Saly': { lat: 14.4447, lon: -16.9856 },
+  'Saint-Louis': { lat: 16.0326, lon: -16.5050 },
+  'Louga': { lat: 15.6187, lon: -16.2244 },
+  'Touba': { lat: 14.8633, lon: -15.8756 },
+  'Kaolack': { lat: 14.1500, lon: -16.0833 },
+  'Îles du Saloum': { lat: 14.0772, lon: -16.4678 },
+  'Casamance': { lat: 12.5680, lon: -16.2733 },
   'Autre': { lat: 14.6928, lon: -17.4467 }
 };
 
@@ -669,8 +675,18 @@ async function pointerArriveeGPS(rdvId, boutonElement) {
     let lonResto = rdv.longitude_restaurant;
 
     if (!latResto || !lonResto) {
-      // Déduction par rapport à la ville du RDV
-      const villeRef = COORDONNEES_VILLES_SENEGAL[rdv.adresse_restaurant] || COORDONNEES_VILLES_SENEGAL['Dakar Plateau'];
+      // Déduction par rapport à la ville du RDV avec recherche intelligente multi-régions
+      let villeRef = COORDONNEES_VILLES_SENEGAL[rdv.adresse_restaurant];
+      if (!villeRef && rdv.adresse_restaurant) {
+        const addrLower = rdv.adresse_restaurant.toLowerCase();
+        for (const [nomVille, c] of Object.entries(COORDONNEES_VILLES_SENEGAL)) {
+          if (addrLower.includes(nomVille.toLowerCase())) {
+            villeRef = c;
+            break;
+          }
+        }
+      }
+      villeRef = villeRef || COORDONNEES_VILLES_SENEGAL['Dakar Plateau'];
       latResto = villeRef.lat;
       lonResto = villeRef.lon;
     }

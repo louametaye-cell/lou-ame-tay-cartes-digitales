@@ -1581,7 +1581,20 @@
 
           <div class="comm-form-group">
             <label for="prospect-ville">Ville / Quartier *</label>
-            <input type="text" id="prospect-ville" class="comm-input" placeholder="Ex: Thiès Dixième" required>
+            <input type="text" id="prospect-ville" class="comm-input" list="liste-villes-senegal" placeholder="Ex: Touba, Cap Skirring, Louga, Saly..." required>
+            <datalist id="liste-villes-senegal">
+              <option value="Dakar Plateau">
+              <option value="Dakar Almadies">
+              <option value="Dakar Point E / Mermoz">
+              <option value="Thiès Ville">
+              <option value="Saly Portudal / Mbour">
+              <option value="Saint-Louis (Ndar)">
+              <option value="Louga">
+              <option value="Touba / Mbacké">
+              <option value="Kaolack">
+              <option value="Îles du Saloum (Foundiougne / Mar Lodj)">
+              <option value="Casamance (Ziguinchor / Cap Skirring)">
+            </datalist>
           </div>
         </div>
 
@@ -1646,7 +1659,13 @@
               <option value="Dakar Almadies / Ngor">Dakar Almadies / Ngor</option>
               <option value="Dakar Point E / Mermoz">Dakar Point E / Mermoz</option>
               <option value="Thiès Ville">Thiès Ville</option>
-              <option value="Mbour / Saly">Mbour / Saly</option>
+              <option value="Mbour / Saly">Mbour / Saly (Petite Côte)</option>
+              <option value="Saint-Louis">Saint-Louis (Ndar)</option>
+              <option value="Louga">Louga</option>
+              <option value="Touba">Touba / Mbacké</option>
+              <option value="Kaolack">Kaolack</option>
+              <option value="Îles du Saloum">Îles du Saloum (Foundiougne / Mar Lodj)</option>
+              <option value="Casamance">Casamance (Ziguinchor / Cap Skirring)</option>
               <option value="Autre">Autre localité</option>
             </select>
           </div>
