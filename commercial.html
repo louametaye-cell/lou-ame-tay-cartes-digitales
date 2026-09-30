@@ -1034,7 +1034,189 @@
   </section>
 
   <!-- =========================================================================
-       3. APPLICATION CONSEILLER TERRAIN (APRÈS CONNEXION)
+       ONBOARDING JURIDIQUE BLOQUANT : SIGNATURE DU CONTRAT D'AGENT COMMERCIAL
+       ========================================================================= -->
+  <section id="ecran-onboarding-contrat" style="display: none; min-height: 100vh; background: #0B1F3A; padding: 2.5rem 1rem 4rem;">
+    <div style="max-width: 800px; margin: 0 auto; background: #FFFFFF; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); overflow: hidden;">
+      
+      <!-- En-tête officiel -->
+      <div style="background: linear-gradient(135deg, #0B1F3A 0%, #17375e 100%); color: #FFFFFF; padding: 1.5rem; text-align: center; border-bottom: 2px solid #C9A227;">
+        <span style="background: rgba(201, 162, 39, 0.2); border: 1px solid #C9A227; color: #F8E294; font-size: 0.75rem; font-weight: 800; padding: 3px 12px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px;">
+          Procédure d'Onboarding Officielle • Droit Sénégalais
+        </span>
+        <h1 style="font-size: 1.45rem; font-weight: 800; margin: 0.75rem 0 0.25rem; color: #FFFFFF;">
+          Bienvenue chez Lou Ame Tay ! 🚀
+        </h1>
+        <p style="font-size: 0.88rem; color: #CBD5E1; margin: 0;">
+          Activation officielle de votre compte Conseiller Commercial & Développement B2B
+        </p>
+        <div id="onboarding-matricule-badge" style="margin-top: 0.5rem; font-size: 0.82rem; font-weight: 700; color: #F8E294;">
+          Réf. Contrat : LAT-COM-2026-XXXX
+        </div>
+      </div>
+
+      <!-- Alerte de blocage légal -->
+      <div style="background: #FFFBEB; border-left: 4px solid #F59E0B; padding: 1rem 1.25rem; font-size: 0.82rem; color: #92400E; line-height: 1.5;">
+        ⚠️ <strong>Accès Conditionnel :</strong> Pour accéder à l'application mobile terrain (ERP/CRM 2.0, pointage GPS, devis, signature de contrat et encaissement Wave), vous devez impérativement renseigner vos coordonnées légales, lire le contrat officiel ci-dessous et apposer votre signature tactile.
+      </div>
+
+      <div style="padding: 1.5rem;">
+        <form id="form-onboarding-contrat">
+          <!-- 1. Identification Mandataire -->
+          <h3 style="font-size: 1rem; color: #0B1F3A; font-weight: 800; margin: 0 0 0.75rem;">
+            1. Informations Légales du Conseiller
+          </h3>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1rem;">
+            <div class="comm-form-group">
+              <label for="onboarding-nom-complet">Nom & Prénom</label>
+              <input type="text" id="onboarding-nom-complet" class="comm-input" readonly style="background: #F1F5F9; font-weight: 700;">
+            </div>
+            <div class="comm-form-group">
+              <label for="onboarding-telephone">Téléphone & WhatsApp Pro</label>
+              <input type="tel" id="onboarding-telephone" class="comm-input" readonly style="background: #F1F5F9; font-weight: 700;">
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.25rem;">
+            <div class="comm-form-group">
+              <label for="onboarding-cni">Numéro CNI / Passeport CEDEAO *</label>
+              <input type="text" id="onboarding-cni" class="comm-input" placeholder="Ex: 1 756 1998 01429" required>
+            </div>
+            <div class="comm-form-group">
+              <label for="onboarding-payout">Ligne certifiée Wave / Orange Money *</label>
+              <input type="tel" id="onboarding-payout" class="comm-input" placeholder="Ex: 77 458 74 74" required>
+            </div>
+          </div>
+
+          <!-- 2. Cadre du Contrat in extenso scrollable -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 8px;">
+            <h3 style="font-size: 1rem; color: #0B1F3A; font-weight: 800; margin: 0;">
+              2. Lecture Intégrale du Contrat LAT-COM-2026
+            </h3>
+            <span id="statut-defilement-contrat" style="font-size: 0.76rem; font-weight: 700; color: #EF4444; background: #FEF2F2; padding: 2px 8px; border-radius: 12px;">
+              ⚠️ Faites défiler jusqu'en bas pour signer
+            </span>
+          </div>
+
+          <div id="cadre-scroll-contrat-agent" style="border: 1.5px solid #CBD5E1; border-radius: 10px; padding: 1.25rem; height: 380px; overflow-y: scroll; background: #F8FAFC; font-size: 0.8rem; line-height: 1.6; color: #334155; box-shadow: inset 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 1rem;">
+            <div style="text-align: center; border-bottom: 1px solid #CBD5E1; padding-bottom: 0.75rem; margin-bottom: 1rem;">
+              <h4 style="font-size: 0.95rem; color: #0B1F3A; margin: 0; font-weight: 800;">
+                CONTRAT D'AGENT COMMERCIAL DE TERRAIN & DÉVELOPPEMENT B2B
+              </h4>
+              <div style="font-size: 0.8rem; color: #C9A227; font-weight: 700;">PLATEFORME SAAS CHR « LOU AME TAY »</div>
+              <div style="font-size: 0.75rem; color: #64748B;">Réf : <span id="txt-scroll-matricule">LAT-COM-2026</span> | Droit Sénégalais (COCC, Lois 2008-08 & 2008-12)</div>
+            </div>
+
+            <p><strong>ENTRE LES SOUSSIGNÉS :</strong></p>
+            <p>
+              <strong>1. LE MANDANT (L'ÉDITEUR) :</strong><br>
+              <strong>LOU AME TAY SASU</strong>, éditée par Médias Graphisme Sénégal / DAW Digital Arts Work (MDA Arts Work).<br>
+              Direction Générale : <strong>M. Mbaye Babacar GUEYE</strong>, Fondateur, Directeur Général & Directeur Artistique.<br>
+              Siège & Ateliers : Grand Standing, Thiès, Sénégal.<br>
+              Bureau commercial : Liberté 6 Extension sur la VDN, Dakar, Sénégal.<br>
+              Contacts officiels : +221 77 458 74 74 / +221 77 130 36 78 | contact@mgartswork.site / contact@louametay.online.<br>
+              <em>Ci-après dénommée « Le Mandant » ou « L'Entreprise », d'une part.</em>
+            </p>
+            <p>
+              <strong>2. LE MANDATAIRE (LE CONSEILLER COMMERCIAL TERRAIN) :</strong><br>
+              Nom & Prénom : <strong id="contrat-agent-preview-nom">[Nom de l'agent]</strong><br>
+              Numéro de CNI / CEDEAO : <span id="contrat-agent-preview-cni">[Renseigné ci-dessus]</span><br>
+              Ligne certifiée Wave / Orange Money : <span id="contrat-agent-preview-payout">[Renseigné ci-dessus]</span><br>
+              <em>Ci-après dénommé « L'Agent Commercial » ou « Le Mandataire », d'autre part.</em>
+            </p>
+
+            <div style="background: #F1F5F9; padding: 8px 10px; border-radius: 6px; margin: 10px 0;">
+              <strong>PRÉAMBULE & CADRE JURIDIQUE SÉNÉGALAIS :</strong><br>
+              Le présent contrat est régi par le Code des Obligations Civiles et Commerciales (COCC) du Sénégal, la Loi n° 2008-08 sur les transactions électroniques (conférant pleine valeur légale à la signature tactile dématérialisée), la Loi n° 2008-12 sur la protection des données à caractère personnel (CDP Sénégal), et la Loi n° 2020-01 sur la promotion des startups et de l'innovation.
+            </div>
+
+            <p><strong>ARTICLE 1 : L'APPLICATION MOBILE TERRAIN OBLIGATOIRE (ERP/CRM 2.0 INTÉGRÉ)</strong><br>
+            <strong>1.1 Outil unique de travail :</strong> L'Agent est doté de l'application mobile terrain officielle conçue par Médias Graphisme Sénégal / Lou Ame Tay / DAW Digital Arts Work. Tout le travail de prospection, de cotation, de suivi et de gestion contractuelle doit impérativement et exclusivement s'effectuer au sein de cette application sur smartphone ou tablette.<br>
+            <strong>1.2 Modules intégrés :</strong> CRM & Pipeline temps réel ; Outil Devis & Contrats ; Démo Live pour gérants ; Signature tactile & Certification DAF ; Pitchs WhatsApp intelligents pré-remplis ; Gestion des frais de déplacement sur justificatifs ; Messagerie interne des directives d'entreprise.</p>
+
+            <p><strong>ARTICLE 2 : GÉOLOCALISATION GPS OBLIGATOIRE & POINTAGE « CHRONO AGENT »</strong><br>
+            <strong>2.1 Obligation d'activation GPS :</strong> Pour garantir le bon fonctionnement de la plateforme, la certification des visites terrain et l'intégrité des données CRM, l'Agent a l'obligation formelle de maintenir le GPS de son appareil de travail activé durant l'ensemble de ses tournées de prospection.<br>
+            <strong>2.2 Pointage de présence sur site :</strong> Lors de chaque visite d'un restaurant ou hôtel, l'Agent effectue un pointage GPS certifié validant sa présence physique effective auprès du prospect.<br>
+            <strong>2.3 Sanctions pour désactivation :</strong> Toute désactivation délibérée du GPS, falsification de position géographique ou simulation de présence constitue une faute lourde entraînant la suspension immédiate de l'accès à l'application, l'annulation des droits à commission sur le dossier litigieux, et la résiliation de plein droit du contrat sans préavis ni indemnité.</p>
+
+            <p><strong>ARTICLE 3 : CARTE DE VISITE DIGITALE SYNCHRONISÉE & NETWORKING</strong><br>
+            <strong>3.1 Dotation digitale :</strong> L'Agent dispose d'une carte de visite interactive connectée, synchronisée directement avec son compte dans l'application mobile terrain, permettant de partager instantanément ses coordonnées et le menu démo par simple scan QR ou lien sans contact.<br>
+            <strong>3.2 Suivi analytique :</strong> L'application met à disposition de l'Agent un tableau de bord analytique mesurant l'efficacité de son réseau : nombre de scans de son QR code, nombre de vues, taux de partage et contacts générés.</p>
+
+            <p><strong>ARTICLE 4 : GRILLE DE RÉMUNÉRATION (ACQUISITION 10% À 25% & RÉCURRENCE 10%)</strong><br>
+            <strong>4.1 Commissions d'acquisition sur contrats signés :</strong> L'Agent perçoit une commission variable de 10% à 25% calculée sur le montant initial hors taxes encaissé (frais d'installation 50 000 FCFA + première période d'abonnement) selon la grille suivante :<br>
+            • Formule Standard / Démarrage (1 à 3 contrats signés / mois) : 10%<br>
+            • Formule Confirmée (4 à 7 contrats signés / mois ou engagement annuel) : 15%<br>
+            • Formule Élite & Multi-sites (à partir de 8 signatures / mois ou chaînes) : 20%<br>
+            • Formule Grands Comptes & Hôtellerie de Luxe (sur-mesure validé direction) : 25%<br>
+            <strong>4.2 Commission de fidélisation et récurrence (10%) :</strong> L'Agent perçoit une commission continue de dix pour cent (10%) sur chaque paiement régulier (redevance mensuelle ou annuelle) effectué par les restaurants et hôtels de son portefeuille actif qu'il a conclus, tant que le client demeure abonné.</p>
+
+            <p><strong>ARTICLE 5 : PAIEMENT INSTANTANÉ PAR MOBILE MONEY & TRANSPARENCE DU SOLDE</strong><br>
+            <strong>5.1 Visibilité en direct :</strong> Le solde des commissions acquises, en cours et payées est affiché en temps réel dans l'« Espace Commercial » de l'Agent.<br>
+            <strong>5.2 Versement immédiat :</strong> Dès que le client effectue le règlement du contrat et que ce solde est validé par la Direction Administrative et Financière dans l'ERP, le paiement de la commission est déclenché immédiatement par virement Mobile Money direct (Wave ou Orange Money) sur la ligne certifiée de l'Agent, sans délai d'attente de fin de mois.</p>
+
+            <p><strong>ARTICLE 6 : FRAIS DE DÉPLACEMENT & REMBOURSEMENT SUR JUSTIFICATIFS</strong><br>
+            <strong>6.1 Prise en charge :</strong> Les frais de transport engagés par l'Agent dans le cadre de ses missions de prospection font l'objet d'un remboursement selon le barème validé par l'Entreprise.<br>
+            <strong>6.2 Procédure dématérialisée :</strong> La demande de remboursement doit être saisie directement dans le module dédié de l'application mobile avec capture photo du justificatif. Tout remboursement est validé et versé via l'application.</p>
+
+            <p><strong>ARTICLE 7 : CONFIDENTIALITÉ ABSOLUE, SÉCURITÉ DES DONNÉES & CLAUSE PÉNALE (5 000 000 FCFA)</strong><br>
+            <strong>7.1 Canaux exclusifs :</strong> Toute communication professionnelle doit obligatoirement se dérouler au sein de la messagerie interne de l'application ou sur le groupe WhatsApp professionnel officiel de Lou Ame Tay.<br>
+            <strong>7.2 Secret industriel et commercial :</strong> Interdiction absolue de divulguer, copier, exporter, transférer, capturer (screenshots), extraire ou reproduire les bases de données clients, les algorithmes, codes sources, listes de prix et données de gestion de Lou Ame Tay, durant le contrat et pour une durée de trois (3) ans après son terme.<br>
+            <strong>7.3 Conformité CDP & Code pénal :</strong> Conformité stricte à la Loi sénégalaise n° 2008-12 (CDP) et au Code pénal sénégalais (articles 431-7 et suivants).<br>
+            <strong>7.4 Révocation immédiate des accès :</strong> Dès la notification de résiliation, tous les accès à l'application mobile terrain et au CRM/ERP 2.0 sont révoqués de plein droit.<br>
+            <strong>7.5 Clause pénale forfaitaire :</strong> Toute violation avérée de la confidentialité ou détournement de données entraînera des poursuites devant le Tribunal de Dakar et le versement automatique d'une pénalité forfaitaire minimale de cinq millions (5 000 000) FCFA à titre de dommages provisionnels.</p>
+
+            <p><strong>ARTICLE 8 : ÉTHIQUE FINANCIÈRE & INTERDICTION FORMELLE DES ESPÈCES</strong><br>
+            L'Agent n'a strictly aucun mandat pour manipuler ou encaisser des espèces directement des clients. Tous les paiements des restaurateurs doivent être réalisés exclusivement via les canaux bancaires officiels de Lou Ame Tay SASU (Wave marchand +221 77 458 74 74, Orange Money +221 77 130 36 78 ou compte BNDE). La perception d'espèces est constitutive d'une faute pénale avec licenciement immédiat.</p>
+
+            <p><strong>ARTICLE 9 : DURÉE, RÉSILIATION & PERTE DES COMMISSIONS RÉCURRENTES</strong><br>
+            <strong>9.1 Durée :</strong> Contrat conclu pour une période de six (6) mois renouvelable.<br>
+            <strong>9.2 Résiliation :</strong> Préavis de 15 jours par voie dématérialisée certifiée. En cas de faute grave (GPS falsifié, encaissement d'espèces, fuite de données), résiliation immédiate sans préavis.<br>
+            <strong>9.3 Perte irrévocable des commissions récurrentes en cas de résiliation :</strong> En cas de résiliation du présent contrat, quelle qu'en soit la cause (rupture ordinaire, démission ou faute), l'Agent Commercial perd immédiatement et définitivement tout droit aux commissions récurrentes (10%) sur les paiements futurs des restaurants et hôtels qu'il avait validés ou apportés. Seules restent acquises les commissions relatives aux contrats dont le règlement intégral a été effectivement encaissé par l'Entreprise avant la date effective de la résiliation. Aucun dédommagement, rente de portefeuille ou indemnité compensatrice ne pourra être réclamé sur les abonnements ultérieurs.<br>
+            <strong>9.4 Compétence juridictionnelle :</strong> Attribution expresse de compétence aux tribunaux de Dakar et Thiès.</p>
+
+            <div style="background: #ECFDF5; border: 1px solid #10B981; padding: 10px; border-radius: 8px; margin-top: 1rem; text-align: center; color: #065F46; font-weight: 700;">
+              ✓ Fin du texte contractuel — Vous pouvez maintenant apposer votre signature ci-dessous.
+            </div>
+          </div>
+
+          <!-- 3. Zone de signature tactile -->
+          <div style="background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <h3 style="font-size: 0.95rem; color: #0B1F3A; font-weight: 800; margin: 0;">
+                3. Signature Tactile au Doigt ou Stylet *
+              </h3>
+              <button type="button" id="btn-effacer-sig-agent" style="background: none; border: none; color: #DC2626; font-size: 0.78rem; font-weight: 700; cursor: pointer;">
+                🔄 Effacer et recommencer
+              </button>
+            </div>
+            <div style="border: 2px dashed #94A3B8; border-radius: 8px; background: #FAFBFD; position: relative;">
+              <canvas id="canvas-signature-agent" width="700" height="150" style="width: 100%; height: 140px; touch-action: none; cursor: crosshair; display: block;"></canvas>
+              <div id="aide-signature-agent" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #94A3B8; font-size: 0.85rem; pointer-events: none;">
+                ✍️ Apposez votre signature ici avec votre doigt
+              </div>
+            </div>
+          </div>
+
+          <!-- Checkbox d'engagement légal -->
+          <label style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 1.25rem; font-size: 0.82rem; color: #1E293B; line-height: 1.45; cursor: pointer;">
+            <input type="checkbox" id="check-accord-onboarding" required style="margin-top: 3px; width: 18px; height: 18px;">
+            <span>
+              Je déclare sur l'honneur avoir lu attentivement l'intégralité du contrat <strong>LAT-COM-2026</strong> et j'en accepte toutes les clauses sans réserve, notamment l'usage exclusif de l'application ERP 2.0, l'obligation formelle d'activation du GPS lors des prospections, l'interdiction stricte de manipulation d'espèces et l'absence de droits aux commissions récurrentes en cas de résiliation.
+            </span>
+          </label>
+
+          <!-- Bouton de soumission -->
+          <button type="submit" id="btn-valider-contrat-agent-final" class="comm-btn-primary" style="width: 100%; justify-content: center; padding: 14px; font-size: 1rem; font-weight: 800;">
+            <span>VALIDER ET SIGNER MON CONTRAT D'AGENT 📄</span>
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       3. APPLICATION CONSEILLER TERRAIN (APRÈS CONNEXION & SIGNATURE)
        ========================================================================= -->
   <div id="section-app-comm" style="display: none;">
 
@@ -1098,6 +1280,9 @@
       </button>
       <button type="button" class="comm-tab-btn" id="btn-ouvrir-pass-wallet" style="background: #0B1F3A; color: #F8E294; border: 1px solid #C9A227; font-weight: 700;">
         <span>💳 Mon Pass Wallet NFC</span>
+      </button>
+      <button type="button" class="comm-tab-btn" id="btn-voir-mon-contrat-agent" style="background: #166534; color: #FFFFFF; border: none; font-weight: 700;">
+        <span>📜 Mon Contrat d'Agent</span>
       </button>
     </nav>
 
@@ -2016,6 +2201,62 @@
           <span>🍏 Enregistrer dans Apple Wallet (.pkpass)</span>
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- MODAL CONSULTATION DU CONTRAT D'AGENT SIGNÉ -->
+  <div class="comm-modal-overlay" id="modal-consultation-contrat-agent">
+    <div class="comm-modal-card" style="max-width: 650px; max-height: 90vh; overflow-y: auto;">
+      <button type="button" class="comm-modal-close" id="btn-fermer-modal-consultation-contrat">✕</button>
+
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1rem; border-bottom: 1px solid var(--bordure); padding-bottom: 0.75rem;">
+        <div style="width: 44px; height: 44px; border-radius: 12px; background: #166534; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #fff;">
+          📜
+        </div>
+        <div>
+          <h3 style="font-size: 1.25rem; color: var(--bleu-profond); margin: 0; font-weight: 800;">
+            Mon Contrat d'Agent Commercial B2B
+          </h3>
+          <p style="margin: 0; font-size: 0.8rem; color: var(--texte-muet);">
+            Convention officielle scellée sous l'empire du droit sénégalais
+          </p>
+        </div>
+      </div>
+
+      <!-- Badge de certification -->
+      <div style="background: #ECFDF5; border: 1.5px solid #10B981; border-radius: 12px; padding: 1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 12px;">
+        <div style="font-size: 2rem;">✅</div>
+        <div>
+          <div style="font-weight: 800; color: #065F46; font-size: 0.95rem;" id="contrat-consul-statut-titre">
+            Contrat Homologué & Actif
+          </div>
+          <div style="font-size: 0.8rem; color: #047857;" id="contrat-consul-details">
+            Réf : LAT-COM-2026-XXXX • Validé électroniquement
+          </div>
+        </div>
+      </div>
+
+      <div style="background: #F8FAFC; border: 1px solid var(--bordure); border-radius: 10px; padding: 1rem; margin-bottom: 1rem; font-size: 0.82rem; line-height: 1.6; color: #334155;">
+        <div><strong>Mandataire :</strong> <span id="contrat-consul-nom">M. le Conseiller</span></div>
+        <div><strong>Numéro CNI :</strong> <span id="contrat-consul-cni">---</span></div>
+        <div><strong>Ligne versement Mobile Money :</strong> <span id="contrat-consul-payout">---</span></div>
+        <div><strong>Date & Heure de signature :</strong> <span id="contrat-consul-date">---</span></div>
+        <div><strong>Certification technique :</strong> <span id="contrat-consul-ip">IP certifiée • Empreinte SHA-256</span></div>
+      </div>
+
+      <!-- Aperçu de la signature -->
+      <div style="border: 1px dashed #CBD5E1; border-radius: 8px; padding: 10px; text-align: center; background: #FFFFFF; margin-bottom: 1.25rem;">
+        <div style="font-size: 0.75rem; color: #64748B; margin-bottom: 6px; font-weight: 700;">Signature tactile apposée lors de l'onboarding :</div>
+        <img id="contrat-consul-img-signature" src="" alt="Signature" style="max-height: 70px; display: inline-block;">
+      </div>
+
+      <!-- Actions -->
+      <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+        <button type="button" id="btn-telecharger-mon-contrat-pdf" class="comm-btn-primary" style="padding: 12px 20px; font-weight: 800;">
+          <span>Télécharger mon Contrat Officiel (PDF A4) 📄</span>
+        </button>
+      </div>
+
     </div>
   </div>
 

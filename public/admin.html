@@ -536,12 +536,13 @@
                   <th>Poste & Catégorie</th>
                   <th>Coordonnées</th>
                   <th>Statut (1 clic)</th>
+                  <th>Contrat d'Agent</th>
                   <th>QR Code</th>
                   <th style="text-align: right;">Actions</th>
                 </tr>
               </thead>
               <tbody id="tbody-commerciaux">
-                <tr><td colspan="6" class="table-chargement">Chargement des conseillers commerciaux...</td></tr>
+                <tr><td colspan="7" class="table-chargement">Chargement des conseillers commerciaux...</td></tr>
               </tbody>
             </table>
           </div>
@@ -2097,6 +2098,63 @@ VALUES
           </button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MODAL 8 : SUPERVISION & AUDIT DU CONTRAT D'AGENT COMMERCIAL (DIRECTION & DAF)
+       ====================================================================== -->
+  <div id="modal-voir-contrat-agent-admin" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal-contenu" style="max-width: 620px; max-height: 90vh; overflow-y: auto;">
+      <button type="button" id="btn-fermer-modal-contrat-admin" class="btn-fermer-modal">✕</button>
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1rem; border-bottom: 1px solid var(--gris-bordure); padding-bottom: 0.75rem;">
+        <div style="width: 44px; height: 44px; border-radius: 12px; background: #0B1F3A; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #fff;">
+          📜
+        </div>
+        <div>
+          <h3 style="font-family: var(--police-titre); font-size: 1.2rem; color: var(--marine-fonce); font-weight: 800; margin: 0;">
+            Contrat d'Agent Commercial B2B
+          </h3>
+          <p style="margin: 0; font-size: 0.8rem; color: var(--gris-texte-muet);">
+            Supervision Direction Générale & DAF • Réf. LAT-COM-2026
+          </p>
+        </div>
+      </div>
+
+      <div id="admin-contrat-statut-box" style="background: #ECFDF5; border: 1.5px solid #10B981; border-radius: 10px; padding: 0.85rem 1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 10px;">
+        <div style="font-size: 1.75rem;">✅</div>
+        <div>
+          <div style="font-weight: 800; color: #065F46; font-size: 0.92rem;" id="admin-contrat-statut-titre">
+            Contrat Homologué & Actif
+          </div>
+          <div style="font-size: 0.78rem; color: #047857;" id="admin-contrat-statut-desc">
+            Réf. LAT-COM-2026-XXXX • Signature tactile certifiée
+          </div>
+        </div>
+      </div>
+
+      <div style="background: #F8FAFC; border: 1px solid var(--gris-bordure); border-radius: 10px; padding: 1rem; margin-bottom: 1rem; font-size: 0.82rem; line-height: 1.6; color: #334155;">
+        <div><strong>Mandataire :</strong> <span id="admin-contrat-agent-nom">---</span></div>
+        <div><strong>Numéro CNI / CEDEAO :</strong> <span id="admin-contrat-agent-cni">---</span></div>
+        <div><strong>Ligne versement Mobile Money :</strong> <span id="admin-contrat-agent-payout">---</span></div>
+        <div><strong>Date & Heure de signature :</strong> <span id="admin-contrat-agent-date">---</span></div>
+        <div><strong>Empreinte & Traçabilité :</strong> <span id="admin-contrat-agent-ip">Session Mobile Sécurisée</span></div>
+      </div>
+
+      <!-- Aperçu Signature -->
+      <div id="admin-contrat-zone-sig" style="border: 1px dashed #CBD5E1; border-radius: 8px; padding: 10px; text-align: center; background: #FFFFFF; margin-bottom: 1.25rem;">
+        <div style="font-size: 0.75rem; color: #64748B; margin-bottom: 6px; font-weight: 700;">Signature tactile apposée par l'agent :</div>
+        <img id="admin-contrat-sig-img" src="" alt="Signature Agent" style="max-height: 75px; display: inline-block;">
+      </div>
+
+      <div style="display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;">
+        <button type="button" id="btn-fermer-contrat-admin-action" class="btn btn-contour btn-sm">
+          Fermer
+        </button>
+        <button type="button" id="btn-telecharger-contrat-admin-pdf" class="btn btn-primaire btn-sm">
+          📥 Télécharger le Contrat Officiel (PDF A4)
+        </button>
+      </div>
     </div>
   </div>
 

@@ -20,6 +20,7 @@ import { initialiserAdminV2, calculerEtAfficherKpisCEO, chargerParrainages } fro
 import { rafraichirTailleCarte } from './map-admin.js';
 import { genererContratPDFA4 } from './contrat-pdf.js';
 import { genererSyntheseCEODuJour } from './gemini-copilot.js';
+import { genererContratCommercialPDFA4 } from './contrat-commercial-pdf.js';
 
 // Variables d'état local
 let listeCommerciaux = [];
@@ -46,6 +47,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await initialiserAdminV2(listeCommerciaux, listeLeads);
   initialiserRadarAgentsEnLigne();
   initialiserSyntheseCEOGemini();
+  initialiserModalContratAgentAdmin();
 });
 
 /**
@@ -489,6 +491,27 @@ function rendreTableauCommerciaux(liste) {
           </div>
         </td>
 
+        <!-- Contrat d'Agent (Supervision Direction & DAF) -->
+        <td>
+          ${(c.has_signed_contract || c.contrat_statut === 'SIGNE') ? `
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <span style="display: inline-flex; align-items: center; gap: 4px; font-size: 0.74rem; font-weight: 800; background: #ECFDF5; color: #065F46; border: 1px solid #10B981; padding: 2px 8px; border-radius: 12px; width: fit-content;">
+                🟢 Signé (${escapeHtml(c.contrat_reference || 'LAT-COM')})
+              </span>
+              <button type="button" class="btn-consulter-contrat-admin" data-id="${safeId}" style="background: none; border: none; color: #1E3A8A; font-size: 0.75rem; font-weight: 700; cursor: pointer; text-align: left; padding: 0; text-decoration: underline;">
+                📄 Consulter & PDF A4
+              </button>
+            </div>
+          ` : `
+            <div>
+              <span style="display: inline-flex; align-items: center; gap: 4px; font-size: 0.74rem; font-weight: 700; background: #FEF2F2; color: #991B1B; border: 1px solid #F87171; padding: 2px 8px; border-radius: 12px; width: fit-content;">
+                🔴 En attente
+              </span>
+              <div style="font-size: 0.68rem; color: #64748B; margin-top: 2px;">Onboarding requis</div>
+            </div>
+          `}
+        </td>
+
         <!-- QR Code -->
         <td>
           <button type="button" class="btn-qr-action btn-ouvrir-qr" data-id="${safeId}" title="Aperçu et export PNG 1000px">
@@ -644,6 +667,117 @@ function attacherEvenementsTable(conteneur) {
       }
     });
   });
+
+  // Bouton Consulter le Contrat d'Agent Commercial 📄 (Supervision CEO & DAF)
+  conteneur.querySelectorAll('.btn-consulter-contrat-admin').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.getAttribute('data-id');
+      const commercial = listeCommerciaux.find(c => String(c.id) === String(id));
+      if (commercial) {
+        ouvrirModalContratAgentAdmin(commercial);
+      }
+    });
+  });
+}
+
+// Variable d'état pour le contrat d'agent sélectionné par l'admin
+let commercialSelectionneContrat = null;
+
+/**
+ * Initialise le modal de supervision du contrat d'agent commercial (CEO & DAF)
+ */
+export function initialiserModalContratAgentAdmin() {
+  const modal = document.getElementById('modal-voir-contrat-agent-admin');
+  const btnFermer = document.getElementById('btn-fermer-modal-contrat-admin');
+  const btnFermerAction = document.getElementById('btn-fermer-contrat-admin-action');
+  const btnTelecharger = document.getElementById('btn-telecharger-contrat-admin-pdf');
+
+  if (!modal) return;
+
+  btnFermer?.addEventListener('click', () => modal.classList.remove('active'));
+  btnFermerAction?.addEventListener('click', () => modal.classList.remove('active'));
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) modal.classList.remove('active');
+  });
+
+  btnTelecharger?.addEventListener('click', async () => {
+    if (!commercialSelectionneContrat) return;
+    btnTelecharger.disabled = true;
+    btnTelecharger.textContent = 'Génération PDF en cours... ⏳';
+
+    try {
+      const ref = commercialSelectionneContrat.contrat_reference || `LAT-COM-2026-${commercialSelectionneContrat.id ? String(commercialSelectionneContrat.id).slice(-4).toUpperCase() : 'OFFICIEL'}`;
+      await genererContratCommercialPDFA4({
+        matricule: ref,
+        agentNom: commercialSelectionneContrat.nom || '',
+        agentPrenom: commercialSelectionneContrat.prenom || '',
+        agentCni: commercialSelectionneContrat.cni || 'Non renseigné',
+        agentAdresse: commercialSelectionneContrat.adresse || 'Dakar / Thiès, Sénégal',
+        agentTelephone: commercialSelectionneContrat.telephone || commercialSelectionneContrat.whatsapp || '+221 77 000 00 00',
+        agentPayoutPhone: commercialSelectionneContrat.payout_phone || commercialSelectionneContrat.telephone || '+221 77 000 00 00',
+        signatureAgentDataUrl: commercialSelectionneContrat.contrat_signature_url,
+        clientIp: commercialSelectionneContrat.contrat_sign_ip || 'Session Mobile Sécurisée'
+      });
+      afficherToast('Contrat PDF A4 officiel téléchargé ! 📄');
+    } catch (err) {
+      console.error(err);
+      afficherToast('Erreur génération PDF : ' + err.message);
+    } finally {
+      btnTelecharger.disabled = false;
+      btnTelecharger.textContent = '📥 Télécharger le Contrat Officiel (PDF A4)';
+    }
+  });
+}
+
+/**
+ * Ouvre le modal de supervision du contrat d'agent commercial avec ses données certifiées
+ * @param {Object} commercial - Conseiller commercial sélectionné
+ */
+export function ouvrirModalContratAgentAdmin(commercial) {
+  commercialSelectionneContrat = commercial;
+  const modal = document.getElementById('modal-voir-contrat-agent-admin');
+  if (!modal) return;
+
+  const ref = commercial.contrat_reference || `LAT-COM-2026-${commercial.id ? String(commercial.id).slice(-4).toUpperCase() : 'OFFICIEL'}`;
+  const nomComplet = `${commercial.prenom || ''} ${commercial.nom || ''}`.trim() || 'Conseiller Commercial';
+  const cni = commercial.cni || 'Non renseigné';
+  const payout = commercial.payout_phone || commercial.telephone || commercial.whatsapp || 'Non renseigné';
+  const dateSigne = commercial.contrat_signe_le ? new Date(commercial.contrat_signe_le).toLocaleString('fr-FR') : 'Homologué';
+  const ip = commercial.contrat_sign_ip || 'Session Mobile Sécurisée (SHA-256 certifié)';
+
+  const elTitre = document.getElementById('admin-contrat-statut-titre');
+  if (elTitre) elTitre.textContent = 'Contrat Homologué & Actif';
+
+  const elDesc = document.getElementById('admin-contrat-statut-desc');
+  if (elDesc) elDesc.textContent = `Réf. ${ref} • Signature tactile certifiée DAF`;
+
+  const elNom = document.getElementById('admin-contrat-agent-nom');
+  if (elNom) elNom.textContent = nomComplet;
+
+  const elCni = document.getElementById('admin-contrat-agent-cni');
+  if (elCni) elCni.textContent = cni;
+
+  const elPayout = document.getElementById('admin-contrat-agent-payout');
+  if (elPayout) elPayout.textContent = payout;
+
+  const elDate = document.getElementById('admin-contrat-agent-date');
+  if (elDate) elDate.textContent = dateSigne;
+
+  const elIp = document.getElementById('admin-contrat-agent-ip');
+  if (elIp) elIp.textContent = ip;
+
+  const imgSig = document.getElementById('admin-contrat-sig-img');
+  const zoneSig = document.getElementById('admin-contrat-zone-sig');
+  if (imgSig && zoneSig) {
+    if (commercial.contrat_signature_url) {
+      imgSig.src = commercial.contrat_signature_url;
+      zoneSig.style.display = 'block';
+    } else {
+      zoneSig.style.display = 'none';
+    }
+  }
+
+  modal.classList.add('active');
 }
 
 /**

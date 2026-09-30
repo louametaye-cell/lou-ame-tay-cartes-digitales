@@ -23,6 +23,7 @@ import { genererContratPDFA4 } from './contrat-pdf.js';
 import { genererPitchCommercial, PROFILS_ETABLISSEMENTS } from './gemini-copilot.js';
 import { initialiserModeOffline, empilerActionHorsLigne } from './offline-sync.js';
 import { ajouterAuWallet, telechargerPassDigitalNFC } from './wallet-pass.js';
+import { genererContratCommercialPDFA4 } from './contrat-commercial-pdf.js';
 
 // État local de la session commerciale
 let commercialConnecte = null;
@@ -44,6 +45,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   initialiserModeOffline({ supabase, afficherToastFn: afficherToast });
   initialiserGeminiCopilotCommercial();
   initialiserPassWalletCommercial();
+  initialiserOnboardingContratAgent();
+  initialiserConsultationContratAgent();
   lancerHeartbeatPresenceCommercial();
 
   // Vérifier si une session est déjà mémorisée
@@ -105,6 +108,8 @@ function afficherEcranConnexion() {
   const sec = document.getElementById('section-connexion-comm');
   if (sec) sec.style.display = 'grid';
   document.getElementById('section-app-comm').style.display = 'none';
+  const secOnboarding = document.getElementById('ecran-onboarding-contrat');
+  if (secOnboarding) secOnboarding.style.display = 'none';
   document.getElementById('zone-header-actions').style.display = 'none';
   const header = document.querySelector('.comm-header');
   if (header) header.style.display = 'none';
@@ -112,6 +117,8 @@ function afficherEcranConnexion() {
 
 function afficherApplication() {
   document.getElementById('section-connexion-comm').style.display = 'none';
+  const secOnboarding = document.getElementById('ecran-onboarding-contrat');
+  if (secOnboarding) secOnboarding.style.display = 'none';
   document.getElementById('section-app-comm').style.display = 'block';
   document.getElementById('zone-header-actions').style.display = 'block';
   const header = document.querySelector('.comm-header');
@@ -325,7 +332,8 @@ async function tenterConnexion(identifiant, pin, remember) {
     localStorage.setItem('LOUAMETAY_COMMERCIAL_SESSION', JSON.stringify({
       id: conseiller.id,
       prenom: conseiller.prenom,
-      nom: conseiller.nom
+      nom: conseiller.nom,
+      has_signed_contract: Boolean(conseiller.has_signed_contract || conseiller.contrat_statut === 'SIGNE')
     }));
   }
 
@@ -336,12 +344,21 @@ async function tenterConnexion(identifiant, pin, remember) {
     details: {
       telephone: conseiller.telephone || conseiller.whatsapp,
       email: conseiller.email,
-      session_memorisee: !!remember
+      session_memorisee: !!remember,
+      contrat_signe: Boolean(conseiller.has_signed_contract || conseiller.contrat_statut === 'SIGNE')
     },
     commercialId: conseiller.id,
     commercialNom: `${conseiller.prenom} ${conseiller.nom}`,
     statut: 'SUCCES'
   });
+
+  // VÉRIFICATION BLOQUANTE DU CONTRAT D'AGENT COMMERCIAL
+  const aSigneContrat = Boolean(conseiller.has_signed_contract || conseiller.contrat_statut === 'SIGNE');
+  if (!aSigneContrat) {
+    afficherEcranOnboardingContrat(conseiller);
+    afficherToast('⚠️ Signature obligatoire : veuillez parapher votre contrat d\'agent pour activer vos outils.');
+    return;
+  }
 
   afficherApplication();
   actualiserInterfaceConseiller();
@@ -364,6 +381,15 @@ async function chargerProfilEtDemarrer(commercialId) {
     }
 
     commercialConnecte = data;
+
+    // VÉRIFICATION BLOQUANTE DU CONTRAT D'AGENT COMMERCIAL
+    const aSigneContrat = Boolean(data.has_signed_contract || data.contrat_statut === 'SIGNE');
+    if (!aSigneContrat) {
+      afficherEcranOnboardingContrat(data);
+      afficherToast('⚠️ Signature obligatoire : veuillez parapher votre contrat d\'agent pour activer vos outils.');
+      return;
+    }
+
     afficherApplication();
     actualiserInterfaceConseiller();
     await chargerToutesLesDonnees();
@@ -2057,4 +2083,418 @@ function lancerHeartbeatPresenceCommercial() {
   // Émission immédiate puis toutes les 45 secondes
   setTimeout(emettreHeartbeat, 3000);
   setInterval(emettreHeartbeat, 45000);
+}
+
+// ==============================================================================
+// 10. ONBOARDING BLOQUANT & SIGNATURE DU CONTRAT D'AGENT COMMERCIAL (LAT-COM-2026)
+// ==============================================================================
+
+/**
+ * Affiche l'écran d'onboarding juridique bloquant et pré-remplit les coordonnées
+ * @param {Object} agent - Données du conseiller commercial
+ */
+export function afficherEcranOnboardingContrat(agent) {
+  const secConnexion = document.getElementById('section-connexion-comm');
+  if (secConnexion) secConnexion.style.display = 'none';
+  const secApp = document.getElementById('section-app-comm');
+  if (secApp) secApp.style.display = 'none';
+  const header = document.querySelector('.comm-header');
+  if (header) header.style.display = 'none';
+  const zoneHeader = document.getElementById('zone-header-actions');
+  if (zoneHeader) zoneHeader.style.display = 'none';
+
+  const secOnboarding = document.getElementById('ecran-onboarding-contrat');
+  if (secOnboarding) {
+    secOnboarding.style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Pré-remplissage des champs
+  const prenom = agent.prenom || '';
+  const nom = agent.nom || '';
+  const nomComplet = `${prenom} ${nom}`.trim() || 'Conseiller Commercial';
+  const telephone = agent.telephone || agent.whatsapp || '';
+  const refMatricule = agent.contrat_reference || `LAT-COM-2026-${agent.id ? String(agent.id).slice(-4).toUpperCase() : Math.floor(1000 + Math.random() * 9000)}`;
+
+  const elNom = document.getElementById('onboarding-nom-complet');
+  if (elNom) elNom.value = nomComplet;
+
+  const elTel = document.getElementById('onboarding-telephone');
+  if (elTel) elTel.value = telephone;
+
+  const elCni = document.getElementById('onboarding-cni');
+  if (elCni && !elCni.value) elCni.value = agent.cni || '';
+
+  const elPayout = document.getElementById('onboarding-payout');
+  if (elPayout && !elPayout.value) elPayout.value = agent.payout_phone || telephone;
+
+  const elBadgeMatricule = document.getElementById('onboarding-matricule-badge');
+  if (elBadgeMatricule) elBadgeMatricule.textContent = `Réf. Contrat : ${refMatricule}`;
+
+  const elTxtMatricule = document.getElementById('txt-scroll-matricule');
+  if (elTxtMatricule) elTxtMatricule.textContent = refMatricule;
+
+  const elPrevNom = document.getElementById('contrat-agent-preview-nom');
+  if (elPrevNom) elPrevNom.textContent = nomComplet;
+
+  const elPrevCni = document.getElementById('contrat-agent-preview-cni');
+  if (elPrevCni) elPrevCni.textContent = agent.cni || elCni?.value || '[À renseigner ci-dessus]';
+
+  const elPrevPayout = document.getElementById('contrat-agent-preview-payout');
+  if (elPrevPayout) elPrevPayout.textContent = agent.payout_phone || elPayout?.value || telephone || '[À renseigner ci-dessus]';
+}
+
+/**
+ * Initialise les gestionnaires d'événements de l'onboarding contractuel :
+ * Canvas tactile, scroll de lecture obligatoire et soumission finale avec génération PDF A4
+ */
+export function initialiserOnboardingContratAgent() {
+  const form = document.getElementById('form-onboarding-contrat');
+  if (!form) return;
+
+  const canvas = document.getElementById('canvas-signature-agent');
+  const btnEffacer = document.getElementById('btn-effacer-sig-agent');
+  const aideSignature = document.getElementById('aide-signature-agent');
+  const cadreScroll = document.getElementById('cadre-scroll-contrat-agent');
+  const statutDefilement = document.getElementById('statut-defilement-contrat');
+  const inputCni = document.getElementById('onboarding-cni');
+  const inputPayout = document.getElementById('onboarding-payout');
+
+  let signatureApposee = false;
+  let ctx = null;
+
+  if (canvas) {
+    ctx = canvas.getContext('2d');
+
+    function ajusterResolutionCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = 140 * dpr;
+      ctx.scale(dpr, dpr);
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = '#0B1F3A';
+    }
+
+    ajusterResolutionCanvas();
+    window.addEventListener('resize', () => {
+      if (!signatureApposee) ajusterResolutionCanvas();
+    });
+
+    let dessinEnCours = false;
+
+    function getCoordonnees(e) {
+      const rect = canvas.getBoundingClientRect();
+      if (e.touches && e.touches.length > 0) {
+        return {
+          x: e.touches[0].clientX - rect.left,
+          y: e.touches[0].clientY - rect.top
+        };
+      }
+      return {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+      };
+    }
+
+    function demarrerDessin(e) {
+      e.preventDefault();
+      dessinEnCours = true;
+      signatureApposee = true;
+      if (aideSignature) aideSignature.style.display = 'none';
+      const pos = getCoordonnees(e);
+      ctx.beginPath();
+      ctx.moveTo(pos.x, pos.y);
+    }
+
+    function tracerLigne(e) {
+      if (!dessinEnCours) return;
+      e.preventDefault();
+      const pos = getCoordonnees(e);
+      ctx.lineTo(pos.x, pos.y);
+      ctx.stroke();
+    }
+
+    function arreterDessin() {
+      dessinEnCours = false;
+    }
+
+    canvas.addEventListener('mousedown', demarrerDessin);
+    canvas.addEventListener('mousemove', tracerLigne);
+    canvas.addEventListener('mouseup', arreterDessin);
+    canvas.addEventListener('mouseleave', arreterDessin);
+
+    canvas.addEventListener('touchstart', demarrerDessin, { passive: false });
+    canvas.addEventListener('touchmove', tracerLigne, { passive: false });
+    canvas.addEventListener('touchend', arreterDessin);
+  }
+
+  // Effacer la signature
+  btnEffacer?.addEventListener('click', () => {
+    if (ctx && canvas) {
+      ctx.save();
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.restore();
+      signatureApposee = false;
+      if (aideSignature) aideSignature.style.display = 'block';
+    }
+  });
+
+  // Synchronisation dynamique des champs dans la prévisualisation contractuelle
+  inputCni?.addEventListener('input', (e) => {
+    const el = document.getElementById('contrat-agent-preview-cni');
+    if (el) el.textContent = e.target.value.trim() || '[Renseigné ci-dessus]';
+  });
+
+  inputPayout?.addEventListener('input', (e) => {
+    const el = document.getElementById('contrat-agent-preview-payout');
+    if (el) el.textContent = e.target.value.trim() || '[Renseigné ci-dessus]';
+  });
+
+  // Détection du défilement intégral du contrat
+  if (cadreScroll && statutDefilement) {
+    cadreScroll.addEventListener('scroll', () => {
+      const scrollTotal = cadreScroll.scrollHeight - cadreScroll.clientHeight;
+      if (cadreScroll.scrollTop >= scrollTotal - 35) {
+        statutDefilement.textContent = '✅ Lecture complète validée';
+        statutDefilement.style.color = '#065F46';
+        statutDefilement.style.background = '#ECFDF5';
+      }
+    });
+  }
+
+  // Soumission du formulaire d'onboarding
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!commercialConnecte) {
+      afficherToast('Erreur : Aucun conseiller commercial actif identifié.');
+      return;
+    }
+
+    const cni = inputCni?.value.trim() || '';
+    const payout = inputPayout?.value.trim() || '';
+    const accord = document.getElementById('check-accord-onboarding')?.checked;
+
+    if (!cni || cni.length < 5) {
+      afficherToast('Veuillez renseigner votre numéro de CNI ou passeport CEDEAO.');
+      inputCni?.focus();
+      return;
+    }
+
+    if (!payout || payout.length < 8) {
+      afficherToast('Veuillez renseigner une ligne certifiée Wave ou Orange Money valide.');
+      inputPayout?.focus();
+      return;
+    }
+
+    if (!signatureApposee || !canvas) {
+      afficherToast('Veuillez apposer votre signature tactile dans le cadre prévu avant de continuer.');
+      return;
+    }
+
+    if (!accord) {
+      afficherToast('Veuillez cocher la case d\'engagement pour attester de votre accord sur les 9 articles.');
+      return;
+    }
+
+    const btnSubmit = document.getElementById('btn-valider-contrat-agent-final');
+    if (btnSubmit) {
+      btnSubmit.disabled = true;
+      btnSubmit.innerHTML = '<span>Certification & Homologation en cours...</span> ⏳';
+    }
+
+    try {
+      const matricule = commercialConnecte.contrat_reference || `LAT-COM-2026-${commercialConnecte.id ? String(commercialConnecte.id).slice(-4).toUpperCase() : Math.floor(1000 + Math.random() * 9000)}`;
+      const signatureDataUrl = canvas.toDataURL('image/png');
+      const dateSignature = new Date().toISOString();
+
+      const donneesMiseAJour = {
+        has_signed_contract: true,
+        contrat_statut: 'SIGNE',
+        contrat_reference: matricule,
+        cni: cni,
+        payout_phone: payout,
+        contrat_signe_le: dateSignature,
+        contrat_signature_url: signatureDataUrl,
+        contrat_sign_ip: 'Session Mobile Sécurisée'
+      };
+
+      // Sauvegarde dans Supabase
+      if (estSupabaseConfigure() && supabase) {
+        const { error: errUpdate } = await supabase
+          .from('commerciaux')
+          .update(donneesMiseAJour)
+          .eq('id', commercialConnecte.id);
+
+        if (errUpdate) {
+          console.warn('Avertissement mise à jour Supabase contrat:', errUpdate);
+        }
+      }
+
+      // Mise à jour de l'état local
+      Object.assign(commercialConnecte, donneesMiseAJour);
+
+      // Mise à jour de la session locale permanente
+      localStorage.setItem('LOUAMETAY_COMMERCIAL_SESSION', JSON.stringify({
+        id: commercialConnecte.id,
+        prenom: commercialConnecte.prenom,
+        nom: commercialConnecte.nom,
+        has_signed_contract: true,
+        contrat_statut: 'SIGNE'
+      }));
+
+      // Journalisation immuable dans l'audit
+      try {
+        await enregistrerActivite({
+          typeAction: 'SIGNATURE_CONTRAT_AGENT',
+          description: `Signature officielle du contrat ${matricule} par ${commercialConnecte.prenom} ${commercialConnecte.nom} (CNI: ${cni})`,
+          commercialId: commercialConnecte.id,
+          commercialNom: `${commercialConnecte.prenom} ${commercialConnecte.nom}`,
+          details: {
+            matricule: matricule,
+            cni: cni,
+            payout_phone: payout,
+            contrat_signe_le: dateSignature
+          },
+          statut: 'SUCCES'
+        });
+      } catch (errAudit) {
+        console.warn('Erreur journalisation signature contrat agent:', errAudit);
+      }
+
+      afficherToast('🎉 Contrat d\'Agent Commercial signé et homologué avec succès !');
+
+      // Génération et téléchargement immédiat du PDF A4 officiel
+      try {
+        afficherToast('Génération de votre exemplaire officiel PDF A4 en cours... 📄');
+        await genererContratCommercialPDFA4({
+          matricule: matricule,
+          agentNom: commercialConnecte.nom || '',
+          agentPrenom: commercialConnecte.prenom || '',
+          agentCni: cni,
+          agentAdresse: commercialConnecte.adresse || 'Dakar / Thiès, Sénégal',
+          agentTelephone: commercialConnecte.telephone || commercialConnecte.whatsapp || payout,
+          agentPayoutPhone: payout,
+          signatureAgentDataUrl: signatureDataUrl,
+          clientIp: 'Session Mobile Sécurisée'
+        });
+      } catch (errPdf) {
+        console.error('Erreur génération PDF contrat agent:', errPdf);
+      }
+
+      // Déverrouillage immédiat et chargement complet de l'application
+      afficherApplication();
+      actualiserInterfaceConseiller();
+      await chargerToutesLesDonnees();
+
+    } catch (err) {
+      console.error('Erreur validation contrat agent:', err);
+      afficherToast('Erreur : ' + (err.message || 'Impossible de finaliser le contrat.'));
+    } finally {
+      if (btnSubmit) {
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = '<span>VALIDER ET SIGNER MON CONTRAT D\'AGENT 📄</span>';
+      }
+    }
+  });
+}
+
+/**
+ * Initialise le modal de consultation permanente du contrat d'agent signé
+ */
+export function initialiserConsultationContratAgent() {
+  const btnOuvrir = document.getElementById('btn-voir-mon-contrat-agent');
+  const modal = document.getElementById('modal-consultation-contrat-agent');
+  const btnFermer = document.getElementById('btn-fermer-modal-consultation-contrat');
+  const btnTelecharger = document.getElementById('btn-telecharger-mon-contrat-pdf');
+
+  if (!btnOuvrir || !modal) return;
+
+  btnOuvrir.addEventListener('click', () => {
+    if (!commercialConnecte) {
+      afficherToast('Aucun conseiller connecté.');
+      return;
+    }
+
+    const ref = commercialConnecte.contrat_reference || `LAT-COM-2026-${commercialConnecte.id ? String(commercialConnecte.id).slice(-4).toUpperCase() : 'OFFICIEL'}`;
+    const prenom = commercialConnecte.prenom || '';
+    const nom = commercialConnecte.nom || '';
+    const nomComplet = `${prenom} ${nom}`.trim() || 'Conseiller Commercial';
+    const cni = commercialConnecte.cni || 'Non renseigné';
+    const payout = commercialConnecte.payout_phone || commercialConnecte.telephone || commercialConnecte.whatsapp || 'Non renseigné';
+    const dateSigne = commercialConnecte.contrat_signe_le ? new Date(commercialConnecte.contrat_signe_le).toLocaleString('fr-FR') : 'Date homologuée';
+    const ip = commercialConnecte.contrat_sign_ip || 'Session Mobile Sécurisée (SHA-256 certifié)';
+
+    const elStatutTitre = document.getElementById('contrat-consul-statut-titre');
+    if (elStatutTitre) elStatutTitre.textContent = 'Contrat Homologué & Actif';
+
+    const elDetails = document.getElementById('contrat-consul-details');
+    if (elDetails) elDetails.textContent = `Réf : ${ref} • Validé sous l'empire du droit sénégalais`;
+
+    const elNom = document.getElementById('contrat-consul-nom');
+    if (elNom) elNom.textContent = nomComplet;
+
+    const elCni = document.getElementById('contrat-consul-cni');
+    if (elCni) elCni.textContent = cni;
+
+    const elPayout = document.getElementById('contrat-consul-payout');
+    if (elPayout) elPayout.textContent = payout;
+
+    const elDate = document.getElementById('contrat-consul-date');
+    if (elDate) elDate.textContent = dateSigne;
+
+    const elIp = document.getElementById('contrat-consul-ip');
+    if (elIp) elIp.textContent = ip;
+
+    const imgSig = document.getElementById('contrat-consul-img-signature');
+    if (imgSig) {
+      if (commercialConnecte.contrat_signature_url) {
+        imgSig.src = commercialConnecte.contrat_signature_url;
+        imgSig.parentElement.style.display = 'block';
+      } else {
+        imgSig.parentElement.style.display = 'none';
+      }
+    }
+
+    modal.style.display = 'flex';
+  });
+
+  btnFermer?.addEventListener('click', () => {
+    modal.style.display = 'none';
+  });
+
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) modal.style.display = 'none';
+  });
+
+  btnTelecharger?.addEventListener('click', async () => {
+    if (!commercialConnecte) return;
+    btnTelecharger.disabled = true;
+    btnTelecharger.innerHTML = '<span>Génération du PDF en cours...</span> ⏳';
+
+    try {
+      const ref = commercialConnecte.contrat_reference || `LAT-COM-2026-${commercialConnecte.id ? String(commercialConnecte.id).slice(-4).toUpperCase() : 'OFFICIEL'}`;
+      await genererContratCommercialPDFA4({
+        matricule: ref,
+        agentNom: commercialConnecte.nom || '',
+        agentPrenom: commercialConnecte.prenom || '',
+        agentCni: commercialConnecte.cni || 'Non renseigné',
+        agentAdresse: commercialConnecte.adresse || 'Dakar / Thiès, Sénégal',
+        agentTelephone: commercialConnecte.telephone || commercialConnecte.whatsapp || '+221 77 000 00 00',
+        agentPayoutPhone: commercialConnecte.payout_phone || commercialConnecte.telephone || '+221 77 000 00 00',
+        signatureAgentDataUrl: commercialConnecte.contrat_signature_url,
+        clientIp: commercialConnecte.contrat_sign_ip || 'Session Mobile Sécurisée'
+      });
+      afficherToast('Contrat PDF A4 officiel téléchargé ! 📄');
+    } catch (err) {
+      console.error(err);
+      afficherToast('Erreur lors du téléchargement du contrat : ' + err.message);
+    } finally {
+      btnTelecharger.disabled = false;
+      btnTelecharger.innerHTML = '<span>Télécharger mon Contrat Officiel (PDF A4) 📄</span>';
+    }
+  });
 }
