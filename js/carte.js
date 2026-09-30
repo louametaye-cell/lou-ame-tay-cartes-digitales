@@ -89,19 +89,11 @@ async function initialiserCarte() {
     }
   }
 
-  // 2. Fallback de secours sur data.js (si hors-ligne, démo ou identifiant alternatif)
-  if (!commercial && typeof commerciaux !== 'undefined' && Array.isArray(commerciaux)) {
-    const uuidVersNum = {
-      '11111111-1111-1111-1111-111111111111': '1',
-      '22222222-2222-2222-2222-222222222222': '2',
-      '33333333-3333-3333-3333-333333333333': '3',
-      '44444444-4444-4444-4444-444444444444': '4'
-    };
-    const idEquiv = uuidVersNum[commercialId] || uuidVersNum[resolvedId] || commercialId;
+  // 2. Fallback local de secours uniquement si des données locales existent et que Supabase n'a pas répondu
+  if (!commercial && typeof commerciaux !== 'undefined' && Array.isArray(commerciaux) && commerciaux.length > 0) {
     commercial = commerciaux.find(c => 
       String(c.id) === String(commercialId) || 
-      String(c.id) === String(resolvedId) || 
-      String(c.id) === String(idEquiv)
+      String(c.id) === String(resolvedId)
     );
   }
 
@@ -257,9 +249,8 @@ async function initialiserCarte() {
     };
   }
 
-  // Bonus : Simulateur ROI, Démo Menu, Wallet
+  // Bonus : Simulateur ROI, Wallet
   initialiserSimulateurROI();
-  initialiserDemoMenu(commercial);
   initialiserWallet(commercial);
 
   // Sprint 2 : Section Mes outils & Kit Networking
@@ -2149,79 +2140,7 @@ function mettreAJourGraphiqueROI(caActuel, caAvec) {
   });
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// BONUS 3 : DÉMO INTERACTIVE COMMANDE À TABLE (CHR SÉNÉGAL)
-// ═══════════════════════════════════════════════════════════════════
-const platsDemo = [
-  { id: 1, nom: "Pastels Thon croustillants x12", prix: 2500, emoji: "🥟" },
-  { id: 2, nom: "Thiéboudienne Penda Mbaye Rouge", prix: 4500, emoji: "🍲" },
-  { id: 3, nom: "Yassa Poulet braisé oignons", prix: 4000, emoji: "🍗" },
-  { id: 4, nom: "Mafé Boeuf sauce arachide", prix: 4200, emoji: "🍛" },
-  { id: 5, nom: "Dibi d'agneau braisé au feu", prix: 6000, emoji: "🥩" },
-  { id: 6, nom: "Jus de Bissap frais maison 50cl", prix: 1000, emoji: "🥤" }
-];
 
-let panierVirtuel = [];
-
-function initialiserDemoMenu(c) {
-  const container = document.getElementById('demo-plats-grille');
-  const btnKds = document.getElementById('btn-envoyer-kds');
-  if (!container) return;
-
-  container.innerHTML = platsDemo.map(plat => `
-    <div class="demo-plat-item" data-id="${plat.id}">
-      <span class="demo-plat-emoji">${plat.emoji}</span>
-      <span class="demo-plat-nom">${plat.nom}</span>
-      <span class="demo-plat-prix">${plat.prix.toLocaleString('fr-FR')} FCFA</span>
-      <button type="button" class="btn-demo-ajouter">+ Ajouter</button>
-    </div>
-  `).join('');
-
-  container.querySelectorAll('.demo-plat-item').forEach(item => {
-    item.addEventListener('click', () => {
-      const platId = parseInt(item.dataset.id, 10);
-      const plat = platsDemo.find(p => p.id === platId);
-      if (plat) {
-        panierVirtuel.push(plat);
-        if (navigator.vibrate) navigator.vibrate([20]);
-        mettreAJourPanierDemo();
-      }
-    });
-  });
-
-  btnKds?.addEventListener('click', () => {
-    if (panierVirtuel.length === 0) return;
-
-    if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
-    const total = panierVirtuel.reduce((sum, p) => sum + p.prix, 0);
-
-    afficherToast(`👨‍🍳 BON ENVOYÉ EN CUISINE (Table #4) ! Total : ${total.toLocaleString('fr-FR')} FCFA`);
-
-    panierVirtuel = [];
-    mettreAJourPanierDemo();
-  });
-}
-
-function mettreAJourPanierDemo() {
-  const listeEl = document.getElementById('panier-articles-liste');
-  const totalEl = document.getElementById('panier-total-prix');
-  const btnKds = document.getElementById('btn-envoyer-kds');
-  if (!listeEl || !totalEl || !btnKds) return;
-
-  if (panierVirtuel.length === 0) {
-    listeEl.textContent = "Aucun plat sélectionné. Touchez un plat ci-dessus !";
-    totalEl.textContent = "0 FCFA";
-    btnKds.disabled = true;
-    return;
-  }
-
-  const total = panierVirtuel.reduce((sum, p) => sum + p.prix, 0);
-  const noms = panierVirtuel.map(p => `${p.emoji} ${p.nom}`).join(' • ');
-
-  listeEl.textContent = `${panierVirtuel.length} article(s) : ${noms}`;
-  totalEl.textContent = `${total.toLocaleString('fr-FR')} FCFA`;
-  btnKds.disabled = false;
-}
 
 
 

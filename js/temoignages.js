@@ -86,12 +86,13 @@ export async function chargerTemoignages(commercialId) {
     const note = Math.min(10, Math.max(0, parseInt(t.note || 10, 10)));
     const etoilesPleines = '★'.repeat(note);
     const etoilesVides = '☆'.repeat(10 - note);
+    const ytId = (t.video_youtube_id && /^[a-zA-Z0-9_-]{11}$/.test(t.video_youtube_id)) ? t.video_youtube_id : null;
 
     return `
       <div class="temoignage-card" role="article" aria-label="Témoignage de ${escapeHtml(t.nom_client)}">
-        ${t.video_youtube_id ? `
-          <div class="temoignage-video" style="position: relative; cursor: pointer; margin-bottom: 12px; border-radius: 12px; overflow: hidden; background: #0B1F3A;" onclick="window.open('https://youtube.com/watch?v=${t.video_youtube_id}', '_blank')">
-            <img src="https://img.youtube.com/vi/${t.video_youtube_id}/mqdefault.jpg" alt="Vidéo de ${escapeHtml(t.nom_client)}" style="width: 100%; height: auto; display: block; object-fit: cover;">
+        ${ytId ? `
+          <div class="temoignage-video" style="position: relative; cursor: pointer; margin-bottom: 12px; border-radius: 12px; overflow: hidden; background: #0B1F3A;" onclick="window.open('https://youtube.com/watch?v=${ytId}', '_blank')">
+            <img src="https://img.youtube.com/vi/${ytId}/mqdefault.jpg" alt="Vidéo de ${escapeHtml(t.nom_client)}" style="width: 100%; height: auto; display: block; object-fit: cover;">
             <div class="play-btn-overlay" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(11,31,58,0.35);">
               <div style="width: 44px; height: 32px; background: #FF0000; border-radius: 8px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
                 <span style="color: white; font-size: 16px; margin-left: 2px;">▶</span>

@@ -127,7 +127,7 @@ async function incrementerAnalyticsDaily(commercialId, colonne) {
  */
 export async function chargerStats(commercialId = null, jours = 7) {
   if (!estSupabaseConfigure()) {
-    return genererStatsDemo(jours);
+    return [];
   }
 
   try {
@@ -148,30 +148,10 @@ export async function chargerStats(commercialId = null, jours = 7) {
     const { data, error } = await query;
     if (error) throw error;
 
-    return data && data.length > 0 ? data : genererStatsDemo(jours);
+    return data || [];
 
   } catch (err) {
-    console.warn('Erreur chargement stats Supabase, utilisation démo :', err);
-    return genererStatsDemo(jours);
+    console.warn('Erreur chargement stats réelles Supabase :', err);
+    return [];
   }
-}
-
-/**
- * Données simulées pour graphiques en mode démo / localhost sans base
- */
-function genererStatsDemo(jours) {
-  const resultats = [];
-  for (let i = jours - 1; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    resultats.push({
-      date: d.toISOString().slice(0, 10),
-      nb_scans: Math.floor(Math.random() * 25) + 15,
-      nb_leads: Math.floor(Math.random() * 4) + 1,
-      nb_appels: Math.floor(Math.random() * 6) + 2,
-      nb_whatsapp: Math.floor(Math.random() * 10) + 5,
-      nb_partages: Math.floor(Math.random() * 5) + 1
-    });
-  }
-  return resultats;
 }

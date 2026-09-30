@@ -8,7 +8,7 @@
  */
 
 export const entreprise = {
-  nom: "Lou Ame Tay 🐘",
+  nom: "Lou Ame Tay",
   slogan: "La transition digitale de la restauration et de l'hôtellerie au Sénégal.",
   description: "Lou Ame Tay est une solution SaaS 100% sénégalaise conçue pour moderniser les établissements de restauration et d'hôtellerie. Elle permet aux clients de consulter le menu et de passer commande directement depuis leur table en scannant un QR code, sans aucune application à télécharger.",
   siteWeb: "https://www.louametay.com",
@@ -124,128 +124,11 @@ export const entreprise = {
   horairesSupport: "Support 7j/7 de 08h00 à 20h00 (Interventions d'urgence 22h00)"
 };
 
-export const commerciaux = [
-  {
-    id: "1",
-    prenom: "Mamadou",
-    nom: "Diallo",
-    poste: "Directeur Commercial & Grands Comptes",
-    categorie: "Direction",
-    telephone: "+221771303678",
-    email: "mamadou@louametay.com",
-    whatsapp: "221762312003",
-    photo: "images/commercial1.svg",
-    bio: "Spécialiste de la transformation digitale CHR (Cafés, Hôtels, Restaurants) au Sénégal. J'accompagne les propriétaires et gérants dans l'automatisation de la prise de commande à table, la réduction des temps d'attente et l'optimisation de leur rentabilité sur Thiès, Dakar et Mbour.",
-    zone: "Dakar (Plateau, Almadies, Point E) & Thiès",
-    disponibilite: "Disponible aujourd'hui pour démonstration en salle",
-    adresse: "Dakar, Plateau — Point E, Immeuble Horizon CHR",
-    latitude: 14.6928,
-    longitude: -17.4467,
-    maps_url: "https://www.google.com/maps/search/?api=1&query=Dakar+Point+E",
-    video_youtube_id: "hZq2u-yPnAE",
-    video_titre: "Lou Ame Tay ? – Digitalisez Votre Restaurant en 3 Clics",
-    video_description: "Découvrez en vidéo la solution N°1 au Sénégal : Menu digital QR code sans application, écran cuisine KDS en temps réel et paiement direct Wave & Orange Money.",
-    carrousel_images: [
-      { url: "images/deploiement1.jpg", titre: "Écran Cuisine (KDS) en action", legende: "Gestion temps réel des commandes en brigade" },
-      { url: "images/deploiement2.jpg", titre: "Supports QR Chevalets Premium", legende: "Commande autonome à table par smartphone" },
-      { url: "images/deploiement3.jpg", titre: "Déploiement & Formation en salle", legende: "Prise en main immédiate par l'équipe de serveurs" }
-    ],
-    reseaux: {
-      linkedin: "https://linkedin.com/in/mamadou-diallo-louametay",
-      facebook: "https://facebook.com/louametay.officiel",
-      instagram: "https://instagram.com/louametay_sn",
-      tiktok: "https://tiktok.com/@louametay_digital",
-      youtube: "https://youtube.com/@louametaye?si=wdfwRr2F-x0ho5PY"
-    }
-  },
-  {
-    id: "2",
-    prenom: "Cheikh",
-    nom: "Ndiaye",
-    poste: "Responsable Déploiement Terrain & Formations",
-    categorie: "Technique",
-    telephone: "+221785123456",
-    email: "cheikh.ndiaye@louametay.com",
-    whatsapp: "221762312003",
-    photo: "images/commercial2.svg",
-    bio: "Spécialiste de la transformation digitale CHR (Cafés, Hôtels, Restaurants) au Sénégal. J'accompagne les propriétaires et gérants dans l'automatisation de la prise de commande à table, la réduction des temps d'attente et l'optimisation de leur rentabilité sur Thiès, Dakar et Mbour.",
-    zone: "Axe Dakar — Thiès — Mbour — Saly Portudal",
-    disponibilite: "En tournée d'installation — Joignable sur WhatsApp",
-    adresse: "Thiès, Quartier Dixième — Cité Malick Sy",
-    latitude: 14.7903,
-    longitude: -16.9260,
-    maps_url: "https://www.google.com/maps/search/?api=1&query=Thies+Senegal",
-    video_youtube_id: "hZq2u-yPnAE",
-    video_titre: "Lou Ame Tay ? – Digitalisez Votre Restaurant en 3 Clics",
-    video_description: "Démonstration du système de commande QR et de l'écran cuisine KDS.",
-    reseaux: {
-      linkedin: "https://linkedin.com/in/cheikh-ndiaye-louametay",
-      facebook: "https://facebook.com/louametay.officiel",
-      instagram: "https://instagram.com/cheikh_louametay",
-      tiktok: "https://tiktok.com/@louametay_digital",
-      youtube: "https://youtube.com/@louametaye?si=wdfwRr2F-x0ho5PY"
-    }
-  },
-  {
-    id: "3",
-    prenom: "Fatou",
-    nom: "Sow",
-    poste: "Conseillère Commerciale Restauration & Maquis",
-    categorie: "Vente",
-    telephone: "+221763407890",
-    email: "fatou.sow@louametay.com",
-    whatsapp: "221762312003",
-    photo: "images/commercial3.svg",
-    bio: "Spécialiste des formules Tàmbali et Nio Far dédiées aux restaurants de quartier, glaciers, fast-foods et cafés. Je vous démontre comment augmenter votre panier moyen de 25% grâce au menu QR code avec paiement Wave & Orange Money.",
-    zone: "Thiès (Dixième, Cité Lamy, Randoulène) & Dakar Banlieue",
-    disponibilite: "Disponible pour visite et calcul de rentabilité gratuit",
-    adresse: "Saly Portudal — Mbour, Zone Touristique & CHR",
-    latitude: 14.4437,
-    longitude: -17.0270,
-    maps_url: "https://www.google.com/maps/search/?api=1&query=Saly+Portudal",
-    video_youtube_id: "Iy1MdWuW4A0",
-    video_titre: "Lou Ame Tay? Scan. Order. Enjoy.",
-    video_description: "La commande à table instantanée par QR code au Sénégal.",
-    reseaux: {
-      linkedin: "https://linkedin.com/in/fatou-sow-louametay",
-      facebook: "https://facebook.com/louametay.officiel",
-      instagram: "https://instagram.com/fatou_louametay",
-      tiktok: "https://tiktok.com/@fatousow_restau",
-      youtube: "https://youtube.com/@louametaye?si=wdfwRr2F-x0ho5PY"
-    }
-  },
-  {
-    id: "4",
-    prenom: "Moussa",
-    nom: "Ba",
-    poste: "Chargé d'Affaires Hôtellerie & Complexes Touristiques",
-    categorie: "Support",
-    telephone: "+221776543210",
-    email: "moussa.ba@louametay.com",
-    whatsapp: "221762312003",
-    photo: "images/commercial4.svg",
-    bio: "Expert des solutions multisites pour resorts, hôtels de plage et chaînes de restauration. Je conçois des configurations sur-mesure combinant commande en chambre (room-service QR), commande transat/piscine et intégration caisse.",
-    zone: "Petite Côte, Saly, Somone, Toubab Dialaw & Dakar",
-    disponibilite: "Sur rendez-vous pour étude de projet hôtelier",
-    adresse: "Dakar, Almadies — Zone Hôtelière & Restauration",
-    latitude: 14.7450,
-    longitude: -17.5186,
-    maps_url: "https://www.google.com/maps/search/?api=1&query=Almadies+Dakar",
-    video_youtube_id: "1M-yv5NiLp8",
-    video_titre: "Lou Ame Tay? – Digitize Your Restaurant in 3 Clicks",
-    video_description: "The leading restaurant SaaS in Senegal for hotels, beach resorts and modern dining.",
-    reseaux: {
-      linkedin: "https://linkedin.com/in/moussa-ba-louametay",
-      facebook: "https://facebook.com/louametay.officiel",
-      instagram: "https://instagram.com/louametay_hotels",
-      tiktok: "",
-      youtube: "https://youtube.com/@louametaye?si=wdfwRr2F-x0ho5PY"
-    }
-  }
-];
+export const commerciaux = [];
 
 if (typeof window !== 'undefined') {
   window.entreprise = entreprise;
   window.commerciaux = commerciaux;
 }
+
 

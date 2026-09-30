@@ -9,3 +9,6 @@ coverage/
 scratch/
 .env*
 !.env.example
+
+.vercel
+.env*

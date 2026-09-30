@@ -49,27 +49,19 @@ document.addEventListener('DOMContentLoaded', async () => {
  * Redirige vers login.html si non authentifié
  */
 async function verifierAuthentification() {
-  const isDemo = sessionStorage.getItem('LOUAMETAY_DEMO_SESSION') === 'true';
-  if (isDemo) {
-    const elEmail = document.getElementById('admin-user-email');
-    if (elEmail) {
-      elEmail.textContent = sessionStorage.getItem('LOUAMETAY_DEMO_USER_EMAIL') || 'demo-admin@louametay.com (Mode Démo)';
-    }
-    return;
-  }
-
   try {
-    const { data: { session }, error } = await supabase.auth.getSession();
+    const { data: { user }, error } = await supabase.auth.getUser();
 
-    if (error || !session) {
+    if (error || !user) {
+      try { await supabase.auth.signOut(); } catch (_) {}
       window.location.href = 'login.html';
       return;
     }
 
     // Affichage de l'email admin
     const elEmail = document.getElementById('admin-user-email');
-    if (elEmail && session.user && session.user.email) {
-      elEmail.textContent = session.user.email;
+    if (elEmail && user.email) {
+      elEmail.textContent = user.email;
     }
 
     supabase.auth.onAuthStateChange((event) => {
@@ -173,6 +165,17 @@ export async function modifierCommercial(id, donnees) {
  * 5. Suppression d'un commercial (DELETE FROM commerciaux WHERE id = ?)
  */
 export async function supprimerCommercial(id) {
+  // Nettoyage préalable des tables liées pour éviter tout blocage de clé étrangère
+  try {
+    await supabase.from('parrainages').delete().or(`parrain_id.eq.${id},filleul_id.eq.${id}`);
+  } catch (_) {}
+  try {
+    await supabase.from('temoignages').delete().eq('commercial_id', id);
+  } catch (_) {}
+  try {
+    await supabase.from('scans').delete().eq('referrer_id', id);
+  } catch (_) {}
+
   const { error } = await supabase
     .from('commerciaux')
     .delete()
@@ -427,6 +430,14 @@ function rendreTableauCommerciaux(liste) {
     const photoSrc = c.photo_url || c.photo || 'images/commercial1.jpg';
     const lienCarte = `carte.html?id=${encodeURIComponent(c.id)}`;
     const estActif = c.actif !== false;
+    const safePrenom = escapeHtml(c.prenom || '');
+    const safeNom = escapeHtml(c.nom || '');
+    const safePoste = escapeHtml(c.poste || 'Conseiller Terrain');
+    const safeCategorie = escapeHtml(c.categorie || 'Vente');
+    const safeTel = escapeHtml(c.telephone || '');
+    const safeWa = c.whatsapp ? escapeHtml(String(c.whatsapp).replace(/\D/g, '')) : '';
+    const safeEmail = escapeHtml(c.email || '');
+    const safeId = escapeHtml(String(c.id || ''));
 
     return `
       <tr class="ligne-commercial ${estActif ? '' : 'ligne-inactive'}">
@@ -435,29 +446,29 @@ function rendreTableauCommerciaux(liste) {
           <div class="col-commercial-identite">
             <img 
               src="${photoSrc}" 
-              alt="${c.prenom} ${c.nom}" 
+              alt="${safePrenom} ${safeNom}" 
               class="avatar-table-mini"
               onerror="this.onerror=null; this.src='images/commercial1.svg';"
             >
             <div>
-              <strong class="table-nom-commercial">${c.prenom} ${c.nom}</strong>
-              <span class="table-id-muet">ID: ${String(c.id).substring(0, 8)}...</span>
+              <strong class="table-nom-commercial">${safePrenom} ${safeNom}</strong>
+              <span class="table-id-muet">ID: ${safeId.substring(0, 8)}...</span>
             </div>
           </div>
         </td>
 
         <!-- Poste & Catégorie -->
         <td>
-          <div class="table-poste-txt">${c.poste || 'Conseiller Terrain'}</div>
-          <span class="badge-categorie badge-${(c.categorie || 'Vente').toLowerCase().replace(/\s+/g, '')}">${c.categorie || 'Vente'}</span>
+          <div class="table-poste-txt">${safePoste}</div>
+          <span class="badge-categorie badge-${safeCategorie.toLowerCase().replace(/\s+/g, '')}">${safeCategorie}</span>
         </td>
 
         <!-- Contact -->
         <td>
           <div class="table-contact-lignes">
-            ${c.telephone ? `<span>📞 ${c.telephone}</span>` : ''}
-            ${c.whatsapp ? `<span style="color: #166534;">💬 +${c.whatsapp.replace(/\D/g, '')}</span>` : ''}
-            ${c.email ? `<span style="color: #64748B; font-size: 0.8rem;">✉️ ${c.email}</span>` : ''}
+            ${safeTel ? `<span>📞 ${safeTel}</span>` : ''}
+            ${safeWa ? `<span style="color: #166534;">💬 +${safeWa}</span>` : ''}
+            ${safeEmail ? `<span style="color: #64748B; font-size: 0.8rem;">✉️ ${safeEmail}</span>` : ''}
           </div>
         </td>
 
@@ -465,7 +476,7 @@ function rendreTableauCommerciaux(liste) {
         <td>
           <div class="switch-table-wrapper">
             <label class="switch-table">
-              <input type="checkbox" class="chk-toggle-actif" data-id="${c.id}" ${estActif ? 'checked' : ''}>
+              <input type="checkbox" class="chk-toggle-actif" data-id="${safeId}" ${estActif ? 'checked' : ''}>
               <span class="switch-table-curseur"></span>
             </label>
             <span class="statut-libelle ${estActif ? 'texte-actif' : 'texte-inactif'}">
@@ -476,7 +487,7 @@ function rendreTableauCommerciaux(liste) {
 
         <!-- QR Code -->
         <td>
-          <button type="button" class="btn-qr-action btn-ouvrir-qr" data-id="${c.id}" title="Aperçu et export PNG 1000px">
+          <button type="button" class="btn-qr-action btn-ouvrir-qr" data-id="${safeId}" title="Aperçu et export PNG 1000px">
             <span class="icone-qr-btn">▦</span>
             <span>QR Code</span>
           </button>
@@ -485,13 +496,13 @@ function rendreTableauCommerciaux(liste) {
         <!-- Actions -->
         <td style="text-align: right;">
           <div class="table-actions-cell">
-            <button type="button" class="btn-icone-action btn-voir" onclick="voirProfil('${c.id}')" data-id="${c.id}" aria-label="Voir le profil" title="Voir le profil">
+            <button type="button" class="btn-icone-action btn-voir" onclick="voirProfil(this.dataset.id)" data-id="${safeId}" aria-label="Voir le profil" title="Voir le profil">
               👁️
             </button>
-            <button type="button" class="btn-icone-action btn-editer" data-id="${c.id}" title="Modifier">
+            <button type="button" class="btn-icone-action btn-editer" data-id="${safeId}" title="Modifier">
               ✏️
             </button>
-            <button type="button" class="btn-icone-action btn-supprimer" data-id="${c.id}" title="Supprimer">
+            <button type="button" class="btn-icone-action btn-supprimer" data-id="${safeId}" title="Supprimer">
               🗑️
             </button>
           </div>
@@ -518,29 +529,35 @@ function rendreTableauDashboard(liste) {
   tbody.innerHTML = liste.map(c => {
     const photoSrc = c.photo_url || c.photo || 'images/commercial1.jpg';
     const estActif = c.actif !== false;
+    const safePrenom = escapeHtml(c.prenom || '');
+    const safeNom = escapeHtml(c.nom || '');
+    const safePoste = escapeHtml(c.poste || '');
+    const safeCategorie = escapeHtml(c.categorie || 'Vente');
+    const safeTel = escapeHtml(c.telephone || c.whatsapp || '-');
+    const safeId = escapeHtml(String(c.id || ''));
 
     return `
       <tr>
         <td>
           <div class="col-commercial-identite">
-            <img src="${photoSrc}" alt="" class="avatar-table-mini" onerror="this.onerror=null; this.src='images/commercial1.svg';">
+            <img src="${photoSrc}" alt="${safePrenom} ${safeNom}" class="avatar-table-mini" onerror="this.onerror=null; this.src='images/commercial1.svg';">
             <div>
-              <strong>${c.prenom} ${c.nom}</strong>
-              <span style="display: block; font-size: 0.8rem; color: #64748B;">${c.poste || ''}</span>
+              <strong>${safePrenom} ${safeNom}</strong>
+              <span style="display: block; font-size: 0.8rem; color: #64748B;">${safePoste}</span>
             </div>
           </div>
         </td>
         <td>
-          <span class="badge-categorie badge-${(c.categorie || 'Vente').toLowerCase().replace(/\s+/g, '')}">${c.categorie || 'Vente'}</span>
+          <span class="badge-categorie badge-${safeCategorie.toLowerCase().replace(/\s+/g, '')}">${safeCategorie}</span>
         </td>
-        <td>${c.telephone || c.whatsapp || '-'}</td>
+        <td>${safeTel}</td>
         <td>
           <span class="badge-statut-pill ${estActif ? 'statut-vert' : 'statut-gris'}">
             ${estActif ? '● Active' : '○ Inactive'}
           </span>
         </td>
         <td style="text-align: right;">
-          <button type="button" onclick="voirProfil('${c.id}')" class="btn btn-contour btn-xs" aria-label="Voir la carte" title="Voir la carte">
+          <button type="button" onclick="voirProfil(this.dataset.id)" data-id="${safeId}" class="btn btn-contour btn-xs" aria-label="Voir la carte" title="Voir la carte">
             Voir carte ↗
           </button>
         </td>
@@ -1223,7 +1240,10 @@ function ouvrirModalSuppression(commercial) {
   const modal = document.getElementById('modal-suppression');
   const msg = document.getElementById('msg-confirmation-suppr');
   if (msg) {
-    msg.innerHTML = `Êtes-vous sûr de vouloir supprimer définitivement la carte de <strong>${commercial.prenom} ${commercial.nom}</strong> (${commercial.poste || 'Conseiller'}) ? Cette action supprimera sa carte et son QR code de façon irréversible.`;
+    const prenom = escapeHtml(commercial.prenom || '');
+    const nom = escapeHtml(commercial.nom || '');
+    const poste = escapeHtml(commercial.poste || 'Conseiller');
+    msg.innerHTML = `Êtes-vous sûr de vouloir supprimer définitivement la carte de <strong>${prenom} ${nom}</strong> (${poste}) ? Cette action supprimera sa carte et son QR code de façon irréversible.`;
   }
   if (modal) modal.classList.add('active');
 }
@@ -1240,20 +1260,27 @@ function rendreGalerieExports(liste) {
     return;
   }
 
-  conteneur.innerHTML = liste.map(c => `
-    <div class="carte-qr-export-item">
-      <div class="qr-item-haut">
-        <strong style="font-size: 1rem; color: #0B1F3A;">${c.prenom} ${c.nom}</strong>
-        <span style="font-size: 0.8rem; color: #64748B;">${c.poste || 'Conseiller'}</span>
+  conteneur.innerHTML = liste.map(c => {
+    const safePrenom = escapeHtml(c.prenom || '');
+    const safeNom = escapeHtml(c.nom || '');
+    const safePoste = escapeHtml(c.poste || 'Conseiller');
+    const safeId = escapeHtml(String(c.id || ''));
+
+    return `
+      <div class="carte-qr-export-item">
+        <div class="qr-item-haut">
+          <strong style="font-size: 1rem; color: #0B1F3A;">${safePrenom} ${safeNom}</strong>
+          <span style="font-size: 0.8rem; color: #64748B;">${safePoste}</span>
+        </div>
+        <div id="mini-qr-${safeId}" class="mini-qr-bloc"></div>
+        <div class="qr-item-actions" style="width: 100%;">
+          <button type="button" class="btn btn-primaire btn-sm btn-dl-quick-png" data-id="${safeId}" style="width: 100%;">
+            📥 Télécharger PNG HD
+          </button>
+        </div>
       </div>
-      <div id="mini-qr-${c.id}" class="mini-qr-bloc"></div>
-      <div class="qr-item-actions" style="width: 100%;">
-        <button type="button" class="btn btn-primaire btn-sm btn-dl-quick-png" data-id="${c.id}" style="width: 100%;">
-          📥 Télécharger PNG HD
-        </button>
-      </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 
   liste.forEach(c => {
     const el = document.getElementById(`mini-qr-${c.id}`);
@@ -1462,8 +1489,8 @@ function rendreTableauLeads(liste) {
         <!-- Restaurant & Prospect -->
         <td>
           <div>
-            <strong style="color: var(--marine-fonce); font-size: 0.95rem;">${lead.restaurant_nom || 'Établissement inconnu'}</strong>
-            <div style="font-size: 0.82rem; color: #64748B;">👤 ${lead.prospect_nom}</div>
+            <strong style="color: var(--marine-fonce); font-size: 0.95rem;">${escapeHtml(lead.restaurant_nom || 'Établissement inconnu')}</strong>
+            <div style="font-size: 0.82rem; color: #64748B;">👤 ${escapeHtml(lead.prospect_nom || '')}</div>
             <span style="font-size: 0.72rem; color: #94A3B8;">📅 ${dateStr}</span>
           </div>
         </td>
@@ -1471,10 +1498,10 @@ function rendreTableauLeads(liste) {
         <!-- Coordonnées -->
         <td>
           <div>
-            <a href="tel:${lead.telephone}" style="color: var(--marine-fonce); font-weight: 600; text-decoration: none; display: block; font-size: 0.88rem;">
-              📞 ${lead.telephone}
+            <a href="tel:${encodeURIComponent(lead.telephone || '')}" style="color: var(--marine-fonce); font-weight: 600; text-decoration: none; display: block; font-size: 0.88rem;">
+              📞 ${escapeHtml(lead.telephone || '')}
             </a>
-            <span style="font-size: 0.8rem; color: #64748B;">📍 ${lead.ville || 'Sénégal'}</span>
+            <span style="font-size: 0.8rem; color: #64748B;">📍 ${escapeHtml(lead.ville || 'Sénégal')}</span>
           </div>
         </td>
 
@@ -1482,9 +1509,9 @@ function rendreTableauLeads(liste) {
         <td>
           <div>
             <span class="badge-statut-pill statut-vert" style="font-size: 0.75rem;">
-              ${lead.formule || 'Non précisée'}
+              ${escapeHtml(lead.formule || 'Non précisée')}
             </span>
-            ${lead.message ? `<div style="font-size: 0.78rem; color: #64748B; margin-top: 0.25rem; max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${lead.message}">"${lead.message}"</div>` : ''}
+            ${lead.message ? `<div style="font-size: 0.78rem; color: #64748B; margin-top: 0.25rem; max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${escapeHtml(lead.message)}">"${escapeHtml(lead.message)}"</div>` : ''}
           </div>
         </td>
 
@@ -1677,6 +1704,90 @@ function initialiserLeadsCRM() {
 
   btnActualiser?.addEventListener('click', chargerLeads);
   btnExportCSV?.addEventListener('click', exporterLeadsCSV);
+
+  // Modal création manuelle de Lead CRM
+  const btnNouveauLead = document.getElementById('btn-nouveau-lead');
+  const modalLead = document.getElementById('modal-lead');
+  const btnFermerModalLead = document.getElementById('btn-fermer-modal-lead');
+  const btnAnnulerModalLead = document.getElementById('btn-annuler-modal-lead');
+  const formLeadAdmin = document.getElementById('form-lead-admin');
+  const selectCommercialLead = document.getElementById('lead-admin-commercial');
+  const btnLeadTexte = document.getElementById('btn-lead-texte');
+  const btnLeadSpinner = document.getElementById('btn-lead-spinner');
+
+  function ouvrirModalLead() {
+    if (!modalLead) return;
+    if (formLeadAdmin) formLeadAdmin.reset();
+    
+    // Remplir la liste des commerciaux actifs
+    if (selectCommercialLead) {
+      selectCommercialLead.innerHTML = '<option value="">-- Siège Lou Ame Tay --</option>' +
+        listeCommerciaux.map(c => `<option value="${c.id}">${c.prenom} ${c.nom} (${c.poste || 'Commercial'})</option>`).join('');
+    }
+    
+    modalLead.classList.add('active');
+  }
+
+  function fermerModalLead() {
+    if (modalLead) modalLead.classList.remove('active');
+  }
+
+  btnNouveauLead?.addEventListener('click', ouvrirModalLead);
+  btnFermerModalLead?.addEventListener('click', fermerModalLead);
+  btnAnnulerModalLead?.addEventListener('click', fermerModalLead);
+
+  formLeadAdmin?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!estSupabaseConfigure()) {
+      afficherToast("Erreur : Supabase n'est pas configuré.");
+      return;
+    }
+
+    const restaurant_nom = document.getElementById('lead-admin-restaurant')?.value.trim();
+    const prospect_nom = document.getElementById('lead-admin-prospect')?.value.trim();
+    const telephone = document.getElementById('lead-admin-telephone')?.value.trim();
+    const ville = document.getElementById('lead-admin-ville')?.value.trim() || 'Dakar';
+    const formule = document.getElementById('lead-admin-formule')?.value || 'Tàmbali';
+    const commercial_id = document.getElementById('lead-admin-commercial')?.value || null;
+    const statut = document.getElementById('lead-admin-statut')?.value || 'nouveau';
+    const source = document.getElementById('lead-admin-source')?.value || 'prospection_directe';
+    const message = document.getElementById('lead-admin-message')?.value.trim() || '';
+
+    if (!restaurant_nom || !prospect_nom || !telephone) {
+      afficherToast("Veuillez renseigner le nom du restaurant, le contact et le téléphone.");
+      return;
+    }
+
+    if (btnLeadTexte) btnLeadTexte.textContent = 'Enregistrement...';
+    if (btnLeadSpinner) btnLeadSpinner.style.display = 'inline-block';
+
+    try {
+      const { data, error } = await supabase.from('leads').insert([{
+        restaurant_nom,
+        prospect_nom,
+        telephone,
+        ville,
+        formule,
+        commercial_id,
+        statut,
+        source,
+        message,
+        score: 15
+      }]).select();
+
+      if (error) throw error;
+
+      afficherToast(`✓ Prospect « ${restaurant_nom} » enregistré avec succès !`);
+      fermerModalLead();
+      await chargerLeads();
+    } catch (err) {
+      console.error('Erreur création lead :', err);
+      afficherToast('Erreur création prospect : ' + err.message);
+    } finally {
+      if (btnLeadTexte) btnLeadTexte.textContent = 'Enregistrer dans le CRM';
+      if (btnLeadSpinner) btnLeadSpinner.style.display = 'none';
+    }
+  });
 }
 
 function exporterLeadsCSV() {
@@ -1792,10 +1903,10 @@ function rendreTableauScans(scans) {
 
     return `
       <tr>
-        <td style="font-size: 0.85rem; color: #334155;">${dateStr}</td>
-        <td><strong>${nomComm}</strong></td>
-        <td>📍 ${loc}</td>
-        <td style="font-size: 0.8rem; color: #64748B;">${s.referrer || 'Scan Direct'}</td>
+        <td style="font-size: 0.85rem; color: #334155;">${escapeHtml(dateStr)}</td>
+        <td><strong>${escapeHtml(nomComm)}</strong></td>
+        <td>📍 ${escapeHtml(loc)}</td>
+        <td style="font-size: 0.8rem; color: #64748B;">${escapeHtml(s.referrer || 'Scan Direct')}</td>
         <td style="text-align: right;">
           <span class="badge-statut-pill statut-vert">Enregistré</span>
         </td>

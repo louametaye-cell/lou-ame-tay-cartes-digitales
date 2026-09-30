@@ -15,7 +15,15 @@ const ENV = (typeof window !== 'undefined' && (window.__ENV__ || window.ENV)) ||
 
 // Identifiants par défaut (injectés par env.js pour LWS ou variables d'environnement Vite)
 const DEFAULT_SUPABASE_URL = ENV?.VITE_SUPABASE_URL || 'https://ugmdpjncplnlizhpongo.supabase.co';
-const DEFAULT_SUPABASE_ANON_KEY = ENV?.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVnbWRwam5jcGxubGl6aHBvbmdvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MDU0OTE1NSwiZXhwIjoyMTA2MTI1MTU1fQ.aHT61DcJO5T92GlwQMgpkk6eYOAFc4-MvszrL7Ib4_4';
+const DEFAULT_SUPABASE_ANON_KEY = ENV?.VITE_SUPABASE_ANON_KEY || 'sb_publishable_4yYo3KLRqEIuqbb03tC1RA_u5CWsLaI';
+
+// Sécurité : Nettoyage immédiat d'une éventuelle ancienne clé legacy désactivée en cache
+if (typeof localStorage !== 'undefined') {
+  const cleStockee = localStorage.getItem('LOUAMETAY_SUPABASE_ANON_KEY');
+  if (cleStockee && (cleStockee.startsWith('eyJ') || cleStockee.includes('service_role'))) {
+    localStorage.removeItem('LOUAMETAY_SUPABASE_ANON_KEY');
+  }
+}
 
 // Récupération dynamique : window.__ENV__ (LWS), variables Vite (.env), localStorage, ou défaut
 export const SUPABASE_URL = 

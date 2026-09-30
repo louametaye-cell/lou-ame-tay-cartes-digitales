@@ -32,7 +32,7 @@
       <a href="index.html" class="sidebar-logo-lien" title="Voir l'annuaire public">
         <img src="images/logo.svg" alt="Logo Lou Ame Tay" class="sidebar-logo" width="36" height="36">
         <div class="sidebar-marque-txt">
-          <span class="marque-nom">Lou Ame Tay 🍽️</span>
+          <span class="marque-nom">Lou Ame Tay</span>
           <span class="marque-badge">Espace Admin</span>
         </div>
       </a>
@@ -42,46 +42,78 @@
     <!-- Navigation principale -->
     <nav class="sidebar-nav" aria-label="Menu d'administration">
       <button type="button" class="nav-onglet-btn active" data-onglet="dashboard">
-        <span class="nav-icone" aria-hidden="true">📊</span>
+        <span class="nav-icone" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="7" height="9" x="3" y="3" rx="1"></rect><rect width="7" height="5" x="14" y="3" rx="1"></rect><rect width="7" height="9" x="14" y="12" rx="1"></rect><rect width="7" height="5" x="3" y="16" rx="1"></rect>
+          </svg>
+        </span>
         <span>Tableau de bord</span>
       </button>
 
       <button type="button" class="nav-onglet-btn" data-onglet="commerciaux">
-        <span class="nav-icone" aria-hidden="true">👥</span>
+        <span class="nav-icone" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        </span>
         <span>Commerciaux</span>
         <span id="badge-compteur-total" class="nav-badge-compteur">0</span>
       </button>
 
       <button type="button" class="nav-onglet-btn" data-onglet="leads">
-        <span class="nav-icone" aria-hidden="true">📋</span>
+        <span class="nav-icone" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+          </svg>
+        </span>
         <span>Leads & Devis</span>
         <span id="badge-compteur-leads" class="nav-badge-compteur">0</span>
       </button>
 
       <button type="button" class="nav-onglet-btn" data-onglet="avis">
-        <span class="nav-icone" aria-hidden="true">⭐</span>
+        <span class="nav-icone" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
+        </span>
         <span>Avis clients</span>
         <span id="badge-compteur-avis" class="nav-badge-compteur">0</span>
       </button>
 
       <button type="button" class="nav-onglet-btn" data-onglet="parrainages">
-        <span class="nav-icone" aria-hidden="true">📤</span>
+        <span class="nav-icone" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line>
+          </svg>
+        </span>
         <span>Parrainages</span>
         <span id="badge-compteur-parrainages" class="nav-badge-compteur" style="display: none;">0</span>
       </button>
 
       <button type="button" class="nav-onglet-btn" data-onglet="analytics">
-        <span class="nav-icone" aria-hidden="true">📈</span>
+        <span class="nav-icone" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline>
+          </svg>
+        </span>
         <span>Statistiques & Scans</span>
       </button>
 
       <button type="button" class="nav-onglet-btn" data-onglet="exports">
-        <span class="nav-icone" aria-hidden="true">🖨️</span>
+        <span class="nav-icone" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect>
+          </svg>
+        </span>
         <span>Exports & QR Codes</span>
       </button>
 
       <button type="button" class="nav-onglet-btn" data-onglet="parametres">
-        <span class="nav-icone" aria-hidden="true">⚙️</span>
+        <span class="nav-icone" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </span>
         <span>Paramètres & BD</span>
       </button>
     </nav>
@@ -89,14 +121,20 @@
     <!-- Pied de sidebar avec profil & déconnexion -->
     <div class="sidebar-bas">
       <div class="admin-profil-resume">
-        <div class="admin-avatar-cercle">👤</div>
+        <div class="admin-avatar-cercle" style="display: flex; align-items: center; justify-content: center;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </div>
         <div class="admin-profil-infos">
           <span id="admin-user-email" class="admin-email-txt">admin@louametay.com</span>
           <span class="admin-role-txt">Super Administrateur</span>
         </div>
       </div>
       <button type="button" id="btn-deconnexion" class="btn-deconnexion" title="Se déconnecter de la session">
-        <span aria-hidden="true">🚪</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
         <span>Déconnexion</span>
       </button>
     </div>
@@ -481,11 +519,17 @@
               </select>
             </div>
 
-            <div style="display: flex; gap: 0.5rem;">
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <button type="button" id="btn-nouveau-lead" class="btn btn-primaire btn-sm" style="display: inline-flex; align-items: center; gap: 6px;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                + Nouveau Prospect / Devis
+              </button>
               <button type="button" id="btn-actualiser-leads" class="btn btn-contour btn-sm" title="Rafraîchir les leads">
                 ↻ Rafraîchir
               </button>
-              <button type="button" id="btn-export-leads-csv" class="btn btn-primaire btn-sm">
+              <button type="button" id="btn-export-leads-csv" class="btn btn-contour btn-sm">
                 📥 Exporter en CSV
               </button>
             </div>
@@ -1297,6 +1341,99 @@ VALUES
           <button type="submit" id="btn-enregistrer-commercial" class="btn btn-primaire">
             <span id="btn-save-texte">Enregistrer le commercial</span>
             <span id="btn-save-spinner" class="spinner-chargement" style="display: none;"></span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MODAL 1B : AJOUT MANUEL D'UN PROSPECT / DEVIS CRM
+       ====================================================================== -->
+  <div id="modal-lead" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-lead-titre">
+    <div class="modal-contenu" style="max-width: 620px;">
+      <div class="modal-entete">
+        <h3 id="modal-lead-titre" class="modal-titre" style="font-family: var(--police-titre); font-size: 1.25rem; color: var(--marine-fonce); font-weight: 800;">
+          + Nouveau Prospect / Demande de Devis
+        </h3>
+        <button type="button" id="btn-fermer-modal-lead" class="btn-fermer-modal" aria-label="Fermer la boîte de dialogue">✕</button>
+      </div>
+
+      <form id="form-lead-admin" style="margin-top: 1.25rem;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+          <div class="champ-groupe">
+            <label for="lead-admin-restaurant" class="champ-label">Nom du Restaurant / Hôtel *</label>
+            <input type="text" id="lead-admin-restaurant" class="champ-input" placeholder="Ex: Restaurant Le Teranga" required>
+          </div>
+          <div class="champ-groupe">
+            <label for="lead-admin-prospect" class="champ-label">Nom du Gérant / Décideur *</label>
+            <input type="text" id="lead-admin-prospect" class="champ-input" placeholder="Ex: M. Ousmane Diop" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+          <div class="champ-groupe">
+            <label for="lead-admin-telephone" class="champ-label">Téléphone WhatsApp *</label>
+            <input type="tel" id="lead-admin-telephone" class="champ-input" placeholder="+221 77 123 45 67" required>
+          </div>
+          <div class="champ-groupe">
+            <label for="lead-admin-ville" class="champ-label">Ville / Zone</label>
+            <input type="text" id="lead-admin-ville" class="champ-input" placeholder="Ex: Dakar, Thiès, Saly...">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+          <div class="champ-groupe">
+            <label for="lead-admin-formule" class="champ-label">Formule souhaitée</label>
+            <select id="lead-admin-formule" class="champ-input">
+              <option value="Tàmbali">Tàmbali (15 000 FCFA/mois)</option>
+              <option value="Nio Far">Nio Far (25 000 FCFA/mois)</option>
+              <option value="Xéweul">Xéweul (35 000 FCFA/mois)</option>
+              <option value="Sur Mesure">Sur Mesure (Hôtel / Complexe)</option>
+            </select>
+          </div>
+          <div class="champ-groupe">
+            <label for="lead-admin-commercial" class="champ-label">Commercial affilié</label>
+            <select id="lead-admin-commercial" class="champ-input">
+              <option value="">-- Siège Lou Ame Tay --</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+          <div class="champ-groupe">
+            <label for="lead-admin-statut" class="champ-label">Statut du Lead</label>
+            <select id="lead-admin-statut" class="champ-input">
+              <option value="nouveau">Nouveau</option>
+              <option value="contacté">Contacté / RDV fixé</option>
+              <option value="converti">Converti (Client signé)</option>
+              <option value="perdu">Perdu</option>
+            </select>
+          </div>
+          <div class="champ-groupe">
+            <label for="lead-admin-source" class="champ-label">Canal d'acquisition</label>
+            <select id="lead-admin-source" class="champ-input">
+              <option value="prospection_directe">Prospection terrain directe</option>
+              <option value="whatsapp_hotline">Hotline WhatsApp</option>
+              <option value="appel_telephonique">Appel entrant</option>
+              <option value="recommandation">Recommandation confrère</option>
+              <option value="carte_qr">Carte QR Code</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="champ-groupe" style="margin-bottom: 1.5rem;">
+          <label for="lead-admin-message" class="champ-label">Remarques & Besoins spécifiques</label>
+          <textarea id="lead-admin-message" class="champ-input" rows="3" placeholder="Ex: Établissement de 30 tables, souhaite démo sur place pour KDS cuisine..."></textarea>
+        </div>
+
+        <div class="modal-pied-actions" style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+          <button type="button" id="btn-annuler-modal-lead" class="btn btn-contour">
+            Annuler
+          </button>
+          <button type="submit" id="btn-enregistrer-lead" class="btn btn-primaire">
+            <span id="btn-lead-texte">Enregistrer dans le CRM</span>
+            <span id="btn-lead-spinner" class="spinner-chargement" style="display: none;"></span>
           </button>
         </div>
       </form>

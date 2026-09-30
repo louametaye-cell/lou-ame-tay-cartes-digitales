@@ -10,7 +10,7 @@
 
 var ENV = {
   VITE_SUPABASE_URL: "https://ugmdpjncplnlizhpongo.supabase.co",
-  VITE_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVnbWRwam5jcGxubGl6aHBvbmdvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MDU0OTE1NSwiZXhwIjoyMTA2MTI1MTU1fQ.aHT61DcJO5T92GlwQMgpkk6eYOAFc4-MvszrL7Ib4_4",
+  VITE_SUPABASE_ANON_KEY: "sb_publishable_4yYo3KLRqEIuqbb03tC1RA_u5CWsLaI",
   APP_URL: "https://louametay.online",
   SUPPORT_PHONE: "+221 76 231 20 03",
   SUPPORT_WHATSAPP: "221762312003"
