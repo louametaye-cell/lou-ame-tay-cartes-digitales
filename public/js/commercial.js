@@ -2315,12 +2315,22 @@ export function afficherEcranOnboardingContrat(agent) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // Pré-remplissage des champs Étape 1
+  // Pré-remplissage des champs Étape 1 & Accueil
   const prenom = agent.prenom || '';
   const nom = agent.nom || '';
   const nomComplet = `${prenom} ${nom}`.trim() || 'Conseiller Commercial';
   const telephone = agent.telephone || agent.whatsapp || '';
   const refMatricule = agent.contrat_reference || `LAT-COM-2026-${agent.id ? String(agent.id).slice(-4).toUpperCase() : Math.floor(1000 + Math.random() * 9000)}`;
+
+  // En-tête bienveillant et pastille d'identification
+  const elNomAccueil = document.getElementById('nom-accueil-agent');
+  if (elNomAccueil) elNomAccueil.textContent = prenom || nomComplet;
+
+  const elResumeNom = document.getElementById('resume-nom-agent');
+  if (elResumeNom) elResumeNom.textContent = nomComplet;
+
+  const elResumeTel = document.getElementById('resume-tel-agent');
+  if (elResumeTel) elResumeTel.textContent = telephone || 'Non renseigné';
 
   const elNom = document.getElementById('onboarding-nom-complet');
   if (elNom) elNom.value = nomComplet;
@@ -2332,22 +2342,46 @@ export function afficherEcranOnboardingContrat(agent) {
   if (elSecEmail && !elSecEmail.value) elSecEmail.value = agent.secondary_email || '';
 
   const elSecPhone = document.getElementById('onboarding-sec-phone');
-  if (elSecPhone && !elSecPhone.value) elSecPhone.value = agent.secondary_phone || '';
+  if (elSecPhone && !elSecPhone.value) elSecPhone.value = agent.secondary_phone || telephone;
 
   const elCni = document.getElementById('onboarding-cni');
   if (elCni && !elCni.value) elCni.value = agent.cni_number || agent.cni || '';
 
+  // Sélecteur d'opérateur Mobile Money (Wave par défaut)
+  const operateurActif = agent.payout_operator === 'ORANGE_MONEY' ? 'ORANGE_MONEY' : 'WAVE';
+  const inputOperateur = document.getElementById('onboarding-payout-operator');
+  if (inputOperateur) inputOperateur.value = operateurActif;
+
+  const btnWave = document.getElementById('btn-choice-wave');
+  const btnOm = document.getElementById('btn-choice-om');
+  if (btnWave && btnOm) {
+    btnWave.classList.toggle('active', operateurActif === 'WAVE');
+    btnOm.classList.toggle('active', operateurActif === 'ORANGE_MONEY');
+  }
+
   const elPayout = document.getElementById('onboarding-payout-phone');
-  if (elPayout && !elPayout.value) elPayout.value = agent.payout_phone || agent.telephone || telephone;
+  if (elPayout && !elPayout.value) elPayout.value = agent.payout_phone || telephone;
 
   const elPayoutName = document.getElementById('onboarding-payout-name');
   if (elPayoutName && !elPayoutName.value) elPayoutName.value = agent.payout_account_name || nomComplet;
 
   const elUrgNom = document.getElementById('onboarding-urg-nom');
-  if (elUrgNom && !elUrgNom.value) elUrgNom.value = agent.emergency_name || '';
+  if (elUrgNom && !elUrgNom.value) elUrgNom.value = agent.emergency_name || 'Contact Proche';
 
   const elUrgTel = document.getElementById('onboarding-urg-tel');
-  if (elUrgTel && !elUrgTel.value) elUrgTel.value = agent.emergency_phone || '';
+  if (elUrgTel && !elUrgTel.value) elUrgTel.value = agent.emergency_phone || telephone;
+
+  // Affichage préalable des miniatures CNI si déjà enregistrées
+  if (agent.cni_front_url && agent.cni_back_url) {
+    const badgeCni = document.getElementById('cni-complete-badge');
+    const thumbFront = document.getElementById('thumb-cni-recto');
+    const thumbBack = document.getElementById('thumb-cni-verso');
+    if (badgeCni && thumbFront && thumbBack) {
+      thumbFront.src = agent.cni_front_url;
+      thumbBack.src = agent.cni_back_url;
+      badgeCni.style.display = 'block';
+    }
+  }
 
   // Étape 2 (Carte Digitale)
   const elJob = document.getElementById('onboarding-job-title');
@@ -2451,80 +2485,183 @@ export function initialiserOnboardingContratAgent() {
   let avatarPhotoDataUrl = '';
 
   // --------------------------------------------------------------------------
-  // A. ÉTAPE 1 : VALIDATION & GESTION DES FICHIERS CNI
+  // A. ÉTAPE 1 : SÉLECTEUR WAVE / OM & SCANNER CNI 2-EN-1 GUIDÉ
   // --------------------------------------------------------------------------
-  const inputCniFront = document.getElementById('onboarding-cni-front-file');
-  const inputCniBack = document.getElementById('onboarding-cni-back-file');
+  const btnWave = document.getElementById('btn-choice-wave');
+  const btnOm = document.getElementById('btn-choice-om');
+  const inputOperateur = document.getElementById('onboarding-payout-operator');
 
-  inputCniFront?.addEventListener('change', async (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      try {
-        afficherToast('🗜️ Optimisation de la CNI Recto... ⚡');
-        const res = await compresserImagePourTerrain(file, { maxDimension: 1200, maxPoidsKo: 120 });
+  btnWave?.addEventListener('click', () => {
+    btnWave.classList.add('active');
+    btnOm?.classList.remove('active');
+    if (inputOperateur) inputOperateur.value = 'WAVE';
+  });
+
+  btnOm?.addEventListener('click', () => {
+    btnOm.classList.add('active');
+    btnWave?.classList.remove('active');
+    if (inputOperateur) inputOperateur.value = 'ORANGE_MONEY';
+  });
+
+  // GESTION DU SCANNER CNI 2-EN-1 (RECTO ➔ VERSO SANS QUITTER LA MODAL)
+  const modalScanner = document.getElementById('modal-scanner-cni');
+  const btnOuvrirScanner = document.getElementById('btn-ouvrir-scanner-cni');
+  const btnFermerScanner = document.getElementById('btn-fermer-modal-scanner');
+  const btnModifierCni = document.getElementById('btn-recommencer-cni');
+
+  const progressFill = document.getElementById('scanner-progress-fill');
+  const stepBadge = document.getElementById('scanner-step-badge');
+  const titreEtape = document.getElementById('scanner-titre-etape');
+  const descEtape = document.getElementById('scanner-desc-etape');
+  const laserLine = document.getElementById('scanner-laser');
+  const overlaySuccess = document.getElementById('scanner-overlay-success');
+  const successText = document.getElementById('scanner-success-text');
+  const previewTemp = document.getElementById('scanner-preview-temp');
+  const emptyPlaceholder = document.getElementById('scanner-empty-placeholder');
+  const placeholderText = document.getElementById('scanner-placeholder-text');
+
+  const inputCniCamera = document.getElementById('input-cni-camera');
+  const inputCniGallery = document.getElementById('input-cni-gallery');
+  const btnDeclencherCamera = document.getElementById('btn-declencher-cni-camera');
+  const btnDeclencherGalerie = document.getElementById('btn-declencher-cni-galerie');
+
+  const badgeComplete = document.getElementById('cni-complete-badge');
+  const thumbRecto = document.getElementById('thumb-cni-recto');
+  const thumbVerso = document.getElementById('thumb-cni-verso');
+
+  let etapeScanner = 1; // 1 = RECTO, 2 = VERSO
+
+  function configurerEtapeScanner(etape) {
+    etapeScanner = etape;
+    if (etape === 1) {
+      if (progressFill) progressFill.style.width = '50%';
+      if (stepBadge) stepBadge.textContent = 'Étape 1 sur 2';
+      if (titreEtape) titreEtape.textContent = '📸 Étape 1/2 : Cadrez le RECTO (face avant)';
+      if (descEtape) descEtape.textContent = 'Positionnez la face avant bien à plat dans le cadre en évitant les reflets.';
+      if (placeholderText) placeholderText.textContent = 'Cadrez la face avant ici';
+    } else {
+      if (progressFill) progressFill.style.width = '100%';
+      if (stepBadge) stepBadge.textContent = 'Étape 2 sur 2';
+      if (titreEtape) titreEtape.textContent = '🔄 Étape 2/2 : Retournez votre carte : cadrez le VERSO';
+      if (descEtape) descEtape.textContent = 'Cadrez maintenant la face arrière de votre carte d\'identité.';
+      if (placeholderText) placeholderText.textContent = 'Cadrez la face arrière ici';
+    }
+    if (overlaySuccess) overlaySuccess.style.display = 'none';
+    if (previewTemp) previewTemp.style.display = 'none';
+    if (emptyPlaceholder) emptyPlaceholder.style.display = 'flex';
+    if (laserLine) laserLine.style.display = 'block';
+  }
+
+  function ouvrirScannerCni(etapeInitiale = 1) {
+    if (modalScanner) {
+      configurerEtapeScanner(etapeInitiale);
+      modalScanner.style.display = 'flex';
+    }
+  }
+
+  function fermerScannerCni() {
+    if (modalScanner) modalScanner.style.display = 'none';
+  }
+
+  btnOuvrirScanner?.addEventListener('click', () => ouvrirScannerCni(1));
+  btnModifierCni?.addEventListener('click', () => ouvrirScannerCni(1));
+  btnFermerScanner?.addEventListener('click', fermerScannerCni);
+
+  modalScanner?.addEventListener('click', (e) => {
+    if (e.target === modalScanner) fermerScannerCni();
+  });
+
+  btnDeclencherCamera?.addEventListener('click', () => inputCniCamera?.click());
+  btnDeclencherGalerie?.addEventListener('click', () => inputCniGallery?.click());
+
+  async function traiterCaptureCni(file) {
+    if (!file) return;
+
+    try {
+      afficherToast('🗜️ Optimisation de la pièce d\'identité... ⚡');
+      const res = await compresserImagePourTerrain(file, {
+        maxDimension: 1200,
+        maxPoidsKo: 130,
+        qualiteInitiale: 0.78
+      });
+
+      // Affichage immédiat dans le viseur
+      if (previewTemp) {
+        previewTemp.src = res.base64;
+        previewTemp.style.display = 'block';
+      }
+      if (emptyPlaceholder) emptyPlaceholder.style.display = 'none';
+      if (laserLine) laserLine.style.display = 'none';
+
+      if (etapeScanner === 1) {
         cniFrontDataUrl = res.base64;
-        const img = document.getElementById('cni-front-preview-img');
-        const box = document.getElementById('cni-front-preview-box');
-        if (img && box) {
-          img.src = cniFrontDataUrl;
-          box.style.display = 'block';
+        if (overlaySuccess) {
+          if (successText) successText.textContent = `✓ Recto validé (${res.sizeKo} Ko) !`;
+          overlaySuccess.style.display = 'flex';
         }
-        afficherToast(`✅ CNI Recto prête : ${res.sizeKo} Ko (-${res.gainPercent}% data)`);
-      } catch (err) {
-        console.warn('Erreur compression CNI front, repli brut:', err);
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          cniFrontDataUrl = ev.target?.result;
-          const img = document.getElementById('cni-front-preview-img');
-          const box = document.getElementById('cni-front-preview-box');
-          if (img && box) {
-            img.src = cniFrontDataUrl;
-            box.style.display = 'block';
-          }
-        };
-        reader.readAsDataURL(file);
-      }
-    }
-  });
+        afficherToast(`✅ Recto CNI enregistré : ${res.sizeKo} Ko (-${res.gainPercent}% data)`);
 
-  inputCniBack?.addEventListener('change', async (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      try {
-        afficherToast('🗜️ Optimisation de la CNI Verso... ⚡');
-        const res = await compresserImagePourTerrain(file, { maxDimension: 1200, maxPoidsKo: 120 });
+        // Transition automatique fluide sans quitter la modal
+        setTimeout(() => {
+          configurerEtapeScanner(2);
+        }, 900);
+
+      } else {
         cniBackDataUrl = res.base64;
-        const img = document.getElementById('cni-back-preview-img');
-        const box = document.getElementById('cni-back-preview-box');
-        if (img && box) {
-          img.src = cniBackDataUrl;
-          box.style.display = 'block';
+        if (overlaySuccess) {
+          if (successText) successText.textContent = `✓ Verso validé (${res.sizeKo} Ko) !`;
+          overlaySuccess.style.display = 'flex';
         }
-        afficherToast(`✅ CNI Verso prête : ${res.sizeKo} Ko (-${res.gainPercent}% data)`);
-      } catch (err) {
-        console.warn('Erreur compression CNI back, repli brut:', err);
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          cniBackDataUrl = ev.target?.result;
-          const img = document.getElementById('cni-back-preview-img');
-          const box = document.getElementById('cni-back-preview-box');
-          if (img && box) {
-            img.src = cniBackDataUrl;
-            box.style.display = 'block';
-          }
-        };
-        reader.readAsDataURL(file);
+        afficherToast(`✅ CNI complète enregistrée : ${res.sizeKo} Ko (-${res.gainPercent}% data)`);
+
+        // Fermeture automatique et mise à jour de la Bento Card 2
+        setTimeout(() => {
+          fermerScannerCni();
+          if (thumbRecto) thumbRecto.src = cniFrontDataUrl;
+          if (thumbVerso) thumbVerso.src = cniBackDataUrl;
+          if (badgeComplete) badgeComplete.style.display = 'block';
+          const triggerZone = document.getElementById('cni-trigger-zone');
+          if (triggerZone) triggerZone.style.display = 'none';
+        }, 750);
       }
+
+    } catch (err) {
+      console.warn('Erreur compression CNI, repli brut:', err);
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const dataUrl = ev.target?.result;
+        if (etapeScanner === 1) {
+          cniFrontDataUrl = dataUrl;
+          configurerEtapeScanner(2);
+        } else {
+          cniBackDataUrl = dataUrl;
+          fermerScannerCni();
+          if (thumbRecto) thumbRecto.src = cniFrontDataUrl;
+          if (thumbVerso) thumbVerso.src = cniBackDataUrl;
+          if (badgeComplete) badgeComplete.style.display = 'block';
+          const triggerZone = document.getElementById('cni-trigger-zone');
+          if (triggerZone) triggerZone.style.display = 'none';
+        }
+      };
+      reader.readAsDataURL(file);
     }
+  }
+
+  inputCniCamera?.addEventListener('change', (e) => {
+    traiterCaptureCni(e.target.files?.[0]);
+    e.target.value = '';
   });
 
-  // Clic [ CONTINUER VERS L'ÉTAPE 2 (CARTE DIGITALE) ➔ ]
+  inputCniGallery?.addEventListener('change', (e) => {
+    traiterCaptureCni(e.target.files?.[0]);
+    e.target.value = '';
+  });
+
+  // Clic [ Étape suivante : Ma Carte Digitale ➔ ]
   btnToStep2?.addEventListener('click', () => {
     const cni = document.getElementById('onboarding-cni')?.value.trim();
     const payoutPhone = document.getElementById('onboarding-payout-phone')?.value.trim();
     const payoutName = document.getElementById('onboarding-payout-name')?.value.trim();
-    const urgNom = document.getElementById('onboarding-urg-nom')?.value.trim();
-    const urgTel = document.getElementById('onboarding-urg-tel')?.value.trim();
 
     if (!cni || cni.length < 5) {
       afficherToast('Veuillez renseigner votre numéro de CNI / CEDEAO ou Passeport.');
@@ -2544,15 +2681,27 @@ export function initialiserOnboardingContratAgent() {
       return;
     }
 
-    if (!urgNom || !urgTel) {
-      afficherToast('Veuillez renseigner le contact d\'urgence complet.');
-      document.getElementById('onboarding-urg-nom')?.focus();
-      return;
+    // Avertissement bienveillant si la CNI n'a pas été scannée
+    if (!cniFrontDataUrl || !cniBackDataUrl) {
+      afficherToast('⚠️ Pensez à scanner le Recto et le Verso de votre CNI pour certifier votre compte.');
     }
+
+    // Remplissage automatique des champs secondaires de repli
+    const elNomComplet = document.getElementById('onboarding-nom-complet');
+    if (elNomComplet && !elNomComplet.value) elNomComplet.value = payoutName;
+
+    const elTel = document.getElementById('onboarding-telephone');
+    if (elTel && !elTel.value) elTel.value = payoutPhone;
+
+    const elUrgNom = document.getElementById('onboarding-urg-nom');
+    if (elUrgNom && !elUrgNom.value) elUrgNom.value = 'Contact Proche';
+
+    const elUrgTel = document.getElementById('onboarding-urg-tel');
+    if (elUrgTel && !elUrgTel.value) elUrgTel.value = payoutPhone;
 
     // Mise à jour de l'aperçu dynamique de la carte à l'étape 2
     const elPrevPayout = document.getElementById('wizard-preview-payout');
-    const operateur = document.getElementById('onboarding-payout-operator')?.value;
+    const operateur = document.getElementById('onboarding-payout-operator')?.value || 'WAVE';
     if (elPrevPayout) {
       elPrevPayout.textContent = `${operateur === 'WAVE' ? '🌊 Wave' : '🍊 OM'} : ${payoutPhone}`;
     }
