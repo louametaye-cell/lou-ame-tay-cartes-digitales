@@ -2805,7 +2805,8 @@ export function initialiserOnboardingContratAgent() {
       const locomotion = document.getElementById('onboarding-locomotion')?.value || 'MOTO_SCOOTER';
       const zone = document.getElementById('onboarding-zone')?.value || 'Thiès Centre & Grand Standing';
       const jobTitle = document.getElementById('onboarding-job-title')?.value.trim() || 'Conseiller Digital CHR';
-      const linkedin = document.getElementById('onboarding-linkedin')?.value.trim() || null;
+      // Réseaux sociaux officiels Lou Ame Tay universels (les réseaux personnels sont interdits sur la carte)
+      const linkedin = 'https://www.linkedin.com/company/lou-ame-tay';
 
       const donneesMiseAJour = {
         // Étape 1 : Coordonnées, Mobile Money & KYC

@@ -12,14 +12,29 @@ export const entreprise = {
   slogan: "La transition digitale de la restauration et de l'hôtellerie au Sénégal.",
   description: "Lou Ame Tay est une solution SaaS 100% sénégalaise conçue pour moderniser les établissements de restauration et d'hôtellerie. Elle permet aux clients de consulter le menu et de passer commande directement depuis leur table en scannant un QR code, sans aucune application à télécharger.",
   siteWeb: "https://www.louametay.com",
+  siteWebAffichage: "www.louametay.com",
   logo: "images/logo.svg",
   images: [
     "images/deploiement1.jpg",
     "images/deploiement2.jpg",
     "images/deploiement3.jpg"
   ],
+  localisation: {
+    codePlus: "Q359+WC2, Thiès",
+    ville: "Thiès, Sénégal",
+    adresse: "Quartier Fayou, Face Foot Salé",
+    googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=Q359%2BWC2,+Thi%C3%A8s",
+    avisGoogleUrl: "https://www.google.com/maps/search/?api=1&query=Q359%2BWC2,+Thi%C3%A8s"
+  },
+  youtubeOfficiel: {
+    chaineUrl: "https://youtube.com/@louametaye?si=wdfwRr2F-x0ho5PY",
+    abonnementUrl: "https://youtube.com/@louametaye?sub_confirmation=1",
+    videoDefautId: "hZq2u-yPnAE",
+    videoDefautTitre: "Lou Ame Tay ? – Digitalisez Votre Restaurant en 3 Clics",
+    videoDefautDescription: "Découvrez en vidéo la solution N°1 au Sénégal : Menu digital QR code sans application, écran cuisine KDS en temps réel et paiement direct Wave & Orange Money."
+  },
   presence: {
-    bureaux: "Basée à Thiès (Quartier Dixième) et Dakar (Point E).",
+    bureaux: "Siège à Thiès (Quartier Fayou, Face Foot Salé — Q359+WC2) et Dakar (Point E).",
     zoneIntervention: "Intervention terrain sur l'axe Thiès — Dakar — Mbour.",
     support: "Support technique & opérationnel WhatsApp 7j/7 de 08h00 à 22h00."
   },
@@ -29,8 +44,19 @@ export const entreprise = {
     telephone: "+221771303678",
     telephoneAffichage: "+221 77 130 36 78",
     email: "contact@louametay.com",
+    facebook: "https://www.facebook.com/louametay/",
+    instagram: "https://www.instagram.com/louametaye/",
+    linkedin: "https://www.linkedin.com/company/lou-ame-tay",
+    tiktok: "https://www.tiktok.com/@louametay",
     youtube: "https://youtube.com/@louametaye?si=wdfwRr2F-x0ho5PY",
     youtubeChannelId: "UCmaFo8BlqLgMj87mqbG3jkw"
+  },
+  reseaux: {
+    facebook: "https://www.facebook.com/louametay/",
+    instagram: "https://www.instagram.com/louametaye/",
+    linkedin: "https://www.linkedin.com/company/lou-ame-tay",
+    tiktok: "https://www.tiktok.com/@louametay",
+    youtube: "https://youtube.com/@louametaye?si=wdfwRr2F-x0ho5PY"
   },
   paiements: ["Wave", "Orange Money", "Carte bancaire"],
   fonctionnalites: [
