@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Espace Conseiller Terrain — Lou Ame Tay 🍽️</title>
   <meta name="description" content="Espace personnel des conseillers commerciaux Lou Ame Tay : suivi des scans, CRM prospects, commissions 10%, notes de frais et annonces d'équipe.">
 
@@ -339,7 +339,8 @@
         position: fixed;
         inset: 0;
         height: 100vh;
-        width: 100vw;
+        width: 100%;
+        max-width: 100%;
         padding: 1.5rem;
         z-index: 1;
         justify-content: flex-start;
@@ -917,6 +918,60 @@
       margin-top: 10px;
       display: none;
     }
+
+    /* Responsivité Mobile & Tablette Espace Commercial */
+    @media (max-width: 768px) {
+      .comm-header {
+        padding: 0.75rem 1rem;
+      }
+      .comm-brand img {
+        width: 30px;
+        height: 30px;
+      }
+      .comm-brand-text h1 {
+        font-size: 0.95rem;
+      }
+      .comm-profile-hero {
+        padding: 1rem 1rem 1.5rem;
+        border-bottom-left-radius: 16px;
+        border-bottom-right-radius: 16px;
+      }
+      .comm-profile-flex {
+        gap: 0.75rem;
+      }
+      .comm-profile-photo {
+        width: 60px;
+        height: 60px;
+      }
+      .comm-profile-details {
+        min-width: 160px;
+      }
+      .comm-profile-details h2 {
+        font-size: 1.15rem;
+      }
+      .comm-tabs-nav {
+        margin: -0.75rem auto 1rem;
+        padding: 0 0.5rem;
+        top: 56px;
+      }
+      .comm-tab-btn {
+        padding: 8px 12px;
+        font-size: 0.8rem;
+      }
+      .comm-container {
+        padding: 0 0.75rem;
+        margin-bottom: 4rem;
+      }
+      .comm-modal-card {
+        padding: 1.25rem 1rem !important;
+        border-radius: 16px !important;
+        max-height: 94vh !important;
+        width: 100% !important;
+      }
+      .comm-modal-overlay {
+        padding: 0.5rem !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -932,7 +987,13 @@
         <span>Espace Conseiller Terrain</span>
       </div>
     </a>
-    <div id="zone-header-actions" style="display: none;">
+    <div id="zone-header-actions" style="display: none; align-items: center; gap: 10px;">
+      <div id="pastille-statut-reseau-header">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <span>En ligne</span>
+        </span>
+      </div>
       <button type="button" class="comm-logout-btn" id="btn-deconnexion-comm">
         <span>Se déconnecter</span> ➔
       </button>
@@ -1097,7 +1158,7 @@
                 Renseignez la ligne exacte pour vos virements directs de commissions (10% instantanés dès encaissement client).
               </p>
 
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 0.75rem;">
+              <div class="form-grid-2" style="margin-bottom: 0.75rem;">
                 <div class="comm-form-group">
                   <label for="onboarding-nom-complet">Nom & Prénom</label>
                   <input type="text" id="onboarding-nom-complet" class="comm-input" readonly style="background: #F1F5F9; font-weight: 700;">
@@ -1108,7 +1169,7 @@
                 </div>
               </div>
 
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 0.75rem;">
+              <div class="form-grid-2" style="margin-bottom: 0.75rem;">
                 <div class="comm-form-group">
                   <label for="onboarding-sec-email">Email secondaire / Récupération</label>
                   <input type="email" id="onboarding-sec-email" class="comm-input" placeholder="recuperation@gmail.com">
@@ -1124,7 +1185,7 @@
                 <div style="font-size: 0.78rem; font-weight: 800; color: #0B1F3A; margin-bottom: 0.5rem;">
                   Ligne certifiée pour versement Mobile Money :
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                <div class="form-grid-3">
                   <div class="comm-form-group">
                     <label for="onboarding-payout-operator">Opérateur *</label>
                     <select id="onboarding-payout-operator" class="comm-input" style="font-weight: 800;">
@@ -1159,7 +1220,7 @@
               </div>
 
               <!-- Upload Recto / Verso CNI -->
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1rem;">
+              <div class="form-grid-2" style="margin-bottom: 1rem;">
                 <div style="border: 2px dashed #CBD5E1; border-radius: 10px; padding: 12px; text-align: center; background: #FAFBFD;">
                   <div style="font-size: 1.5rem; margin-bottom: 4px;">📄</div>
                   <div style="font-size: 0.78rem; font-weight: 700; color: #1E293B;">CNI Recto (Face avant) *</div>
@@ -1180,7 +1241,7 @@
               </div>
 
               <!-- Contact d'Urgence RH -->
-              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 1rem;">
+              <div class="form-grid-3" style="margin-bottom: 1rem;">
                 <div class="comm-form-group">
                   <label for="onboarding-urg-nom">Contact d'urgence (Nom) *</label>
                   <input type="text" id="onboarding-urg-nom" class="comm-input" placeholder="Ex: Moussa Diop" required>
@@ -1206,7 +1267,7 @@
               <h3 style="font-size: 0.95rem; color: #0B1F3A; font-weight: 800; margin: 0 0 0.5rem; display: flex; align-items: center; gap: 6px;">
                 <span>🛵 3. Logistique & Calibrage Terrain</span>
               </h3>
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              <div class="form-grid-2">
                 <div class="comm-form-group">
                   <label for="onboarding-locomotion">Moyen de locomotion déclaré *</label>
                   <select id="onboarding-locomotion" class="comm-input" style="font-weight: 700;">
@@ -1264,12 +1325,12 @@
                 <input type="file" id="input-wizard-gallery" accept="image/*" style="display: none;">
 
                 <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                  <button type="button" id="btn-declencher-camera" style="flex: 1; min-width: 180px; background: #0B1F3A; color: #FFFFFF; border: none; border-radius: 10px; padding: 12px; font-size: 0.82rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                  <button type="button" id="btn-declencher-camera" style="flex: 1; min-width: 130px; background: #0B1F3A; color: #FFFFFF; border: none; border-radius: 10px; padding: 12px; font-size: 0.82rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
                     <span>📷</span>
                     <span>Prendre un selfie direct</span>
                   </button>
 
-                  <button type="button" id="btn-declencher-galerie" style="flex: 1; min-width: 180px; background: #FFFFFF; color: #1E293B; border: 1.5px solid #CBD5E1; border-radius: 10px; padding: 12px; font-size: 0.82rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                  <button type="button" id="btn-declencher-galerie" style="flex: 1; min-width: 130px; background: #FFFFFF; color: #1E293B; border: 1.5px solid #CBD5E1; border-radius: 10px; padding: 12px; font-size: 0.82rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
                     <span>🖼️</span>
                     <span>Choisir depuis la galerie</span>
                   </button>
@@ -1277,7 +1338,7 @@
               </div>
 
               <!-- Titre & Liens Professionnels -->
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1rem;">
+              <div class="form-grid-2" style="margin-bottom: 1rem;">
                 <div class="comm-form-group">
                   <label for="onboarding-job-title">Titre / Fonction commerciale affichée *</label>
                   <input type="text" id="onboarding-job-title" class="comm-input" value="Conseiller Digital CHR" required style="font-weight: 700;">
@@ -1850,6 +1911,23 @@
                 <span>Copier ma Signature Email</span> 📋
               </button>
             </div>
+
+            <!-- Carte 4 : Copilot Prospection WhatsApp B2B CHR Sénégal -->
+            <div style="border: 1.5px solid #10B981; border-radius: var(--arrondi); padding: 1.5rem; background: linear-gradient(180deg, #F0FDF4 0%, #FFFFFF 100%); display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">📲</div>
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 0.5rem;">
+                  <h4 style="font-size: 1.1rem; color: #065F46; margin: 0; font-weight: 800;">Copilot WhatsApp CHR Sénégal</h4>
+                  <span style="background: #10B981; color: #fff; font-size: 0.68rem; font-weight: 800; padding: 2px 6px; border-radius: 6px;">1-CLIC</span>
+                </div>
+                <p style="color: var(--texte-muet); font-size: 0.85rem; line-height: 1.4; margin-bottom: 1.25rem;">
+                  Générez en 2 secondes un message de prospection taillé pour votre prospect (Lounge Almadies, Fast-Food, Dibiterie, Hôtel Saly) avec lien de démo live pré-intégré.
+                </p>
+              </div>
+              <button type="button" class="comm-btn-primary" id="comm-btn-ouvrir-copilot-outils" style="width: 100%; justify-content: center; background: #059669;">
+                <span>Lancer le Copilot WhatsApp</span> 🚀
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -1920,7 +1998,7 @@
           >
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div class="form-grid-2">
           <div class="comm-form-group">
             <label for="depense-categorie">Catégorie *</label>
             <select id="depense-categorie" class="comm-input" required>
@@ -2021,7 +2099,7 @@
           <input type="text" id="prospect-nom" class="comm-input" placeholder="Ex: M. Ousmane Diop" required>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div class="form-grid-2">
           <div class="comm-form-group">
             <label for="prospect-tel">Téléphone / WhatsApp *</label>
             <input type="tel" id="prospect-tel" class="comm-input" placeholder="Ex: 771234567" required>
@@ -2087,7 +2165,7 @@
           <input type="text" id="rdv-resto" class="comm-input" placeholder="Ex: Restaurant Le Lagon 1" required>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div class="form-grid-2">
           <div class="comm-form-group">
             <label for="rdv-contact">Nom du Gérant / Décideur *</label>
             <input type="text" id="rdv-contact" class="comm-input" placeholder="Ex: M. Oumar Sow" required>
@@ -2099,7 +2177,7 @@
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div class="form-grid-2">
           <div class="comm-form-group">
             <label for="rdv-ville">Ville / Quartier *</label>
             <select id="rdv-ville" class="comm-input" required>
@@ -2190,7 +2268,7 @@
           <h4 style="font-size: 0.92rem; color: var(--bleu-profond); margin: 0 0 0.75rem 0; font-weight: 700;">
             1. Informations de l'Établissement & du Gérant
           </h4>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-grid-2">
             <div class="comm-form-group">
               <label for="contrat-resto">Nom du Restaurant / Établissement *</label>
               <input type="text" id="contrat-resto" class="comm-input" placeholder="Ex: Restaurant Le Teranga" required>
@@ -2200,7 +2278,7 @@
               <input type="text" id="contrat-gerant" class="comm-input" placeholder="Ex: M. Ibrahima Ndiaye" required>
             </div>
           </div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-grid-2">
             <div class="comm-form-group">
               <label for="contrat-tel">Téléphone / WhatsApp *</label>
               <input type="tel" id="contrat-tel" class="comm-input" placeholder="Ex: 77 123 45 67" required>
@@ -2214,7 +2292,7 @@
             <label for="contrat-ninea">NINEA / Registre du Commerce (Optionnel)</label>
             <input type="text" id="contrat-ninea" class="comm-input" placeholder="Ex: 004829102 2V3 ou En cours d'immatriculation">
           </div>
-          <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 10px;">
+          <div class="form-grid-2">
             <div class="comm-form-group">
               <label for="contrat-formule">Formule SaaS souscrite *</label>
               <select id="contrat-formule" class="comm-input">
@@ -2342,6 +2420,85 @@
     </div>
   </div>
 
+  <!-- =========================================================================
+       MODAL : DÉROGATION MOTIVÉE POINTAGE GPS TERRAIN SÉNÉGAL
+       ========================================================================= -->
+  <div class="comm-modal-overlay" id="modal-derogation-pointage">
+    <div class="comm-modal-card" style="max-width: 600px; max-height: 90vh; overflow-y: auto;">
+      <button type="button" class="comm-modal-close" id="btn-fermer-modal-derogation">✕</button>
+
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1rem; border-bottom: 1px solid var(--bordure); padding-bottom: 0.75rem;">
+        <div style="width: 44px; height: 44px; border-radius: 12px; background: #FEF3C7; border: 1px solid #F59E0B; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #B45309;">
+          📍
+        </div>
+        <div>
+          <h3 style="font-size: 1.25rem; color: var(--bleu-profond); margin: 0; font-weight: 800;">
+            Pointage Terrain — Dérogation Motivée
+          </h3>
+          <p style="margin: 0; font-size: 0.82rem; color: var(--texte-muet);">
+            Régulation officielle de présence pour le terrain sénégalais
+          </p>
+        </div>
+      </div>
+
+      <div style="background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 10px; padding: 0.85rem; margin-bottom: 1rem;">
+        <p id="texte-derogation-distance" style="margin: 0; font-size: 0.88rem; color: #92400E; font-weight: 600; line-height: 1.4;">
+          ⚠️ Vous êtes situé à plus de 100 mètres du point de repère enregistré.
+        </p>
+      </div>
+
+      <form id="form-derogation-pointage">
+        <input type="hidden" id="derogation-rdv-id" value="">
+        <input type="hidden" id="derogation-lat" value="">
+        <input type="hidden" id="derogation-lon" value="">
+        <input type="hidden" id="derogation-distance" value="">
+
+        <div class="comm-form-group" style="margin-bottom: 1rem;">
+          <label for="derogation-motif" style="font-weight: 700; font-size: 0.88rem; display: block; margin-bottom: 6px;">
+            Motif de la dérogation terrain (Conforme Sénégal) *
+          </label>
+          <select id="derogation-motif" class="comm-input" required style="font-size: 0.85rem; padding: 10px;">
+            <option value="TERRASSE_ANNEXE">☕ Gérant rencontré à proximité (terrasse extérieure, café voisin, bureau annexe)</option>
+            <option value="ACCES_IMPOSSIBLE">🛵 Stationnement éloigné (moto/voiture sur grand axe, ruelle impraticable/ensablée)</option>
+            <option value="TRAVAUX_VOIRIE">🚧 Travaux de voirie / Déviation / Chantiers urbains (BRT, pavage, intempéries)</option>
+            <option value="SIGNAL_INTERIEUR">📡 Signal GPS atténué (sous-sol, toiture métallique ou cuisine fermée)</option>
+            <option value="AUTRE_TERRAIN">📝 Autre motif opérationnel justifié</option>
+          </select>
+        </div>
+
+        <div class="comm-form-group" style="margin-bottom: 1rem;">
+          <label for="derogation-commentaire" style="font-weight: 700; font-size: 0.88rem; display: block; margin-bottom: 6px;">
+            Commentaire justificatif pour la Direction
+          </label>
+          <input type="text" id="derogation-commentaire" class="comm-input" placeholder="Ex: Gérant assis au café d'en face, ruelle bloquée pour travaux..." style="font-size: 0.85rem;">
+        </div>
+
+        <div class="comm-form-group" style="margin-bottom: 1.25rem;">
+          <label style="font-weight: 700; font-size: 0.88rem; display: block; margin-bottom: 6px;">
+            Photo témoin de l'enseigne / devanture (Optionnel mais recommandé)
+          </label>
+          <div style="border: 2px dashed var(--bordure); border-radius: 12px; padding: 1rem; text-align: center; background: #F8FAFC;">
+            <input type="file" id="derogation-photo-input" accept="image/*" capture="environment" style="display: none;">
+            <button type="button" class="comm-btn-outline" onclick="document.getElementById('derogation-photo-input').click();" style="margin: 0 auto 6px;">
+              <span>📷 Prendre en photo l'enseigne</span>
+            </button>
+            <p style="font-size: 0.75rem; color: var(--texte-muet); margin: 0;">
+              ⚡ Compression automatique en WebP (&lt; 100 Ko) pour économiser votre data.
+            </p>
+            <div id="derogation-photo-preview-box" style="display: none; margin-top: 10px;">
+              <img id="derogation-photo-preview-img" src="" alt="Aperçu enseigne" style="max-height: 120px; border-radius: 8px; margin: 0 auto; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+              <span id="derogation-photo-poids-badge" style="display: inline-block; font-size: 0.72rem; color: #065F46; background: #D1FAE5; padding: 2px 8px; border-radius: 10px; margin-top: 4px; font-weight: bold;"></span>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="comm-btn-primary" style="width: 100%; justify-content: center; padding: 12px; font-size: 0.92rem; background: #1E3A8A;">
+          <span>Valider le Pointage Dérogatoire Certifié 📍</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
   <!-- MODAL GEMINI COPILOT (PITCH & PROSPECTION IA TERRAIN) -->
   <div class="comm-modal-overlay" id="modal-gemini-copilot">
     <div class="comm-modal-card" style="max-width: 680px; max-height: 90vh; overflow-y: auto;">
@@ -2362,7 +2519,7 @@
       </div>
 
       <div style="background: #F8FAFC; border: 1px solid var(--bordure); border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+        <div class="form-grid-2" style="margin-bottom: 10px;">
           <div class="comm-form-group">
             <label for="copilot-profil-zone">Zone & Profil de l'Établissement</label>
             <select id="copilot-profil-zone" class="comm-input">

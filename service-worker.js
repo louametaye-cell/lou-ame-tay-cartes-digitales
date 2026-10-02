@@ -6,7 +6,7 @@
  * Stratégie : Network First pour le HTML / API, Cache First pour les assets statiques
  */
 
-const CACHE_NAME = 'lou-ame-tay-v3';
+const CACHE_NAME = 'lou-ame-tay-v4';
 
 const ASSETS_A_METTRE_EN_CACHE = [
   '/',
@@ -23,6 +23,11 @@ const ASSETS_A_METTRE_EN_CACHE = [
   '/js/carte.js',
   '/js/commercial.js',
   '/js/contrat-pdf.js',
+  '/js/contrat-commercial-pdf.js',
+  '/js/image-compressor.js',
+  '/js/gps-geofence.js',
+  '/js/whatsapp-pitch.js',
+  '/js/cdp-privacy.js',
   '/js/gemini-copilot.js',
   '/js/offline-sync.js',
   '/js/wallet-pass.js',
@@ -41,11 +46,7 @@ const ASSETS_A_METTRE_EN_CACHE = [
   '/images/commercial1.jpg',
   '/images/commercial2.jpg',
   '/images/commercial3.jpg',
-  '/images/commercial4.jpg',
-  '/images/image pour site web crm louame tay commercial/louametay-commerciale-terrain.jpg',
-  '/images/image pour site web crm louame tay commercial/louametay-contrat-signe.jpg',
-  '/images/image pour site web crm louame tay commercial/louametay-commerciale-vue-mer.jpg',
-  '/images/image pour site web crm louame tay commercial/louametay-demo-equipe.jpg'
+  '/images/commercial4.jpg'
 ];
 
 // Installation : mise en cache des assets essentiels

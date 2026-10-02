@@ -21,9 +21,12 @@ import { genererCartePDF } from './carte-pdf.js';
 import { genererSignatureHTML, copierSignature } from './signature-email.js';
 import { genererContratPDFA4 } from './contrat-pdf.js';
 import { genererPitchCommercial, PROFILS_ETABLISSEMENTS } from './gemini-copilot.js';
-import { initialiserModeOffline, empilerActionHorsLigne } from './offline-sync.js';
+import { initialiserModeOffline, empilerActionHorsLigne, estEnLigne } from './offline-sync.js';
 import { ajouterAuWallet, telechargerPassDigitalNFC } from './wallet-pass.js';
 import { genererContratCommercialPDFA4 } from './contrat-commercial-pdf.js';
+import { compresserImagePourTerrain } from './image-compressor.js';
+import { evaluerGeofencing, obtenirPositionLowPower, MOTIFS_DEROGATION_TERRAIN } from './gps-geofence.js';
+import { MODELES_PITCH_CHR_SENEGAL, formaterTelephoneSenegal, genererLienWhatsApp } from './whatsapp-pitch.js';
 
 // État local de la session commerciale
 let commercialConnecte = null;
@@ -47,6 +50,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initialiserPassWalletCommercial();
   initialiserOnboardingContratAgent();
   initialiserConsultationContratAgent();
+  initialiserModalDerogationPointage();
   lancerHeartbeatPresenceCommercial();
 
   // Vérifier si une session est déjà mémorisée
@@ -694,25 +698,28 @@ async function chargerRendezVous() {
   }
 }
 
+// Variable locale pour la photo de dérogation compressée
+let fichierPhotoDerogationCompresse = null;
+
 async function pointerArriveeGPS(rdvId, boutonElement) {
   const rdv = listeRdv.find(r => r.id === rdvId);
   if (!rdv) return;
 
   if (boutonElement) {
     boutonElement.disabled = true;
-    boutonElement.innerHTML = '<span>Signal GPS...</span> 🛰️';
+    boutonElement.innerHTML = '<span>Signal GPS Eco...</span> 🛰️';
   }
-  afficherToast('Recherche du signal satellite GPS de haute précision... 🛰️');
+  afficherToast('Recherche satellite GPS basse consommation (Low-Power)... 🛰️');
 
   try {
-    const coords = await obtenirPositionActuelle();
+    // 1. Acquisition GPS Low-Power (8 secondes max, préserve la batterie)
+    const coords = await obtenirPositionLowPower({ timeoutMs: 8000 });
 
-    // Déterminer les coordonnées théoriques du restaurant
+    // 2. Déterminer les coordonnées théoriques du restaurant
     let latResto = rdv.latitude_restaurant;
     let lonResto = rdv.longitude_restaurant;
 
     if (!latResto || !lonResto) {
-      // Déduction par rapport à la ville du RDV avec recherche intelligente multi-régions
       let villeRef = COORDONNEES_VILLES_SENEGAL[rdv.adresse_restaurant];
       if (!villeRef && rdv.adresse_restaurant) {
         const addrLower = rdv.adresse_restaurant.toLowerCase();
@@ -728,46 +735,83 @@ async function pointerArriveeGPS(rdvId, boutonElement) {
       lonResto = villeRef.lon;
     }
 
-    const distanceMetres = calculerDistanceGPS(coords.latitude, coords.longitude, latResto, lonResto);
-    const estValide = distanceMetres !== null && distanceMetres <= 250; // Tolérance de 250m
-    const statutCheckin = estValide ? 'VALIDE_SUR_PLACE' : 'ECART_SUSPECT';
+    // 3. Évaluation selon les règles du terrain sénégalais (tolérance 100m)
+    const evalGeo = evaluerGeofencing(coords.lat, coords.lng, latResto, lonResto, coords.accuracy, 100);
 
-    // Mise à jour dans Supabase
-    const { error: updateErr } = await supabase
-      .from('rendez_vous')
-      .update({
-        checkin_at: new Date().toISOString(),
-        checkin_latitude: coords.latitude,
-        checkin_longitude: coords.longitude,
-        checkin_distance_metres: distanceMetres,
-        checkin_statut: statutCheckin,
-        statut: 'effectue'
-      })
-      .eq('id', rdvId);
+    // CAS HORS ZONE (> 100m) : Dérogation motivée obligatoire
+    if (evalGeo.derogationRequise) {
+      document.getElementById('derogation-rdv-id').value = rdvId;
+      document.getElementById('derogation-lat').value = coords.lat;
+      document.getElementById('derogation-lon').value = coords.lng;
+      document.getElementById('derogation-distance').value = evalGeo.distanceMetres;
 
-    if (updateErr) throw updateErr;
+      const txtDist = document.getElementById('texte-derogation-distance');
+      if (txtDist) {
+        txtDist.innerHTML = `⚠️ Vous êtes situé à <strong>${evalGeo.distanceMetres} mètres</strong> du restaurant "<strong>${rdv.restaurant_prospect}</strong>" (seuil de présence toléré : 100m). Veuillez renseigner le motif terrain pour valider la visite.`;
+      }
 
-    // Journal d'audit pour le CEO
-    await enregistrerActivite({
-      typeAction: 'CHECKIN_GPS',
-      description: `Pointage GPS : Visite au restaurant "${rdv.restaurant_prospect}" (${distanceMetres}m de distance constatée)`,
-      details: {
-        rdv_id: rdvId,
-        restaurant: rdv.restaurant_prospect,
-        distance_metres: distanceMetres,
-        precision_gps: coords.precision,
-        position_relevee: { lat: coords.latitude, lon: coords.longitude },
-        position_restaurant: { lat: latResto, lon: lonResto }
-      },
-      commercialId: commercialConnecte.id,
-      commercialNom: `${commercialConnecte.prenom} ${commercialConnecte.nom}`,
-      statut: estValide ? 'SUCCES' : 'SUSPECT'
-    });
+      document.getElementById('modal-derogation-pointage').style.display = 'flex';
 
-    if (estValide) {
-      afficherToast(`✅ Pointage certifié sur place ! Vous êtes à ${distanceMetres}m du restaurant.`);
+      if (boutonElement) {
+        boutonElement.disabled = false;
+        boutonElement.innerHTML = '<span>⚠️ Justifier</span>';
+      }
+      return;
+    }
+
+    // CAS DANS LE RAYON (≤ 100m) : Validation automatique (directe ou tolérance)
+    const statutCheckin = evalGeo.statut === 'VALIDE_EXACT' ? 'VALIDE_SUR_PLACE' : 'VALIDE_TOLERANCE_100M';
+
+    if (!estEnLigne()) {
+      // Sauvegarde Offline résiliente
+      empilerActionHorsLigne({
+        type: 'CHECKIN_AGENT',
+        table: 'rendez_vous',
+        payload: {
+          id: rdvId,
+          checkin_at: new Date().toISOString(),
+          checkin_latitude: coords.lat,
+          checkin_longitude: coords.lng,
+          checkin_distance_metres: evalGeo.distanceMetres,
+          checkin_statut: statutCheckin,
+          statut: 'effectue'
+        },
+        description: `Pointage sur site (${evalGeo.distanceMetres}m) - Mode Offline`
+      });
+      afficherToast(`💾 Pointage enregistré localement dans votre téléphone (${evalGeo.distanceMetres}m). Il sera synchronisé dès le retour du réseau.`);
     } else {
-      afficherToast(`⚠️ Attention : Vous êtes à ${distanceMetres}m du restaurant. L'écart est consigné.`);
+      const { error: updateErr } = await supabase
+        .from('rendez_vous')
+        .update({
+          checkin_at: new Date().toISOString(),
+          checkin_latitude: coords.lat,
+          checkin_longitude: coords.lng,
+          checkin_distance_metres: evalGeo.distanceMetres,
+          checkin_statut: statutCheckin,
+          statut: 'effectue'
+        })
+        .eq('id', rdvId);
+
+      if (updateErr) throw updateErr;
+
+      // Journal d'audit pour le CEO
+      await enregistrerActivite({
+        typeAction: 'CHECKIN_GPS',
+        description: `Pointage GPS certifié : "${rdv.restaurant_prospect}" (${evalGeo.distanceMetres}m) - [${evalGeo.badgeText}]`,
+        details: {
+          rdv_id: rdvId,
+          restaurant: rdv.restaurant_prospect,
+          distance_metres: evalGeo.distanceMetres,
+          precision_gps: coords.accuracy,
+          position_relevee: { lat: coords.lat, lon: coords.lng },
+          position_restaurant: { lat: latResto, lon: lonResto }
+        },
+        commercialId: commercialConnecte?.id,
+        commercialNom: `${commercialConnecte?.prenom || ''} ${commercialConnecte?.nom || ''}`,
+        statut: 'SUCCES'
+      });
+
+      afficherToast(`✅ ${evalGeo.message}`);
     }
 
     await chargerRendezVous();
@@ -780,6 +824,127 @@ async function pointerArriveeGPS(rdvId, boutonElement) {
       boutonElement.innerHTML = '<span>📍 Pointer GPS</span>';
     }
   }
+}
+
+/**
+ * Initialise le modal de dérogation de pointage avec compression photo d'enseigne
+ */
+function initialiserModalDerogationPointage() {
+  const modal = document.getElementById('modal-derogation-pointage');
+  const btnFermer = document.getElementById('btn-fermer-modal-derogation');
+  const inputPhoto = document.getElementById('derogation-photo-input');
+  const form = document.getElementById('form-derogation-pointage');
+  const previewBox = document.getElementById('derogation-photo-preview-box');
+  const previewImg = document.getElementById('derogation-photo-preview-img');
+  const badgePoids = document.getElementById('derogation-photo-poids-badge');
+
+  btnFermer?.addEventListener('click', () => {
+    if (modal) modal.style.display = 'none';
+  });
+
+  // Capture et compression automatique de la photo d'enseigne
+  inputPhoto?.addEventListener('change', async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      afficherToast('🗜️ Optimisation de la photo pour le réseau sénégalais... ⚡');
+      const resultat = await compresserImagePourTerrain(file, {
+        maxDimension: 1000,
+        maxPoidsKo: 100,
+        qualiteInitiale: 0.75
+      });
+
+      fichierPhotoDerogationCompresse = resultat.file;
+      if (previewImg && previewBox) {
+        previewImg.src = resultat.base64;
+        previewBox.style.display = 'block';
+        if (badgePoids) {
+          badgePoids.textContent = `Poids optimisé : ${resultat.sizeKo} Ko (-${resultat.gainPercent}% data)`;
+        }
+      }
+    } catch (err) {
+      console.warn('Erreur compression photo dérogation:', err);
+    }
+  });
+
+  // Soumission du formulaire de dérogation
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const rdvId = document.getElementById('derogation-rdv-id')?.value;
+    const lat = parseFloat(document.getElementById('derogation-lat')?.value) || 0;
+    const lon = parseFloat(document.getElementById('derogation-lon')?.value) || 0;
+    const distance = parseInt(document.getElementById('derogation-distance')?.value, 10) || 0;
+    const motif = document.getElementById('derogation-motif')?.value;
+    const commentaire = document.getElementById('derogation-commentaire')?.value.trim();
+
+    if (!rdvId) return;
+
+    afficherToast('Enregistrement du pointage dérogatoire certifié... ⏳');
+
+    let photoUrl = null;
+    if (fichierPhotoDerogationCompresse && estEnLigne()) {
+      try {
+        const nomPhoto = `derogation_${commercialConnecte?.id || 'agent'}_${Date.now()}.webp`;
+        const { error: upErr } = await supabase.storage
+          .from('justificatifs')
+          .upload(nomPhoto, fichierPhotoDerogationCompresse, { cacheControl: '3600', upsert: false });
+        
+        if (!upErr) {
+          photoUrl = `${SUPABASE_URL}/storage/v1/object/public/justificatifs/${nomPhoto}`;
+        }
+      } catch (errUpload) {
+        console.warn('Erreur upload photo dérogation:', errUpload);
+      }
+    }
+
+    const payloadMaj = {
+      checkin_at: new Date().toISOString(),
+      checkin_latitude: lat,
+      checkin_longitude: lon,
+      checkin_distance_metres: distance,
+      checkin_statut: 'VALIDE_DEROGATION_TERRAIN',
+      derogation_motif: motif,
+      derogation_commentaire: commentaire || 'Dérogation justifiée par l’agent sur le terrain',
+      derogation_photo_url: photoUrl,
+      statut: 'effectue'
+    };
+
+    if (!estEnLigne()) {
+      empilerActionHorsLigne({
+        type: 'DEROGATION_POINTAGE',
+        table: 'rendez_vous',
+        payload: { id: rdvId, ...payloadMaj },
+        description: `Dérogation pointage (${distance}m - motif: ${motif})`
+      });
+      afficherToast(`💾 Dérogation enregistrée localement (${distance}m). Elle sera synchronisée au retour du réseau.`);
+    } else {
+      try {
+        const { error } = await supabase.from('rendez_vous').update(payloadMaj).eq('id', rdvId);
+        if (error) throw error;
+
+        await enregistrerActivite({
+          typeAction: 'DEROGATION_GPS',
+          description: `Dérogation validée : RDV à ${distance}m (Motif : ${motif})`,
+          details: { rdv_id: rdvId, distance, motif, commentaire, photoUrl },
+          commercialId: commercialConnecte?.id,
+          commercialNom: `${commercialConnecte?.prenom || ''} ${commercialConnecte?.nom || ''}`,
+          statut: 'DEROGATION_ACCEPTEE'
+        });
+
+        afficherToast(`📍 Pointage dérogatoire validé avec succès (${distance}m). Dossier archivé.`);
+      } catch (errMaj) {
+        console.error('Erreur mise à jour dérogation:', errMaj);
+        afficherToast('Erreur lors de la validation : ' + errMaj.message);
+      }
+    }
+
+    if (modal) modal.style.display = 'none';
+    form.reset();
+    if (previewBox) previewBox.style.display = 'none';
+    fichierPhotoDerogationCompresse = null;
+    await chargerRendezVous();
+  });
 }
 
 // ==============================================================================
@@ -934,23 +1099,33 @@ function initialiserUploadJustificatif() {
   if (zoneUpload && inputFichier) {
     zoneUpload.addEventListener('click', () => inputFichier.click());
 
-    inputFichier.addEventListener('change', (e) => {
+    inputFichier.addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if (!file) return;
 
-      if (file.size > 10 * 1024 * 1024) {
-        afficherToast('Le fichier est trop volumineux (Max 10 Mo).');
+      if (file.size > 15 * 1024 * 1024) {
+        afficherToast('Le fichier est trop volumineux (Max 15 Mo).');
         inputFichier.value = '';
         return;
       }
 
-      fichierJustificatifEnCours = file;
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        imgApercu.src = event.target.result;
+      afficherToast('🗜️ Optimisation du justificatif pour le réseau sénégalais... ⚡');
+      try {
+        const res = await compresserImagePourTerrain(file, { maxDimension: 1200, maxPoidsKo: 120 });
+        fichierJustificatifEnCours = res.file;
+        imgApercu.src = res.base64;
         imgApercu.style.display = 'block';
-      };
-      reader.readAsDataURL(file);
+        afficherToast(`✅ Reçu optimisé : ${res.sizeKo} Ko (-${res.gainPercent}% data économisée)`);
+      } catch (err) {
+        console.warn('Erreur compression justificatif, repli brut:', err);
+        fichierJustificatifEnCours = file;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          imgApercu.src = event.target.result;
+          imgApercu.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      }
     });
   }
 
@@ -1920,14 +2095,19 @@ function initialiserGeminiCopilotCommercial() {
   const btnCopier = document.getElementById('btn-copier-accroche');
   const btnOuvrirWa = document.getElementById('btn-ouvrir-wa-copilot');
 
-  if (btnOuvrir && modal) {
-    btnOuvrir.addEventListener('click', () => {
+  const btnOuvrirOutils = document.getElementById('comm-btn-ouvrir-copilot-outils');
+
+  const ouvrirModalCopilot = () => {
+    if (modal) {
       modal.style.display = 'flex';
       if (zoneResultat && zoneResultat.style.display === 'none') {
         declencherGenerationPitch();
       }
-    });
-  }
+    }
+  };
+
+  btnOuvrir?.addEventListener('click', ouvrirModalCopilot);
+  btnOuvrirOutils?.addEventListener('click', ouvrirModalCopilot);
 
   btnFermer?.addEventListener('click', () => {
     if (modal) modal.style.display = 'none';
@@ -2250,37 +2430,65 @@ export function initialiserOnboardingContratAgent() {
   const inputCniFront = document.getElementById('onboarding-cni-front-file');
   const inputCniBack = document.getElementById('onboarding-cni-back-file');
 
-  inputCniFront?.addEventListener('change', (e) => {
+  inputCniFront?.addEventListener('change', async (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        cniFrontDataUrl = ev.target?.result;
+      try {
+        afficherToast('🗜️ Optimisation de la CNI Recto... ⚡');
+        const res = await compresserImagePourTerrain(file, { maxDimension: 1200, maxPoidsKo: 120 });
+        cniFrontDataUrl = res.base64;
         const img = document.getElementById('cni-front-preview-img');
         const box = document.getElementById('cni-front-preview-box');
         if (img && box) {
           img.src = cniFrontDataUrl;
           box.style.display = 'block';
         }
-      };
-      reader.readAsDataURL(file);
+        afficherToast(`✅ CNI Recto prête : ${res.sizeKo} Ko (-${res.gainPercent}% data)`);
+      } catch (err) {
+        console.warn('Erreur compression CNI front, repli brut:', err);
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          cniFrontDataUrl = ev.target?.result;
+          const img = document.getElementById('cni-front-preview-img');
+          const box = document.getElementById('cni-front-preview-box');
+          if (img && box) {
+            img.src = cniFrontDataUrl;
+            box.style.display = 'block';
+          }
+        };
+        reader.readAsDataURL(file);
+      }
     }
   });
 
-  inputCniBack?.addEventListener('change', (e) => {
+  inputCniBack?.addEventListener('change', async (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        cniBackDataUrl = ev.target?.result;
+      try {
+        afficherToast('🗜️ Optimisation de la CNI Verso... ⚡');
+        const res = await compresserImagePourTerrain(file, { maxDimension: 1200, maxPoidsKo: 120 });
+        cniBackDataUrl = res.base64;
         const img = document.getElementById('cni-back-preview-img');
         const box = document.getElementById('cni-back-preview-box');
         if (img && box) {
           img.src = cniBackDataUrl;
           box.style.display = 'block';
         }
-      };
-      reader.readAsDataURL(file);
+        afficherToast(`✅ CNI Verso prête : ${res.sizeKo} Ko (-${res.gainPercent}% data)`);
+      } catch (err) {
+        console.warn('Erreur compression CNI back, repli brut:', err);
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          cniBackDataUrl = ev.target?.result;
+          const img = document.getElementById('cni-back-preview-img');
+          const box = document.getElementById('cni-back-preview-box');
+          if (img && box) {
+            img.src = cniBackDataUrl;
+            box.style.display = 'block';
+          }
+        };
+        reader.readAsDataURL(file);
+      }
     }
   });
 
@@ -2343,16 +2551,30 @@ export function initialiserOnboardingContratAgent() {
   btnCamera?.addEventListener('click', () => inputCamera?.click());
   btnGalerie?.addEventListener('click', () => inputGalerie?.click());
 
-  function traiterPhotoSelectionnee(file) {
+  async function traiterPhotoSelectionnee(file) {
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      avatarPhotoDataUrl = ev.target?.result;
+    try {
+      afficherToast('🗜️ Optimisation de votre photo de profil... ⚡');
+      const res = await compresserImagePourTerrain(file, {
+        maxDimension: 800,
+        maxPoidsKo: 95,
+        qualiteInitiale: 0.80
+      });
+      avatarPhotoDataUrl = res.base64;
       const prevAvatar = document.getElementById('wizard-preview-avatar');
       if (prevAvatar) prevAvatar.src = avatarPhotoDataUrl;
-      afficherToast('Photo de profil chargée avec succès ! ✨');
-    };
-    reader.readAsDataURL(file);
+      afficherToast(`Photo de profil optimisée : ${res.sizeKo} Ko (-${res.gainPercent}% data) ! ✨`);
+    } catch (err) {
+      console.warn('Erreur compression avatar, repli brut:', err);
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        avatarPhotoDataUrl = ev.target?.result;
+        const prevAvatar = document.getElementById('wizard-preview-avatar');
+        if (prevAvatar) prevAvatar.src = avatarPhotoDataUrl;
+        afficherToast('Photo de profil chargée ! ✨');
+      };
+      reader.readAsDataURL(file);
+    }
   }
 
   inputCamera?.addEventListener('change', (e) => traiterPhotoSelectionnee(e.target.files?.[0]));

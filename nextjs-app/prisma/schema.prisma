@@ -13,7 +13,9 @@ datasource db {
 }
 
 enum Role {
+  SUPER_ADMIN
   ADMIN
+  DAF
   RESTAURATEUR
   COMMERCIAL
 }
@@ -33,6 +35,15 @@ enum ContractStatus {
   PENDING
   SIGNED
   REVOKED
+  TERMINATED
+}
+
+enum CommissionStatus {
+  EN_ATTENTE_VALIDATION
+  VALIDE_CHEF_VENTES
+  APPROUVE_DAF_PAYOUT
+  PAYE
+  REJETE
 }
 
 model User {
@@ -41,6 +52,7 @@ model User {
   fullName              String
   phone                 String          // Numéro principal WhatsApp
   role                  Role            @default(COMMERCIAL)
+  isActive              Boolean         @default(true)
   
   // ÉTAPE 1 : Contacts & Mobile Money
   secondaryEmail        String?
@@ -74,8 +86,41 @@ model User {
   contractReference     String?         // LAT-COM-2026-XXXX
   contractSignedAt      DateTime?
   contractSignatureUrl  String?         // Image signature tactile (Base64 / Storage)
+  contractSignatureHash String?         // Empreinte SHA-256 de non-répudiation légale
   contractSignIp        String?         // IP certifiée lors du scellage
+  
+  commissions           Commission[]    @relation("CommercialCommissions")
   
   createdAt             DateTime        @default(now())
   updatedAt             DateTime        @updatedAt
+}
+
+model Commission {
+  id                String            @id @default(uuid())
+  amount            Float
+  contractAmount    Float
+  formula           String
+  restaurantName    String
+  status            CommissionStatus  @default(EN_ATTENTE_VALIDATION)
+  
+  commercialId      String
+  commercial        User              @relation("CommercialCommissions", fields: [commercialId], references: [id])
+  
+  validatedByDafId  String?
+  validatedAt       DateTime?
+  payoutReference   String?
+  payoutMethod      String?
+  dafNotes          String?
+  
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+}
+
+model AuditLog {
+  id            String    @id @default(uuid())
+  action        String
+  performedById String
+  targetUserId  String?
+  details       Json
+  createdAt     DateTime  @default(now())
 }
