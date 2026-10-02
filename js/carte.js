@@ -776,7 +776,7 @@ function configurerFormulaireLeads(c) {
     if (btnSubmit) btnSubmit.disabled = false;
     if (btnSpinner) btnSpinner.style.display = 'none';
     if (btnTexte) {
-      btnTexte.textContent = '🚀 Envoyer ma demande au conseiller';
+      btnTexte.textContent = '🚀 Recevoir ma démo gratuite sans engagement';
       btnTexte.setAttribute('data-i18n', 'carte.envoyer');
     }
   });

@@ -546,7 +546,7 @@ export default function OnboardingWizardPage() {
                   disabled={isSubmitting}
                   className="bg-[#0B1F3A] hover:bg-[#17375E] text-[#F8E294] font-black text-sm px-8 py-4 rounded-xl shadow-lg flex items-center gap-2 transition-transform active:scale-95"
                 >
-                  <span>{isSubmitting ? 'Enregistrement...' : 'CONTINUER VERS L’ÉTAPE 2 (CARTE DIGITALE) ➔'}</span>
+                  <span>{isSubmitting ? 'Enregistrement...' : 'Étape suivante : Ma Carte Digitale ➔'}</span>
                 </button>
               </div>
 
@@ -598,7 +598,7 @@ export default function OnboardingWizardPage() {
                     className="flex-1 bg-[#0B1F3A] text-white text-xs font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 shadow hover:bg-[#17375E] transition-all"
                   >
                     <span>📷</span>
-                    <span>Prendre un selfie direct</span>
+                    <span>Prendre une photo professionnelle</span>
                   </button>
 
                   <button
@@ -834,7 +834,7 @@ export default function OnboardingWizardPage() {
                   disabled={isSubmitting || !hasSignature || !formData.agreed}
                   className="flex-1 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 disabled:opacity-50 text-white font-black text-sm px-8 py-4 rounded-xl shadow-xl flex items-center justify-center gap-2 transition-transform active:scale-95"
                 >
-                  <span>{isSubmitting ? 'Scellage & Homologation...' : 'VALIDER ET ACTIVER MON COMPTE COMMERCIAL 🚀'}</span>
+                  <span>{isSubmitting ? 'Scellage & Homologation...' : '✍️ Signer mon contrat & Activer mon compte'}</span>
                 </button>
               </div>
 

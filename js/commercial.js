@@ -1994,7 +1994,7 @@ export function initialiserModuleContratEtPaiement() {
       afficherToast('Erreur : ' + (err.message || 'Impossible de valider le contrat.'));
     } finally {
       btnSubmit.disabled = false;
-      btnSubmit.innerHTML = '<span>Valider le Contrat & Télécharger le PDF A4 📄</span>';
+      btnSubmit.innerHTML = '<span>📄 Sceller la vente & Générer le Contrat PDF</span>';
     }
   });
 
@@ -2924,7 +2924,7 @@ export function initialiserOnboardingContratAgent() {
     } finally {
       if (btnSubmit) {
         btnSubmit.disabled = false;
-        btnSubmit.innerHTML = '<span>VALIDER ET ACTIVER MON COMPTE COMMERCIAL 🚀</span>';
+        btnSubmit.innerHTML = '<span>✍️ Signer mon contrat & Activer mon compte</span>';
       }
     }
   });

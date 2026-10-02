@@ -423,7 +423,7 @@ function rendreTableauCommerciaux(liste) {
           <div style="padding: 2.5rem; text-align: center;">
             <p style="font-size: 1.05rem; color: #475569; margin-bottom: 0.75rem;">Aucun conseiller commercial ne correspond à votre recherche.</p>
             <button type="button" class="btn btn-primaire btn-sm" id="btn-creer-vide">
-              + Ajouter un commercial
+              + Recruter un conseiller
             </button>
           </div>
         </td>

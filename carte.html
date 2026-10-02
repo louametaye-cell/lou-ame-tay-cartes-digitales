@@ -169,13 +169,13 @@
 
         <!-- SPRINT B & D : BARRE D'ACTION NETWORKING RAPIDE (100% VUE CLIENT) -->
         <div class="barre-networking-rapide">
-          <button type="button" class="btn-echange" id="btn-echange" title="Échanger nos cartes de visite" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+          <button type="button" class="btn-echange" id="btn-echange" title="Échanger nos coordonnées" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"></path><path d="M4 20L21 3"></path><path d="M21 16v5h-5"></path><path d="M15 15l6 6"></path><path d="M4 4l5 5"></path></svg>
-            <span>Échanger ma carte</span>
+            <span>🔄 Échanger mes coordonnées</span>
           </button>
-          <button type="button" class="btn-rdv" id="btn-rdv" title="Réserver un créneau de démonstration" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+          <button type="button" class="btn-rdv" id="btn-rdv" title="Demander une démonstration de 15 minutes" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-            <span>Réserver un créneau</span>
+            <span>📅 Demander une démo (15 min)</span>
           </button>
           <button type="button" class="btn-partager" id="btn-partager" title="Partager cette carte" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"></line><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"></line></svg>
@@ -211,11 +211,11 @@
 
         <!-- 2. BOUTONS D'ACTION TERRAIN (RDV DÉMO & SUPPORT WHATSAPP) -->
         <div class="bloc-actions-terrain">
-          <button type="button" id="btn-ouvrir-modal-rdv" class="btn-rdv-demo" title="Planifier une démonstration de commande à table" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+          <button type="button" id="btn-ouvrir-modal-rdv" class="btn-rdv-demo" title="Tester le menu QR dans mon restaurant" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>
             </svg>
-            <span data-i18n="carte.rdv_demo">Planifier une démo en salle (Thiès / Dakar / Mbour)</span>
+            <span data-i18n="carte.rdv_demo">⚡ Tester le menu QR dans mon restaurant</span>
           </button>
 
           <a id="btn-support-direct-wa" href="https://wa.me/221762312003?text=Bonjour,%20je%20souhaite%20une%20d%C3%A9monstration%20de%20Lou%20Ame%20Tay%20pour%20mon%20restaurant." target="_blank" rel="noopener noreferrer" class="btn-support-wa" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
@@ -232,7 +232,7 @@
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" y1="8" x2="19" y2="14"></line><line x1="22" y1="11" x2="16" y2="11"></line>
             </svg>
-            <span data-i18n="carte.vcard">Ajouter aux contacts (vCard)</span>
+            <span data-i18n="carte.vcard">📲 Enregistrer dans mon téléphone</span>
           </button>
         </div>
 
@@ -302,7 +302,7 @@
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
               <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
             </svg>
-            <span data-i18n="carte.laisser_avis">Laisser un avis</span>
+            <span data-i18n="carte.laisser_avis">⭐ Évaluer mon conseiller</span>
           </button>
 
           <!-- Formulaire caché par défaut -->
@@ -801,7 +801,7 @@
                 <line x1="22" y1="2" x2="11" y2="13"></line>
                 <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
               </svg>
-              <span id="btn-lead-texte" data-i18n="carte.envoyer">Envoyer ma demande au conseiller</span>
+              <span id="btn-lead-texte" data-i18n="carte.envoyer">🚀 Recevoir ma démo gratuite sans engagement</span>
               <span id="btn-lead-spinner" class="spinner-chargement" style="display: none;"></span>
             </button>
           </form>
