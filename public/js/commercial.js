@@ -110,7 +110,7 @@ function initialiserDiaporama() {
 
 function afficherEcranConnexion() {
   const sec = document.getElementById('section-connexion-comm');
-  if (sec) sec.style.display = 'grid';
+  if (sec) sec.style.display = '';
   document.getElementById('section-app-comm').style.display = 'none';
   const secOnboarding = document.getElementById('ecran-onboarding-contrat');
   if (secOnboarding) secOnboarding.style.display = 'none';
@@ -133,6 +133,32 @@ function afficherApplication() {
 // 2. AUTHENTIFICATION DU CONSEILLER (PIN + TÉLÉPHONE / EMAIL)
 // ==============================================================================
 function initialiserFormulaires() {
+  // Afficher / masquer le mot de passe / code PIN au tap
+  const btnTogglePin = document.getElementById('btn-toggle-pin-comm');
+  const inputPin = document.getElementById('comm-login-pin');
+  if (btnTogglePin && inputPin) {
+    btnTogglePin.addEventListener('click', () => {
+      if (inputPin.type === 'password') {
+        inputPin.type = 'text';
+        btnTogglePin.textContent = '🙈';
+      } else {
+        inputPin.type = 'password';
+        btnTogglePin.textContent = '👁️';
+      }
+    });
+  }
+
+  // Remplissage rapide démo pour test immédiat au pouce
+  const btnQuickFill = document.getElementById('btn-quick-fill-demo');
+  if (btnQuickFill) {
+    btnQuickFill.addEventListener('click', () => {
+      const inputId = document.getElementById('comm-login-identifiant');
+      if (inputId) inputId.value = '771234567';
+      if (inputPin) inputPin.value = '1234';
+      afficherToast('Coordonnées de test pré-remplies (Agent 1234) ✅');
+    });
+  }
+
   const formLogin = document.getElementById('form-connexion-comm');
   if (formLogin) {
     formLogin.addEventListener('submit', async (e) => {

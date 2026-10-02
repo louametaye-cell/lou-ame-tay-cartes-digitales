@@ -312,68 +312,82 @@
       line-height: 1.45;
     }
 
-    /* RESPONSIVE TABLETTE (max-width: 1024px) */
+    /* RESPONSIVE TABLETTE & SMARTPHONE (max-width: 1024px) */
     @media (max-width: 1024px) {
       .comm-login-fullscreen {
-        grid-template-columns: 1fr 1fr;
-      }
-      .comm-diaporama-container {
-        padding: 2.5rem 2rem;
-      }
-      .comm-visuel-titre {
-        font-size: 1.75rem;
-      }
-    }
-
-    /* RESPONSIVE SMARTPHONE (max-width: 768px) */
-    @media (max-width: 768px) {
-      .comm-login-fullscreen {
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-        background: #0B1F3A;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        min-height: 100vh !important;
+        min-height: 100dvh !important;
+        width: 100% !important;
+        background: #0B1F3A !important;
+        position: relative !important;
+        padding: 1.5rem 1rem !important;
+        box-sizing: border-box !important;
       }
 
-      /* Sur mobile : le diaporama passe en arrière-plan complet de tout l'écran */
+      /* Sur tablette & mobile : le diaporama passe en fond complet immersif */
       .comm-diaporama-container {
-        position: fixed;
-        inset: 0;
-        height: 100vh;
-        width: 100%;
-        max-width: 100%;
-        padding: 1.5rem;
-        z-index: 1;
-        justify-content: flex-start;
+        position: fixed !important;
+        inset: 0 !important;
+        height: 100% !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+        z-index: 1 !important;
       }
 
       .comm-diaporama-content {
-        display: none;
+        display: none !important;
       }
 
       .comm-form-container {
-        position: relative;
-        z-index: 5;
-        height: auto;
-        min-height: 100vh;
-        background: transparent;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 1.5rem 1rem;
+        position: relative !important;
+        z-index: 5 !important;
+        height: auto !important;
+        min-height: auto !important;
+        width: 100% !important;
+        max-width: 440px !important;
+        background: transparent !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0 !important;
+        margin: auto !important;
       }
 
       .comm-login-inner {
-        background: rgba(255, 255, 255, 0.96);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        border-radius: 20px;
-        padding: 2.25rem 1.75rem;
-        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.45);
-        border: 1px solid rgba(255, 255, 255, 0.3);
+        width: 100% !important;
+        max-width: 440px !important;
+        background: rgba(255, 255, 255, 0.98) !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+        border-radius: 24px !important;
+        padding: 2.25rem 1.75rem !important;
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45) !important;
+        border: 1.5px solid rgba(255, 255, 255, 0.5) !important;
+        text-align: center !important;
+        margin: 0 auto !important;
       }
 
       .comm-login-title {
-        font-size: 1.45rem;
+        font-size: 1.5rem !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .comm-login-inner {
+        padding: 1.75rem 1.25rem !important;
+        border-radius: 20px !important;
+      }
+      .comm-login-title {
+        font-size: 1.35rem !important;
+      }
+      .comm-login-subtitle {
+        font-size: 0.85rem !important;
+        margin-bottom: 1.25rem !important;
       }
     }
 
@@ -392,41 +406,49 @@
 
     .comm-input {
       width: 100%;
+      height: 50px;
       box-sizing: border-box;
       padding: 12px 14px;
       border: 1.5px solid var(--bordure);
-      border-radius: 10px;
-      font-size: 1rem;
+      border-radius: 12px;
+      font-size: 1.05rem;
+      color: #0F172A;
+      background: #FFFFFF;
       transition: all 0.2s;
     }
 
     .comm-input:focus {
       outline: none;
       border-color: var(--dore-lux);
-      box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.15);
+      box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.2);
     }
 
     .comm-btn-primary {
       width: 100%;
+      min-height: 52px;
       background: linear-gradient(135deg, var(--dore-lux), #a37c15);
       color: #FFFFFF;
-      font-weight: 700;
-      font-size: 1rem;
-      padding: 14px;
+      font-weight: 800;
+      font-size: 1.05rem;
+      padding: 14px 18px;
       border: none;
-      border-radius: 12px;
+      border-radius: 14px;
       cursor: pointer;
       box-shadow: 0 4px 15px rgba(201, 162, 39, 0.3);
       transition: all 0.2s;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 10px;
     }
 
     .comm-btn-primary:hover {
       transform: translateY(-1px);
       box-shadow: 0 6px 20px rgba(201, 162, 39, 0.4);
+    }
+
+    .comm-btn-primary:active {
+      transform: scale(0.98);
     }
 
     /* Profil Hero Bandeau */
@@ -1062,7 +1084,7 @@
 
           <div class="comm-form-group">
             <label for="comm-login-pin">Code PIN Secret (4 chiffres)</label>
-            <div class="input-avec-icone-comm">
+            <div class="input-avec-icone-comm" style="position: relative;">
               <span class="icone-champ-comm">🔒</span>
               <input 
                 type="password" 
@@ -1073,7 +1095,11 @@
                 required 
                 autocomplete="current-password"
                 inputmode="numeric"
+                style="padding-right: 48px; letter-spacing: 2px;"
               >
+              <button type="button" id="btn-toggle-pin-comm" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #64748B; font-size: 1.15rem; padding: 4px; display: flex; align-items: center; justify-content: center;" title="Afficher/Masquer le code PIN" aria-label="Afficher le code PIN">
+                👁️
+              </button>
             </div>
           </div>
 
@@ -1085,6 +1111,12 @@
           <button type="submit" class="comm-btn-primary" id="btn-submit-login-comm">
             <span>Ouvrir mon espace de travail</span> ➔
           </button>
+
+          <div style="margin-top: 1rem; text-align: center;">
+            <button type="button" id="btn-quick-fill-demo" style="background: rgba(201, 162, 39, 0.12); border: 1px solid rgba(201, 162, 39, 0.4); color: #854d0e; font-size: 0.8rem; font-weight: 700; padding: 8px 16px; border-radius: 20px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;">
+              <span>⚡ Remplissage Rapide Démo</span>
+            </button>
+          </div>
         </form>
 
         <div class="comm-login-footer">
