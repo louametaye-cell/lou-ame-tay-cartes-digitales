@@ -47,6 +47,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initialiserUploadJustificatif();
   initialiserModeOffline({ supabase, afficherToastFn: afficherToast });
   initialiserGeminiCopilotCommercial();
+  initialiserCopilotWhatsApp();
   initialiserPassWalletCommercial();
   initialiserOnboardingContratAgent();
   initialiserConsultationContratAgent();
@@ -1832,16 +1833,21 @@ async function chargerProspects() {
       const badgeClass = l.statut === 'SIGNE' ? 'vert' : l.statut === 'EN_COURS' ? 'bleu' : 'jaune';
 
       const boutonAction = l.statut === 'SIGNE'
-        ? `<button type="button" class="comm-btn-gold btn-telecharger-contrat-existant" data-id="${l.id}" style="font-size: 0.78rem; padding: 5px 10px;" title="Télécharger le contrat officiel signé (PDF A4)">
-             <span>Contrat A4</span> 📄
-           </button>`
+        ? `<div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+             <button type="button" class="comm-btn-gold btn-telecharger-contrat-existant" data-id="${l.id}" style="font-size: 0.78rem; padding: 5px 10px;" title="Télécharger le contrat officiel signé (PDF A4)">
+               <span>Contrat A4</span> 📄
+             </button>
+             <button type="button" class="comm-btn-outline btn-ouvrir-copilot-wa-prospect" data-id="${l.id}" style="font-size: 0.78rem; padding: 5px 8px; border-color: #10B981; color: #047857;" title="Copilot WhatsApp B2B (Confirmation & Suivi J+15)">
+               <span>Copilot WA</span> 💬
+             </button>
+           </div>`
         : `<div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
              <button type="button" class="comm-btn-primary btn-signer-contrat-prospect" data-id="${l.id}" style="font-size: 0.78rem; padding: 5px 10px; background: linear-gradient(135deg, #16a34a, #0d7031); border: none;" title="Faire signer le contrat tactile et encaisser l'acompte Wave/OM">
                <span>Signer & Wave</span> ✍️
              </button>
-             <a href="${urlWa}" target="_blank" class="comm-btn-outline" style="font-size: 0.78rem; padding: 5px 8px;" title="Relancer sur WhatsApp">
-               <span>Relancer</span> 💬
-             </a>
+             <button type="button" class="comm-btn-outline btn-ouvrir-copilot-wa-prospect" data-id="${l.id}" style="font-size: 0.78rem; padding: 5px 8px; border-color: #10B981; color: #047857;" title="Copilot WhatsApp B2B (5 Templates 1-Clic)">
+               <span>Copilot WA</span> 💬
+             </button>
            </div>`;
 
       return `
@@ -1869,6 +1875,15 @@ async function chargerProspects() {
         const id = btn.getAttribute('data-id');
         const prospect = listeProspects.find(p => String(p.id) === String(id));
         if (prospect) await telechargerContratExistant(prospect);
+      });
+    });
+
+    // Écouteurs sur le bouton Copilot WhatsApp B2B 1-clic par prospect
+    tbody.querySelectorAll('.btn-ouvrir-copilot-wa-prospect').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-id');
+        const prospect = listeProspects.find(p => String(p.id) === String(id));
+        if (prospect) ouvrirModalCopilotWhatsApp(prospect);
       });
     });
 
@@ -2549,6 +2564,210 @@ function initialiserGeminiCopilotCommercial() {
 
   btnGenerer?.addEventListener('click', declencherGenerationPitch);
 }
+
+// ==============================================================================
+// 13b. MODULE COPILOT WHATSAPP B2B — LES 5 TEMPLATES STRATÉGIQUES 1-CLIC
+// ==============================================================================
+let prospectActifCopilotWa = null;
+
+const TEMPLATES_STRATEGIQUES_WA = [
+  {
+    id: 1,
+    badge: 'J+0 • Visite effectuée',
+    titre: '1. Premier contact post-visite',
+    description: "Remerciement pour l'accueil chaleureux + transmission immédiate de la carte de visite digitale interactive.",
+    genererTexte: (data) => {
+      const g = data.gerant || 'le Gérant';
+      const r = data.restaurant || 'votre établissement';
+      const c = data.conseiller || 'Votre Conseiller';
+      const u = data.lienCarte || 'https://louametay.online';
+      return `Bonjour M./Mme ${g},\n\nC'est ${c}, conseiller digital chez Lou Ame Tay SASU.\n\nJe tiens à vous remercier pour votre accueil chaleureux aujourd'hui au sein de ${r}.\n\nComme promis lors de notre échange, voici ma carte de visite digitale interactive où vous trouverez la présentation de nos solutions (Menu QR interactif, écran cuisine KDS en temps réel et encaissement direct Wave/Orange Money) :\n👉 ${u}\n\nJe reste à votre entière disposition pour tout complément.\n\nExcellente journée et à très bientôt !\n${c} — Lou Ame Tay SASU`;
+    }
+  },
+  {
+    id: 2,
+    badge: 'J+3 • Relance Démo',
+    titre: '2. Relance stratégique J+3',
+    description: 'Proposition ferme de 2 créneaux de démo 15 min chrono (avant le coup de feu ou en période creuse) pour lever les doutes.',
+    genererTexte: (data) => {
+      const g = data.gerant || 'le Gérant';
+      const r = data.restaurant || 'votre établissement';
+      const c = data.conseiller || 'Votre Conseiller';
+      return `Bonjour M./Mme ${g},\n\nC'est ${c} de Lou Ame Tay. J'espère que vous allez bien ainsi que toute l'équipe de ${r}.\n\nJe me permets de vous relancer suite à ma visite. Nos partenaires constatent en moyenne -80% d'erreurs en salle et une rotation de table 25% plus rapide dès la première semaine.\n\nPour vous montrer concrètement le gain de temps pour vos serveurs, je vous propose une démonstration express de 15 minutes chrono sans aucun engagement :\n🗓️ Option 1 : Demain à 11h30 (avant le coup de feu du midi)\n🗓️ Option 2 : Après-demain à 16h00 (période plus calme)\n\nQuel créneau vous conviendrait le mieux pour que je passe vous voir ?\n\nBien à vous,\n${c} (Lou Ame Tay)`;
+    }
+  },
+  {
+    id: 3,
+    badge: 'J+7 • Preuve Vidéo',
+    titre: '3. Relance vidéo J+7',
+    description: "Partage de la courte vidéo de 90 secondes en immersion cuisine montrant l'écran KDS Lou Ame Tay pendant un rush à Dakar.",
+    genererTexte: (data) => {
+      const g = data.gerant || 'le Gérant';
+      const r = data.restaurant || 'votre restaurant';
+      const c = data.conseiller || 'Votre Conseiller';
+      const u = data.lienCarte || 'https://louametay.online';
+      return `Bonjour M./Mme ${g},\n\nJ'espère que votre semaine se passe bien chez ${r} !\n\nUne image vaut mille mots : découvrez dans cette courte vidéo de 90 secondes comment un restaurant partenaire à Dakar a totalement éliminé les tickets perdus et le stress en cuisine grâce à l'écran KDS Lou Ame Tay :\n🎬 Démo live en cuisine : https://louametay.online/#demo\n\nImaginez le même confort pour votre chef cuisinier dès ce week-end !\n\nPouvons-nous en discuter rapidement par téléphone ou lors d'un passage ?\n\nChaleureusement,\n${c} — ${u}`;
+    }
+  },
+  {
+    id: 4,
+    badge: 'Signature • Protocole 48h',
+    titre: '4. Confirmation post-signature',
+    description: 'Message officiel de bienvenue, validation du contrat scellé, rappel du déploiement 48h et formation serveurs 30 min.',
+    genererTexte: (data) => {
+      const g = data.gerant || 'le Gérant';
+      const r = data.restaurant || 'votre établissement';
+      const c = data.conseiller || 'Votre Conseiller';
+      return `🎉 Félicitations et bienvenue dans la famille Lou Ame Tay, M./Mme ${g} !\n\nLe contrat officiel de licence SaaS pour l'établissement ${r} est scellé et votre dossier est validé par notre direction générale.\n\nVoici les prochaines étapes de notre protocole d'activation :\n1️⃣ Paramétrage de vos menus HD et QR codes personnalisés (en cours sous 24h).\n2️⃣ Livraison & installation de votre écran tactile en salle / cuisine sous 48h.\n3️⃣ Formation pédagogique de vos serveurs et caissiers en 30 minutes sur place.\n\nNotre support technique 7j/7 reste à vos côtés au +221 77 458 74 74.\n\nMerci pour votre confiance !\n${c} — Votre Chargé de Compte Lou Ame Tay`;
+    }
+  },
+  {
+    id: 5,
+    badge: 'J+15 • Fidélisation & Audit',
+    titre: '5. Suivi satisfaction J+15',
+    description: "Contrôle de la bonne utilisation en salle, accompagnement de l'équipe et sécurisation des 10% de commissions récurrentes mensuelles.",
+    genererTexte: (data) => {
+      const g = data.gerant || 'le Gérant';
+      const r = data.restaurant || 'votre établissement';
+      const c = data.conseiller || 'Votre Conseiller';
+      return `Bonjour M./Mme ${g},\n\nVoilà maintenant deux semaines que les QR codes et l'écran Lou Ame Tay tournent chez ${r} !\n\nJe viens aux nouvelles :\n- Vos clients apprécient-ils la rapidité de commande et le paiement Wave ?\n- Vos serveurs se sentent-ils plus détendus en salle ?\n- Y a-t-il des nouveaux plats ou boissons que vous souhaitez ajouter au menu digital ?\n\nJe serais ravi de faire un point de 5 minutes avec vous pour optimiser encore davantage vos encaissements et vous apporter de nouveaux chevalets QR si besoin.\n\nQuand seriez-vous disponible pour une visite de contrôle amicale ?\n\nTrès cordialement,\n${c} (Lou Ame Tay)`;
+    }
+  }
+];
+
+function initialiserCopilotWhatsApp() {
+  const modal = document.getElementById('modal-copilot-whatsapp');
+  const btnFermer = document.getElementById('btn-fermer-modal-copilot-wa');
+  const btnOuvrirOutils = document.getElementById('comm-btn-ouvrir-copilot-outils');
+  const selectProspect = document.getElementById('select-prospect-copilot-wa');
+
+  if (btnFermer && modal) {
+    btnFermer.onclick = () => { modal.style.display = 'none'; };
+    modal.onclick = (e) => {
+      if (e.target === modal) modal.style.display = 'none';
+    };
+  }
+
+  if (btnOuvrirOutils) {
+    btnOuvrirOutils.onclick = () => {
+      const premierProspect = (Array.isArray(listeProspects) && listeProspects.length > 0) ? listeProspects[0] : null;
+      ouvrirModalCopilotWhatsApp(premierProspect);
+    };
+  }
+
+  if (selectProspect) {
+    selectProspect.onchange = () => {
+      const id = selectProspect.value;
+      const prospect = listeProspects.find(p => String(p.id) === String(id));
+      definirProspectCopilotWa(prospect || null);
+    };
+  }
+
+  // Écouteurs sur les boutons d'envoi 1-clic
+  document.querySelectorAll('.btn-lancer-template-wa').forEach(btn => {
+    btn.onclick = () => {
+      const templateId = Number(btn.getAttribute('data-template-id'));
+      lancerEnvoiWhatsAppTemplate(templateId);
+    };
+  });
+}
+
+function definirProspectCopilotWa(prospect) {
+  prospectActifCopilotWa = prospect;
+  const elGerant = document.getElementById('copilot-wa-dest-gerant');
+  const elResto = document.getElementById('copilot-wa-dest-resto');
+  const elTel = document.getElementById('copilot-wa-dest-tel');
+
+  if (prospect) {
+    if (elGerant) elGerant.textContent = prospect.prospect_nom || 'le Gérant';
+    if (elResto) elResto.textContent = prospect.restaurant_nom || 'Restaurant Partenaire';
+    if (elTel) elTel.textContent = prospect.telephone || '—';
+  } else {
+    if (elGerant) elGerant.textContent = 'M. le Gérant';
+    if (elResto) elResto.textContent = 'Restaurant Partenaire';
+    if (elTel) elTel.textContent = 'Numéro à renseigner';
+  }
+
+  actualiserApercusTemplatesWa();
+}
+
+function actualiserApercusTemplatesWa() {
+  const nomConseiller = commercialConnecte ? `${commercialConnecte.prenom} ${commercialConnecte.nom}` : 'Votre Conseiller';
+  const carteUrl = commercialConnecte?.id 
+    ? `${window.location.origin}/carte.html?id=${encodeURIComponent(commercialConnecte.id)}`
+    : 'https://louametay.online';
+
+  const donnees = {
+    gerant: prospectActifCopilotWa?.prospect_nom || 'le Gérant',
+    restaurant: prospectActifCopilotWa?.restaurant_nom || 'votre établissement',
+    conseiller: nomConseiller,
+    lienCarte: carteUrl
+  };
+
+  TEMPLATES_STRATEGIQUES_WA.forEach(t => {
+    const elPrev = document.getElementById(`preview-template-${t.id}`);
+    if (elPrev) {
+      elPrev.textContent = t.genererTexte(donnees);
+    }
+  });
+}
+
+function ouvrirModalCopilotWhatsApp(prospect = null) {
+  const modal = document.getElementById('modal-copilot-whatsapp');
+  const selectProspect = document.getElementById('select-prospect-copilot-wa');
+
+  if (!modal) return;
+
+  // Peupler le sélecteur avec les prospects disponibles
+  if (selectProspect && Array.isArray(listeProspects)) {
+    selectProspect.innerHTML = '<option value="">Sélectionner un prospect de mon portefeuille...</option>' +
+      listeProspects.map(p => `
+        <option value="${p.id}" ${prospect && String(p.id) === String(prospect.id) ? 'selected' : ''}>
+          ${escapeHtml(p.restaurant_nom || 'Restaurant')} — ${escapeHtml(p.prospect_nom || 'Gérant')} (${p.telephone || ''})
+        </option>
+      `).join('');
+  }
+
+  definirProspectCopilotWa(prospect || (Array.isArray(listeProspects) && listeProspects.length > 0 ? listeProspects[0] : null));
+  modal.style.display = 'flex';
+}
+
+function lancerEnvoiWhatsAppTemplate(templateId) {
+  const template = TEMPLATES_STRATEGIQUES_WA.find(t => t.id === templateId);
+  if (!template) {
+    afficherToast('Erreur : Template introuvable.');
+    return;
+  }
+
+  const telBrut = prospectActifCopilotWa?.telephone || '';
+  const telPur = String(telBrut).replace(/\D/g, '');
+
+  if (!telPur) {
+    afficherToast('Veuillez sélectionner un prospect avec un numéro WhatsApp valide.');
+    return;
+  }
+
+  const nomConseiller = commercialConnecte ? `${commercialConnecte.prenom} ${commercialConnecte.nom}` : 'Votre Conseiller';
+  const carteUrl = commercialConnecte?.id 
+    ? `${window.location.origin}/carte.html?id=${encodeURIComponent(commercialConnecte.id)}`
+    : 'https://louametay.online';
+
+  const donnees = {
+    gerant: prospectActifCopilotWa?.prospect_nom || 'le Gérant',
+    restaurant: prospectActifCopilotWa?.restaurant_nom || 'votre établissement',
+    conseiller: nomConseiller,
+    lienCarte: carteUrl
+  };
+
+  const message = template.genererTexte(donnees);
+  const numeroWa = telPur.startsWith('221') ? telPur : '221' + telPur;
+  const urlWa = `https://wa.me/${numeroWa}?text=${encodeURIComponent(message)}`;
+
+  window.open(urlWa, '_blank');
+  afficherToast(`✓ Message prêt à l'envoi pour ${donnees.restaurant} ! 🚀`);
+}
+
+window.ouvrirModalCopilotWhatsApp = ouvrirModalCopilotWhatsApp;
 
 // ==============================================================================
 // 14. MODULE PASS DIGITAL WALLET NFC (GOOGLE & APPLE WALLET)
