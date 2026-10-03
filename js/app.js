@@ -17,6 +17,7 @@ import './pwa-install.js';
 // Cache local des commerciaux actifs chargés
 let listeCommerciauxActifs = [];
 let categorieFiltreCourante = 'Tous';
+let zoneFiltreCourante = 'tous';
 
 document.addEventListener('DOMContentLoaded', async () => {
   // 1. Initialisation de l'internationalisation
@@ -269,6 +270,8 @@ function initialiserOffresAccueil() {
 
   conteneurOffres.innerHTML = '';
 
+  const whatsappNum = (entreprise.contact && entreprise.contact.whatsapp) ? String(entreprise.contact.whatsapp).replace(/\D/g, '') : '221774587474';
+
   entreprise.offres.forEach(o => {
     const card = document.createElement('div');
     card.className = `carte-offre-item ${o.populaire ? 'populaire' : ''}`;
@@ -282,8 +285,8 @@ function initialiserOffresAccueil() {
       <ul class="offre-details-liste">
         ${o.details.map(d => `<li>${d}</li>`).join('')}
       </ul>
-      <a href="https://wa.me/${entreprise.contact.whatsapp}?text=${encodeURIComponent(`Bonjour, je souhaite souscrire ou tester la ${o.nom}.`)}" target="_blank" rel="noopener noreferrer" class="btn btn-primaire btn-choisir-offre">
-        Choisir cette formule ➔
+      <a href="https://wa.me/${whatsappNum}?text=${encodeURIComponent(`Bonjour Lou Ame Tay, je souhaite choisir la formule ${o.nom} (${o.prix}) pour mon établissement.`)}" target="_blank" rel="noopener noreferrer" class="btn btn-primaire btn-choisir-offre" style="width: 100%; text-align: center; justify-content: center; font-weight: 800; display: inline-flex; align-items: center; gap: 8px;">
+        <span>🚀 Choisir cette formule</span>
       </a>
     `;
     conteneurOffres.appendChild(card);
@@ -333,9 +336,10 @@ function rendreGrilleCommerciaux(liste) {
       btnReinit.addEventListener('click', () => {
         const champ = document.getElementById('recherche');
         if (champ) champ.value = '';
+        zoneFiltreCourante = 'tous';
         categorieFiltreCourante = 'Tous';
-        document.querySelectorAll('.filtre-badge, .btn-filtre-cat').forEach(b => {
-          const estTous = b.getAttribute('data-categorie') === 'Tous';
+        document.querySelectorAll('.filtre-btn, .filtre-badge, .btn-filtre-cat').forEach(b => {
+          const estTous = (b.getAttribute('data-zone') === 'tous') || (b.getAttribute('data-categorie') === 'Tous');
           b.classList.toggle('active', estTous);
           b.classList.toggle('actif', estTous);
           b.setAttribute('aria-pressed', String(estTous));
@@ -444,7 +448,7 @@ function normaliserTexte(str) {
 }
 
 /**
- * Filtre les commerciaux selon le texte et la catégorie sélectionnés
+ * Filtre les commerciaux selon le texte, la zone géographique et la catégorie
  */
 function appliquerFiltres() {
   const champ = document.getElementById('recherche');
@@ -456,7 +460,24 @@ function appliquerFiltres() {
   }
 
   const resultats = listeCommerciauxActifs.filter(c => {
-    // 1. Filtre par Catégorie
+    // 1. Filtre par Zone Géographique
+    if (zoneFiltreCourante && zoneFiltreCourante !== 'tous') {
+      const zoneTxt = normaliserTexte(`${c.zone || ''} ${c.secteur || ''} ${c.ville || ''}`);
+      if (zoneFiltreCourante === 'dakar' && !zoneTxt.includes('dakar') && !zoneTxt.includes('almadies') && !zoneTxt.includes('plateau') && !zoneTxt.includes('yoff') && !zoneTxt.includes('vdn')) {
+        return false;
+      }
+      if (zoneFiltreCourante === 'thies' && !zoneTxt.includes('thies') && !zoneTxt.includes('standing')) {
+        return false;
+      }
+      if (zoneFiltreCourante === 'saly' && !zoneTxt.includes('saly') && !zoneTxt.includes('mbour') && !zoneTxt.includes('petite')) {
+        return false;
+      }
+      if (zoneFiltreCourante === 'saint-louis' && !zoneTxt.includes('saint') && !zoneTxt.includes('louis') && !zoneTxt.includes('fleuve')) {
+        return false;
+      }
+    }
+
+    // Rétrocompatibilité : Filtre par Catégorie si spécifié
     if (categorieFiltreCourante !== 'Tous') {
       const cat = c.categorie || '';
       if (cat.toLowerCase() !== categorieFiltreCourante.toLowerCase()) {
@@ -486,7 +507,7 @@ function appliquerFiltres() {
 }
 
 /**
- * Écouteurs pour la recherche textuelle et les boutons de catégories
+ * Écouteurs pour la recherche textuelle et les boutons de filtres géographiques & catégories
  */
 function initialiserRechercheEtFiltres() {
   const champ = document.getElementById('recherche');
@@ -504,17 +525,23 @@ function initialiserRechercheEtFiltres() {
     });
   }
 
-  // Écouteurs sur les boutons de catégories (classe .filtre-badge et rétrocompatibilité)
-  const boutonsCat = document.querySelectorAll('.filtre-badge, .btn-filtre-cat');
-  boutonsCat.forEach(btn => {
+  // Écouteurs sur les boutons de filtres (classe .filtre-btn, .filtre-badge et rétrocompatibilité)
+  const boutonsFiltres = document.querySelectorAll('.filtre-btn, .filtre-badge, .btn-filtre-cat');
+  boutonsFiltres.forEach(btn => {
     btn.addEventListener('click', () => {
-      boutonsCat.forEach(b => {
+      boutonsFiltres.forEach(b => {
         b.classList.remove('active', 'actif');
         b.setAttribute('aria-pressed', 'false');
       });
       btn.classList.add('active', 'actif');
       btn.setAttribute('aria-pressed', 'true');
-      categorieFiltreCourante = btn.getAttribute('data-categorie') || 'Tous';
+
+      if (btn.hasAttribute('data-zone')) {
+        zoneFiltreCourante = btn.getAttribute('data-zone') || 'tous';
+      }
+      if (btn.hasAttribute('data-categorie')) {
+        categorieFiltreCourante = btn.getAttribute('data-categorie') || 'Tous';
+      }
       appliquerFiltres();
     });
   });

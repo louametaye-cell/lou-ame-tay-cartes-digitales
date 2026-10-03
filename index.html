@@ -27,7 +27,6 @@
         <img id="logo" src="images/logo.svg" alt="Lou Ame Tay" class="logo" width="48" height="48" loading="eager">
         <div class="marque-texte">
           <span id="nom-entreprise" class="titre-marque">Lou Ame Tay</span>
-          <span id="slogan-entreprise" class="slogan">La transition digitale de la restauration et de l'hôtellerie au Sénégal</span>
         </div>
       </a>
 
@@ -37,7 +36,7 @@
         <a href="#apropos" class="header-nav-lien" data-i18n="nav.apropos">L'entreprise</a>
       </nav>
 
-      <!-- 3. Actions droite : Sélecteur Langue + CTA Site Officiel + Menu Burger Mobile -->
+      <!-- 3. Actions droite : Sélecteur Langue + Espace Conseiller + Site Officiel + Menu Burger Mobile -->
       <div class="header-actions-droite">
         <!-- Sélecteur de langue pilule HAUT À DROITE -->
         <div class="langue-selector" aria-label="Choisir la langue">
@@ -45,6 +44,8 @@
           <button type="button" class="btn-lang-switch" data-lang="wo" aria-pressed="false" aria-label="Wolof" title="Wolof">🇸🇳 WO</button>
           <button type="button" class="btn-lang-switch" data-lang="en" aria-pressed="false" aria-label="English" title="English">🇬🇧 EN</button>
         </div>
+
+        <a href="commercial.html" class="btn-acces-pro">💼 Espace Conseiller</a>
 
         <a id="nav-lien-site" href="https://www.louametay.com" target="_blank" rel="noopener noreferrer" class="btn btn-primaire btn-cta-header" data-i18n="nav.site_officiel">
           Site officiel ↗
@@ -64,6 +65,7 @@
       <nav class="nav-tiroir-liens">
         <a href="#offres" class="tiroir-lien" data-i18n="nav.offres">Nos formules</a>
         <a href="#apropos" class="tiroir-lien" data-i18n="nav.apropos">L'entreprise</a>
+        <a href="commercial.html" class="tiroir-lien" style="color: #F8E294; font-weight: 700;">💼 Espace Conseiller</a>
         <a href="https://www.louametay.com" target="_blank" rel="noopener noreferrer" class="btn btn-primaire" style="margin-top: 0.5rem; text-align: center;">
           Site officiel ↗
         </a>
@@ -74,16 +76,47 @@
   <!-- Contenu Principal -->
   <main class="conteneur">
 
-    <!-- Bannière Hero Équipe Terrain -->
+    <!-- Bannière Hero Orienté Bénéfices Restaurateur -->
     <section class="hero-equipe">
-      <div class="hero-badge" data-i18n="hero.badge">✦ ÉQUIPE TERRAIN & CONSEIL CHR ✦</div>
-      <h2 class="hero-titre" data-i18n="hero.titre">Cartes Digitales de nos <span>Conseillers Terrain</span></h2>
-      <p class="hero-soustitre" data-i18n="hero.soustitre">
-        Chaque commercial dispose d'un outil mobile interactif avec photo grand format, 
-        démonstration en direct de commande par QR code, formulaire de rendez-vous et contact direct WhatsApp.
+      <span class="hero-badge-lux">✦ LE MENU DIGITAL N°1 AU SÉNÉGAL ✦</span>
+      <h1 class="hero-titre">
+        Révolutionnez votre service avec la <span>commande QR code</span> & l'écran cuisine.
+      </h1>
+      <p class="hero-soustitre">
+        Éliminez 80% des erreurs de commande, accélérez vos rotations de table et encaissez directement par Wave et Orange Money.
       </p>
 
-      <!-- Champ de recherche en temps réel -->
+      <!-- 2 CTA Hero percutants -->
+      <div class="hero-cta-group">
+        <a href="https://wa.me/221774587474?text=Bonjour%20Lou%20Ame%20Tay%2C%20je%20souhaite%20demander%20une%20d%C3%A9mo%20en%20salle%20dans%20mon%20restaurant." target="_blank" rel="noopener noreferrer" class="btn-hero-or">
+          <span>⚡ Demander une démo en salle</span>
+        </a>
+        <a href="#annuaire" class="btn-hero-blanc">
+          <span>📍 Rencontrer un conseiller</span>
+        </a>
+      </div>
+
+      <!-- Bandeau de réassurance chiffrée (Social Proof) -->
+      <div class="hero-metrics-bar">
+        <div class="metric-card">
+          <div class="metric-valeur">⚡ 45 min</div>
+          <p class="metric-label">Installation clé en main sans matériel lourd</p>
+        </div>
+        <div class="metric-card">
+          <div class="metric-valeur">📉 -80%</div>
+          <p class="metric-label">D'erreurs de commande en salle et cuisine</p>
+        </div>
+        <div class="metric-card">
+          <div class="metric-valeur">📈 +25%</div>
+          <p class="metric-label">De ticket moyen grâce aux photos HD du menu</p>
+        </div>
+        <div class="metric-card">
+          <div class="metric-valeur">🇸🇳 100% Local</div>
+          <p class="metric-label">Support 7j/7 en Wolof & Français à Thiès et Dakar</p>
+        </div>
+      </div>
+
+      <!-- Champ de recherche en temps réel & Filtres Géographiques -->
       <div class="zone-recherche">
         <div class="recherche-conteneur">
           <span class="icone-recherche" aria-hidden="true">
@@ -95,7 +128,7 @@
             type="search" 
             id="recherche" 
             class="champ-recherche" 
-            placeholder="Rechercher par prénom, nom, zone (Dakar, Thiès, Saly)..."
+            placeholder="Rechercher par conseiller, zone (Dakar, Thiès, Saly)..."
             data-i18n-placeholder="hero.recherche_placeholder"
             aria-label="Rechercher un conseiller commercial"
             autocomplete="off"
@@ -103,13 +136,13 @@
           <button type="button" id="btn-effacer-recherche" class="btn-effacer-recherche" aria-label="Effacer">✕</button>
         </div>
 
-        <!-- Filtres par Catégorie avec classe .filtre-badge -->
-        <div class="filtres-categories-annuaire" id="filtres-categories" role="group" aria-label="Filtrer par catégorie">
-          <button type="button" class="filtre-badge active" data-categorie="Tous" aria-pressed="true" aria-label="Afficher tous les conseillers">Tous</button>
-          <button type="button" class="filtre-badge" data-categorie="Direction" aria-pressed="false" aria-label="Filtrer par Direction">Direction</button>
-          <button type="button" class="filtre-badge" data-categorie="Vente" aria-pressed="false" aria-label="Filtrer par Vente">Vente</button>
-          <button type="button" class="filtre-badge" data-categorie="Support" aria-pressed="false" aria-label="Filtrer par Support">Support</button>
-          <button type="button" class="filtre-badge" data-categorie="Technique" aria-pressed="false" aria-label="Filtrer par Technique">Technique</button>
+        <!-- Filtres par Zone Géographique par ville -->
+        <div class="filtres-categories-annuaire" id="filtres-categories" role="group" aria-label="Filtrer par zone géographique">
+          <button type="button" class="filtre-btn active" data-zone="tous" aria-pressed="true">Toutes les zones</button>
+          <button type="button" class="filtre-btn" data-zone="dakar" aria-pressed="false">📍 Dakar (Plateau / Almadies)</button>
+          <button type="button" class="filtre-btn" data-zone="thies" aria-pressed="false">📍 Thiès</button>
+          <button type="button" class="filtre-btn" data-zone="saly" aria-pressed="false">📍 Saly / Mbour</button>
+          <button type="button" class="filtre-btn" data-zone="saint-louis" aria-pressed="false">📍 Saint-Louis</button>
         </div>
 
         <p id="compteur-resultats" class="compteur-resultats" aria-live="polite"></p>

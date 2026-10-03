@@ -998,7 +998,8 @@
     /* =========================================================================
        NOUVELLE EXPÉRIENCE ONBOARDING COMMERCIAL ÉPURÉE & BENTO CARDS
        ========================================================================= */
-    .agent-identite-badge {
+    .agent-identite-badge,
+    .badge-identite-agent {
       display: inline-flex;
       align-items: center;
       gap: 8px;
@@ -1566,7 +1567,7 @@
       <div style="background: linear-gradient(135deg, #0B1F3A 0%, #17375e 100%); color: #FFFFFF; padding: 1.75rem 1.25rem 1.5rem; text-align: center; border-bottom: 3px solid #C9A227;">
         
         <!-- Pastille d'identification discrète -->
-        <div class="agent-identite-badge">
+        <div class="badge-identite-agent agent-identite-badge">
           <span>👤 <strong id="resume-nom-agent">Conseiller Lou Ame Tay</strong></span>
           <span class="sep">•</span>
           <span>📱 <span id="resume-tel-agent">77 000 00 00</span></span>
@@ -1576,7 +1577,7 @@
           👋 Bienvenue, <span id="nom-accueil-agent">Cher Conseiller</span> !
         </h1>
         <p class="onboarding-welcome-sub">
-          Activez vos versements et vos outils pour débloquer vos commissions instantanées.
+          Activez vos versements Wave/Orange Money et vos outils pour débloquer vos commissions.
         </p>
 
         <!-- Stepper Progressif Visuel (3 Étapes) -->
@@ -1611,12 +1612,12 @@
         <div id="panneau-wizard-etape-1">
           <form id="form-wizard-etape-1">
             
-            <!-- BENTO 1 : Ligne de Versement des Commissions Instantanées -->
+            <!-- BENTO 1 : OÙ VERSER VOS COMMISSIONS ? (10% instantanés) -->
             <div class="bento-card">
               <div class="bento-header">
                 <span class="bento-icon">💳</span>
                 <div>
-                  <h3>Où verser vos commissions instantanées ?</h3>
+                  <h3>Où verser vos commissions ? (10% instantanés)</h3>
                   <p>10% versés automatiquement dès encaissement client sur votre ligne certifiée.</p>
                 </div>
               </div>
@@ -1646,12 +1647,12 @@
               </div>
             </div>
 
-            <!-- BENTO 2 : Pièce d'Identité & Scanner CNI 2-en-1 Guidé -->
+            <!-- BENTO 2 : PIÈCE D'IDENTITÉ (KYC) -->
             <div class="bento-card">
               <div class="bento-header">
                 <span class="bento-icon">🪪</span>
                 <div>
-                  <h3>Pièce d'Identité (KYC Mandataire)</h3>
+                  <h3>Pièce d'Identité (KYC)</h3>
                   <p>Renseignez votre numéro officiel puis numérisez les deux faces de votre carte.</p>
                 </div>
               </div>
@@ -1688,12 +1689,12 @@
               </div>
             </div>
 
-            <!-- BENTO 3 : Logistique de votre tournée -->
+            <!-- BENTO 3 : MA TOURNÉE TERRAIN -->
             <div class="bento-card">
               <div class="bento-header">
                 <span class="bento-icon">🛵</span>
                 <div>
-                  <h3>Logistique de votre tournée</h3>
+                  <h3>Ma Tournée Terrain</h3>
                   <p>Calibrage de vos déplacements et de votre zone prioritaire de prospection.</p>
                 </div>
               </div>
@@ -1734,7 +1735,7 @@
             <input type="hidden" id="onboarding-urg-tel" value="">
 
             <!-- Bouton Doré Prestigieux 52px pour transition étape 2 -->
-            <button type="button" id="btn-wizard-to-step-2" class="comm-btn-gold-step">
+            <button type="button" id="btn-wizard-to-step-2" class="comm-btn-primary comm-btn-gold-step">
               <span>Étape suivante : Ma Carte Digitale ➔</span>
             </button>
           </form>
