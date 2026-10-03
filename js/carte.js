@@ -258,6 +258,9 @@ async function initialiserCarte() {
   initialiserSimulateurROI();
   initialiserWallet(commercial);
 
+  // Mission Prestige : Initialisation Bento, Simulateur Démo Live, Diaporama SaaS & Onglets
+  initialiserPrestigeCarte(commercial);
+
   // Lien sécurisé discret vers l'Espace Commercial Pro
   const lienEspaceComm = document.getElementById('lien-espace-commercial');
   if (lienEspaceComm && commercial?.id) {
@@ -2174,6 +2177,421 @@ function mettreAJourGraphiqueROI(caActuel, caAvec) {
         }
       }
     }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// REFONTE PRESTIGE : BENTO ACTIONS, SIMULATEUR DÉMO LIVE, DIAPORAMA
+// ═══════════════════════════════════════════════════════════════════
+
+/**
+ * Initialise l'ensemble des modules interactifs de la Carte Prestige Lou Ame Tay
+ * @param {Object} commercial 
+ */
+function initialiserPrestigeCarte(commercial) {
+  initialiserBentoEtBoutonOr(commercial);
+  initialiserSimulateurDemoLive();
+  initialiserDiaporamaSaaS();
+  initialiserOngletsPrincipaux();
+}
+
+/**
+ * 1. Initialise le bouton d'or prestige et les 2 tuiles Bento
+ */
+function initialiserBentoEtBoutonOr(commercial) {
+  // Bouton Démo Primaire d'Or
+  const btnDemoPrimaire = document.getElementById('btn-demo-primaire');
+  if (btnDemoPrimaire) {
+    btnDemoPrimaire.addEventListener('click', () => {
+      trackerEvenement('clic_demo_primaire', commercial.id);
+      ouvrirRdv(commercial);
+    });
+  }
+
+  // Bento Tuile 1 : Enregistrer le contact (vCard + Wallet)
+  const btnSaveContact = document.getElementById('btn-save-contact-compact');
+  if (btnSaveContact) {
+    btnSaveContact.addEventListener('click', () => {
+      trackerEvenement('clic_save_contact_compact', commercial.id);
+      telechargerVCardDirect(commercial);
+      setTimeout(() => {
+        ajouterAuWallet(commercial);
+      }, 700);
+    });
+  }
+
+  // Bento Tuile 2 : Échanger coordonnées / Recommander
+  const btnEchangeCompact = document.getElementById('btn-echange-compact');
+  const modalEchange = document.getElementById('modal-echange');
+  if (btnEchangeCompact && modalEchange) {
+    btnEchangeCompact.addEventListener('click', () => {
+      trackerEvenement('clic_echange_compact', commercial.id);
+      modalEchange.classList.remove('hidden');
+      modalEchange.classList.add('active');
+    });
+  }
+}
+
+/**
+ * Déclenchement direct du téléchargement vCard (.vcf)
+ */
+function telechargerVCardDirect(c) {
+  const telPropre = (c.telephone || '').replace(/\s+/g, '');
+  const bioLigne = (c.bio || "Lou Ame Tay — Solution SaaS Restauration & Hôtellerie").replace(/\r?\n/g, ' ');
+
+  const vCardContenu = [
+    'BEGIN:VCARD',
+    'VERSION:3.0',
+    `N:${c.nom};${c.prenom};;;`,
+    `FN:${c.prenom} ${c.nom}`,
+    `ORG:Lou Ame Tay;Restauration & Hôtellerie SaaS`,
+    `TITLE:${c.poste || 'Conseiller Commercial CHR'}`,
+    `TEL;TYPE=CELL,VOICE,PREF:${telPropre}`,
+    `EMAIL;TYPE=WORK,INTERNET:${c.email || ''}`,
+    `URL:${window.location.href}`,
+    `NOTE:${bioLigne}`,
+    'END:VCARD'
+  ].join('\r\n');
+
+  const blob = new Blob([vCardContenu], { type: 'text/vcard;charset=utf-8;' });
+  const lien = document.createElement('a');
+  const nomFichier = `contact_${c.prenom.toLowerCase()}_${c.nom.toLowerCase()}.vcf`;
+
+  lien.href = URL.createObjectURL(blob);
+  lien.download = nomFichier;
+  document.body.appendChild(lien);
+  lien.click();
+  document.body.removeChild(lien);
+  URL.revokeObjectURL(lien.href);
+
+  afficherToast("✓ Fiche contact ajoutée au téléchargement !");
+}
+
+/**
+ * 2. Moteur du Simulateur Démo Live Multi-Écrans (Client ➔ Cuisine KDS ➔ Ticket)
+ */
+function initialiserSimulateurDemoLive() {
+  const demoTabs = document.querySelectorAll('.demo-tab-btn');
+  const demoVues = document.querySelectorAll('.demo-ecran-vue');
+  const boutonsAjouter = document.querySelectorAll('.btn-ajouter-panier');
+  const totalPanierEl = document.getElementById('demo-panier-total');
+  const btnEnvoyerCommande = document.getElementById('btn-envoyer-commande-demo');
+  const btnMarquerPret = document.getElementById('btn-marquer-pret-demo');
+  const btnRestart = document.getElementById('btn-restart-demo');
+  const btnWave = document.getElementById('btn-payer-wave-demo');
+  const btnOm = document.getElementById('btn-payer-om-demo');
+
+  let panierDemo = [];
+
+  // Synthétiseur Web Audio API pour le Bip Cuisine KDS (800Hz -> 1046Hz)
+  function jouerSonBipKDS() {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(800, ctx.currentTime);
+      osc.frequency.setValueAtTime(1046.5, ctx.currentTime + 0.1);
+      gain.gain.setValueAtTime(0.25, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.25);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.25);
+    } catch (e) {
+      console.warn("Son non supporté:", e);
+    }
+  }
+
+  // Synthétiseur Web Audio API pour l'ajout au panier
+  function jouerSonAjout() {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+      gain.gain.setValueAtTime(0.12, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.1);
+    } catch (e) {}
+  }
+
+  // Bascule d'écrans
+  function basculerEcran(screenName) {
+    demoTabs.forEach(t => t.classList.toggle('active', t.getAttribute('data-screen') === screenName));
+    demoVues.forEach(v => v.classList.toggle('active', v.id === `demo-ecran-${screenName}`));
+
+    if (screenName === 'kds') {
+      const badgeAlert = document.getElementById('badge-kds-alert');
+      if (badgeAlert) badgeAlert.style.display = 'none';
+    }
+  }
+
+  demoTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const screen = tab.getAttribute('data-screen');
+      basculerEcran(screen);
+    });
+  });
+
+  // Ajout au panier démo
+  boutonsAjouter.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.getAttribute('data-id');
+      const nom = btn.getAttribute('data-nom');
+      const prix = parseInt(btn.getAttribute('data-prix'), 10);
+
+      panierDemo.push({ id, nom, prix });
+      jouerSonAjout();
+
+      const origText = btn.textContent;
+      btn.textContent = '✓ Ajouté';
+      btn.classList.add('ajoute');
+      setTimeout(() => {
+        btn.textContent = origText;
+        btn.classList.remove('ajoute');
+      }, 700);
+
+      mettreAJourAffichagePanier();
+    });
+  });
+
+  function mettreAJourAffichagePanier() {
+    const total = panierDemo.reduce((acc, it) => acc + it.prix, 0);
+    if (totalPanierEl) {
+      totalPanierEl.textContent = `${total.toLocaleString('fr-FR')} FCFA`;
+    }
+    if (btnEnvoyerCommande) {
+      btnEnvoyerCommande.disabled = panierDemo.length === 0;
+    }
+  }
+
+  // Envoi de commande en cuisine KDS
+  if (btnEnvoyerCommande) {
+    btnEnvoyerCommande.addEventListener('click', () => {
+      if (panierDemo.length === 0) return;
+
+      jouerSonBipKDS();
+      afficherToast("🚀 Commande Table #05 envoyée en Cuisine KDS !");
+
+      // Badge alerte rouge sur onglet KDS
+      const badgeAlert = document.getElementById('badge-kds-alert');
+      if (badgeAlert) badgeAlert.style.display = 'inline-block';
+
+      // Mise à jour de l'écran KDS
+      const kdsStatut = document.getElementById('kds-statut-texte');
+      if (kdsStatut) {
+        kdsStatut.textContent = '🔴 EN CUISSON (CHEF ALERTÉ)';
+        kdsStatut.classList.remove('pret');
+      }
+
+      const kdsHorodatage = document.getElementById('kds-horodatage');
+      if (kdsHorodatage) {
+        const now = new Date();
+        const hh = String(now.getHours()).padStart(2, '0');
+        const mm = String(now.getMinutes()).padStart(2, '0');
+        kdsHorodatage.textContent = `À l'instant (${hh}:${mm})`;
+      }
+
+      const kdsListe = document.getElementById('kds-items-liste');
+      if (kdsListe) {
+        kdsListe.innerHTML = panierDemo.map(item => `
+          <li class="kds-item-ligne">
+            <span>🔥</span>
+            <span style="flex: 1;">${item.nom}</span>
+            <span style="background: rgba(239, 68, 68, 0.2); color: #FCA5A5; font-size: 0.70rem; padding: 2px 6px; border-radius: 4px;">En préparation</span>
+          </li>
+        `).join('');
+      }
+
+      if (btnMarquerPret) {
+        btnMarquerPret.disabled = false;
+        btnMarquerPret.classList.remove('pret-fait');
+        btnMarquerPret.innerHTML = '<span>Marquer comme Prêt 🍲</span>';
+      }
+
+      // Mise à jour du Ticket Numérique
+      const ticketLignes = document.getElementById('ticket-lignes-detail');
+      const ticketTotal = document.getElementById('ticket-montant-total');
+      const total = panierDemo.reduce((acc, it) => acc + it.prix, 0);
+
+      if (ticketLignes) {
+        ticketLignes.innerHTML = panierDemo.map(it => `
+          <div class="ticket-ligne">
+            <span>${it.nom}</span>
+            <strong>${it.prix.toLocaleString('fr-FR')} FCFA</strong>
+          </div>
+        `).join('') + `
+          <div class="ticket-ligne ticket-ligne-total">
+            <span>Total à régler :</span>
+            <span>${total.toLocaleString('fr-FR')} FCFA</span>
+          </div>
+        `;
+      }
+      if (ticketTotal) {
+        ticketTotal.textContent = `${total.toLocaleString('fr-FR')} FCFA`;
+      }
+
+      // Bascule fluide automatique vers Cuisine KDS après 400ms
+      setTimeout(() => {
+        basculerEcran('kds');
+      }, 400);
+    });
+  }
+
+  // Marquer comme prêt en cuisine
+  if (btnMarquerPret) {
+    btnMarquerPret.addEventListener('click', () => {
+      const kdsStatut = document.getElementById('kds-statut-texte');
+      if (kdsStatut) {
+        kdsStatut.textContent = '🟢 COMMANDE PRÊTE AU PASSE';
+        kdsStatut.classList.add('pret');
+      }
+
+      btnMarquerPret.classList.add('pret-fait');
+      btnMarquerPret.innerHTML = '<span>✓ Commande Prête 🍲</span>';
+      afficherToast("🍲 Commande prête ! Serveur notifié, ticket disponible.");
+
+      const badgeAlert = document.getElementById('badge-kds-alert');
+      if (badgeAlert) badgeAlert.style.display = 'none';
+
+      setTimeout(() => {
+        basculerEcran('ticket');
+      }, 800);
+    });
+  }
+
+  // Paiement Wave / OM simulé
+  if (btnWave) {
+    btnWave.addEventListener('click', () => {
+      afficherToast("🌊 Simulation Wave : Paiement reçu instantanément sur le compte restaurant !");
+    });
+  }
+  if (btnOm) {
+    btnOm.addEventListener('click', () => {
+      afficherToast("🍊 Simulation Orange Money : Paiement validé avec succès ! Reçu archivé.");
+    });
+  }
+
+  // Réinitialiser la simulation
+  if (btnRestart) {
+    btnRestart.addEventListener('click', () => {
+      panierDemo = [];
+      mettreAJourAffichagePanier();
+
+      const kdsListe = document.getElementById('kds-items-liste');
+      if (kdsListe) {
+        kdsListe.innerHTML = '<li style="color: #94A3B8; font-style: italic; font-size: 0.78rem;">Aucune commande en cours. Ajoutez un plat dans l\'Écran Client.</li>';
+      }
+
+      const kdsStatut = document.getElementById('kds-statut-texte');
+      if (kdsStatut) {
+        kdsStatut.textContent = 'EN ATTENTE D\'ENVOI';
+        kdsStatut.classList.remove('pret');
+      }
+
+      if (btnMarquerPret) btnMarquerPret.disabled = true;
+
+      basculerEcran('client');
+      afficherToast("🔄 Simulation réinitialisée !");
+    });
+  }
+}
+
+/**
+ * 3. Moteur du Diaporama Showcase SaaS 360° (Rotation automatique 4s)
+ */
+function initialiserDiaporamaSaaS() {
+  const slides = document.querySelectorAll('.saas-slide-item');
+  const dots = document.querySelectorAll('.saas-dot');
+  const btnPrev = document.getElementById('saas-prev-btn');
+  const btnNext = document.getElementById('saas-next-btn');
+  const cadre = document.getElementById('section-carrousel-saas');
+
+  if (slides.length === 0) return;
+
+  let currentSlide = 0;
+  const totalSlides = slides.length;
+  let intervalId = null;
+
+  function afficherSlide(index) {
+    currentSlide = (index + totalSlides) % totalSlides;
+    slides.forEach((sl, idx) => sl.classList.toggle('active', idx === currentSlide));
+    dots.forEach((dt, idx) => dt.classList.toggle('active', idx === currentSlide));
+  }
+
+  function startAutoPlay() {
+    stopAutoPlay();
+    intervalId = setInterval(() => {
+      afficherSlide(currentSlide + 1);
+    }, 4000);
+  }
+
+  function stopAutoPlay() {
+    if (intervalId) clearInterval(intervalId);
+  }
+
+  btnPrev?.addEventListener('click', () => {
+    afficherSlide(currentSlide - 1);
+    startAutoPlay();
+  });
+
+  btnNext?.addEventListener('click', () => {
+    afficherSlide(currentSlide + 1);
+    startAutoPlay();
+  });
+
+  dots.forEach(dot => {
+    dot.addEventListener('click', () => {
+      const idx = parseInt(dot.getAttribute('data-slide'), 10);
+      if (!isNaN(idx)) {
+        afficherSlide(idx);
+        startAutoPlay();
+      }
+    });
+  });
+
+  if (cadre) {
+    cadre.addEventListener('mouseenter', stopAutoPlay);
+    cadre.addEventListener('mouseleave', startAutoPlay);
+    cadre.addEventListener('touchstart', stopAutoPlay, { passive: true });
+    cadre.addEventListener('touchend', startAutoPlay, { passive: true });
+  }
+
+  startAutoPlay();
+}
+
+/**
+ * 4. Moteur de navigation par Onglets Principaux (Suppression du Scroll Infini)
+ */
+function initialiserOngletsPrincipaux() {
+  const tabBtns = document.querySelectorAll('.tab-main-btn');
+  const tabPanels = document.querySelectorAll('.carte-tab-panel');
+
+  if (tabBtns.length === 0 || tabPanels.length === 0) return;
+
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetTab = btn.getAttribute('data-tab');
+      tabBtns.forEach(b => b.classList.toggle('active', b === btn));
+      tabPanels.forEach(panel => {
+        panel.classList.toggle('active', panel.id === `tab-panel-${targetTab}`);
+      });
+
+      // Repositionnement doux vers les onglets si la page est scrollée
+      const ongletsBarre = document.querySelector('.carte-onglets-principaux');
+      if (ongletsBarre) {
+        ongletsBarre.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    });
   });
 }
 

@@ -167,99 +167,234 @@
           </button>
         </nav>
 
-        <!-- SPRINT B & D : BARRE D'ACTION NETWORKING RAPIDE (100% VUE CLIENT) -->
-        <div class="barre-networking-rapide">
-          <button type="button" class="btn-echange" id="btn-echange" title="Échanger nos coordonnées" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"></path><path d="M4 20L21 3"></path><path d="M21 16v5h-5"></path><path d="M15 15l6 6"></path><path d="M4 4l5 5"></path></svg>
-            <span>🔄 Échanger mes coordonnées</span>
+        <!-- BOUTON PRIMAIRE D'OR PRESTIGE & BENTO GRID 2 COLONNES -->
+        <button type="button" id="btn-demo-primaire" class="btn-or-prestige" title="Demander une démonstration gratuite en restaurant (15 min)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          </svg>
+          <span>⚡ Demander une démo en restaurant (15 min)</span>
+        </button>
+
+        <div class="bento-grid-actions">
+          <button type="button" id="btn-save-contact-compact" class="bento-tuile" title="Ajouter à votre carnet d'adresses et Wallet">
+            <span class="bento-icone">📲</span>
+            <span class="bento-texte">
+              <strong>Enregistrer contact</strong>
+              <small>vCard & Pass Wallet</small>
+            </span>
           </button>
-          <button type="button" class="btn-rdv" id="btn-rdv" title="Demander une démonstration de 15 minutes" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-            <span>📅 Demander une démo (15 min)</span>
-          </button>
-          <button type="button" class="btn-partager" id="btn-partager" title="Partager cette carte" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"></line><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"></line></svg>
-            <span>Partager</span>
+          <button type="button" id="btn-echange-compact" class="bento-tuile" title="Échanger vos coordonnées professionnelles">
+            <span class="bento-icone">🔄</span>
+            <span class="bento-texte">
+              <strong>Échanger mes infos</strong>
+              <small>Recommander à un confrère</small>
+            </span>
           </button>
         </div>
 
-        <!-- E2 : BOUTON GRAND FORMAT PARTAGER AVEC UN COLLÈGUE -->
-        <div style="margin: 10px 0 16px; text-align: center;">
-          <button type="button" class="btn-partager-collegue" id="btn-partager-collegue" title="Partager cette carte avec un collègue restaurateur" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A227" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-            <span>Partager avec un collègue restaurateur</span>
-          </button>
+        <div class="support-wa-ligne-fine">
+          <span class="pulse-point-vert"></span>
+          <span>Support direct WhatsApp 7j/7 • Assistance d'urgence en salle</span>
         </div>
-        <section class="carte-localisation" id="section-localisation">
-          <div class="loc-icon" aria-hidden="true">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-              <circle cx="12" cy="10" r="3"></circle>
-            </svg>
+
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <!-- SIMULATEUR DÉMO LIVE INTERACTIF (Client ➔ Cuisine ➔ Ticket)         -->
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <section class="simulateur-demo-section" id="section-simulateur-demo">
+          <div class="simulateur-titre-bar">
+            <h3><span>⚡ Démo Live Interactive</span></h3>
+            <span class="badge-live-pulse">🔴 EN DIRECT</span>
           </div>
-          <div class="loc-info">
-            <h3>Siège Lou Ame Tay & Avis Google</h3>
-            <p id="loc-adresse">Thiès — Quartier Fayou, Face Foot Salé (<strong>Q359+WC2, Thiès</strong>)</p>
+
+          <!-- Tabs de simulation -->
+          <div class="demo-live-tabs">
+            <button type="button" class="demo-tab-btn active" data-screen="client" id="tab-demo-client">
+              📱 1. Client (Table #05)
+            </button>
+            <button type="button" class="demo-tab-btn" data-screen="kds" id="tab-demo-kds">
+              🍳 2. Cuisine KDS <span id="badge-kds-alert" class="badge-notif-rouge" style="display:none;">1</span>
+            </button>
+            <button type="button" class="demo-tab-btn" data-screen="ticket" id="tab-demo-ticket">
+              🧾 3. Ticket Client
+            </button>
           </div>
-          <a href="https://www.google.com/maps/search/?api=1&query=Q359%2BWC2,+Thi%C3%A8s" id="btn-itinerair" class="btn-direction" target="_blank" rel="noopener noreferrer" title="Ouvrir Google Maps (Q359+WC2, Thiès)">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-              <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
-            </svg>
-            <span>Itinéraire & Avis</span>
-          </a>
+
+          <!-- Écran 1 : Vue Smartphone Client -->
+          <div class="demo-ecran-vue active" id="demo-ecran-client">
+            <div class="demo-table-info">
+              <span>📍 Table #05 • Salle Climatisée</span>
+              <span style="color:#C9A227;">Menu Démo Sénégalais</span>
+            </div>
+
+            <div class="demo-plats-liste">
+              <div class="demo-plat-item">
+                <div class="demo-plat-info">
+                  <span class="demo-plat-emoji">🍲</span>
+                  <div>
+                    <div class="demo-plat-nom">Thiéboudienne Penda Mbaye</div>
+                    <div class="demo-plat-prix">3 500 FCFA</div>
+                  </div>
+                </div>
+                <button type="button" class="btn-ajouter-panier" data-id="1" data-nom="Thiéboudienne Penda Mbaye" data-prix="3500">+ Ajouter</button>
+              </div>
+
+              <div class="demo-plat-item">
+                <div class="demo-plat-info">
+                  <span class="demo-plat-emoji">🥩</span>
+                  <div>
+                    <div class="demo-plat-nom">Dibi d'Agneau Grillé Thiès</div>
+                    <div class="demo-plat-prix">4 500 FCFA</div>
+                  </div>
+                </div>
+                <button type="button" class="btn-ajouter-panier" data-id="2" data-nom="Dibi d'Agneau Grillé Thiès" data-prix="4500">+ Ajouter</button>
+              </div>
+
+              <div class="demo-plat-item">
+                <div class="demo-plat-info">
+                  <span class="demo-plat-emoji">🍷</span>
+                  <div>
+                    <div class="demo-plat-nom">Jus de Bissap Maison</div>
+                    <div class="demo-plat-prix">800 FCFA</div>
+                  </div>
+                </div>
+                <button type="button" class="btn-ajouter-panier" data-id="3" data-nom="Jus de Bissap Maison" data-prix="800">+ Ajouter</button>
+              </div>
+            </div>
+
+            <!-- Barre de panier dynamique -->
+            <div class="demo-panier-bar">
+              <div class="demo-panier-total-box">
+                <span class="demo-panier-label">Total Panier :</span>
+                <span class="demo-panier-total" id="demo-panier-total">0 FCFA</span>
+              </div>
+              <button type="button" id="btn-envoyer-commande-demo" class="btn-commander-vert" disabled>
+                <span>Envoyer en Cuisine 🚀</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Écran 2 : Cuisine KDS en Temps Réel -->
+          <div class="demo-ecran-vue" id="demo-ecran-kds">
+            <div class="kds-boite">
+              <div class="kds-entete-bar">
+                <div>
+                  <span class="kds-statut-badge" id="kds-statut-texte">EN ATTENTE D'ENVOI</span>
+                  <div style="font-weight: 800; font-size: 0.90rem; margin-top: 4px;">Table #05 • Commande #LAT-052</div>
+                </div>
+                <div class="kds-horodatage" id="kds-horodatage">Service Midi</div>
+              </div>
+
+              <ul class="kds-items-liste" id="kds-items-liste">
+                <li style="color: #94A3B8; font-style: italic; font-size: 0.78rem;">Aucune commande en cours. Ajoutez un plat dans l'Écran Client.</li>
+              </ul>
+
+              <button type="button" id="btn-marquer-pret-demo" class="btn-kds-pret" disabled>
+                <span>Marquer comme Prêt 🍲</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Écran 3 : Ticket Numérique & Paiement Mobile -->
+          <div class="demo-ecran-vue" id="demo-ecran-ticket">
+            <div class="ticket-cadre">
+              <div class="ticket-header-centre">
+                <h4>🧾 REÇU DE COMMANDE NUMÉRIQUE</h4>
+                <p>Lou Ame Tay — Démo Table #05</p>
+              </div>
+
+              <div class="ticket-lignes-detail" id="ticket-lignes-detail">
+                <div class="ticket-ligne"><span>Thiéboudienne Penda Mbaye</span><strong>3 500 FCFA</strong></div>
+                <div class="ticket-ligne ticket-ligne-total"><span>Total à régler :</span><span id="ticket-montant-total">3 500 FCFA</span></div>
+              </div>
+
+              <div style="font-size: 0.72rem; font-weight: 700; color: #64748B; margin-top: 6px;">Régler avec un portefeuille mobile :</div>
+              <div class="ticket-paiement-boutons">
+                <button type="button" class="badge-wave-demo" id="btn-payer-wave-demo">🌊 Payer avec Wave</button>
+                <button type="button" class="badge-om-demo" id="btn-payer-om-demo">🍊 Payer avec OM</button>
+              </div>
+
+              <div class="ticket-mention-rse">
+                🍃 Zéro papier imprimé • Conforme RSE Sénégal
+              </div>
+
+              <button type="button" class="btn-restart-demo" id="btn-restart-demo">
+                🔄 Recommencer la simulation
+              </button>
+            </div>
+          </div>
         </section>
 
-        <!-- 2. BOUTONS D'ACTION TERRAIN (RDV DÉMO & SUPPORT WHATSAPP) -->
-        <div class="bloc-actions-terrain">
-          <button type="button" id="btn-ouvrir-modal-rdv" class="btn-rdv-demo" title="Tester le menu QR dans mon restaurant" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>
-            </svg>
-            <span data-i18n="carte.rdv_demo">⚡ Tester le menu QR dans mon restaurant</span>
-          </button>
-
-          <a id="btn-support-direct-wa" href="https://wa.me/221762312003?text=Bonjour,%20je%20souhaite%20une%20d%C3%A9monstration%20de%20Lou%20Ame%20Tay%20pour%20mon%20restaurant." target="_blank" rel="noopener noreferrer" class="btn-support-wa" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="#25D366">
-              <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
-            </svg>
-            <span data-i18n="carte.support_direct">Support WhatsApp direct 7j/7 (Intervention 48h)</span>
-          </a>
-        </div>
-
-        <!-- 3. BOUTON "AJOUTER AU CONTACT" (VCARD .VCF) -->
-        <div class="bloc-chimp-vcard">
-          <button type="button" id="btn-telecharger-vcard" class="btn-chimp-vcard" title="Ajouter dans votre carnet d'adresses smartphone" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" y1="8" x2="19" y2="14"></line><line x1="22" y1="11" x2="16" y2="11"></line>
-            </svg>
-            <span data-i18n="carte.vcard">📲 Enregistrer dans mon téléphone</span>
-          </button>
-        </div>
-
-        <!-- BOUTON WALLET PASS (APPLE & GOOGLE WALLET) -->
-        <div class="bloc-chimp-wallet" style="margin-top: 10px;">
-          <button type="button" id="btn-ajouter-wallet" class="btn-wallet-action" title="Ajouter la carte à Apple Wallet ou Google Wallet" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect width="20" height="14" x="2" y="5" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line>
-            </svg>
-            <span>Ajouter à mon Wallet (Apple / Google)</span>
-          </button>
-        </div>
-
-        <!-- 4. HEURES D'OUVERTURE & SUPPORT TERRAIN -->
-        <div class="chimp-horaires-bloc">
-          <div style="display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 12px; background: rgba(201, 162, 39, 0.15); flex-shrink: 0;" aria-hidden="true">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C9A227" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
-            </svg>
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <!-- DIAPORAMA SHOWCASE SAAS 360° (5 DÉCLINAISONS DU SYSTÈME)           -->
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <section class="carrousel-saas-section" id="section-carrousel-saas">
+          <div class="carrousel-saas-titre">
+            <h3>✦ L'Écosystème SaaS 360° ✦</h3>
+            <p>Une solution complète pour chaque zone de votre restaurant</p>
           </div>
-          <div class="chimp-horaires-texte">
-            <h4 data-i18n="carte.horaires_titre">Support technique & Hotline CHR : 7j/7 de 8h à 20h</h4>
-            <p data-i18n="carte.horaires_desc">Intervention d'urgence jusqu'à 22h00 pour les services du soir</p>
+
+          <div class="saas-diaporama-cadre">
+            <!-- Slide 1 -->
+            <div class="saas-slide-item active" data-slide="0">
+              <span class="slide-tag-badge">📺 Écran TV Comptoir 4K</span>
+              <h4 class="slide-item-titre">Menu TV Digital Multi-Écrans</h4>
+              <p class="slide-item-desc">Affichage dynamique au-dessus du comptoir. Mettez en avant vos suggestions du jour et actualisez vos prix en 1 clic sans réimpression.</p>
+            </div>
+
+            <!-- Slide 2 -->
+            <div class="saas-slide-item" data-slide="1">
+              <span class="slide-tag-badge">🔔 Retrait Guichet</span>
+              <h4 class="slide-item-titre">Écran d'Appel Retrait & Fast-Food</h4>
+              <p class="slide-item-desc">Notification visuelle et sonore des commandes prêtes au comptoir. Fluidifie le flux client et supprime les files d'attente désordonnées.</p>
+            </div>
+
+            <!-- Slide 3 -->
+            <div class="saas-slide-item" data-slide="2">
+              <span class="slide-tag-badge">💻 POS & Clôture Z</span>
+              <h4 class="slide-item-titre">Caisse Tactile POS Vente Directe</h4>
+              <p class="slide-item-desc">Encaissement express espèces, Wave et Orange Money avec clôture de caisse Z conforme et statistiques de vente en temps réel.</p>
+            </div>
+
+            <!-- Slide 4 -->
+            <div class="saas-slide-item" data-slide="3">
+              <span class="slide-tag-badge">🏨 Hôtellerie & Suites</span>
+              <h4 class="slide-item-titre">QR Code Chambre d'Hôtel & Room Service</h4>
+              <p class="slide-item-desc">Chevalets prestige et plaques aluminium pour suites et complexes balnéaires. Le client commande son repas directement depuis sa chambre.</p>
+            </div>
+
+            <!-- Slide 5 -->
+            <div class="saas-slide-item" data-slide="4">
+              <span class="slide-tag-badge">🏖️ Terrasses & Plages</span>
+              <h4 class="slide-item-titre">QR Code Tout-Terrain Plage & Terrasses</h4>
+              <p class="slide-item-desc">Supports waterproof et incassables ultra-résistants au vent, au soleil, au sable et aux embruns marins à Saly, Dakar et en Petite Côte.</p>
+            </div>
           </div>
+
+          <div class="saas-diaporama-nav">
+            <button type="button" class="saas-nav-btn" id="saas-prev-btn" aria-label="Précédent">‹</button>
+            <div class="saas-dots" id="saas-dots">
+              <span class="saas-dot active" data-slide="0"></span>
+              <span class="saas-dot" data-slide="1"></span>
+              <span class="saas-dot" data-slide="2"></span>
+              <span class="saas-dot" data-slide="3"></span>
+              <span class="saas-dot" data-slide="4"></span>
+            </div>
+            <button type="button" class="saas-nav-btn" id="saas-next-btn" aria-label="Suivant">›</button>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <!-- NAVIGATION PAR ONGLETS PRINCIPAUX (SUPPRESSION DU SCROLL INFINI)    -->
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <div class="carte-onglets-principaux">
+          <button type="button" class="tab-main-btn active" data-tab="formules" id="tab-nav-formules">🍽️ Formules CHR</button>
+          <button type="button" class="tab-main-btn" data-tab="avis" id="tab-nav-avis">⭐ Avis Clients</button>
+          <button type="button" class="tab-main-btn" data-tab="apropos" id="tab-nav-apropos">ℹ️ À Propos</button>
         </div>
 
-        <!-- C1 : SECTION CLIENTS DE CONFIANCE (MARQUEE) -->
+                <!-- ══ PANNEAU 1 : FORMULES CHR & SIMULATEUR ROI ══ -->
+        <div class="carte-tab-panel active" id="tab-panel-formules">
+          <!-- C1 : SECTION CLIENTS DE CONFIANCE (MARQUEE) -->
         <section class="clients-confiance">
           <h2 style="display: flex; align-items: center; gap: 8px;">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A227" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -274,7 +409,171 @@
           </div>
         </section>
 
-        <!-- Section Avis & Évaluation Clients (0 à 10) -->
+          <!-- 7. FORMULES RESTAURATION & HÔTELLERIE -->
+        <section class="chimp-carte-blanche" aria-label="Formules d'abonnement Lou Ame Tay">
+          <h2 class="chimp-section-titre">
+            <span class="chimp-section-titre-icone" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A227" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                <rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect>
+              </svg>
+            </span>
+            <span data-i18n="carte.formules_titre">Nos Formules Restauration & Hôtellerie</span>
+          </h2>
+          <p style="font-size: 0.85rem; color: var(--gris-texte-muet); margin-bottom: 1rem;" data-i18n="carte.formules_desc">
+            Sélectionnez une formule pour en discuter directement lors de la visite du conseiller :
+          </p>
+
+          <div id="liste-offres-carte" class="chimp-offres-liste">
+            <!-- Rendu dynamique par js/carte.js -->
+          </div>
+
+          <div class="bandeau-frais-installation">
+            <strong>Mise en service : 50 000 FCFA</strong> (Création de carte + supports chevalets QR codes résistants à l'eau).
+          </div>
+
+          <div class="paiements-badges">
+            <span style="font-size: 0.75rem; font-weight: 700; color: var(--gris-texte-muet); align-self: center;">Paiements acceptés :</span>
+            <span class="badge-paiement badge-wave">Wave</span>
+            <span class="badge-paiement badge-om">Orange Money</span>
+          </div>
+        </section>
+
+          <!-- BONUS 2 : SIMULATEUR DE RENTABILITÉ ROI CHR -->
+        <section class="simulateur-roi-bloc" id="section-simulateur-roi" aria-label="Simulateur de rentabilité">
+          <h2 class="chimp-section-titre">
+            <span class="chimp-section-titre-icone" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A227" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" x2="18" y1="20" y2="10"></line>
+                <line x1="12" x2="12" y1="20" y2="4"></line>
+                <line x1="6" x2="6" y1="20" y2="14"></line>
+              </svg>
+            </span>
+            <span>Simulateur de Rentabilité CHR</span>
+          </h2>
+          <p style="font-size: 0.85rem; color: var(--gris-texte-muet); margin-bottom: 1.25rem;">
+            Estimez votre gain mensuel moyen avec la commande QR & le menu digital Lou Ame Tay :
+          </p>
+
+          <div class="simulateur-curseur-groupe">
+            <div class="curseur-entete-ligne">
+              <span>Nombre de tables :</span>
+              <span id="simu-val-tables" class="curseur-valeur-badge">25 tables</span>
+            </div>
+            <input type="range" id="simu-range-tables" class="curseur-range-input" min="5" max="80" value="25" step="1">
+          </div>
+
+          <div class="simulateur-curseur-groupe">
+            <div class="curseur-entete-ligne">
+              <span>Ticket moyen par table :</span>
+              <span id="simu-val-ticket" class="curseur-valeur-badge">7 500 FCFA</span>
+            </div>
+            <input type="range" id="simu-range-ticket" class="curseur-range-input" min="2000" max="25000" value="7500" step="500">
+          </div>
+
+          <div class="simulateur-curseur-groupe">
+            <div class="curseur-entete-ligne">
+              <span>Rotations de table / jour :</span>
+              <span id="simu-val-rotation" class="curseur-valeur-badge">2 services</span>
+            </div>
+            <input type="range" id="simu-range-rotation" class="curseur-range-input" min="1" max="4" value="2" step="0.5">
+          </div>
+
+          <!-- Résultat du calcul dynamique -->
+          <div class="simulateur-resultat-carte">
+            <div class="simu-label-sub">Gain de chiffre d'affaires additionnel estimé :</div>
+            <span id="simu-chiffre-gain" class="simu-chiffre-geant">+ 675 000 FCFA / mois</span>
+            <div class="simu-label-sub" style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="#C9A227"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              <span>+18% de panier moyen grâce aux photos HD & 8 min gagnées par commande</span>
+            </div>
+          </div>
+
+          <!-- Graphique comparatif Chart.js -->
+          <div style="margin-top: 18px; max-height: 220px;">
+            <canvas id="chart-roi-comparatif" height="180"></canvas>
+          </div>
+        </section>
+
+          <!-- 10. FORMULAIRE DE CAPTURE DE LEADS RESTAURANT (ENREGISTREMENT BDD + WHATSAPP) -->
+        <section class="chimp-carte-blanche" aria-label="Formulaire de contact rapide">
+          <h2 class="chimp-section-titre">
+            <span class="chimp-section-titre-icone" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A227" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+              </svg>
+            </span>
+            <span data-i18n="carte.demande_devis">Demander une démo ou un devis</span>
+          </h2>
+          <p style="font-size: 0.85rem; color: var(--gris-texte-muet); margin-bottom: 0.75rem;">
+            Laissez les coordonnées de votre restaurant pour être recontacté sous 2h :
+          </p>
+
+          <form id="form-lead-carte" class="formulaire-leads">
+            <div class="champ-groupe">
+              <label for="lead-etablissement" class="champ-label" data-i18n="carte.nom_etablissement">Nom de votre établissement *</label>
+              <input type="text" id="lead-etablissement" class="champ-input" placeholder="Ex: Restaurant Le Teranga, Café du Port..." required>
+            </div>
+
+            <div class="champ-groupe">
+              <label for="lead-nom" class="champ-label" data-i18n="carte.votre_nom">Votre nom & prénom *</label>
+              <input type="text" id="lead-nom" class="champ-input" placeholder="Ex: M. Ousmane Diop" required>
+            </div>
+
+            <div class="champ-groupe">
+              <label for="lead-tel" class="champ-label" data-i18n="carte.telephone">Téléphone / WhatsApp *</label>
+              <input type="tel" id="lead-tel" class="champ-input" placeholder="+221 77 ... ..." required>
+            </div>
+
+            <div class="champ-groupe">
+              <label for="lead-ville" class="champ-label" data-i18n="carte.ville">Ville / Quartier *</label>
+              <select id="lead-ville" class="champ-select" required>
+                <option value="Dakar">Dakar (Plateau, Almadies, Point E, Ngor...)</option>
+                <option value="Thiès">Thiès (Dixième, Randoulène, Cité Lamy...)</option>
+                <option value="Mbour/Saly">Mbour / Saly / Somone</option>
+                <option value="Autre région">Autre localité au Sénégal</option>
+              </select>
+            </div>
+
+            <div class="champ-groupe">
+              <label for="lead-formule" class="champ-label" data-i18n="carte.formule_souhaitee">Formule souhaitée</label>
+              <select id="lead-formule" class="champ-select">
+                <option value="Tàmbali">Formule Tàmbali (15 000 FCFA/mois)</option>
+                <option value="Nio Far">Formule Nio Far (25 000 FCFA/mois)</option>
+                <option value="Xéweul" selected>Formule Xéweul (35 000 FCFA/mois)</option>
+                <option value="Sur Mesure">Sur Mesure (Complexe / Multi-sites)</option>
+              </select>
+            </div>
+
+            <button type="submit" id="btn-envoyer-lead" class="btn btn-primaire" style="width: 100%; margin-top: 0.5rem; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+              <span id="btn-lead-texte" data-i18n="carte.envoyer">🚀 Recevoir ma démo gratuite sans engagement</span>
+              <span id="btn-lead-spinner" class="spinner-chargement" style="display: none;"></span>
+            </button>
+          </form>
+        </section>
+
+          <!-- ACCÈS PRIVÉ DISCRET POUR LE CONSEILLER TERRAIN -->
+        <div class="zone-acces-conseiller-carte" style="text-align: center; margin: 1.5rem 0 1rem;">
+          <a id="lien-espace-commercial" href="commercial.html" class="btn-acces-conseiller-discret" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.82rem; font-weight: 600; color: #64748B; text-decoration: none; padding: 8px 18px; border-radius: 20px; background: rgba(11, 31, 58, 0.04); border: 1px dashed #CBD5E1; transition: all 0.2s;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            <span>Vous êtes ce conseiller ? Espace de travail privé 🔒</span>
+          </a>
+        </div>
+        </div>
+
+        <!-- ══ PANNEAU 2 : AVIS CLIENTS & TÉMOIGNAGES ══ -->
+        <div class="carte-tab-panel" id="tab-panel-avis">
+          <!-- Section Avis & Évaluation Clients (0 à 10) -->
         <section class="carte-avis" id="section-avis" aria-label="Avis et notes des clients">
           <div class="avis-header">
             <h2 style="display: flex; align-items: center; gap: 8px;">
@@ -340,7 +639,81 @@
           </div>
         </section>
 
-        <!-- 5. SECTION "À PROPOS DE MOI" -->
+          <!-- ═══════ C3 : TÉMOIGNAGES CLIENTS ═══════ -->
+        <section class="carte-temoignages" id="section-temoignages" aria-label="Témoignages clients">
+          <h2 style="display: flex; align-items: center; gap: 8px;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C9A227" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+            <span data-i18n="carte.temoignages_titre">Ils en parlent</span>
+          </h2>
+          <div class="temoignages-grid" id="temoignages-grid"></div>
+        </section>
+
+          <!-- 8 BIS. SECTION GOOGLE MAPS, AVIS CLIENTS & SITE WEB OFFICIEL -->
+        <section class="chimp-carte-blanche chimp-google-reviews-section" id="section-google-reviews" aria-label="Avis Google et Localisation officielle Lou Ame Tay">
+          <div class="google-reviews-header">
+            <div class="google-logo-wrapper" aria-hidden="true">
+              <svg width="28" height="28" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
+                <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
+                <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+                <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+              </svg>
+            </div>
+            <div>
+              <h2 class="chimp-section-titre" style="margin: 0; padding: 0; font-size: 1.05rem;">
+                <span>Avis Google & Siège Officiel</span>
+              </h2>
+              <div class="google-stars-row" style="display: flex; align-items: center; gap: 6px; margin-top: 4px;">
+                <span class="google-stars" style="color: #F4B400; font-size: 1.1rem; letter-spacing: 2px;">★★★★★</span>
+                <span class="google-score" style="font-weight: 800; color: #0B1F3A; font-size: 0.95rem;">5.0</span>
+                <span class="google-verified-tag" style="background: #E8F5E9; color: #2E7D32; font-size: 0.7rem; font-weight: 700; padding: 2px 6px; border-radius: 4px;">Avis vérifiés</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="google-address-box" style="margin-top: 12px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 12px; font-size: 0.85rem; color: #334155;">
+            <div style="display: flex; align-items: flex-start; gap: 8px;">
+              <span style="font-size: 1.2rem; line-height: 1;">📍</span>
+              <div>
+                <strong style="color: #0B1F3A;">Siège Lou Ame Tay :</strong> Quartier Fayou, Face Foot Salé, Thiès, Sénégal<br>
+                <span style="display: inline-block; margin-top: 4px; background: rgba(201, 162, 39, 0.15); color: #8A6D15; padding: 2px 8px; border-radius: 6px; font-weight: 700; font-family: monospace;">Code Plus : Q359+WC2, Thiès</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="google-actions-flex" style="margin-top: 14px; display: flex; flex-direction: column; gap: 8px;">
+            <a href="https://www.google.com/maps/search/?api=1&query=Q359%2BWC2,+Thi%C3%A8s" target="_blank" rel="noopener noreferrer" class="btn-google-avis-action" title="Donner un avis 5 étoiles sur Google Maps pour Lou Ame Tay">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="#F4B400">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+              </svg>
+              <span>Donner un avis Google (Thiès) ⭐⭐⭐⭐⭐</span>
+            </a>
+            
+            <div style="display: flex; gap: 8px;">
+              <a href="https://www.google.com/maps/search/?api=1&query=Q359%2BWC2,+Thi%C3%A8s" target="_blank" rel="noopener noreferrer" class="btn-google-map-action" style="flex: 1;" title="Nous situer sur Google Maps">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+                </svg>
+                <span>Google Maps (Q359+WC2)</span>
+              </a>
+              <a href="https://www.louametay.com" target="_blank" rel="noopener noreferrer" class="btn-website-action" style="flex: 1;" title="Visiter www.louametay.com">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="2" y1="12" x2="22" y2="12"></line>
+                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                </svg>
+                <span>www.louametay.com</span>
+              </a>
+            </div>
+          </div>
+        </section>
+        </div>
+
+        <!-- ══ PANNEAU 3 : À PROPOS DU CONSEILLER & RÉSEAUX ══ -->
+        <div class="carte-tab-panel" id="tab-panel-apropos">
+          <!-- 5. SECTION "À PROPOS DE MOI" -->
         <section class="chimp-carte-blanche" aria-label="Biographie du conseiller">
           <h2 class="chimp-section-titre">
             <span class="chimp-section-titre-icone" aria-hidden="true">
@@ -368,7 +741,7 @@
           </div>
         </section>
 
-        <!-- ═══════ SECTION VIDÉO YOUTUBE ═══════ -->
+          <!-- ═══════ SECTION VIDÉO YOUTUBE ═══════ -->
         <section class="carte-video" id="section-video" aria-label="Vidéo de démonstration">
           <div class="video-header">
             <h2 style="display: flex; align-items: center; gap: 8px;">
@@ -425,7 +798,7 @@
           </div>
         </section>
 
-        <!-- ═══════ CARROUSEL D'IMAGES ═══════ -->
+          <!-- ═══════ CARROUSEL D'IMAGES ═══════ -->
         <section class="carte-carrousel" id="section-carrousel" aria-label="Nos réalisations">
           <div class="carrousel-header">
             <h2 style="display: flex; align-items: center; gap: 8px;">
@@ -459,18 +832,7 @@
           </div>
         </section>
 
-        <!-- ═══════ C3 : TÉMOIGNAGES CLIENTS ═══════ -->
-        <section class="carte-temoignages" id="section-temoignages" aria-label="Témoignages clients">
-          <h2 style="display: flex; align-items: center; gap: 8px;">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C9A227" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-            </svg>
-            <span data-i18n="carte.temoignages_titre">Ils en parlent</span>
-          </h2>
-          <div class="temoignages-grid" id="temoignages-grid"></div>
-        </section>
-
-        <!-- 6. COORDONNÉES PROFESSIONNELLES DIRECTES -->
+          <!-- 6. COORDONNÉES PROFESSIONNELLES DIRECTES -->
         <section class="chimp-carte-blanche" aria-label="Coordonnées directes">
           <h2 class="chimp-section-titre">
             <span class="chimp-section-titre-icone" aria-hidden="true">
@@ -522,93 +884,7 @@
           </div>
         </section>
 
-        <!-- 7. FORMULES RESTAURATION & HÔTELLERIE -->
-        <section class="chimp-carte-blanche" aria-label="Formules d'abonnement Lou Ame Tay">
-          <h2 class="chimp-section-titre">
-            <span class="chimp-section-titre-icone" aria-hidden="true">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A227" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                <rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect>
-              </svg>
-            </span>
-            <span data-i18n="carte.formules_titre">Nos Formules Restauration & Hôtellerie</span>
-          </h2>
-          <p style="font-size: 0.85rem; color: var(--gris-texte-muet); margin-bottom: 1rem;" data-i18n="carte.formules_desc">
-            Sélectionnez une formule pour en discuter directement lors de la visite du conseiller :
-          </p>
-
-          <div id="liste-offres-carte" class="chimp-offres-liste">
-            <!-- Rendu dynamique par js/carte.js -->
-          </div>
-
-          <div class="bandeau-frais-installation">
-            <strong>Mise en service : 50 000 FCFA</strong> (Création de carte + supports chevalets QR codes résistants à l'eau).
-          </div>
-
-          <div class="paiements-badges">
-            <span style="font-size: 0.75rem; font-weight: 700; color: var(--gris-texte-muet); align-self: center;">Paiements acceptés :</span>
-            <span class="badge-paiement badge-wave">Wave</span>
-            <span class="badge-paiement badge-om">Orange Money</span>
-          </div>
-        </section>
-
-        <!-- BONUS 2 : SIMULATEUR DE RENTABILITÉ ROI CHR -->
-        <section class="simulateur-roi-bloc" id="section-simulateur-roi" aria-label="Simulateur de rentabilité">
-          <h2 class="chimp-section-titre">
-            <span class="chimp-section-titre-icone" aria-hidden="true">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A227" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" x2="18" y1="20" y2="10"></line>
-                <line x1="12" x2="12" y1="20" y2="4"></line>
-                <line x1="6" x2="6" y1="20" y2="14"></line>
-              </svg>
-            </span>
-            <span>Simulateur de Rentabilité CHR</span>
-          </h2>
-          <p style="font-size: 0.85rem; color: var(--gris-texte-muet); margin-bottom: 1.25rem;">
-            Estimez votre gain mensuel moyen avec la commande QR & le menu digital Lou Ame Tay :
-          </p>
-
-          <div class="simulateur-curseur-groupe">
-            <div class="curseur-entete-ligne">
-              <span>Nombre de tables :</span>
-              <span id="simu-val-tables" class="curseur-valeur-badge">25 tables</span>
-            </div>
-            <input type="range" id="simu-range-tables" class="curseur-range-input" min="5" max="80" value="25" step="1">
-          </div>
-
-          <div class="simulateur-curseur-groupe">
-            <div class="curseur-entete-ligne">
-              <span>Ticket moyen par table :</span>
-              <span id="simu-val-ticket" class="curseur-valeur-badge">7 500 FCFA</span>
-            </div>
-            <input type="range" id="simu-range-ticket" class="curseur-range-input" min="2000" max="25000" value="7500" step="500">
-          </div>
-
-          <div class="simulateur-curseur-groupe">
-            <div class="curseur-entete-ligne">
-              <span>Rotations de table / jour :</span>
-              <span id="simu-val-rotation" class="curseur-valeur-badge">2 services</span>
-            </div>
-            <input type="range" id="simu-range-rotation" class="curseur-range-input" min="1" max="4" value="2" step="0.5">
-          </div>
-
-          <!-- Résultat du calcul dynamique -->
-          <div class="simulateur-resultat-carte">
-            <div class="simu-label-sub">Gain de chiffre d'affaires additionnel estimé :</div>
-            <span id="simu-chiffre-gain" class="simu-chiffre-geant">+ 675 000 FCFA / mois</span>
-            <div class="simu-label-sub" style="display: flex; align-items: center; justify-content: center; gap: 6px;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="#C9A227"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-              <span>+18% de panier moyen grâce aux photos HD & 8 min gagnées par commande</span>
-            </div>
-          </div>
-
-          <!-- Graphique comparatif Chart.js -->
-          <div style="margin-top: 18px; max-height: 220px;">
-            <canvas id="chart-roi-comparatif" height="180"></canvas>
-          </div>
-        </section>
-
-        <!-- 8. RÉSEAUX SOCIAUX -->
+          <!-- 8. RÉSEAUX SOCIAUX -->
         <section class="chimp-carte-blanche" id="section-reseaux" aria-label="Réseaux sociaux Lou Ame Tay">
           <h2 class="chimp-section-titre">
             <span class="chimp-section-titre-icone" aria-hidden="true">
@@ -647,67 +923,7 @@
           </div>
         </section>
 
-        <!-- 8 BIS. SECTION GOOGLE MAPS, AVIS CLIENTS & SITE WEB OFFICIEL -->
-        <section class="chimp-carte-blanche chimp-google-reviews-section" id="section-google-reviews" aria-label="Avis Google et Localisation officielle Lou Ame Tay">
-          <div class="google-reviews-header">
-            <div class="google-logo-wrapper" aria-hidden="true">
-              <svg width="28" height="28" viewBox="0 0 24 24">
-                <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
-                <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
-                <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
-                <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
-              </svg>
-            </div>
-            <div>
-              <h2 class="chimp-section-titre" style="margin: 0; padding: 0; font-size: 1.05rem;">
-                <span>Avis Google & Siège Officiel</span>
-              </h2>
-              <div class="google-stars-row" style="display: flex; align-items: center; gap: 6px; margin-top: 4px;">
-                <span class="google-stars" style="color: #F4B400; font-size: 1.1rem; letter-spacing: 2px;">★★★★★</span>
-                <span class="google-score" style="font-weight: 800; color: #0B1F3A; font-size: 0.95rem;">5.0</span>
-                <span class="google-verified-tag" style="background: #E8F5E9; color: #2E7D32; font-size: 0.7rem; font-weight: 700; padding: 2px 6px; border-radius: 4px;">Avis vérifiés</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="google-address-box" style="margin-top: 12px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 12px; font-size: 0.85rem; color: #334155;">
-            <div style="display: flex; align-items: flex-start; gap: 8px;">
-              <span style="font-size: 1.2rem; line-height: 1;">📍</span>
-              <div>
-                <strong style="color: #0B1F3A;">Siège Lou Ame Tay :</strong> Quartier Fayou, Face Foot Salé, Thiès, Sénégal<br>
-                <span style="display: inline-block; margin-top: 4px; background: rgba(201, 162, 39, 0.15); color: #8A6D15; padding: 2px 8px; border-radius: 6px; font-weight: 700; font-family: monospace;">Code Plus : Q359+WC2, Thiès</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="google-actions-flex" style="margin-top: 14px; display: flex; flex-direction: column; gap: 8px;">
-            <a href="https://www.google.com/maps/search/?api=1&query=Q359%2BWC2,+Thi%C3%A8s" target="_blank" rel="noopener noreferrer" class="btn-google-avis-action" title="Donner un avis 5 étoiles sur Google Maps pour Lou Ame Tay">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="#F4B400">
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-              </svg>
-              <span>Donner un avis Google (Thiès) ⭐⭐⭐⭐⭐</span>
-            </a>
-            
-            <div style="display: flex; gap: 8px;">
-              <a href="https://www.google.com/maps/search/?api=1&query=Q359%2BWC2,+Thi%C3%A8s" target="_blank" rel="noopener noreferrer" class="btn-google-map-action" style="flex: 1;" title="Nous situer sur Google Maps">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
-                </svg>
-                <span>Google Maps (Q359+WC2)</span>
-              </a>
-              <a href="https://www.louametay.com" target="_blank" rel="noopener noreferrer" class="btn-website-action" style="flex: 1;" title="Visiter www.louametay.com">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="2" y1="12" x2="22" y2="12"></line>
-                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1 4-10z"></path>
-                </svg>
-                <span>www.louametay.com</span>
-              </a>
-            </div>
-          </div>
-        </section>
-
-        <!-- 9. QR CODE DYNAMIQUE SCANNABLE -->
+          <!-- 9. QR CODE DYNAMIQUE SCANNABLE -->
         <section class="chimp-carte-blanche chimp-qrcode-bloc" aria-label="QR Code de la carte">
           <h2 class="chimp-section-titre" style="justify-content: center;">
             <span class="chimp-section-titre-icone" aria-hidden="true">
@@ -743,82 +959,7 @@
           </button>
         </section>
 
-        <!-- 10. FORMULAIRE DE CAPTURE DE LEADS RESTAURANT (ENREGISTREMENT BDD + WHATSAPP) -->
-        <section class="chimp-carte-blanche" aria-label="Formulaire de contact rapide">
-          <h2 class="chimp-section-titre">
-            <span class="chimp-section-titre-icone" aria-hidden="true">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A227" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-                <line x1="16" y1="13" x2="8" y2="13"></line>
-                <line x1="16" y1="17" x2="8" y2="17"></line>
-              </svg>
-            </span>
-            <span data-i18n="carte.demande_devis">Demander une démo ou un devis</span>
-          </h2>
-          <p style="font-size: 0.85rem; color: var(--gris-texte-muet); margin-bottom: 0.75rem;">
-            Laissez les coordonnées de votre restaurant pour être recontacté sous 2h :
-          </p>
-
-          <form id="form-lead-carte" class="formulaire-leads">
-            <div class="champ-groupe">
-              <label for="lead-etablissement" class="champ-label" data-i18n="carte.nom_etablissement">Nom de votre établissement *</label>
-              <input type="text" id="lead-etablissement" class="champ-input" placeholder="Ex: Restaurant Le Teranga, Café du Port..." required>
-            </div>
-
-            <div class="champ-groupe">
-              <label for="lead-nom" class="champ-label" data-i18n="carte.votre_nom">Votre nom & prénom *</label>
-              <input type="text" id="lead-nom" class="champ-input" placeholder="Ex: M. Ousmane Diop" required>
-            </div>
-
-            <div class="champ-groupe">
-              <label for="lead-tel" class="champ-label" data-i18n="carte.telephone">Téléphone / WhatsApp *</label>
-              <input type="tel" id="lead-tel" class="champ-input" placeholder="+221 77 ... ..." required>
-            </div>
-
-            <div class="champ-groupe">
-              <label for="lead-ville" class="champ-label" data-i18n="carte.ville">Ville / Quartier *</label>
-              <select id="lead-ville" class="champ-select" required>
-                <option value="Dakar">Dakar (Plateau, Almadies, Point E, Ngor...)</option>
-                <option value="Thiès">Thiès (Dixième, Randoulène, Cité Lamy...)</option>
-                <option value="Mbour/Saly">Mbour / Saly / Somone</option>
-                <option value="Autre région">Autre localité au Sénégal</option>
-              </select>
-            </div>
-
-            <div class="champ-groupe">
-              <label for="lead-formule" class="champ-label" data-i18n="carte.formule_souhaitee">Formule souhaitée</label>
-              <select id="lead-formule" class="champ-select">
-                <option value="Tàmbali">Formule Tàmbali (15 000 FCFA/mois)</option>
-                <option value="Nio Far">Formule Nio Far (25 000 FCFA/mois)</option>
-                <option value="Xéweul" selected>Formule Xéweul (35 000 FCFA/mois)</option>
-                <option value="Sur Mesure">Sur Mesure (Complexe / Multi-sites)</option>
-              </select>
-            </div>
-
-            <button type="submit" id="btn-envoyer-lead" class="btn btn-primaire" style="width: 100%; margin-top: 0.5rem; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="22" y1="2" x2="11" y2="13"></line>
-                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-              </svg>
-              <span id="btn-lead-texte" data-i18n="carte.envoyer">🚀 Recevoir ma démo gratuite sans engagement</span>
-              <span id="btn-lead-spinner" class="spinner-chargement" style="display: none;"></span>
-            </button>
-          </form>
-        </section>
-
-        <!-- ACCÈS PRIVÉ DISCRET POUR LE CONSEILLER TERRAIN -->
-        <div class="zone-acces-conseiller-carte" style="text-align: center; margin: 1.5rem 0 1rem;">
-          <a id="lien-espace-commercial" href="commercial.html" class="btn-acces-conseiller-discret" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.82rem; font-weight: 600; color: #64748B; text-decoration: none; padding: 8px 18px; border-radius: 20px; background: rgba(11, 31, 58, 0.04); border: 1px dashed #CBD5E1; transition: all 0.2s;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-            </svg>
-            <span>Vous êtes ce conseiller ? Espace de travail privé 🔒</span>
-          </a>
-        </div>
-
-        <!-- 12. SECTION ENTREPRISE "LOU AME TAY", SITE WEB ET GALERIE -->
+          <!-- 12. SECTION ENTREPRISE "LOU AME TAY", SITE WEB ET GALERIE -->
         <section class="chimp-carte-blanche chimp-entreprise-bloc" aria-label="L'entreprise Lou Ame Tay">
           <h2 class="chimp-section-titre">
             <span class="chimp-section-titre-icone" aria-hidden="true">
@@ -837,6 +978,7 @@
 
           <div id="carte-entreprise-galerie" class="chimp-galerie-grille"></div>
         </section>
+        </div>
 
         <!-- Bouton retour en bas -->
         <div style="text-align: center; margin-top: 0.5rem;">

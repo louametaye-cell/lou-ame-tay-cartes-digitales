@@ -831,20 +831,22 @@ body {
 
 .hero-nom-commercial {
   font-family: var(--police-titre);
-  font-size: 2.2rem;
-  font-weight: 900;
+  font-size: 1.35rem;
+  font-weight: 800;
   color: #FFFFFF;
-  line-height: 1.12;
-  letter-spacing: -0.5px;
-  text-shadow: 0 3px 12px rgba(0, 0, 0, 0.7);
+  line-height: 1.2;
+  letter-spacing: -0.2px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
 }
 
 .hero-poste-commercial {
-  font-size: 1.05rem;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.9);
-  line-height: 1.35;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #C9A227;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  line-height: 1.3;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
 }
 
 .hero-entreprise-ruban {
@@ -911,13 +913,13 @@ body {
 }
 
 .chimp-cercle-icone {
-  width: 54px;
-  height: 54px;
+  width: 44px;
+  height: 44px;
   border-radius: var(--arrondi-rond);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.35rem;
+  font-size: 1.15rem;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
   transition: all var(--transition-normale);
   cursor: pointer;
@@ -970,7 +972,7 @@ body {
 
 .chimp-cercle-label {
   font-family: var(--police-titre);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -3552,12 +3554,12 @@ body.intro-active {
 .badge-item {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 12px;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-size: 0.72rem;
   font-weight: 700;
-  border: 1px solid;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 /* C3 : Témoignages Section */
@@ -4201,5 +4203,772 @@ body.intro-active {
   box-shadow: 0 15px 35px rgba(11, 31, 58, 0.3);
   position: relative;
   box-sizing: border-box;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   REFONTE PRESTIGE : BENTO ACTIONS, SIMULATEUR DÉMO LIVE & DIAPORAMA
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* 1. Bouton Or Prestige Démo */
+.btn-or-prestige {
+  width: 100%;
+  height: 48px;
+  background: linear-gradient(135deg, #DFBD47 0%, #C9A227 50%, #B38E1B 100%);
+  color: #0B1F3A;
+  border: none;
+  border-radius: 12px;
+  font-family: var(--police-titre);
+  font-size: 0.95rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(201, 162, 39, 0.35);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
+}
+
+.btn-or-prestige:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(201, 162, 39, 0.5);
+  filter: brightness(1.05);
+}
+
+.btn-or-prestige:active {
+  transform: scale(0.98);
+}
+
+/* 2. Bento Grid Tactile 2 Colonnes */
+.bento-grid-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 10px 0 6px;
+}
+
+.bento-tuile {
+  background: #FFFFFF;
+  border: 1px solid rgba(11, 31, 58, 0.12);
+  border-radius: 14px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.bento-tuile:hover {
+  border-color: #C9A227;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(11, 31, 58, 0.08);
+}
+
+.bento-tuile:active {
+  transform: scale(0.97);
+}
+
+.bento-icone {
+  font-size: 1.35rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.bento-texte {
+  display: flex;
+  flex-direction: column;
+}
+
+.bento-texte strong {
+  font-family: var(--police-titre);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #0B1F3A;
+  line-height: 1.2;
+}
+
+.bento-texte small {
+  font-size: 0.70rem;
+  color: #64748B;
+  margin-top: 2px;
+  line-height: 1.1;
+}
+
+/* 3. Ligne de réassurance discrète avec point vert pulsant */
+.support-wa-ligne-fine {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.76rem;
+  color: #334155;
+  font-weight: 600;
+  padding: 7px 12px;
+  background: rgba(37, 211, 102, 0.08);
+  border-radius: 20px;
+  margin: 6px 0 16px;
+  border: 1px solid rgba(37, 211, 102, 0.2);
+}
+
+.pulse-point-vert {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #25D366;
+  display: inline-block;
+  box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7);
+  animation: pulseVertAnim 2s infinite;
+  flex-shrink: 0;
+}
+
+@keyframes pulseVertAnim {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 6px rgba(37, 211, 102, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0);
+  }
+}
+
+@keyframes pulseRougeAnim {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+  70% {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   4. SIMULATEUR DÉMO LIVE MULTI-ÉCRANS (Client ➔ Cuisine ➔ Ticket)
+   ═══════════════════════════════════════════════════════════════════ */
+.simulateur-demo-section {
+  background: #FFFFFF;
+  border-radius: 18px;
+  border: 1.5px solid #E2E8F0;
+  padding: 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 8px 24px rgba(11, 31, 58, 0.05);
+}
+
+.simulateur-titre-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.simulateur-titre-bar h3 {
+  font-family: var(--police-titre);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #0B1F3A;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badge-live-pulse {
+  background: #FEF3C7;
+  color: #92400E;
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(201, 162, 39, 0.4);
+}
+
+.demo-live-tabs {
+  display: flex;
+  gap: 6px;
+  background: #F1F5F9;
+  padding: 4px;
+  border-radius: 12px;
+  margin-bottom: 14px;
+}
+
+.demo-tab-btn {
+  flex: 1;
+  padding: 8px 6px;
+  border-radius: 8px;
+  border: none;
+  font-family: var(--police-titre);
+  font-size: 0.78rem;
+  font-weight: 700;
+  background: transparent;
+  color: #64748B;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.demo-tab-btn.active {
+  background: #FFFFFF;
+  color: #0B1F3A;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.badge-notif-rouge {
+  background: #EF4444;
+  color: #FFFFFF;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 10px;
+  animation: pulseRougeAnim 1.5s infinite;
+}
+
+.demo-ecran-vue {
+  display: none;
+}
+
+.demo-ecran-vue.active {
+  display: block;
+  animation: fadeIn 0.25s ease-in-out;
+}
+
+/* Écran 1 : Client */
+.demo-table-info {
+  background: #F8FAFC;
+  border: 1px dashed #CBD5E1;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 0.75rem;
+  color: #475569;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.demo-plats-liste {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.demo-plat-item {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  transition: border-color 0.2s;
+}
+
+.demo-plat-item:hover {
+  border-color: #CBD5E1;
+}
+
+.demo-plat-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.demo-plat-emoji {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.demo-plat-nom {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #0B1F3A;
+  line-height: 1.2;
+}
+
+.demo-plat-prix {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #C9A227;
+}
+
+.btn-ajouter-panier {
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  color: #0B1F3A;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-ajouter-panier:hover {
+  background: #0B1F3A;
+  color: #FFFFFF;
+  border-color: #0B1F3A;
+}
+
+.btn-ajouter-panier.ajoute {
+  background: #25D366;
+  color: #FFFFFF;
+  border-color: #25D366;
+}
+
+.demo-panier-bar {
+  background: #0B1F3A;
+  color: #FFFFFF;
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.demo-panier-total-box {
+  display: flex;
+  flex-direction: column;
+}
+
+.demo-panier-label {
+  font-size: 0.68rem;
+  color: #94A3B8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.demo-panier-total {
+  font-family: var(--police-titre);
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #F8E294;
+}
+
+.btn-commander-vert {
+  background: #25D366;
+  color: #0B1F3A;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-family: var(--police-titre);
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-commander-vert:disabled {
+  background: #334155;
+  color: #64748B;
+  cursor: not-allowed;
+}
+
+.btn-commander-vert:not(:disabled):hover {
+  background: #20BA5A;
+  transform: translateY(-1px);
+}
+
+/* Écran 2 : Cuisine KDS */
+.kds-boite {
+  background: #0F172A;
+  border-radius: 14px;
+  padding: 14px;
+  color: #F8FAFC;
+}
+
+.kds-entete-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #334155;
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+}
+
+.kds-statut-badge {
+  background: #EF4444;
+  color: #FFFFFF;
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.kds-statut-badge.pret {
+  background: #25D366;
+  color: #0B1F3A;
+}
+
+.kds-horodatage {
+  font-size: 0.72rem;
+  color: #94A3B8;
+}
+
+.kds-items-liste {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 14px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.kds-item-ligne {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #F1F5F9;
+}
+
+.btn-kds-pret {
+  width: 100%;
+  padding: 10px;
+  background: #F59E0B;
+  color: #0B1F3A;
+  border: none;
+  border-radius: 10px;
+  font-family: var(--police-titre);
+  font-size: 0.85rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.btn-kds-pret:hover {
+  background: #D97706;
+  color: #FFFFFF;
+}
+
+.btn-kds-pret.pret-fait {
+  background: #25D366;
+  color: #0B1F3A;
+  pointer-events: none;
+}
+
+/* Écran 3 : Ticket Numérique */
+.ticket-cadre {
+  background: #FFFDF9;
+  border: 1px dashed #CBD5E1;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.02);
+}
+
+.ticket-header-centre {
+  text-align: center;
+  border-bottom: 1px dashed #CBD5E1;
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+}
+
+.ticket-header-centre h4 {
+  margin: 0;
+  font-family: var(--police-titre);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #0B1F3A;
+}
+
+.ticket-header-centre p {
+  margin: 2px 0 0;
+  font-size: 0.72rem;
+  color: #64748B;
+}
+
+.ticket-lignes-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.80rem;
+  color: #334155;
+  margin-bottom: 12px;
+}
+
+.ticket-ligne {
+  display: flex;
+  justify-content: space-between;
+}
+
+.ticket-ligne-total {
+  border-top: 1.5px solid #0B1F3A;
+  padding-top: 8px;
+  margin-top: 6px;
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: #0B1F3A;
+}
+
+.ticket-paiement-boutons {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0 10px;
+}
+
+.badge-wave-demo {
+  flex: 1;
+  background: #1BA4F5;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 4px;
+  font-weight: 700;
+  font-size: 0.75rem;
+  cursor: pointer;
+  text-align: center;
+  transition: opacity 0.2s;
+}
+
+.badge-om-demo {
+  flex: 1;
+  background: #FF7900;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 4px;
+  font-weight: 700;
+  font-size: 0.75rem;
+  cursor: pointer;
+  text-align: center;
+  transition: opacity 0.2s;
+}
+
+.badge-wave-demo:hover, .badge-om-demo:hover {
+  opacity: 0.9;
+}
+
+.ticket-mention-rse {
+  text-align: center;
+  font-size: 0.70rem;
+  color: #16A34A;
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+.btn-restart-demo {
+  background: transparent;
+  border: 1px solid #CBD5E1;
+  color: #64748B;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  width: 100%;
+  margin-top: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-restart-demo:hover {
+  background: #F1F5F9;
+  color: #0B1F3A;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   5. DIAPORAMA SHOWCASE SAAS 360°
+   ═══════════════════════════════════════════════════════════════════ */
+.carrousel-saas-section {
+  background: #0B1F3A;
+  border-radius: 18px;
+  padding: 16px;
+  color: #FFFFFF;
+  margin-bottom: 20px;
+  box-shadow: 0 10px 30px rgba(11, 31, 58, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.carrousel-saas-titre {
+  text-align: center;
+  margin-bottom: 14px;
+}
+
+.carrousel-saas-titre h3 {
+  font-family: var(--police-titre);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #C9A227;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.carrousel-saas-titre p {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 2px 0 0;
+}
+
+.saas-diaporama-cadre {
+  position: relative;
+  min-height: 160px;
+}
+
+.saas-slide-item {
+  display: none;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(201, 162, 39, 0.25);
+  border-radius: 14px;
+  padding: 14px;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.saas-slide-item.active {
+  display: block;
+}
+
+.slide-tag-badge {
+  display: inline-block;
+  background: rgba(201, 162, 39, 0.2);
+  color: #F8E294;
+  border: 1px solid rgba(201, 162, 39, 0.5);
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.slide-item-titre {
+  font-family: var(--police-titre);
+  font-size: 0.90rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  margin: 0 0 6px 0;
+}
+
+.slide-item-desc {
+  font-size: 0.76rem;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.35;
+  margin: 0;
+}
+
+.saas-diaporama-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+}
+
+.saas-nav-btn {
+  background: rgba(255, 255, 255, 0.1);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.saas-nav-btn:hover {
+  background: #C9A227;
+  color: #0B1F3A;
+  border-color: #C9A227;
+}
+
+.saas-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.saas-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.saas-dot.active {
+  width: 22px;
+  border-radius: 10px;
+  background: #C9A227;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   6. NAVIGATION PAR ONGLETS PRINCIPAUX (Suppression du Scroll Infini)
+   ═══════════════════════════════════════════════════════════════════ */
+.carte-onglets-principaux {
+  display: flex;
+  gap: 6px;
+  background: #F1F5F9;
+  padding: 5px;
+  border-radius: 14px;
+  margin: 14px 0 16px;
+  position: sticky;
+  top: 10px;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(11, 31, 58, 0.08);
+}
+
+.tab-main-btn {
+  flex: 1;
+  padding: 10px 4px;
+  border: none;
+  border-radius: 10px;
+  font-family: var(--police-titre);
+  font-size: 0.82rem;
+  font-weight: 700;
+  background: transparent;
+  color: #64748B;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.tab-main-btn.active {
+  background: #0B1F3A;
+  color: #F8E294;
+  box-shadow: 0 2px 8px rgba(11, 31, 58, 0.2);
+}
+
+.carte-tab-panel {
+  display: none;
+}
+
+.carte-tab-panel.active {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  animation: fadeIn 0.25s ease-in-out;
 }
 
