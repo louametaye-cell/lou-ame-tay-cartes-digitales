@@ -1447,8 +1447,235 @@ function initialiserProspects() {
       }
     });
   }
+
+  // Initialisation du module vocal Voice-to-CRM
+  initialiserVoiceToCRM();
 }
 initialiserProspects();
+
+/**
+ * ==============================================================================
+ * MODULE VOICE-TO-CRM : SAISIE VOCALE EN WOLOF & FRANÇAIS (WEB SPEECH API)
+ * ==============================================================================
+ * Permet au commercial en déplacement de dicter un compte-rendu vocal.
+ * L'analyseur sémantique extrait automatiquement le restaurant, le contact,
+ * le téléphone, la formule et la ville pour pré-remplir le prospect.
+ */
+function initialiserVoiceToCRM() {
+  const btnVocal = document.getElementById('btn-vocal-prospect');
+  const modalVocal = document.getElementById('modal-vocal-crm');
+  const btnAnnuler = document.getElementById('btn-annuler-vocal');
+  const btnTerminer = document.getElementById('btn-terminer-vocal');
+  const boxTranscript = document.getElementById('vocal-transcript-box');
+
+  if (!btnVocal) return;
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let recognition = null;
+  let transcritAccumule = '';
+
+  btnVocal.addEventListener('click', () => {
+    // Mode secours si Web Speech API non supportée
+    if (!SpeechRecognition) {
+      afficherToast("🎙️ Dictée vocale non supportée par votre navigateur. Ouverture du formulaire...");
+      document.getElementById('modal-nouveau-prospect').style.display = 'flex';
+      return;
+    }
+
+    transcritAccumule = '';
+    if (boxTranscript) {
+      boxTranscript.innerHTML = '<span style="color: #94A3B8; font-style: italic;">🎙️ Parlez maintenant... Nous vous écoutons.</span>';
+    }
+    if (modalVocal) modalVocal.style.display = 'flex';
+
+    try {
+      recognition = new SpeechRecognition();
+      recognition.lang = 'fr-FR';
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.maxAlternatives = 1;
+
+      recognition.onresult = (event) => {
+        let interimTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            transcritAccumule += event.results[i][0].transcript + ' ';
+          } else {
+            interimTranscript += event.results[i][0].transcript;
+          }
+        }
+        const texteComplet = (transcritAccumule + interimTranscript).trim();
+        if (boxTranscript && texteComplet) {
+          boxTranscript.textContent = texteComplet;
+        }
+      };
+
+      recognition.onerror = (event) => {
+        console.warn('Erreur reconnaissance vocale:', event.error);
+        if (event.error === 'not-allowed') {
+          afficherToast("⚠️ Accès au micro refusé. Veuillez autoriser le micro dans votre navigateur.");
+          if (modalVocal) modalVocal.style.display = 'none';
+          document.getElementById('modal-nouveau-prospect').style.display = 'flex';
+        }
+      };
+
+      recognition.start();
+    } catch (err) {
+      console.warn('Erreur démarrage SpeechRecognition:', err);
+      afficherToast("Impossible d'activer le micro. Ouverture du formulaire...");
+      if (modalVocal) modalVocal.style.display = 'none';
+      document.getElementById('modal-nouveau-prospect').style.display = 'flex';
+    }
+  });
+
+  function arreterEtValider() {
+    if (recognition) {
+      try { recognition.stop(); } catch (e) {}
+    }
+    if (modalVocal) modalVocal.style.display = 'none';
+
+    const texteFinal = (boxTranscript?.textContent || transcritAccumule || '').trim();
+    if (!texteFinal || texteFinal.includes('Parlez maintenant...')) {
+      afficherToast("Aucun son capté. Vous pouvez remplir le formulaire manuellement.");
+      document.getElementById('modal-nouveau-prospect').style.display = 'flex';
+      return;
+    }
+
+    analyserEtRemplirProspect(texteFinal);
+  }
+
+  btnTerminer?.addEventListener('click', arreterEtValider);
+
+  btnAnnuler?.addEventListener('click', () => {
+    if (recognition) {
+      try { recognition.stop(); } catch (e) {}
+    }
+    if (modalVocal) modalVocal.style.display = 'none';
+  });
+}
+
+/**
+ * Analyse sémantique d'un compte-rendu vocal pour extraire automatiquement :
+ * - Nom du restaurant / établissement
+ * - Nom du gérant / contact
+ * - Numéro de téléphone / WhatsApp (+221)
+ * - Formule Lou Ame Tay (Xéweul, Nio Far, Tàmbali, Sur Mesure)
+ * - Ville ou quartier
+ * - Notes & détails de négociation
+ * @param {string} texteBrut
+ */
+function analyserEtRemplirProspect(texteBrut) {
+  if (!texteBrut) return;
+  const texte = texteBrut.trim();
+  const texteLower = texte.toLowerCase();
+
+  // 1. EXTRACTION DU RESTAURANT
+  let nomResto = '';
+  const matchResto = texte.match(/(?:visité le restaurant|visité l'établissement|visité|visite)\s+([a-zA-Z0-9À-ÿ\s'’\-]+?)(?=\s+(?:contact|gérant|gerant|responsable|patron|monsieur|m\.|madame|mme|au|à|formule|tél|tel|téléphone|intéressé|interesse|dans|sur|pour|,|\.|$))/i)
+    || texte.match(/(?:restaurant|chez|dibiterie|fast-food|bar|snack|hôtel|hotel|pâtisserie|boulangerie)\s+([a-zA-Z0-9À-ÿ\s'’\-]+?)(?=\s+(?:contact|gérant|gerant|responsable|patron|monsieur|m\.|madame|mme|au|à|formule|tél|tel|téléphone|intéressé|interesse|dans|sur|pour|,|\.|$))/i);
+
+  if (matchResto && matchResto[1]) {
+    nomResto = matchResto[1].trim();
+    const matchedFull = matchResto[0].toLowerCase();
+    if (matchedFull.startsWith('chez ') && !nomResto.toLowerCase().startsWith('chez')) {
+      nomResto = 'Chez ' + nomResto;
+    } else if (matchedFull.startsWith('dibiterie ') && !nomResto.toLowerCase().startsWith('dibiterie')) {
+      nomResto = 'Dibiterie ' + nomResto;
+    } else if (matchedFull.startsWith('restaurant ') && !nomResto.toLowerCase().startsWith('restaurant')) {
+      nomResto = 'Restaurant ' + nomResto;
+    }
+    nomResto = nomResto.charAt(0).toUpperCase() + nomResto.slice(1);
+  }
+
+  // 2. EXTRACTION DU CONTACT / GÉRANT
+  let nomContact = '';
+  const matchContact = texte.match(/(?:contact|gérant|gerant|responsable|patron|monsieur|madame|m\.|mme|borom bi)\s+([a-zA-Z0-9À-ÿ\s'’\-]+?)(?=\s+(?:au|à|formule|tél|tel|téléphone|intéressé|interesse|dans|sur|pour|,|\.|$))/i);
+  if (matchContact && matchContact[1]) {
+    nomContact = matchContact[1].trim();
+    nomContact = nomContact.charAt(0).toUpperCase() + nomContact.slice(1);
+  }
+
+  // 3. EXTRACTION DU TÉLÉPHONE SÉNÉGALAIS
+  let telContact = '';
+  const matchTel = texte.match(/(?:tél|tel|téléphone|whatsapp|au)?\s*(7[05678][0-9\s]{7,11})/i);
+  if (matchTel && matchTel[1]) {
+    telContact = matchTel[1].replace(/\s+/g, '');
+    if (telContact.length > 9) telContact = telContact.slice(0, 9);
+  }
+
+  // 4. EXTRACTION DE LA FORMULE LOU AME TAY
+  let formuleChoisie = 'Xéweul'; // Valeur par défaut
+  if (texteLower.includes('xeweul') || texteLower.includes('xéweul') || texteLower.includes('kds') || texteLower.includes('cuisine') || texteLower.includes('35')) {
+    formuleChoisie = 'Xéweul';
+  } else if (texteLower.includes('nio far') || texteLower.includes('niofar') || texteLower.includes('serveur') || texteLower.includes('25')) {
+    formuleChoisie = 'Nio Far';
+  } else if (texteLower.includes('tambali') || texteLower.includes('tàmbali') || texteLower.includes('menu qr') || texteLower.includes('15')) {
+    formuleChoisie = 'Tàmbali';
+  } else if (texteLower.includes('sur mesure') || texteLower.includes('complexe') || texteLower.includes('multi')) {
+    formuleChoisie = 'Sur Mesure';
+  }
+
+  // 5. EXTRACTION DE LA VILLE / LOCALITÉ
+  let villeDetectee = '';
+  const villesMapping = [
+    { key: 'almadies', val: 'Dakar Almadies' },
+    { key: 'ngor', val: 'Dakar Almadies' },
+    { key: 'ouakam', val: 'Dakar Almadies' },
+    { key: 'plateau', val: 'Dakar Plateau' },
+    { key: 'point e', val: 'Dakar Point E / Mermoz' },
+    { key: 'mermoz', val: 'Dakar Point E / Mermoz' },
+    { key: 'thies', val: 'Thiès Ville' },
+    { key: 'thiès', val: 'Thiès Ville' },
+    { key: 'saly', val: 'Saly Portudal / Mbour' },
+    { key: 'mbour', val: 'Saly Portudal / Mbour' },
+    { key: 'saint-louis', val: 'Saint-Louis (Ndar)' },
+    { key: 'ndar', val: 'Saint-Louis (Ndar)' },
+    { key: 'touba', val: 'Touba / Mbacké' },
+    { key: 'mbacke', val: 'Touba / Mbacké' },
+    { key: 'kaolack', val: 'Kaolack' },
+    { key: 'louga', val: 'Louga' },
+    { key: 'casamance', val: 'Casamance (Ziguinchor / Cap Skirring)' },
+    { key: 'ziguinchor', val: 'Casamance (Ziguinchor / Cap Skirring)' },
+    { key: 'cap skirring', val: 'Casamance (Ziguinchor / Cap Skirring)' }
+  ];
+
+  for (const item of villesMapping) {
+    if (texteLower.includes(item.key)) {
+      villeDetectee = item.val;
+      break;
+    }
+  }
+
+  // 6. SYNTHÈSE DES NOTES
+  const horodatage = new Date().toLocaleDateString('fr-FR', {
+    day: '2-digit',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+  const noteSynthese = `🎙️ Dictée vocale (${horodatage}) : ${texte}`;
+
+  // INJECTION DANS LE FORMULAIRE DU MODAL
+  const elResto = document.getElementById('prospect-resto');
+  const elNom = document.getElementById('prospect-nom');
+  const elTel = document.getElementById('prospect-tel');
+  const elVille = document.getElementById('prospect-ville');
+  const elFormule = document.getElementById('prospect-formule');
+  const elMsg = document.getElementById('prospect-message');
+
+  if (elResto && nomResto) elResto.value = nomResto;
+  if (elNom && nomContact) elNom.value = nomContact;
+  if (elTel && telContact) elTel.value = telContact;
+  if (elVille && villeDetectee) elVille.value = villeDetectee;
+  if (elFormule && formuleChoisie) elFormule.value = formuleChoisie;
+  if (elMsg) elMsg.value = noteSynthese;
+
+  // Ouvrir la modal nouveau prospect
+  const modalProspect = document.getElementById('modal-nouveau-prospect');
+  if (modalProspect) modalProspect.style.display = 'flex';
+
+  afficherToast('✨ Données vocales extraites avec succès ! Vérifiez et validez.');
+}
 
 async function chargerProspects() {
   const cId = commercialConnecte.id;
