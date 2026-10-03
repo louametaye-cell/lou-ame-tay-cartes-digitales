@@ -974,9 +974,89 @@ function initialiserModalDerogationPointage() {
 }
 
 // ==============================================================================
-// 7. MODULE COMMISSIONS (TAUX DYNAMIQUE MODIFIABLE PAR L'ADMINISTRATION)
+// 7. MODULE COMMISSIONS & INSTANT-WALLET (LOU AME TAY FINTECH PRO)
 // ==============================================================================
 let tauxCommissionCommercial = 10.0;
+
+// 7a. MOTEUR AUDIO WEB AUDIO API (SON "CHACHING !" DE CAISSE ENREGISTREUSE SANS MP3)
+function jouerSonChachingCaisse() {
+  try {
+    const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtxClass) return;
+    const audioCtx = new AudioCtxClass();
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+    const now = audioCtx.currentTime;
+
+    // 1. Première note cristalline métallique (B5 - 987.77 Hz)
+    const osc1 = audioCtx.createOscillator();
+    const gain1 = audioCtx.createGain();
+    osc1.type = 'triangle';
+    osc1.frequency.setValueAtTime(987.77, now);
+    gain1.gain.setValueAtTime(0.35, now);
+    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+    osc1.connect(gain1);
+    gain1.connect(audioCtx.destination);
+    osc1.start(now);
+    osc1.stop(now + 0.45);
+
+    // 2. Deuxième note brillante de caisse enregistreuse (E6 - 1318.51 Hz)
+    const osc2 = audioCtx.createOscillator();
+    const gain2 = audioCtx.createGain();
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(1318.51, now + 0.08);
+    gain2.gain.setValueAtTime(0.45, now + 0.08);
+    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
+    osc2.connect(gain2);
+    gain2.connect(audioCtx.destination);
+    osc2.start(now + 0.08);
+    osc2.stop(now + 0.65);
+
+    // 3. Bruissement métallique de pièces de monnaie (white noise filtré)
+    const bufferSize = audioCtx.sampleRate * 0.12;
+    const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const output = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      output[i] = Math.random() * 2 - 1;
+    }
+    const noise = audioCtx.createBufferSource();
+    noise.buffer = noiseBuffer;
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.value = 4000;
+    const noiseGain = audioCtx.createGain();
+    noiseGain.gain.setValueAtTime(0.15, now);
+    noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+    noise.connect(filter);
+    filter.connect(noiseGain);
+    noiseGain.connect(audioCtx.destination);
+    noise.start(now);
+    noise.stop(now + 0.12);
+  } catch (e) {
+    console.debug('Audio non supporté ou bloqué:', e);
+  }
+}
+
+// 7b. ANIMATION DE CONFETTIS DORÉS & ÉMERAUDE
+function lancerConfettisVictoire() {
+  if (typeof confetti === 'function') {
+    confetti({
+      particleCount: 90,
+      spread: 80,
+      origin: { y: 0.6 },
+      colors: ['#C9A227', '#E5C058', '#10B981', '#0B1F3A', '#FFFFFF', '#3B82F6']
+    });
+  }
+}
+
+// 7c. CÉLÉBRATION GLOBALE D'UNE COMMISSION VALIDÉE (EFFET WHAOU)
+function celebrerNouvelleCommission(nomRestaurant, montantCommission) {
+  jouerSonChachingCaisse();
+  lancerConfettisVictoire();
+  const montantFmt = Number(montantCommission || 0).toLocaleString('fr-FR');
+  afficherToast(`🎉 Félicitations ! Votre commission sur le restaurant ${nomRestaurant} vient d'être créditée (+${montantFmt} FCFA) !`);
+}
 
 async function chargerTauxCommissionCommercial() {
   try {
@@ -1003,7 +1083,7 @@ async function chargerTauxCommissionCommercial() {
     el.textContent = `${tauxCommissionCommercial}%`;
   });
   const thTitre = document.getElementById('th-comm-commercial-titre');
-  if (thTitre) thTitre.textContent = `Commission (${tauxCommissionCommercial}%)`;
+  if (thTitre) thTitre.textContent = `Votre commission (${tauxCommissionCommercial}%)`;
 
   const pillTaux = document.getElementById('comm-pill-taux');
   if (pillTaux) pillTaux.textContent = `Commissions directes (${tauxCommissionCommercial}%) sur contrats`;
@@ -1018,6 +1098,11 @@ async function chargerCommissions() {
   let totalDisponible = 0;
   let totalAttente = 0;
   let totalRecu = 0;
+
+  // Mise à jour de l'opérateur de versement dynamique sur le Wallet
+  const opActuel = (commercialConnecte?.payout_operator === 'ORANGE_MONEY') ? 'Orange Money' : 'Wave';
+  const spanOp = document.getElementById('nom-operateur-wallet');
+  if (spanOp) spanOp.textContent = opActuel;
 
   try {
     await chargerTauxCommissionCommercial();
@@ -1061,7 +1146,7 @@ async function chargerCommissions() {
       tbody.innerHTML = `
         <tr>
           <td colspan="6" style="text-align: center; padding: 2.5rem; color: var(--texte-muet);">
-            <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">💰</div>
+            <div style="font-size: 1.6rem; margin-bottom: 0.5rem;">💳</div>
             <strong>Aucune commission pour le moment.</strong><br>
             Signez un contrat de formule (Tàmbali, Nio Far, Xéweul) pour percevoir automatiquement ${tauxCommissionCommercial}% sur chaque signature !
           </td>
@@ -1075,38 +1160,75 @@ async function chargerCommissions() {
         else if (c.statut === 'EN_ATTENTE') totalAttente += montantComm;
         else if (c.statut === 'PAYE') totalRecu += montantComm;
 
-        const badgeClass = c.statut === 'PAYE' ? 'vert' : c.statut === 'VALIDE' ? 'bleu' : 'jaune';
-        const badgeLabel = c.statut === 'PAYE' ? 'Payé' : c.statut === 'VALIDE' ? 'Validé' : 'En attente';
+        let badgeHtml = '';
+        if (c.statut === 'PAYE') {
+          badgeHtml = `<span class="comm-badge vert">🟢 Payé sur ${opActuel}</span>`;
+        } else if (c.statut === 'VALIDE') {
+          badgeHtml = `<span class="comm-badge vert">🟢 Prêt pour décaissement</span>`;
+        } else {
+          badgeHtml = `<span class="comm-badge jaune">🟡 En cours d'encaissement</span>`;
+        }
+
+        const dateAffichee = c.date_signature || (c.created_at ? c.created_at.split('T')[0] : '—');
 
         return `
           <tr>
+            <td style="color: var(--texte-muet); font-size: 0.85rem; white-space: nowrap;">${dateAffichee}</td>
             <td><strong>${escapeHtml(c.restaurant_nom || '—')}</strong></td>
             <td><span class="comm-badge bleu">${escapeHtml(c.formule || 'Xéweul')}</span></td>
-            <td>${montantContrat.toLocaleString('fr-FR')} FCFA</td>
+            <td style="font-weight: 600;">${montantContrat.toLocaleString('fr-FR')} FCFA</td>
             <td style="font-weight: 800; color: var(--vert-succes);">+${montantComm.toLocaleString('fr-FR')} FCFA</td>
-            <td><span class="comm-badge ${badgeClass}">${badgeLabel}</span></td>
-            <td style="color: var(--texte-muet); font-size: 0.82rem;">${c.date_signature || '—'}</td>
+            <td>${badgeHtml}</td>
           </tr>`;
       }).join('');
     }
 
-    // Mise à jour des KPIs
-    document.getElementById('comm-solde-dispo').textContent = `${totalDisponible.toLocaleString('fr-FR')} FCFA`;
-    document.getElementById('comm-solde-attente').textContent = `${totalAttente.toLocaleString('fr-FR')} FCFA`;
-    document.getElementById('comm-total-recu').textContent = `${totalRecu.toLocaleString('fr-FR')} FCFA`;
-    document.getElementById('badge-commissions-solde').textContent = `${totalDisponible.toLocaleString('fr-FR')} F`;
+    // Mise à jour des montants Instant-Wallet & KPIs
+    const elSoldeDispo = document.getElementById('comm-solde-dispo');
+    if (elSoldeDispo) elSoldeDispo.textContent = `${totalDisponible.toLocaleString('fr-FR')} FCFA`;
 
-    // Action demande de virement
+    const elSoldeAttente = document.getElementById('comm-solde-attente');
+    if (elSoldeAttente) elSoldeAttente.textContent = `${totalAttente.toLocaleString('fr-FR')} FCFA`;
+
+    const elTotalRecu = document.getElementById('comm-total-recu');
+    if (elTotalRecu) elTotalRecu.textContent = `${totalRecu.toLocaleString('fr-FR')} FCFA`;
+
+    const elBadgeSolde = document.getElementById('badge-commissions-solde');
+    if (elBadgeSolde) elBadgeSolde.textContent = `${totalDisponible.toLocaleString('fr-FR')} F`;
+
+    // Action virement / décaissement direct sur Wave ou Orange Money
+    const gererDecaissement = () => {
+      if (totalDisponible <= 0) {
+        afficherToast('Vous n\'avez actuellement aucun solde disponible à retirer.');
+        return;
+      }
+      const telAgent = commercialConnecte.payout_phone || commercialConnecte.whatsapp || commercialConnecte.telephone;
+      const nomAgent = commercialConnecte.payout_account_name || `${commercialConnecte.prenom} ${commercialConnecte.nom}`;
+      const msg = `Bonjour Direction Financière Lou Ame Tay, je suis ${nomAgent}. Je souhaite demander le décaissement immédiat de mes commissions disponibles d'un montant de ${totalDisponible.toLocaleString('fr-FR')} FCFA sur mon compte ${opActuel} (+221 ${telAgent}).`;
+      window.open(`https://wa.me/221762312003?text=${encodeURIComponent(msg)}`, '_blank');
+    };
+
+    const btnDecaisserDirect = document.getElementById('btn-decaisser-comm-direct');
+    if (btnDecaisserDirect) btnDecaisserDirect.onclick = gererDecaissement;
+
     const btnRetrait = document.getElementById('btn-demande-retrait');
-    if (btnRetrait) {
-      btnRetrait.onclick = () => {
-        if (totalDisponible <= 0) {
-          afficherToast('Vous n\'avez actuellement aucun solde disponible à retirer.');
-          return;
-        }
-        const msg = `Bonjour Direction Lou Ame Tay, je suis ${commercialConnecte.prenom} ${commercialConnecte.nom}. Je souhaite demander le virement de mes commissions disponibles d'un montant de ${totalDisponible.toLocaleString('fr-FR')} FCFA sur mon compte Wave (+221 ${commercialConnecte.whatsapp || commercialConnecte.telephone}).`;
-        window.open(`https://wa.me/221762312003?text=${encodeURIComponent(msg)}`, '_blank');
-      };
+    if (btnRetrait) btnRetrait.onclick = gererDecaissement;
+
+    // Détection d'une nouvelle commission validée par la DAF (Effet Whaou)
+    try {
+      const cleStorage = `LOUAMETAY_COMMISSIONS_CELEBREES_${commercialConnecte.id || 'AGENT'}`;
+      const celebreeRaw = localStorage.getItem(cleStorage) || '[]';
+      const celebrees = JSON.parse(celebreeRaw);
+
+      const nouvelleAValider = listeCommissions.find(c => (c.statut === 'VALIDE' || c.statut === 'PAYE') && !celebrees.includes(String(c.id)));
+      if (nouvelleAValider) {
+        celebrees.push(String(nouvelleAValider.id));
+        localStorage.setItem(cleStorage, JSON.stringify(celebrees));
+        const montantCommVal = nouvelleAValider.montant_commission || Math.round(Number(nouvelleAValider.montant_contrat || 0) * (tauxCommissionCommercial / 100));
+        celebrerNouvelleCommission(nouvelleAValider.restaurant_nom || 'Partenaire', montantCommVal);
+      }
+    } catch (eCeleb) {
+      console.debug('Erreur détection célébration:', eCeleb);
     }
 
   } catch (err) {
@@ -2210,6 +2332,10 @@ export function initialiserModuleContratEtPaiement() {
       if (btnWa) btnWa.href = urlWa;
 
       afficherToast('✓ Contrat scellé et PDF A4 téléchargé avec succès ! 🎉');
+
+      // 5b. Célébration Whaou instantanée pour le commercial
+      const montantCommSigne = Math.round(montantVal * (tauxCommissionCommercial / 100));
+      celebrerNouvelleCommission(resto, montantCommSigne);
 
       // 6. Rafraîchissement des données de la session
       await chargerProspects();

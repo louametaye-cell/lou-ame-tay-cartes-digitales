@@ -20,6 +20,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
   <style>
     :root {
@@ -1494,6 +1495,289 @@
       0%, 100% { transform: scaleY(0.4); opacity: 0.5; }
       50% { transform: scaleY(1); opacity: 1; }
     }
+
+    /* =========================================================================
+       INSTANT-WALLET LOU AME TAY (HAUTE FIDÉLITÉ FINTECH)
+       ========================================================================= */
+    .wallet-master-card {
+      background: linear-gradient(135deg, #0B1F3A 0%, #152E52 50%, #0B1F3A 100%);
+      border: 1px solid rgba(201, 162, 39, 0.45);
+      border-radius: 20px;
+      padding: 1.75rem;
+      color: #FFFFFF;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 16px 36px -8px rgba(11, 31, 58, 0.5), 0 0 25px rgba(201, 162, 39, 0.18);
+      margin-bottom: 1.25rem;
+    }
+
+    .wallet-inner-glow {
+      position: absolute;
+      top: -60px;
+      right: -60px;
+      width: 180px;
+      height: 180px;
+      background: radial-gradient(circle, rgba(201, 162, 39, 0.28) 0%, rgba(16, 185, 129, 0.1) 50%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .wallet-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .wallet-brand-block {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .wallet-chip-icon {
+      font-size: 2rem;
+      line-height: 1;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    }
+
+    .wallet-badge-subtitle {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #C9A227;
+      margin-bottom: 2px;
+    }
+
+    .wallet-card-title {
+      margin: 0;
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #FFFFFF;
+      letter-spacing: -0.2px;
+    }
+
+    .wallet-tier-pill {
+      background: rgba(201, 162, 39, 0.16);
+      border: 1px solid rgba(201, 162, 39, 0.45);
+      padding: 6px 14px;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .tier-label {
+      font-size: 0.75rem;
+      color: #E2E8F0;
+      font-weight: 600;
+    }
+
+    .tier-value {
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: #F8E294;
+    }
+
+    .wallet-body {
+      margin: 1.5rem 0 1.25rem 0;
+      position: relative;
+      z-index: 2;
+    }
+
+    .wallet-balance-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 0.6rem;
+    }
+
+    .wallet-balance-label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: #94A3B8;
+    }
+
+    .wallet-status-live {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16, 185, 129, 0.18);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      padding: 4px 10px;
+      border-radius: 12px;
+      color: #34D399;
+      font-size: 0.76rem;
+      font-weight: 700;
+    }
+
+    .wallet-live-dot {
+      width: 8px;
+      height: 8px;
+      background: #10B981;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #10B981;
+      animation: walletPulse 1.8s infinite ease-in-out;
+    }
+
+    @keyframes walletPulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    .wallet-amount {
+      font-size: 2.6rem;
+      font-weight: 900;
+      color: #FFFFFF;
+      letter-spacing: -1px;
+      line-height: 1.1;
+      margin-bottom: 0.85rem;
+      text-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .wallet-recurring-notice {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px dashed rgba(201, 162, 39, 0.4);
+      border-radius: 10px;
+      padding: 8px 14px;
+      font-size: 0.84rem;
+      color: #E2E8F0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .wallet-recurring-notice .recurring-star {
+      color: #C9A227;
+      font-size: 1rem;
+    }
+
+    .wallet-footer {
+      position: relative;
+      z-index: 2;
+      margin-top: 1.25rem;
+    }
+
+    .wallet-btn-payout {
+      width: 100%;
+      background: linear-gradient(135deg, #C9A227 0%, #D4AF37 50%, #B8921F 100%);
+      color: #0B1F3A;
+      font-weight: 800;
+      font-size: 1.02rem;
+      border: none;
+      border-radius: 12px;
+      padding: 15px 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 8px 24px rgba(201, 162, 39, 0.4);
+      transition: all 0.2s ease;
+    }
+
+    .wallet-btn-payout:hover {
+      background: linear-gradient(135deg, #d8b136 0%, #dfbe47 50%, #c49d26 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(201, 162, 39, 0.5);
+    }
+
+    .wallet-btn-payout:active {
+      transform: translateY(0);
+    }
+
+    .wallet-subcards-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 1.5rem;
+    }
+
+    .wallet-subcard {
+      background: #FFFFFF;
+      border-radius: 14px;
+      padding: 1.15rem 1.25rem;
+      border: 1px solid var(--bordure);
+      box-shadow: var(--ombre);
+      transition: transform 0.2s ease;
+    }
+
+    .wallet-subcard:hover {
+      transform: translateY(-2px);
+    }
+
+    .wallet-subcard.pending {
+      border-top: 4px solid #F59E0B;
+    }
+
+    .wallet-subcard.paid {
+      border-top: 4px solid var(--vert-succes);
+    }
+
+    .subcard-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .subcard-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--texte-muet);
+    }
+
+    .subcard-icon {
+      font-size: 1.2rem;
+    }
+
+    .subcard-amount {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: #0F172A;
+      margin: 4px 0;
+    }
+
+    .wallet-subcard.pending .subcard-amount {
+      color: #D97706;
+    }
+
+    .wallet-subcard.paid .subcard-amount {
+      color: var(--vert-succes);
+    }
+
+    .subcard-desc {
+      font-size: 0.76rem;
+      color: var(--texte-muet);
+    }
+
+    @media (max-width: 640px) {
+      .wallet-master-card {
+        padding: 1.25rem;
+      }
+      .wallet-amount {
+        font-size: 2.1rem;
+      }
+      .wallet-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .wallet-tier-pill {
+        align-self: flex-start;
+      }
+      .wallet-subcards-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -2218,43 +2502,83 @@
       </section>
 
       <!-- =====================================================================
-           ONGLET 2 : COMMISSIONS & SOLDE (10%)
+           ONGLET 2 : INSTANT-WALLET & COMMISSIONS LOU AME TAY
            ===================================================================== -->
       <section id="panel-commissions" class="comm-panel">
-        <div class="comm-kpi-grid">
-          <div class="comm-kpi-card" style="border-top: 4px solid var(--vert-succes);">
-            <div class="comm-kpi-top">
-              <span class="comm-kpi-label">Solde Disponible</span>
-              <span class="comm-kpi-icon">💰</span>
+
+        <!-- CARTE INSTANT-WALLET HAUTE FIDÉLITÉ -->
+        <div class="wallet-master-card">
+          <div class="wallet-inner-glow"></div>
+          <div class="wallet-header">
+            <div class="wallet-brand-block">
+              <div class="wallet-chip-icon">💳</div>
+              <div>
+                <span class="wallet-badge-subtitle">LOU AME TAY • FINTECH PRO</span>
+                <h2 class="wallet-card-title">Porte-Monnaie Instant-Wallet</h2>
+              </div>
             </div>
-            <div class="comm-kpi-value" style="color: var(--vert-succes);" id="comm-solde-dispo">0 FCFA</div>
-            <div class="comm-kpi-desc">Validé — Prêt pour décaissement</div>
+            <div class="wallet-tier-pill">
+              <span class="tier-label">Taux actif :</span>
+              <span class="tier-value badge-taux-comm-dynamique" id="comm-pill-taux-wallet">10%</span>
+            </div>
           </div>
 
-          <div class="comm-kpi-card" style="border-top: 4px solid #f59e0b;">
-            <div class="comm-kpi-top">
-              <span class="comm-kpi-label">Commissions en attente</span>
-              <span class="comm-kpi-icon">⏳</span>
+          <div class="wallet-body">
+            <div class="wallet-balance-meta">
+              <span class="wallet-balance-label">Solde disponible immédiatement</span>
+              <div class="wallet-status-live">
+                <span class="wallet-live-dot"></span>
+                <span>🟢 Prêt pour décaissement</span>
+              </div>
             </div>
-            <div class="comm-kpi-value" style="color: #d97706;" id="comm-solde-attente">0 FCFA</div>
-            <div class="comm-kpi-desc">Contrats en cours d'audit</div>
+            <div class="wallet-amount" id="comm-solde-dispo">0 FCFA</div>
+
+            <div class="wallet-recurring-notice">
+              <span class="recurring-star">✦</span>
+              <span><strong>+ 10% garantis chaque mois</strong> sur chaque restaurant actif de votre portefeuille</span>
+            </div>
           </div>
 
-          <div class="comm-kpi-card">
-            <div class="comm-kpi-top">
-              <span class="comm-kpi-label">Total Déjà Reçu</span>
-              <span class="comm-kpi-icon">💳</span>
-            </div>
-            <div class="comm-kpi-value" id="comm-total-recu">0 FCFA</div>
-            <div class="comm-kpi-desc">Cumul historique perçu</div>
+          <div class="wallet-footer">
+            <button type="button" id="btn-decaisser-comm-direct" class="wallet-btn-payout comm-btn-gold">
+              <span class="btn-icon">📲</span>
+              <span class="btn-text">Virer immédiatement sur mon compte <strong id="nom-operateur-wallet">Wave</strong></span>
+            </button>
           </div>
         </div>
 
-        <div class="comm-card">
+        <!-- 2 MINI-CARTES DE SUIVI COMPLÉMENTAIRES -->
+        <div class="wallet-subcards-grid">
+          <div class="wallet-subcard pending">
+            <div class="subcard-top">
+              <span class="subcard-label">Commissions en attente</span>
+              <span class="subcard-icon">⏳</span>
+            </div>
+            <div class="subcard-amount" id="comm-solde-attente">0 FCFA</div>
+            <div class="subcard-desc">Contrats en cours d'audit DAF</div>
+          </div>
+
+          <div class="wallet-subcard paid">
+            <div class="subcard-top">
+              <span class="subcard-label">Total déjà perçu</span>
+              <span class="subcard-icon">✅</span>
+            </div>
+            <div class="subcard-amount" id="comm-total-recu">0 FCFA</div>
+            <div class="subcard-desc">Cumul historique reçu sur Wave/OM</div>
+          </div>
+        </div>
+
+        <!-- HISTORIQUE LIMPIDE DES TRANSACTIONS -->
+        <div class="comm-card" style="margin-top: 1rem;">
           <div class="comm-card-header">
-            <h3 class="comm-card-title">📜 Historique de mes Commissions (<span class="badge-taux-comm-dynamique">10%</span> par contrat)</h3>
-            <button type="button" class="comm-btn-outline" id="btn-demande-retrait">
-              <span>📲 Demander mon virement (Wave / OM)</span>
+            <div>
+              <h3 class="comm-card-title">📜 Historique des Transactions</h3>
+              <p style="margin: 4px 0 0 0; font-size: 0.82rem; color: var(--texte-muet);">
+                Suivi transparent de vos commissions directes (<span class="badge-taux-comm-dynamique">10%</span>) et récurrentes.
+              </p>
+            </div>
+            <button type="button" class="comm-btn-outline" id="btn-demande-retrait" style="display: none;">
+              <span>📲 Demander virement</span>
             </button>
           </div>
 
@@ -2262,12 +2586,12 @@
             <table class="comm-table">
               <thead>
                 <tr>
-                  <th>Restaurant</th>
-                  <th>Formule</th>
-                  <th>Montant Contrat</th>
-                  <th id="th-comm-commercial-titre">Commission (10%)</th>
-                  <th>Statut</th>
                   <th>Date</th>
+                  <th>Restaurant signé</th>
+                  <th>Formule</th>
+                  <th>Montant encaissé</th>
+                  <th id="th-comm-commercial-titre">Votre commission</th>
+                  <th>Statut</th>
                 </tr>
               </thead>
               <tbody id="tbody-commissions-commercial">
