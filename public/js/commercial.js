@@ -21,6 +21,7 @@ import { genererCartePDF } from './carte-pdf.js';
 import { genererSignatureHTML, copierSignature } from './signature-email.js';
 import { genererContratPDFA4 } from './contrat-pdf.js';
 import { genererPitchCommercial, PROFILS_ETABLISSEMENTS } from './gemini-copilot.js';
+import { poserQuestionAissatou } from './aissatou-knowledge-base.js';
 import { initialiserModeOffline, empilerActionHorsLigne, estEnLigne } from './offline-sync.js';
 import { ajouterAuWallet, telechargerPassDigitalNFC } from './wallet-pass.js';
 import { genererContratCommercialPDFA4 } from './contrat-commercial-pdf.js';
@@ -2622,7 +2623,7 @@ function escapeHtml(str) {
 }
 
 // ==============================================================================
-// 13. MODULE GEMINI COPILOT (PITCH & PROSPECTION IA TERRAIN)
+// 13. MODULE AISSATOU RH & STRATÉGIE CHR (RAG GEMINI BASE 9 FICHES)
 // ==============================================================================
 function initialiserGeminiCopilotCommercial() {
   const btnOuvrir = document.getElementById('btn-ouvrir-gemini-copilot');
@@ -2638,14 +2639,120 @@ function initialiserGeminiCopilotCommercial() {
   const divObjections = document.getElementById('liste-objections-copilot');
   const btnCopier = document.getElementById('btn-copier-accroche');
   const btnOuvrirWa = document.getElementById('btn-ouvrir-wa-copilot');
-
   const btnOuvrirOutils = document.getElementById('comm-btn-ouvrir-copilot-outils');
+
+  // Nouveaux éléments UI Aissatou RAG
+  const tabChat = document.getElementById('tab-aissatou-chat');
+  const tabPitch = document.getElementById('tab-aissatou-pitch');
+  const sectionChat = document.getElementById('section-aissatou-chat-rag');
+  const sectionPitch = document.getElementById('section-aissatou-generateur-pitch');
+  const inputQuestion = document.getElementById('input-question-aissatou');
+  const btnEnvoyerQuestion = document.getElementById('btn-envoyer-question-aissatou');
+  const zoneReponseRag = document.getElementById('zone-reponse-aissatou-rag');
+  const texteReponseRag = document.getElementById('texte-reponse-aissatou');
+  const sourcesReponseRag = document.getElementById('sources-reponse-aissatou');
+  const actionReponseRag = document.getElementById('action-reponse-aissatou');
+  const btnCopierReponse = document.getElementById('btn-copier-reponse-aissatou');
+  const quickPrompts = document.querySelectorAll('#aissatou-quick-prompts button');
+
+  // Gestion des sous-onglets Chat vs Pitch
+  tabChat?.addEventListener('click', () => {
+    tabChat.classList.add('active');
+    tabPitch?.classList.remove('active');
+    if (sectionChat) sectionChat.style.display = 'block';
+    if (sectionPitch) sectionPitch.style.display = 'none';
+  });
+
+  tabPitch?.addEventListener('click', () => {
+    tabPitch.classList.add('active');
+    tabChat?.classList.remove('active');
+    if (sectionPitch) sectionPitch.style.display = 'block';
+    if (sectionChat) sectionChat.style.display = 'none';
+    if (zoneResultat && zoneResultat.style.display === 'none') {
+      declencherGenerationPitch();
+    }
+  });
+
+  // Poser une question à Aissatou
+  async function traiterQuestionAissatou(question) {
+    const q = (question || '').trim();
+    if (!q) {
+      afficherToast('Veuillez saisir votre question pour Aissatou.');
+      return;
+    }
+
+    if (btnEnvoyerQuestion) {
+      btnEnvoyerQuestion.disabled = true;
+      btnEnvoyerQuestion.textContent = 'Recherche...';
+    }
+
+    if (zoneReponseRag) {
+      zoneReponseRag.style.display = 'block';
+    }
+    if (texteReponseRag) {
+      texteReponseRag.textContent = '👩🏾‍💼 Aissatou consulte sa base de connaissances (9 fiches RAG)...';
+    }
+    if (sourcesReponseRag) sourcesReponseRag.style.display = 'none';
+    if (actionReponseRag) actionReponseRag.style.display = 'none';
+
+    try {
+      const res = await poserQuestionAissatou(q);
+      if (texteReponseRag) texteReponseRag.textContent = res.reponse;
+      if (sourcesReponseRag) {
+        sourcesReponseRag.style.display = 'block';
+        sourcesReponseRag.innerHTML = `📚 <strong>Sources officielles citées :</strong> ${res.sources.join(' • ')}`;
+      }
+      if (actionReponseRag) {
+        actionReponseRag.style.display = 'block';
+        actionReponseRag.innerHTML = `💡 <strong>Action terrain recommandée :</strong> ${escapeHtml(res.action)}`;
+      }
+    } catch (err) {
+      console.error('Erreur Aissatou RAG:', err);
+      if (texteReponseRag) texteReponseRag.textContent = "Je rencontre une difficulté temporaire pour consulter la base. Veuillez renouveler votre question.";
+    } finally {
+      if (btnEnvoyerQuestion) {
+        btnEnvoyerQuestion.disabled = false;
+        btnEnvoyerQuestion.textContent = 'Envoyer';
+      }
+    }
+  }
+
+  btnEnvoyerQuestion?.addEventListener('click', () => {
+    traiterQuestionAissatou(inputQuestion?.value);
+  });
+
+  inputQuestion?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      traiterQuestionAissatou(inputQuestion.value);
+    }
+  });
+
+  // Clic sur les suggestions rapides
+  quickPrompts.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const q = btn.getAttribute('data-query');
+      if (inputQuestion) inputQuestion.value = q;
+      traiterQuestionAissatou(q);
+    });
+  });
+
+  btnCopierReponse?.addEventListener('click', async () => {
+    try {
+      const contenuACopier = `${texteReponseRag?.textContent || ''}\n\n${sourcesReponseRag?.textContent || ''}\n\n${actionReponseRag?.textContent || ''}`;
+      await navigator.clipboard.writeText(contenuACopier);
+      afficherToast('✓ Réponse d\'Aissatou copiée avec ses sources !');
+    } catch {
+      afficherToast('Sélectionnez le texte pour le copier.');
+    }
+  });
 
   const ouvrirModalCopilot = () => {
     if (modal) {
       modal.style.display = 'flex';
-      if (zoneResultat && zoneResultat.style.display === 'none') {
-        declencherGenerationPitch();
+      // Si la zone de réponse est vide, charger la réponse par défaut d'Aissatou
+      if (zoneReponseRag && (!texteReponseRag || !texteReponseRag.textContent.trim())) {
+        traiterQuestionAissatou("Bonjour Aissatou, comment peux-tu m'aider aujourd'hui ?");
       }
     }
   };

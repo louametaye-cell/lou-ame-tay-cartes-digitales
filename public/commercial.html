@@ -2605,7 +2605,7 @@
         <span>⭐ Avis Clients</span>
       </button>
       <button type="button" class="comm-tab-btn" id="btn-ouvrir-gemini-copilot" style="background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%); color: #FFFFFF; border: none; font-weight: 800;">
-        <span>✨ Copilot IA (Gemini)</span>
+        <span>✨ Aissatou IA (RH & Stratégie)</span>
       </button>
       <button type="button" class="comm-tab-btn" id="btn-ouvrir-pass-wallet" style="background: #0B1F3A; color: #F8E294; border: 1px solid #C9A227; font-weight: 700;">
         <span>💳 Mon Pass Wallet NFC</span>
@@ -3622,90 +3622,165 @@
     </div>
   </div>
 
-  <!-- MODAL GEMINI COPILOT (PITCH & PROSPECTION IA TERRAIN) -->
+  <!-- MODAL AISSATOU — DIRECTRICE RH & STRATÉGIE CHR (RAG GEMINI 9 FICHES) -->
   <div class="comm-modal-overlay" id="modal-gemini-copilot">
-    <div class="comm-modal-card" style="max-width: 680px; max-height: 90vh; overflow-y: auto;">
+    <div class="comm-modal-card" style="max-width: 720px; max-height: 92vh; overflow-y: auto;">
       <button type="button" class="comm-modal-close" id="btn-fermer-modal-copilot">✕</button>
 
-      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1rem; border-bottom: 1px solid var(--bordure); padding-bottom: 0.75rem;">
-        <div style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #fff;">
-          ✨
+      <!-- En-tête Aissatou -->
+      <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 1.25rem; border-bottom: 1px solid var(--bordure); padding-bottom: 1rem;">
+        <div style="position: relative; width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #0B1F3A 0%, #16A34A 100%); display: flex; align-items: center; justify-content: center; font-size: 1.7rem; color: #fff; box-shadow: 0 4px 14px rgba(22, 163, 74, 0.25);">
+          👩🏾‍💼
+          <span style="position: absolute; bottom: 0; right: 0; width: 14px; height: 14px; background: #22C55E; border: 2px solid #FFFFFF; border-radius: 50%;"></span>
         </div>
-        <div>
-          <h3 style="font-size: 1.25rem; color: var(--bleu-profond); margin: 0; font-weight: 800;">
-            Gemini Copilot — IA Terrain Lou Ame Tay
-          </h3>
-          <p style="margin: 0; font-size: 0.8rem; color: var(--texte-muet);">
-            Générateur de pitch percutant, message WhatsApp et parade aux objections
+        <div style="flex: 1;">
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <h3 style="font-size: 1.25rem; color: var(--bleu-profond); margin: 0; font-weight: 800;">
+              Aissatou — Directrice RH & Stratégie CHR
+            </h3>
+            <span style="background: rgba(34, 197, 94, 0.15); color: #15803D; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 12px;">Base RAG 9 Fiches</span>
+          </div>
+          <p style="margin: 2px 0 0; font-size: 0.8rem; color: var(--texte-muet);">
+            Conseil terrain, pitchs ciblés, parade aux objections & négociation B2B CHR (Français & Wolof)
           </p>
         </div>
       </div>
 
-      <div style="background: #F8FAFC; border: 1px solid var(--bordure); border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
-        <div class="form-grid-2" style="margin-bottom: 10px;">
-          <div class="comm-form-group">
-            <label for="copilot-profil-zone">Zone & Profil de l'Établissement</label>
-            <select id="copilot-profil-zone" class="comm-input">
-              <option value="almadies_lounge">Almadies / Ngor / Virage — Lounge Chic & Vue Mer</option>
-              <option value="plateau_affaires">Plateau / Point E — Déjeuners d'Affaires Express</option>
-              <option value="saly_hotel">Saly / Petite Côte — Hôtels & Terrasses Balnéaires</option>
-              <option value="saloum_casamance">Casamance & Saloum — Écolodges & Auberges</option>
-              <option value="touba_fastfood">Touba / Kaolack — Fast-Food & Grand CHR</option>
-            </select>
-          </div>
-          <div class="comm-form-group">
-            <label for="copilot-formule-visee">Formule SaaS Ciblée</label>
-            <select id="copilot-formule-visee" class="comm-input">
-              <option value="Xéweul">Formule Xéweul (35 000 F — KDS + Menu QR)</option>
-              <option value="Nio Far">Formule Nio Far (25 000 F — Serveur Mobile)</option>
-              <option value="Tàmbali">Formule Tàmbali (15 000 F — Menu QR Seul)</option>
-              <option value="Sur Mesure">Sur Mesure (Multi-sites / Franchise)</option>
-            </select>
-          </div>
-        </div>
-        <div class="comm-form-group" style="margin-bottom: 0.75rem;">
-          <label for="copilot-resto-nom">Nom du Restaurant Visité (Optionnel)</label>
-          <input type="text" id="copilot-resto-nom" class="comm-input" placeholder="Ex: Chez Loutcha, Le Jardin Thaï, Hôtel Teranga...">
-        </div>
-        <button type="button" id="btn-generer-pitch-ia" class="comm-btn-primary" style="width: 100%; justify-content: center; background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 100%);">
-          <span>✨ Générer le Pitch & le Message WhatsApp</span>
+      <!-- Onglets internes Modal : Chat RAG vs Générateur de Pitch -->
+      <div style="display: flex; gap: 8px; margin-bottom: 1rem; border-bottom: 1px solid var(--bordure); padding-bottom: 8px;">
+        <button type="button" id="tab-aissatou-chat" class="comm-tab-btn active" style="padding: 6px 14px; font-size: 0.8rem;">
+          💬 Poser une question à Aissatou
+        </button>
+        <button type="button" id="tab-aissatou-pitch" class="comm-tab-btn" style="padding: 6px 14px; font-size: 0.8rem;">
+          🎯 Générateur de Pitch par Zone
         </button>
       </div>
 
-      <!-- Résultat Généré par Gemini -->
-      <div id="zone-resultat-copilot" style="display: none; animation: fadeIn 0.3s ease;">
-        <!-- 1. Accroche Orale -->
-        <div style="background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 10px; padding: 1rem; margin-bottom: 1rem;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-            <h4 style="margin: 0; color: #1E3A8A; font-size: 0.95rem; font-weight: 800;">
-              🗣️ L'Accroche Verbale Terrain (30 secondes)
-            </h4>
-            <button type="button" id="btn-copier-accroche" class="comm-btn-contour" style="padding: 4px 8px; font-size: 0.75rem;">
+      <!-- SECTION A : CHAT RAG DIRECT AVEC AISSATOU -->
+      <div id="section-aissatou-chat-rag">
+        <!-- Suggestions de questions rapides -->
+        <div style="margin-bottom: 10px;">
+          <label style="font-size: 0.78rem; font-weight: 700; color: var(--bleu-profond); display: block; margin-bottom: 6px;">
+            💡 Exemples de questions terrain fréquentes :
+          </label>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px;" id="aissatou-quick-prompts">
+            <button type="button" class="comm-badge-filtre" data-query="3 arguments pour un restaurant gastronomique aux Almadies" style="font-size: 0.73rem; cursor: pointer; background: #F1F5F9; border: 1px solid #CBD5E1; padding: 4px 8px; border-radius: 8px;">
+              📍 3 arguments Almadies
+            </button>
+            <button type="button" class="comm-badge-filtre" data-query="Comment répondre à 'c'est trop cher' ?" style="font-size: 0.73rem; cursor: pointer; background: #F1F5F9; border: 1px solid #CBD5E1; padding: 4px 8px; border-radius: 8px;">
+              💰 Répondre à « C'est trop cher »
+            </button>
+            <button type="button" class="comm-badge-filtre" data-query="Quels sont les meilleurs prospects à Thiès ?" style="font-size: 0.73rem; cursor: pointer; background: #F1F5F9; border: 1px solid #CBD5E1; padding: 4px 8px; border-radius: 8px;">
+              🏙️ Meilleurs prospects Thiès
+            </button>
+            <button type="button" class="comm-badge-filtre" data-query="Explique la formule Xéweul en wolof" style="font-size: 0.73rem; cursor: pointer; background: #F1F5F9; border: 1px solid #CBD5E1; padding: 4px 8px; border-radius: 8px;">
+              🗣️ Formule Xéweul en Wolof
+            </button>
+            <button type="button" class="comm-badge-filtre" data-query="Quelles sont les différences avec Mafalia ?" style="font-size: 0.73rem; cursor: pointer; background: #F1F5F9; border: 1px solid #CBD5E1; padding: 4px 8px; border-radius: 8px;">
+              ⚖️ Différences avec Mafalia
+            </button>
+          </div>
+        </div>
+
+        <!-- Formulaire de saisie de question libre -->
+        <div style="background: #F8FAFC; border: 1px solid var(--bordure); border-radius: 12px; padding: 0.85rem; margin-bottom: 1rem;">
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="input-question-aissatou" class="comm-input" placeholder="Posez votre question à Aissatou (ex: objection, prospect, pitch...)" style="flex: 1; font-size: 0.88rem;">
+            <button type="button" id="btn-envoyer-question-aissatou" class="comm-btn-primary" style="padding: 0 16px; background: #16A34A; white-space: nowrap;">
+              <span>Envoyer</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Zone de réponse d'Aissatou -->
+        <div id="zone-reponse-aissatou-rag" style="display: none; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; box-shadow: 0 4px 16px rgba(0,0,0,0.04);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 1.1rem;">👩🏾‍💼</span>
+              <span style="font-weight: 800; font-size: 0.92rem; color: var(--bleu-profond);">Réponse d'Aissatou :</span>
+            </div>
+            <button type="button" id="btn-copier-reponse-aissatou" class="comm-btn-contour" style="padding: 3px 8px; font-size: 0.75rem;">
               📋 Copier
             </button>
           </div>
-          <p id="texte-accroche-orale" style="font-size: 0.88rem; color: #1E293B; line-height: 1.5; margin: 0; font-style: italic;"></p>
-        </div>
+          <div id="texte-reponse-aissatou" style="font-size: 0.88rem; color: #1E293B; line-height: 1.6; white-space: pre-wrap; margin-bottom: 1rem;"></div>
 
-        <!-- 2. Message WhatsApp Prêt à l'Envoi -->
-        <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 10px; padding: 1rem; margin-bottom: 1rem;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-            <h4 style="margin: 0; color: #166534; font-size: 0.95rem; font-weight: 800;">
-              📲 Message WhatsApp de Prospection
-            </h4>
-            <button type="button" id="btn-ouvrir-wa-copilot" class="comm-btn-gold" style="padding: 4px 10px; font-size: 0.75rem;">
-              💬 Ouvrir WhatsApp
-            </button>
+          <!-- Citation des sources de la Base de Connaissances -->
+          <div id="sources-reponse-aissatou" style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 8px; padding: 8px 12px; font-size: 0.78rem; color: #166534; font-weight: 600; margin-bottom: 8px;"></div>
+
+          <!-- Action recommandée sur le terrain -->
+          <div id="action-reponse-aissatou" style="background: #FEF3C7; border: 1px solid #FDE68A; border-radius: 8px; padding: 8px 12px; font-size: 0.78rem; color: #92400E; font-weight: 600;"></div>
+        </div>
+      </div>
+
+      <!-- SECTION B : GÉNÉRATEUR AUTOMATISÉ DE PITCH & WHATSAPP -->
+      <div id="section-aissatou-generateur-pitch" style="display: none;">
+        <div style="background: #F8FAFC; border: 1px solid var(--bordure); border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
+          <div class="form-grid-2" style="margin-bottom: 10px;">
+            <div class="comm-form-group">
+              <label for="copilot-profil-zone">Zone & Profil de l'Établissement</label>
+              <select id="copilot-profil-zone" class="comm-input">
+                <option value="almadies_lounge">Almadies / Ngor / Virage — Lounge Chic & Vue Mer</option>
+                <option value="plateau_affaires">Plateau / Point E — Déjeuners d'Affaires Express</option>
+                <option value="saly_hotel">Saly / Petite Côte — Hôtels & Terrasses Balnéaires</option>
+                <option value="saloum_casamance">Casamance & Saloum — Écolodges & Auberges</option>
+                <option value="touba_fastfood">Touba / Kaolack — Fast-Food & Grand CHR</option>
+              </select>
+            </div>
+            <div class="comm-form-group">
+              <label for="copilot-formule-visee">Formule SaaS Ciblée</label>
+              <select id="copilot-formule-visee" class="comm-input">
+                <option value="Xéweul">Formule Xéweul (35 000 F — KDS + Menu QR)</option>
+                <option value="Nio Far">Formule Nio Far (25 000 F — Serveur Mobile)</option>
+                <option value="Tàmbali">Formule Tàmbali (15 000 F — Menu QR Seul)</option>
+                <option value="Sur Mesure">Sur Mesure (Multi-sites / Franchise)</option>
+              </select>
+            </div>
           </div>
-          <pre id="texte-message-wa" style="font-family: inherit; font-size: 0.82rem; color: #1E293B; line-height: 1.45; margin: 0; white-space: pre-wrap; background: #FFFFFF; padding: 10px; border-radius: 8px; border: 1px solid #DCFCE7;"></pre>
+          <div class="comm-form-group" style="margin-bottom: 0.75rem;">
+            <label for="copilot-resto-nom">Nom du Restaurant Visité (Optionnel)</label>
+            <input type="text" id="copilot-resto-nom" class="comm-input" placeholder="Ex: Chez Loutcha, Le Jardin Thaï, Hôtel Teranga...">
+          </div>
+          <button type="button" id="btn-generer-pitch-ia" class="comm-btn-primary" style="width: 100%; justify-content: center; background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 100%);">
+            <span>✨ Générer le Pitch & le Message WhatsApp</span>
+          </button>
         </div>
 
-        <!-- 3. Parade aux Objections -->
-        <div style="background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 10px; padding: 1rem;">
-          <h4 style="margin: 0 0 0.5rem 0; color: #92400E; font-size: 0.95rem; font-weight: 800;">
-            🛡️ Parades aux Objections Fréquentes
-          </h4>
-          <div id="liste-objections-copilot" style="font-size: 0.82rem; color: #451A03; line-height: 1.45;"></div>
+        <!-- Résultat Généré par le pitch -->
+        <div id="zone-resultat-copilot" style="display: none; animation: fadeIn 0.3s ease;">
+          <!-- 1. Accroche Orale -->
+          <div style="background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 10px; padding: 1rem; margin-bottom: 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <h4 style="margin: 0; color: #1E3A8A; font-size: 0.95rem; font-weight: 800;">
+                🗣️ L'Accroche Verbale Terrain (30 secondes)
+              </h4>
+              <button type="button" id="btn-copier-accroche" class="comm-btn-contour" style="padding: 4px 8px; font-size: 0.75rem;">
+                📋 Copier
+              </button>
+            </div>
+            <p id="texte-accroche-orale" style="font-size: 0.88rem; color: #1E293B; line-height: 1.5; margin: 0; font-style: italic;"></p>
+          </div>
+
+          <!-- 2. Message WhatsApp Prêt à l'Envoi -->
+          <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 10px; padding: 1rem; margin-bottom: 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <h4 style="margin: 0; color: #166534; font-size: 0.95rem; font-weight: 800;">
+                📲 Message WhatsApp de Prospection
+              </h4>
+              <button type="button" id="btn-ouvrir-wa-copilot" class="comm-btn-gold" style="padding: 4px 10px; font-size: 0.75rem;">
+                💬 Ouvrir WhatsApp
+              </button>
+            </div>
+            <pre id="texte-message-wa" style="font-family: inherit; font-size: 0.82rem; color: #1E293B; line-height: 1.45; margin: 0; white-space: pre-wrap; background: #FFFFFF; padding: 10px; border-radius: 8px; border: 1px solid #DCFCE7;"></pre>
+          </div>
+
+          <!-- 3. Parade aux Objections -->
+          <div style="background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 10px; padding: 1rem;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #92400E; font-size: 0.95rem; font-weight: 800;">
+              🛡️ Parades aux Objections Fréquentes
+            </h4>
+            <div id="liste-objections-copilot" style="font-size: 0.82rem; color: #451A03; line-height: 1.45;"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -4112,7 +4187,7 @@
               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
             </svg>
           </span>
-          <span class="more-sheet-label">Copilot IA</span>
+          <span class="more-sheet-label">Aissatou IA</span>
         </button>
         <button type="button" class="more-sheet-item" data-action="pass-wallet">
           <span class="more-sheet-icon">
