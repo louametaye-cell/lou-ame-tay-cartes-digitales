@@ -5224,7 +5224,8 @@ body.app-active #section-app-comm {
 }
 
 .btn-primaire-vert,
-.cta-devis-vert {
+.cta-devis-vert,
+.btn-choisir-offre {
   background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%) !important;
   color: #FFFFFF !important;
   border: none !important;
@@ -5233,12 +5234,50 @@ body.app-active #section-app-comm {
   box-shadow: 0 8px 24px rgba(34, 197, 94, 0.35) !important;
   transition: all 0.25s ease !important;
   cursor: pointer !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
 }
 
 .btn-primaire-vert:hover,
-.cta-devis-vert:hover {
+.cta-devis-vert:hover,
+.btn-choisir-offre:hover {
   transform: translateY(-2px) !important;
   box-shadow: 0 12px 28px rgba(34, 197, 94, 0.45) !important;
+  filter: brightness(1.05) !important;
+}
+
+/* Effet Verre Blanc (Glassmorphism White) pour les cartes et boutons d'action */
+.carte-glass-blanc,
+.bento-tuile,
+.btn-google-map-action,
+.btn-website-action,
+.btn-lang-switch,
+.btn-fermer-modal,
+.tab-main-btn {
+  background: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.8) !important;
+  box-shadow: 0 4px 20px rgba(11, 31, 58, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+}
+
+.tab-main-btn.active {
+  background: #0B1F3A !important;
+  color: #FFFFFF !important;
+  border-color: #0B1F3A !important;
+  box-shadow: 0 4px 16px rgba(11, 31, 58, 0.25) !important;
+}
+
+.bento-tuile:hover,
+.btn-google-map-action:hover,
+.btn-website-action:hover {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: rgba(34, 197, 94, 0.4) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 24px rgba(11, 31, 58, 0.08) !important;
 }
 
 .badge-vert-subtil {
