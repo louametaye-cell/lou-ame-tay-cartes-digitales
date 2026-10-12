@@ -38,7 +38,8 @@ const NOMS_FICHES_OFFICIELLES = {
   '06_objections': 'Fiche 05 — Objections & Réponses',
   '07_dakar': 'Fiche 06 — Hôtels & Restaurants Dakar',
   '08_thies_saly': 'Fiche 07 — Hôtels & Restaurants Thiès + Saly',
-  '09_saint_louis_casamance': 'Fiche 08 — Saint-Louis + Casamance'
+  '09_saint_louis_casamance': 'Fiche 08 — Saint-Louis + Casamance',
+  '10_aissatou_ceo': 'Fiche 10 — Conseillère Stratégique Direction & CEO'
 };
 
 // ═══ RAG SÉMANTIQUE (méthode principale avec File Search Store Gemini) ═══
@@ -188,7 +189,8 @@ async function chargerFichesLocales() {
     { fichier: '06_objections.md', titre: 'Fiche 05 — Objections & Réponses' },
     { fichier: '07_dakar.md', titre: 'Fiche 06 — Hôtels & Restaurants Dakar' },
     { fichier: '08_thies_saly.md', titre: 'Fiche 07 — Hôtels & Restaurants Thiès + Saly' },
-    { fichier: '09_saint_louis_casamance.md', titre: 'Fiche 08 — Saint-Louis + Casamance' }
+    { fichier: '09_saint_louis_casamance.md', titre: 'Fiche 08 — Saint-Louis + Casamance' },
+    { fichier: '10_aissatou_ceo.md', titre: 'Fiche 10 — Conseillère Stratégique Direction & CEO' }
   ];
 
   const result = [];
@@ -217,4 +219,8 @@ async function chargerFichesLocales() {
   }
 
   return result;
+}
+
+if (typeof window !== 'undefined') {
+  window.poserQuestionAissatou = poserQuestionAissatou;
 }

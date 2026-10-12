@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap');
+
 body, button, input, select, textarea, h1, h2, h3, h4, h5, h6, p, span, a, label {
   font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif !important;
 }
@@ -6,7 +8,7 @@ body, button, input, select, textarea, h1, h2, h3, h4, h5, h6, p, span, a, label
    Charte : Bleu Marine Profond (#0B1F3A), Doré (#C9A227), Blanc (#FFFFFF), Gris Clair (#F8F9FA)
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap');
+
 
 :root {
   --marine-nuit: #061120;
