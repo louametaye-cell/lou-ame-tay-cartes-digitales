@@ -48,7 +48,7 @@ export function genererQRCode(url, conteneur, taille = 260) {
  * @param {Object} commercial
  */
 export async function genererQRCodePNG(commercial) {
-  const urlCarte = `${window.location.origin}/carte.html?id=${encodeURIComponent(commercial.id)}`;
+  const urlCarte = `${window.location.origin}/carte.html?id=${encodeURIComponent(commercial.id)}&src=qr`;
 
   // Création du gabarit haute définition 1200x1400px
   const conteneurTemp = document.createElement('div');
@@ -159,7 +159,7 @@ export function ouvrirModalPreviewQR(commercial) {
   if (carteNomEl) carteNomEl.textContent = `${commercial.prenom} ${commercial.nom}`;
   if (cartePosteEl) cartePosteEl.textContent = commercial.poste || 'Conseiller CHR';
 
-  const urlCarte = `${window.location.origin}/carte.html?id=${encodeURIComponent(commercial.id)}`;
+  const urlCarte = `${window.location.origin}/carte.html?id=${encodeURIComponent(commercial.id)}&src=qr`;
   genererQRCode(urlCarte, renduQR, 220);
 
   if (modal) modal.classList.add('active');
@@ -270,7 +270,7 @@ export async function telechargerToutesCartesPDF(listeCommerciaux) {
     doc.text(`Zone : ${(c.zone || 'Dakar — Thiès').substring(0, 24)}`, x + 4, curY);
 
     // QR Code 33x33mm scannable à droite
-    const urlCarte = `${window.location.origin}/carte.html?id=${encodeURIComponent(c.id)}`;
+    const urlCarte = `${window.location.origin}/carte.html?id=${encodeURIComponent(c.id)}&src=qr`;
     const qrDataUrl = await genererDataURLQRCode(urlCarte, 280);
 
     if (qrDataUrl) {

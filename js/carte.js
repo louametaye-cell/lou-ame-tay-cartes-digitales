@@ -38,6 +38,11 @@ import { ajouterAuWallet } from './wallet-pass.js';
 import './pwa-install.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
+  // Suppression du bouton retour équipe si la carte est ouverte depuis un scan QR code
+  if (new URLSearchParams(location.search).get('src') === 'qr') {
+    document.querySelector('.btn-retour-flottant')?.remove();
+  }
+
   // 1. Initialisation de l'internationalisation trilingue
   await initialiserI18n();
 

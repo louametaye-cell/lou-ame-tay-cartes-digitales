@@ -23,7 +23,7 @@ import { genererContratPDFA4 } from './contrat-pdf.js';
 import { genererPitchCommercial, PROFILS_ETABLISSEMENTS } from './gemini-copilot.js';
 import { poserQuestionAissatou } from './aissatou-knowledge-base.js';
 import { initialiserModeOffline, empilerActionHorsLigne, estEnLigne } from './offline-sync.js';
-import { ajouterAuWallet, telechargerPassDigitalNFC } from './wallet-pass.js';
+import { telechargerPassDigitalNFC } from './wallet-pass.js';
 import { genererContratCommercialPDFA4 } from './contrat-commercial-pdf.js';
 import { compresserImagePourTerrain } from './image-compressor.js';
 import { evaluerGeofencing, obtenirPositionLowPower, MOTIFS_DEROGATION_TERRAIN } from './gps-geofence.js';
@@ -300,6 +300,24 @@ function initialiserFormulaires() {
       document.getElementById('modal-nouveau-rdv-comm').style.display = 'none';
       document.getElementById('form-nouveau-rdv-comm').reset();
       await chargerRendezVous();
+
+      // FIX 4 — Proposition d'ajout à Google Agenda
+      try {
+        const rdvGoogle = {
+          restaurant_nom: resto,
+          date_rdv: dateRdv,
+          telephone: tel,
+          adresse: adresse,
+          ville: ville
+        };
+        const debut = new Date(rdvGoogle.date_rdv);
+        const fin = new Date(debut.getTime() + 3600000);
+        const fmt = d => d.toISOString().replace(/[-:]|\.\d{3}/g, '');
+        const urlGoogleCal = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('RDV ' + rdvGoogle.restaurant_nom)}&dates=${fmt(debut)}/${fmt(fin)}&details=${encodeURIComponent('Tél: ' + rdvGoogle.telephone)}&location=${encodeURIComponent(rdvGoogle.adresse || rdvGoogle.ville)}`;
+        if (confirm('Ajouter à Google Agenda ?')) window.open(urlGoogleCal, '_blank');
+      } catch (calErr) {
+        console.warn('Erreur génération Google Agenda:', calErr);
+      }
 
     } catch (err) {
       afficherToast(err.message || 'Erreur lors de l\'enregistrement du rendez-vous.');
@@ -871,8 +889,54 @@ async function chargerRendezVous() {
       });
     });
 
+    // FIX 5 — Au clic Maps : window.open(url, 'lam-maps') + bouton flottant "← Retour" avec window.focus()
+    document.querySelectorAll('.btn-ouvrir-maps, a[href*="google.com/maps"]').forEach(lien => {
+      lien.addEventListener('click', (e) => {
+        e.preventDefault();
+        const url = lien.href || lien.getAttribute('data-url');
+        window.open(url, 'lam-maps');
+        afficherBoutonRetourApresMaps();
+      });
+    });
+
   } catch (err) {
     console.warn('Erreur chargement rendez-vous:', err);
+  }
+}
+
+// FIX 5 : Bouton flottant de retour après consultation Google Maps
+function afficherBoutonRetourApresMaps() {
+  let btnRetour = document.getElementById('btn-retour-flottant-maps');
+  if (!btnRetour) {
+    btnRetour = document.createElement('button');
+    btnRetour.id = 'btn-retour-flottant-maps';
+    btnRetour.type = 'button';
+    btnRetour.innerHTML = '← Retour';
+    btnRetour.title = 'Revenir à votre espace commercial';
+    btnRetour.style.position = 'fixed';
+    btnRetour.style.bottom = '85px';
+    btnRetour.style.right = '20px';
+    btnRetour.style.zIndex = '99999';
+    btnRetour.style.padding = '10px 18px';
+    btnRetour.style.background = '#0B1F3A';
+    btnRetour.style.color = '#F8E294';
+    btnRetour.style.border = '2px solid #C9A227';
+    btnRetour.style.borderRadius = '50px';
+    btnRetour.style.boxShadow = '0 6px 20px rgba(11, 31, 58, 0.4)';
+    btnRetour.style.fontWeight = '700';
+    btnRetour.style.fontSize = '0.85rem';
+    btnRetour.style.cursor = 'pointer';
+    btnRetour.style.display = 'flex';
+    btnRetour.style.alignItems = 'center';
+    btnRetour.style.gap = '6px';
+    document.body.appendChild(btnRetour);
+
+    btnRetour.addEventListener('click', () => {
+      window.focus();
+      btnRetour.remove();
+    });
+  } else {
+    btnRetour.style.display = 'flex';
   }
 }
 
@@ -1748,12 +1812,26 @@ function initialiserVoiceToCRM() {
   let recognition = null;
   let transcritAccumule = '';
 
-  btnVocal.addEventListener('click', () => {
+  btnVocal.addEventListener('click', async () => {
     // Mode secours si Web Speech API non supportée
     if (!SpeechRecognition) {
       afficherToast("🎙️ Dictée vocale non supportée par votre navigateur. Ouverture du formulaire...");
       document.getElementById('modal-nouveau-prospect').style.display = 'flex';
       return;
+    }
+
+    // Demande préalable explicite de permission micro
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach(t => t.stop());
+      } catch (permErr) {
+        console.warn('Microphone permission refusée:', permErr);
+        alert("🔒 Accès au micro refusé !\n\nPour activer la dictée vocale :\n1. Cliquez sur l'icône 🔒 (cadenas ou réglages) dans la barre d'adresse de votre navigateur.\n2. Allez dans 'Autorisations' ou 'Paramètres du site'.\n3. Activez 'Micro' sur 'Autoriser'.\n4. Rafraîchissez la page.");
+        if (modalVocal) modalVocal.style.display = 'none';
+        document.getElementById('modal-nouveau-prospect').style.display = 'flex';
+        return;
+      }
     }
 
     transcritAccumule = '';
@@ -1787,7 +1865,7 @@ function initialiserVoiceToCRM() {
       recognition.onerror = (event) => {
         console.warn('Erreur reconnaissance vocale:', event.error);
         if (event.error === 'not-allowed') {
-          afficherToast("⚠️ Accès au micro refusé. Veuillez autoriser le micro dans votre navigateur.");
+          alert("🔒 Accès au micro refusé !\n\nPour activer la dictée vocale :\n1. Cliquez sur l'icône 🔒 (cadenas ou réglages) dans la barre d'adresse de votre navigateur.\n2. Allez dans 'Autorisations' ou 'Paramètres du site'.\n3. Activez 'Micro' sur 'Autoriser'.\n4. Rafraîchissez la page.");
           if (modalVocal) modalVocal.style.display = 'none';
           document.getElementById('modal-nouveau-prospect').style.display = 'flex';
         }
@@ -3049,6 +3127,28 @@ window.ouvrirModalCopilotWhatsApp = ouvrirModalCopilotWhatsApp;
 // ==============================================================================
 // 14. MODULE PASS DIGITAL WALLET NFC (GOOGLE & APPLE WALLET)
 // ==============================================================================
+function telechargerVCard(c) {
+  telechargerPassDigitalNFC(c);
+}
+
+async function ajouterAuWallet(c) {
+  if (!c || !c.id) {
+    afficherToast('⚠️ Commercial non identifié');
+    return;
+  }
+  const ios = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const android = /Android/.test(navigator.userAgent);
+  
+  if (confirm(ios ? '🍏 Ajouter à Apple Wallet ?' : '📲 Ajouter à Google Wallet ?')) {
+    const url = ios 
+      ? `${SUPABASE_URL}/functions/v1/generate-apple-pass?id=${c.id}`
+      : `${SUPABASE_URL}/functions/v1/generate-google-wallet?id=${c.id}`;
+    window.location.href = url;
+  } else if (confirm('📇 Enregistrer en contact à la place ?')) {
+    telechargerVCard(c);
+  }
+}
+
 function initialiserPassWalletCommercial() {
   const btnOuvrir = document.getElementById('btn-ouvrir-pass-wallet');
   const modal = document.getElementById('modal-pass-wallet-comm');
@@ -3072,7 +3172,7 @@ function initialiserPassWalletCommercial() {
   });
 
   btnNfc?.addEventListener('click', () => {
-    telechargerPassDigitalNFC(commercialConnecte);
+    telechargerVCard(commercialConnecte);
     afficherToast('✓ Pass Contact NFC téléchargé avec succès !');
   });
 
