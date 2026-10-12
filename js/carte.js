@@ -1606,12 +1606,16 @@ export async function afficherClientsConfiance() {
   if (!track) return;
 
   let logos = [
-    { nom: "Le Teranga", logo_url: "images/deploiement1.jpg" },
-    { nom: "Lagon 1", logo_url: "images/deploiement2.jpg" },
-    { nom: "Café de Rome", logo_url: "images/deploiement3.jpg" },
-    { nom: "Chez Loutcha", logo_url: "images/deploiement1.jpg" },
-    { nom: "Hôtel Farid", logo_url: "images/deploiement2.jpg" },
-    { nom: "Le Jardin Thaïlandais", logo_url: "images/deploiement3.jpg" }
+    { nom: "Hôtel Résidence Lat-Dior", logo_url: "images/partenaires/hotel-lat-dior.png" },
+    { nom: "Anima Pizzeria", logo_url: "images/partenaires/anima-pizza.png" },
+    { nom: "SAM'S Prestige", logo_url: "images/partenaires/sams-prestige.png" },
+    { nom: "Yummy Food", logo_url: "images/partenaires/yummy-food.png" },
+    { nom: "KO SHOP", logo_url: "images/partenaires/ko-shop.png" },
+    { nom: "Evish Fish", logo_url: "images/partenaires/evish-fish.png" },
+    { nom: "Evish Market", logo_url: "images/partenaires/evish-market.png" },
+    { nom: "Pixel Print Plus", logo_url: "images/partenaires/pixel-print-plus.png" },
+    { nom: "Achar Groupe", logo_url: "images/partenaires/achar-groupe.png" },
+    { nom: "Éco-Restaurateur Durable", logo_url: "images/partenaires/developpement-durable.png" }
   ];
 
   if (estSupabaseConfigure()) {
@@ -1626,9 +1630,10 @@ export async function afficherClientsConfiance() {
   }
 
   const doubleLogos = [...logos, ...logos];
-  track.innerHTML = doubleLogos.map(l => `
-    <img src="${l.logo_url || 'images/logo.svg'}" alt="${escapeHtml(l.nom)}" title="${escapeHtml(l.nom)}" onerror="this.src='images/logo.svg'">
-  `).join('');
+  track.innerHTML = doubleLogos.map(l => {
+    const nomPartenaire = l.nom || l.nom_restaurant || 'Partenaire Lou Ame Tay';
+    return `<img src="${l.logo_url || 'images/logo.svg'}" alt="${escapeHtml(nomPartenaire)}" title="${escapeHtml(nomPartenaire)}" loading="lazy" onerror="this.src='images/logo.svg'">`;
+  }).join('');
 }
 
 export const afficherLogosClients = afficherClientsConfiance;

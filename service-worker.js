@@ -2,11 +2,11 @@
  * ==============================================================================
  * SERVICE WORKER — LOU AME TAY CARTES DE VISITE (PWA OFFLINE-READY)
  * ==============================================================================
- * Version du cache : lou-ame-tay-v12
+ * Version du cache : lou-ame-tay-v13
  * Stratégie : Network First pour le HTML / API, Cache First pour les assets statiques
  */
 
-const CACHE_NAME = 'lou-ame-tay-v12';
+const CACHE_NAME = 'lou-ame-tay-v13';
 
 const ASSETS_A_METTRE_EN_CACHE = [
   '/',
@@ -59,7 +59,17 @@ const ASSETS_A_METTRE_EN_CACHE = [
   '/images/commercial1.jpg',
   '/images/commercial2.jpg',
   '/images/commercial3.jpg',
-  '/images/commercial4.jpg'
+  '/images/commercial4.jpg',
+  '/images/partenaires/hotel-lat-dior.png',
+  '/images/partenaires/anima-pizza.png',
+  '/images/partenaires/sams-prestige.png',
+  '/images/partenaires/yummy-food.png',
+  '/images/partenaires/ko-shop.png',
+  '/images/partenaires/evish-fish.png',
+  '/images/partenaires/evish-market.png',
+  '/images/partenaires/pixel-print-plus.png',
+  '/images/partenaires/achar-groupe.png',
+  '/images/partenaires/developpement-durable.png'
 ];
 
 // Installation : mise en cache des assets essentiels

@@ -188,10 +188,16 @@ END $$;
 
 INSERT INTO public.clients_logos (nom_restaurant, logo_url, site_web, ordre, actif)
 VALUES
-  ('Le Teranga Dakar', 'images/logo.svg', 'https://leteranga-dakar.com', 1, true),
-  ('L''Alkimia Almadies', 'images/logo.svg', 'https://alkimia.sn', 2, true),
-  ('Le Jardin Thaï Thiès', 'images/logo.svg', 'https://jardinthai-thies.sn', 3, true),
-  ('Le Cabanon Saly', 'images/logo.svg', 'https://lecabanon-saly.com', 4, true)
+  ('Hôtel Résidence Lat-Dior', 'images/partenaires/hotel-lat-dior.png', 'https://hotel-latdior.sn', 1, true),
+  ('Anima Pizzeria Restaurant', 'images/partenaires/anima-pizza.png', 'https://animapizza.sn', 2, true),
+  ('SAM''S Prestige', 'images/partenaires/sams-prestige.png', 'https://samsprestige.sn', 3, true),
+  ('Yummy Food', 'images/partenaires/yummy-food.png', 'https://yummyfood.sn', 4, true),
+  ('KO SHOP', 'images/partenaires/ko-shop.png', 'https://koshop.sn', 5, true),
+  ('Evish Fish', 'images/partenaires/evish-fish.png', 'https://evishfish.sn', 6, true),
+  ('Evish Market', 'images/partenaires/evish-market.png', 'https://evishmarket.sn', 7, true),
+  ('Pixel Print Plus', 'images/partenaires/pixel-print-plus.png', 'https://pixelprintplus.sn', 8, true),
+  ('Achar Groupe', 'images/partenaires/achar-groupe.png', 'https://achargroupe.com', 9, true),
+  ('Éco-Restaurateur Durable', 'images/partenaires/developpement-durable.png', 'https://louametay.com', 10, true)
 ON CONFLICT DO NOTHING;
 
 -- Badges d'expertise pour les conseillers
