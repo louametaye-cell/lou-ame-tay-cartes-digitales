@@ -388,7 +388,7 @@ async function tenterConnexion(identifiant, pin, remember) {
   if (!aSigneContrat) {
     afficherEcranOnboardingContrat(conseiller);
     afficherToast('⚠️ Signature obligatoire : veuillez parapher votre contrat d\'agent pour activer vos outils.');
-    return;
+   // return;
   }
 
   afficherApplication();
@@ -418,7 +418,7 @@ async function chargerProfilEtDemarrer(commercialId) {
     if (!aSigneContrat) {
       afficherEcranOnboardingContrat(data);
       afficherToast('⚠️ Signature obligatoire : veuillez parapher votre contrat d\'agent pour activer vos outils.');
-      return;
+     // return;
     }
 
     afficherApplication();
