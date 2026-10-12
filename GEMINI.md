@@ -1,6 +1,7 @@
-# GEMINI & AISSATOU RAG ARCHITECTURE — LOU AME TAY
+# GEMINI, AISSATOU RAG & CRM 2.0 FIELD ARCHITECTURE — LOU AME TAY
+**DAW Digital Arts Work — by MG** | *Référentiel Maître pour tous les Agents IA du Projet*
 
-Ce document spécifie le rôle, l'architecture d'ingénierie et les directives d'exploitation d'**Aissatou**, Directrice RH, Développement & Stratégie CHR chez Lou Ame Tay (DAW Digital Arts Work — by MG).
+Ce document spécifie les standards d'ingénierie, les contraintes de base de données, la suite d'intelligence Aissatou et les directives opérationnelles de la plateforme **Lou Ame Tay** ([louametay.online](https://louametay.online)).
 
 ---
 
@@ -19,9 +20,9 @@ Ce document spécifie le rôle, l'architecture d'ingénierie et les directives d
 
 ---
 
-## 📚 Base de Connaissances RAG (9 Fiches Markdown)
+## 📚 Base de Connaissances RAG (10 Fiches Markdown)
 
-L'ensemble des connaissances officielles d'Aissatou est indexé dans le répertoire `/knowledge` :
+L'ensemble des connaissances officielles d'Aissatou est indexé dans le répertoire `/knowledge` (et son miroir `/public/knowledge/`) :
 
 | Fiche | Fichier | Thématique couverte |
 |---|---|---|
@@ -34,20 +35,51 @@ L'ensemble des connaissances officielles d'Aissatou est indexé dans le réperto
 | **Fiche 06** | `07_dakar.md` | Cartographie Dakar Plateau, Almadies, Point E, VDN & Top 20 prospects prioritaires |
 | **Fiche 07** | `08_thies_saly.md` | Siège historique Thiès, Avenue de Caen, Petite Côte & Top 15 prospects prioritaires |
 | **Fiche 08** | `09_saint_louis_casamance.md` | Île de Saint-Louis UNESCO, Ziguinchor, Cap Skirring & écolodges |
+| **Fiche 10** | `10_aissatou_ceo.md` | **Exécutif & CEO** : Marges B2B (85%-92%), KPIs terrain, arbitrage primes Wave, expansion Abidjan |
 
 ---
 
-## 🛠️ Règles Fondamentales d'Intervention
-1. **Zéro hallucination numérique** : Ne jamais inventer une statistique ou une métrique inexistante dans la base.
-2. **Citation obligatoire des sources** : Format normalisé : `📚 Source : Fiche XX — [Titre de la fiche]`.
-3. **Recommandation opérationnelle** : Terminer systématiquement par `💡 Action terrain : [Conseil immédiat pour le commercial]`.
-4. **Bilinguisme naturel** : Répondre dans un Wolof irréprochable si la question ou le contexte commercial l'exige.
-5. **Résilience Offline-First** : En cas de perte de connectivité ou d'absence de clé API distante, le moteur RAG local client (`js/aissatou-knowledge-base.js`) prend le relais avec 100% de disponibilité.
+## 🛑 Contraintes PostgreSQL & Pièges de Base de Données
+
+1. **Table `leads` — Contrainte `leads_statut_check` :**
+   - **Interdit :** Majuscules (`'NOUVEAU'`).
+   - **Obligatoire :** Toujours en minuscules : `statut: 'nouveau'`.
+   - **Bypass RLS :** Toujours router par l'API Serverless `/api/leads.js` qui utilise la clé `SUPABASE_SERVICE_ROLE_KEY` côté serveur.
+
+2. **Table `annonces_equipe` — Contrainte `annonces_equipe_type_check` :**
+   - **Obligatoire :** Toujours insérer `type: 'info'`.
+   - **Ciblage :** Encodé dans le titre : `[@ALL] Titre` ou `[@UUID_COMMERCIAL] Titre`.
 
 ---
 
-## ⚙️ Configuration Technique
-- Moteur RAG client : [`js/aissatou-knowledge-base.js`](file:///C:/Users/DELL/Desktop/CRM%20LOUAMETAY.COM/lou-ame-tay-%E2%80%94-cartes-de-visite-digitales/js/aissatou-knowledge-base.js)
-- Profil & prompt système : [`js/aissatou-personality.js`](file:///C:/Users/DELL/Desktop/CRM%20LOUAMETAY.COM/lou-ame-tay-%E2%80%94-cartes-de-visite-digitales/js/aissatou-personality.js)
-- Modèle de génération Gemini préférentiel : `gemini-1.5-flash` ou `gemini-2.5-flash`
-- Variables d'environnement supportées : `window.__ENV__.GEMINI_API_KEY` ou `window.ENV.GEMINI_API_KEY`
+## 👥 Répertoire des Commerciaux Actifs (Authentification PIN)
+
+- **Babacar Gueye** : Tél `771303678` | PIN `1111` | Thiès, Dakar, Mbour
+- **Cheikh Ahmadou Bamba MBODJ** : Tél `771492973` | PIN `1234` | Axe Thiès — Dakar — Mbour
+- **Arona Sow** : Tél `770000001` | PIN `2001` | Dakar Plateau & Almadies
+- **Fatou Diop** : Tél `770000002` | PIN `2002` | Petite Côte & Saly
+
+---
+
+## 🎧 Fonctionnalités Clés & Expérience Utilisateur
+
+1. **Voice-to-CRM Dialogué :**
+   - Dictée vocale ➔ TTS voix Aissatou ➔ Confirmation OUI/NON.
+2. **Mode « 🎧 Sous écoute IA » :**
+   - Reconnaissance discrète pendant les entretiens restaurateurs dans l'onglet RDV ➔ Synthèse objections ➔ Création prospect 1-clic.
+3. **Navigation Google Maps :**
+   - Même onglet (`window.location.href`) + session retour pour ne pas perdre l'application.
+4. **Pass Porte-Cartes :**
+   - 1 seul bouton : 📇 **vCard (.vcf)** universel iPhone & Android.
+5. **Messagerie Interne :**
+   - Badge rouge des non-lus en direct dans l'onglet Messages et more-sheet mobile.
+6. **Typographie :**
+   - Police **Montserrat** universelle.
+
+---
+
+## ⚙️ Compétence Skill Système Associée
+
+Le référentiel exhaustif d'ingénierie et d'exploitation est enregistré dans la compétence système :
+`louametay-field-crm-v2-master` (`C:\Users\DELL\.gemini\config\skills\louametay-field-crm-v2-master\SKILL.md`).
+Tous les agents travaillant sur ce projet doivent charger et respecter ce référentiel.
