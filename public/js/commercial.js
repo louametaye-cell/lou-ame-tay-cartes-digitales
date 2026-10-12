@@ -3279,11 +3279,13 @@ function initialiserPassWalletCommercial() {
   const modal = document.getElementById('modal-pass-wallet-comm');
   const btnFermer = document.getElementById('btn-fermer-modal-wallet-comm');
   const btnNfc = document.getElementById('btn-pass-telecharger-nfc');
-  const btnGoogle = document.getElementById('btn-pass-google-wallet');
-  const btnApple = document.getElementById('btn-pass-apple-wallet');
 
   if (btnOuvrir && modal) {
     btnOuvrir.addEventListener('click', () => {
+      const desc = modal.querySelector('.wallet-desc');
+      if (desc && commercialConnecte) {
+        desc.innerHTML = `Enregistrez la carte de <strong>${escapeHtml(commercialConnecte.prenom || '')} ${escapeHtml(commercialConnecte.nom || '')}</strong> dans votre téléphone pour la retrouver facilement.`;
+      }
       modal.style.display = 'flex';
     });
   }
@@ -3298,15 +3300,7 @@ function initialiserPassWalletCommercial() {
 
   btnNfc?.addEventListener('click', () => {
     telechargerVCard(commercialConnecte);
-    afficherToast('✓ Pass Contact NFC téléchargé avec succès !');
-  });
-
-  btnGoogle?.addEventListener('click', () => {
-    ajouterAuWallet(commercialConnecte);
-  });
-
-  btnApple?.addEventListener('click', () => {
-    ajouterAuWallet(commercialConnecte);
+    afficherToast('✓ Pass Contact (.vcf) téléchargé avec succès !');
   });
 }
 
