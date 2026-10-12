@@ -1637,7 +1637,11 @@ export async function afficherClientsConfiance() {
   const doubleLogos = [...logos, ...logos];
   track.innerHTML = doubleLogos.map(l => {
     const nomPartenaire = l.nom || l.nom_restaurant || 'Partenaire Lou Ame Tay';
-    return `<img src="${l.logo_url || 'images/logo.svg'}" alt="${escapeHtml(nomPartenaire)}" title="${escapeHtml(nomPartenaire)}" loading="lazy" onerror="this.src='images/logo.svg'">`;
+    let url = l.logo_url || 'images/logo.svg';
+    if (!url.startsWith('http') && !url.startsWith('/')) {
+      url = '/' + url;
+    }
+    return `<img src="${url}" alt="${escapeHtml(nomPartenaire)}" title="${escapeHtml(nomPartenaire)}" loading="lazy" onerror="this.onerror=null; this.src='/images/logo.svg';">`;
   }).join('');
 }
 
