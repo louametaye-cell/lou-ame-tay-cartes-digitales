@@ -251,11 +251,8 @@ function initialiserFormulaires() {
     }
   });
 
-  // Changement de disponibilité en direct
-  document.getElementById('select-statut-dispo')?.addEventListener('change', async (e) => {
-    const nouveauStatut = e.target.value;
-    await mettreAJourDisponibilite(nouveauStatut);
-  });
+  // Toggle de disponibilité moderne en direct
+  document.getElementById('statut-toggle')?.addEventListener('click', toggleDisponibilite);
 
   // Modal Nouveau Rendez-vous Restaurant
   document.getElementById('btn-ouvrir-modal-rdv-comm')?.addEventListener('click', () => {
@@ -516,11 +513,19 @@ function actualiserInterfaceConseiller() {
     elPhoto.onerror = () => { elPhoto.src = 'images/commercial1.svg'; };
   }
 
-  // Statut de disponibilité
+  // Statut de disponibilité (Toggle moderne ON/OFF)
   const statut = c.statut_disponible || 'disponible';
-  if (elSelect) elSelect.value = statut;
-  if (elDot) {
-    elDot.textContent = statut === 'disponible' ? '🟢' : statut === 'occupe' ? '🟡' : '⚪';
+  const toggleBtn = document.getElementById('statut-toggle');
+  if (toggleBtn) {
+    if (statut === 'disponible') {
+      toggleBtn.classList.add('on');
+      const label = toggleBtn.querySelector('.toggle-label');
+      if (label) label.textContent = 'En ligne';
+    } else {
+      toggleBtn.classList.remove('on');
+      const label = toggleBtn.querySelector('.toggle-label');
+      if (label) label.textContent = 'Hors ligne';
+    }
   }
 
   // Lien direct vers la carte digitale
@@ -553,26 +558,25 @@ function actualiserInterfaceConseiller() {
   }
 }
 
-async function mettreAJourDisponibilite(nouveauStatut) {
-  if (!commercialConnecte) return;
-
-  const elDot = document.getElementById('comm-status-dot');
-  if (elDot) {
-    elDot.textContent = nouveauStatut === 'disponible' ? '🟢' : nouveauStatut === 'occupe' ? '🟡' : '⚪';
+export function toggleDisponibilite() {
+  const btn = document.getElementById('statut-toggle');
+  if (!btn) return;
+  const estOn = btn.classList.toggle('on');
+  const statut = estOn ? 'disponible' : 'indisponible';
+  const label = btn.querySelector('.toggle-label');
+  if (label) label.textContent = estOn ? 'En ligne' : 'Hors ligne';
+  
+  if (commercialConnecte) {
+    commercialConnecte.statut_disponible = statut;
   }
 
-  try {
-    const { error } = await supabase
-      .from('commerciaux')
-      .update({ statut_disponible: nouveauStatut })
-      .eq('id', commercialConnecte.id);
-
-    if (error) throw error;
-    commercialConnecte.statut_disponible = nouveauStatut;
-    afficherToast(`Votre statut a été mis à jour : ${nouveauStatut}`);
-  } catch (err) {
-    console.warn('Erreur mise à jour statut:', err);
+  // Update Supabase
+  if (commercialConnecte?.id && estSupabaseConfigure()) {
+    supabase.from('commerciaux').update({ statut_disponible: statut })
+      .eq('id', commercialConnecte.id).then(() => {});
   }
+
+  afficherToast(estOn ? '🟢 Vous êtes en ligne (Disponible)' : '⚪ Vous êtes hors ligne (Indisponible)');
 }
 
 // ==============================================================================
@@ -830,6 +834,7 @@ async function chargerRendezVous() {
     }
 
     listeRdv = data;
+    window.listeRendezVous = data;
     const badgeCount = document.getElementById('badge-rdv-count');
     if (badgeCount) badgeCount.textContent = data.length;
 
@@ -885,13 +890,48 @@ async function chargerRendezVous() {
           <td>
             <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
               ${boutonPointer}
-              <a href="${lienMaps}" target="_blank" rel="noopener noreferrer" class="comm-btn-outline" style="padding: 5px 8px; font-size: 0.78rem;" title="Itinéraire Google Maps">🗺️ Maps</a>
+              <a href="${lienMaps}" class="comm-btn-outline btn-ouvrir-maps" style="padding: 5px 8px; font-size: 0.78rem;" title="Itinéraire Google Maps">🗺️ Maps</a>
               <a href="${lienGCal}" target="_blank" rel="noopener noreferrer" class="comm-btn-outline" style="padding: 5px 8px; font-size: 0.78rem;" title="Ajouter à Google Calendar">📅 G-Cal</a>
             </div>
           </td>
         </tr>
       `;
     }).join('');
+
+    // Génération des cartes mobile pour RDV
+    const cardsMobileRdv = document.getElementById('cards-rdv-mobile');
+    if (cardsMobileRdv) {
+      cardsMobileRdv.innerHTML = data.map(rdv => {
+        const d = new Date(rdv.date_rdv);
+        const dateFormatee = isNaN(d.getTime()) ? 'Date non définie' : d.toLocaleDateString('fr-FR', {
+          weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+        });
+        const lienMaps = genererLienItineraireGoogle(rdv.restaurant_prospect, rdv.latitude_restaurant, rdv.longitude_restaurant);
+        const boutonPointer = rdv.checkin_statut !== 'VALIDE_SUR_PLACE'
+          ? `<button type="button" class="btn-pointer-gps" data-id="${rdv.id}" style="background: #C9A227; color:#0B1F3A;">📍 Pointer</button>`
+          : `<button type="button" disabled style="background: #DCFCE7; color:#166534;">✓ Pointé</button>`;
+
+        const badgeStatut = rdv.checkin_statut === 'VALIDE_SUR_PLACE'
+          ? '<span class="card-mobile-badge client">Sur place</span>'
+          : '<span class="card-mobile-badge contacte">En attente</span>';
+
+        return `
+          <div class="card-mobile">
+            <div class="card-mobile-header">
+              <span class="card-mobile-nom">${escapeHtml(rdv.restaurant_prospect)}</span>
+              ${badgeStatut}
+            </div>
+            <div class="card-mobile-row"><span>Date</span><strong>${dateFormatee}</strong></div>
+            <div class="card-mobile-row"><span>Contact</span><strong>${escapeHtml(rdv.nom_prospect || '—')} (${escapeHtml(rdv.telephone_prospect || '—')})</strong></div>
+            <div class="card-mobile-row"><span>Lieu</span><strong>${escapeHtml(rdv.adresse_restaurant || 'Sénégal')}</strong></div>
+            <div class="card-mobile-actions">
+              ${boutonPointer}
+              <button type="button" onclick="ouvrirMapsUrl('${lienMaps}')" style="background: #0B1F3A; color:#FFF;">🗺️ Maps</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
 
     // Attacher événements de pointage GPS
     document.querySelectorAll('.btn-pointer-gps').forEach(btn => {
@@ -2209,8 +2249,40 @@ async function chargerProspects() {
         </tr>`;
     }).join('');
 
-    // Écouteurs sur les boutons de contrat par prospect
-    tbody.querySelectorAll('.btn-signer-contrat-prospect').forEach(btn => {
+    // Génération des cartes mobile pour Prospects
+    const cardsMobileProspects = document.getElementById('cards-prospects-mobile');
+    if (cardsMobileProspects) {
+      cardsMobileProspects.innerHTML = listeProspects.map(l => {
+        const badgeStatut = l.statut === 'SIGNE'
+          ? '<span class="card-mobile-badge client">Signé</span>'
+          : l.statut === 'EN_COURS'
+          ? '<span class="card-mobile-badge rdv">En cours</span>'
+          : '<span class="card-mobile-badge contacte">Contacté</span>';
+
+        const boutonActionMobile = l.statut === 'SIGNE'
+          ? `<button type="button" class="btn-telecharger-contrat-existant" data-id="${l.id}" style="background: #C9A227; color:#0B1F3A;">📄 Contrat A4</button>`
+          : `<button type="button" class="btn-signer-contrat-prospect" data-id="${l.id}" style="background: #16A34A; color:#FFF;">✍️ Signer & Wave</button>`;
+
+        return `
+          <div class="card-mobile">
+            <div class="card-mobile-header">
+              <span class="card-mobile-nom">${escapeHtml(l.restaurant_nom || '—')}</span>
+              ${badgeStatut}
+            </div>
+            <div class="card-mobile-row"><span>Gérant</span><strong>${escapeHtml(l.prospect_nom || '—')}</strong></div>
+            <div class="card-mobile-row"><span>Contact</span><strong>${escapeHtml(l.telephone || '—')}</strong></div>
+            <div class="card-mobile-row"><span>Formule</span><strong>${escapeHtml(l.formule || 'Xéweul')}</strong></div>
+            <div class="card-mobile-actions">
+              ${boutonActionMobile}
+              <button type="button" class="btn-ouvrir-copilot-wa-prospect" data-id="${l.id}" style="background: #0B1F3A; color:#FFF;">💬 WhatsApp</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Écouteurs sur les boutons de contrat par prospect (table + cards mobile)
+    document.querySelectorAll('.btn-signer-contrat-prospect').forEach(btn => {
       btn.addEventListener('click', () => {
         const id = btn.getAttribute('data-id');
         const prospect = listeProspects.find(p => String(p.id) === String(id));
@@ -2218,7 +2290,7 @@ async function chargerProspects() {
       });
     });
 
-    tbody.querySelectorAll('.btn-telecharger-contrat-existant').forEach(btn => {
+    document.querySelectorAll('.btn-telecharger-contrat-existant').forEach(btn => {
       btn.addEventListener('click', async () => {
         const id = btn.getAttribute('data-id');
         const prospect = listeProspects.find(p => String(p.id) === String(id));
@@ -2226,8 +2298,8 @@ async function chargerProspects() {
       });
     });
 
-    // Écouteurs sur le bouton Copilot WhatsApp B2B 1-clic par prospect
-    tbody.querySelectorAll('.btn-ouvrir-copilot-wa-prospect').forEach(btn => {
+    // Écouteurs sur le bouton Copilot WhatsApp B2B 1-clic par prospect (table + cards mobile)
+    document.querySelectorAll('.btn-ouvrir-copilot-wa-prospect').forEach(btn => {
       btn.addEventListener('click', () => {
         const id = btn.getAttribute('data-id');
         const prospect = listeProspects.find(p => String(p.id) === String(id));
@@ -4255,4 +4327,103 @@ if (typeof window !== 'undefined') {
   window.confirmerAvecAissatou = confirmerAvecAissatou;
   window.ouvrirMaps = ouvrirMaps;
   window.ouvrirMapsUrl = ouvrirMapsUrl;
+}
+
+
+// ══════════════════════════════════════════════════════════════════════════
+// SPRINT 2 — FONCTIONS ADDITIONNELLES : TOGGLE, SUGGESTIONS, ARRIVÉ & ALERTES
+// ══════════════════════════════════════════════════════════════════════════
+
+// FIX 5 — Toggle des suggestions Aissatou
+export function toggleSuggestions() {
+  document.getElementById('aissatou-exemples')?.classList.toggle('masque');
+}
+
+// FIX 6 — Bouton "Je suis arrivé" (1 clic)
+export async function pointerArriveeDirecte() {
+  // Récupérer le RDV en cours
+  const liste = window.listeRendezVous || listeRdv;
+  const rdvActif = liste?.find(r => {
+    if (!r.date_rdv) return false;
+    return new Date(r.date_rdv).toDateString() === new Date().toDateString();
+  }) || liste?.[0];
+  
+  if (!rdvActif) {
+    afficherToast("⚠️ Aucun RDV aujourd'hui");
+    return;
+  }
+  
+  // Appeler la fonction GPS existante
+  await pointerArriveeGPS(rdvActif.id);
+  afficherToast('✅ Arrivée pointée avec succès !');
+}
+
+// FIX 7 — Alerte RDV 30 min avant (notification + son synthétisé)
+function jouerSonAlerteRDV() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(880, ctx.currentTime);
+    osc.frequency.setValueAtTime(1200, ctx.currentTime + 0.15);
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.4);
+  } catch(e) {}
+}
+
+export function verifierAlertesRDV() {
+  const liste = window.listeRendezVous || listeRdv;
+  if (!liste || !Array.isArray(liste)) return;
+  const maintenant = new Date();
+  const dans30 = new Date(maintenant.getTime() + 30 * 60000);
+  
+  liste.forEach(rdv => {
+    if (!rdv.date_rdv) return;
+    const dateRdv = new Date(rdv.date_rdv);
+    const cleAlerte = `alerte_rdv_${rdv.id}`;
+    
+    if (dateRdv > maintenant && dateRdv <= dans30 && !localStorage.getItem(cleAlerte)) {
+      const restoNom = rdv.restaurant_prospect || rdv.restaurant_nom || 'Restaurant prospect';
+      // Notification navigateur
+      if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+        try {
+          new Notification('🔔 RDV dans 30 min', {
+            body: `${restoNom} — ${rdv.adresse_restaurant || rdv.ville || 'Sénégal'}`,
+            icon: '/images/logo.png',
+            tag: cleAlerte
+          });
+        } catch(errN) {}
+      }
+      
+      // Son
+      jouerSonAlerteRDV();
+      
+      // Toast
+      afficherToast(`🔔 RDV dans 30 min : ${restoNom}`);
+      
+      // Marquer comme envoyée
+      localStorage.setItem(cleAlerte, 'true');
+    }
+  });
+}
+
+// Demander permission notification
+if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'default') {
+  Notification.requestPermission();
+}
+
+// Vérifier toutes les 5 min
+if (typeof window !== 'undefined') {
+  setInterval(verifierAlertesRDV, 5 * 60000);
+  setTimeout(verifierAlertesRDV, 3000);
+
+  // Attacher sur window pour les déclencheurs onclick HTML
+  window.toggleDisponibilite = toggleDisponibilite;
+  window.toggleSuggestions = toggleSuggestions;
+  window.pointerArriveeDirecte = pointerArriveeDirecte;
+  window.verifierAlertesRDV = verifierAlertesRDV;
 }

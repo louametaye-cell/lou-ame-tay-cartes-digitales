@@ -1995,6 +1995,7 @@
       transform: translateY(0);
     }
   </style>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -2562,14 +2563,10 @@
           </div>
         </div>
         <div>
-          <div class="comm-status-selector">
-            <span id="comm-status-dot">🟢</span>
-            <select id="select-statut-dispo" aria-label="Statut de disponibilité">
-              <option value="disponible">🟢 Disponible</option>
-              <option value="occupe">🟡 En clientèle / RDV</option>
-              <option value="indisponible">⚪ Indisponible</option>
-            </select>
-          </div>
+          <button type="button" class="statut-toggle on" id="statut-toggle" onclick="toggleDisponibilite()">
+            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            <span class="toggle-label">En ligne</span>
+          </button>
         </div>
       </div>
     </section>
@@ -2686,6 +2683,12 @@
            ONGLET : RENDEZ-VOUS & POINTAGE GPS (ANTI-FRAUDE & PROOF OF VISIT 2.0)
            ===================================================================== -->
       <section id="panel-rdv-gps" class="comm-panel">
+        <!-- Bouton Arrivée Directe 1 Clic -->
+        <button type="button" class="btn-arrive" onclick="pointerArriveeDirecte()">
+          <span class="pulse-dot"></span>
+          📍 Je suis arrivé
+        </button>
+
         <div class="comm-card" style="border-top: 4px solid var(--bleu-profond);">
           <div class="comm-card-header">
             <div>
@@ -2699,6 +2702,7 @@
             </button>
           </div>
 
+          <!-- Version Desktop : Tableau -->
           <div class="comm-table-wrap">
             <table class="comm-table">
               <thead>
@@ -2715,6 +2719,9 @@
               </tbody>
             </table>
           </div>
+
+          <!-- Version Mobile : Cartes empilées -->
+          <div class="cards-mobile" id="cards-rdv-mobile" style="margin-top: 10px;"></div>
         </div>
       </section>
 
@@ -2913,6 +2920,9 @@
               </tbody>
             </table>
           </div>
+
+          <!-- Version Mobile : Cartes empilées -->
+          <div class="cards-mobile" id="cards-prospects-mobile" style="margin-top: 10px;"></div>
         </div>
       </section>
 
@@ -3661,11 +3671,12 @@
 
       <!-- SECTION A : CHAT RAG DIRECT AVEC AISSATOU -->
       <div id="section-aissatou-chat-rag">
-        <!-- Suggestions de questions rapides -->
-        <div style="margin-bottom: 10px;">
-          <label style="font-size: 0.78rem; font-weight: 700; color: var(--bleu-profond); display: block; margin-bottom: 6px;">
-            💡 Exemples de questions terrain fréquentes :
-          </label>
+        <!-- Bouton toggle Suggestions -->
+        <button type="button" class="btn-suggestions" onclick="toggleSuggestions()">
+          💡 Suggestions
+        </button>
+
+        <div class="aissatou-exemples masque" id="aissatou-exemples" style="margin-bottom: 12px;">
           <div style="display: flex; flex-wrap: wrap; gap: 6px;" id="aissatou-quick-prompts">
             <button type="button" class="comm-badge-filtre" data-query="3 arguments pour un restaurant gastronomique aux Almadies" style="font-size: 0.73rem; cursor: pointer; background: #F1F5F9; border: 1px solid #CBD5E1; padding: 4px 8px; border-radius: 8px;">
               📍 3 arguments Almadies
@@ -3695,8 +3706,8 @@
           </div>
         </div>
 
-        <!-- Zone de réponse d'Aissatou -->
-        <div id="zone-reponse-aissatou-rag" style="display: none; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; box-shadow: 0 4px 16px rgba(0,0,0,0.04);">
+        <!-- Zone de réponse d'Aissatou épurée -->
+        <div id="zone-reponse-aissatou-rag" style="display: none; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 16px; min-height: 200px; margin-bottom: 1rem; box-shadow: 0 4px 16px rgba(0,0,0,0.04);">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
             <div style="display: flex; align-items: center; gap: 8px;">
               <span style="font-size: 1.1rem;">👩🏾‍💼</span>
