@@ -236,9 +236,9 @@ export async function genererCartePDF(commercial, options = {}) {
   doc.setFillColor(11, 31, 58);
   doc.rect(2.5, 47, 80, 5.5, 'F');
   doc.setTextColor(255, 255, 255);
-  doc.setFontSize(6);
+  doc.setFontSize(5.8);
   doc.setFont('helvetica', 'bold');
-  doc.text('LOU AME TAY — La transition digitale de la restauration au Sénégal', 42.5, 50.8, { align: 'center' });
+  doc.text('© 2026 Lou Ame Tay · MG Digital Arts Work — Transition Digitale CHR Sénégal', 42.5, 50.8, { align: 'center' });
 
   // Retour selon options
   if (options.retourBlob) {

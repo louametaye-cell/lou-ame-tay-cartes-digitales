@@ -96,7 +96,7 @@ export async function genererContratCommercialPDFA4(donnees = {}) {
     doc.setFontSize(6.5);
     doc.setTextColor(100, 116, 139);
     doc.text(
-      'LOU AME TAY SASU • Médias Graphisme Sénégal / DAW Digital Arts Work • Siège : Grand Standing, Thiès • Bureau VDN Dakar • Tél : +221 77 458 74 74',
+      '© 2026 Lou Ame Tay · MG Digital Arts Work • Médias Graphisme Sénégal • Siège : Thiès • VDN Dakar • Tél : +221 77 458 74 74',
       MARGIN_LEFT,
       yPied + 2
     );

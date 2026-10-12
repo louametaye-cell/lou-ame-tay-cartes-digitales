@@ -2007,6 +2007,7 @@
       <div class="comm-brand-text">
         <h1>Lou Ame Tay</h1>
         <span>Espace Conseiller Terrain</span>
+        <div style="font-size: 10px; opacity: 0.7; font-style: italic; color: #CBD5E1; margin-top: 2px;">Lou Ame Tay by MG Digital Arts Work · Édition 2026</div>
       </div>
     </a>
     <div id="zone-header-actions" style="display: none; align-items: center; gap: 10px;">
@@ -3498,6 +3499,21 @@
           </div>
         </div>
 
+        <!-- Sceau d'Intégrité Numérique DAW -->
+        <div class="sceau-numerique">
+          <div class="sceau-header">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9A227" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+            <strong>Sceau d'Intégrité Numérique DAW · Édition 2026</strong>
+          </div>
+          <div class="sceau-details">
+            <div class="sceau-hash">SHA-256 : <code id="sceau-sha256-contrat">e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855</code></div>
+            <div class="sceau-date">Date de scellement : <span>2026-10-12 · Conforme Loi 2008-08 & 2008-12</span></div>
+            <div class="sceau-cert">Certification : Digital Arts Work (DAW) — M. Mbaye Babacar GUEYE, DG</div>
+          </div>
+        </div>
+
         <!-- Boutons d'action -->
         <button type="submit" class="comm-btn-primary" id="btn-valider-contrat-final" style="font-size: 1rem; padding: 14px;">
           <span>📄 Sceller la vente & Générer le Contrat PDF</span>
@@ -3970,27 +3986,74 @@
   </div>
 
   <!-- =========================================================================
+       FOOTER BRANDING ÉDITEUR (MG DIGITAL ARTS WORK + SÉCURITÉ)
+       ========================================================================= -->
+  <footer class="footer-officiel" style="margin-bottom: 70px;">
+    <div class="footer-lock">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+      </svg>
+      <span>Plateforme certifiée & sécurisée par MG Digital Arts Work</span>
+    </div>
+    <div class="footer-mentions">
+      <p class="footer-editeur">Lou Ame Tay by MG Digital Arts Work · Édition 2026</p>
+      <p>Éditeur : Digital Arts Work (DAW) — M. Mbaye Babacar GUEYE, Directeur Général</p>
+      <p>Domaines certifiés : <a href="https://www.louametay.com" target="_blank" rel="noopener noreferrer">louametay.com</a> · <a href="https://louametay.online" target="_blank" rel="noopener noreferrer">louametay.online</a></p>
+      <p>© 2026 Lou Ame Tay. Tous droits réservés.</p>
+    </div>
+  </footer>
+
+  <!-- =========================================================================
        BOTTOM NAVIGATION MOBILE 2026 (Fixe en bas, max-width: 768px)
        ========================================================================= -->
   <nav id="bottom-nav-mobile" class="bottom-nav-mobile" aria-label="Navigation principale mobile">
     <button type="button" class="bn-item active" data-panel="panel-perf" aria-label="Performances">
-      <span class="bn-icon">📊</span>
+      <span class="bn-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="20" x2="18" y2="10"></line>
+          <line x1="12" y1="20" x2="12" y2="4"></line>
+          <line x1="6" y1="20" x2="6" y2="14"></line>
+        </svg>
+      </span>
       <span class="bn-label">Performances</span>
     </button>
     <button type="button" class="bn-item" data-panel="panel-rdv-gps" aria-label="Rendez-vous et pointage GPS">
-      <span class="bn-icon">📍</span>
+      <span class="bn-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+          <circle cx="12" cy="10" r="3"></circle>
+        </svg>
+      </span>
       <span class="bn-label">RDV</span>
     </button>
     <button type="button" class="bn-item" data-panel="panel-commissions" aria-label="Commissions">
-      <span class="bn-icon">💰</span>
+      <span class="bn-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="6" width="20" height="12" rx="2"></rect>
+          <circle cx="12" cy="12" r="3"></circle>
+        </svg>
+      </span>
       <span class="bn-label">Commissions</span>
     </button>
     <button type="button" class="bn-item" data-panel="panel-prospects" aria-label="Prospects">
-      <span class="bn-icon">🎯</span>
+      <span class="bn-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <circle cx="12" cy="12" r="6"></circle>
+          <circle cx="12" cy="12" r="2"></circle>
+        </svg>
+      </span>
       <span class="bn-label">Prospects</span>
     </button>
     <button type="button" class="bn-item" id="btn-ouvrir-more-sheet" aria-label="Plus d'outils" aria-haspopup="dialog">
-      <span class="bn-icon">☰</span>
+      <span class="bn-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </span>
       <span class="bn-label">Plus</span>
     </button>
   </nav>
@@ -4007,31 +4070,69 @@
       </div>
       <div class="more-sheet-grid">
         <button type="button" class="more-sheet-item" data-panel="panel-outils">
-          <span class="more-sheet-icon">💼</span>
+          <span class="more-sheet-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+              <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+            </svg>
+          </span>
           <span class="more-sheet-label">Kit & Outils Pro</span>
         </button>
         <button type="button" class="more-sheet-item" data-panel="panel-depenses">
-          <span class="more-sheet-icon">🧾</span>
+          <span class="more-sheet-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C9A227" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+            </svg>
+          </span>
           <span class="more-sheet-label">Frais & Remb.</span>
         </button>
         <button type="button" class="more-sheet-item" data-panel="panel-annonces">
-          <span class="more-sheet-icon">📢</span>
+          <span class="more-sheet-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+          </span>
           <span class="more-sheet-label">Annonces Équipe</span>
         </button>
         <button type="button" class="more-sheet-item" data-panel="panel-avis">
-          <span class="more-sheet-icon">⭐</span>
+          <span class="more-sheet-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="#EAB308" stroke="#EAB308" stroke-width="1">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+          </span>
           <span class="more-sheet-label">Avis Clients</span>
         </button>
         <button type="button" class="more-sheet-item" data-action="copilot-ia">
-          <span class="more-sheet-icon">✨</span>
+          <span class="more-sheet-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#A855F7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+          </span>
           <span class="more-sheet-label">Copilot IA</span>
         </button>
         <button type="button" class="more-sheet-item" data-action="pass-wallet">
-          <span class="more-sheet-icon">💳</span>
+          <span class="more-sheet-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0B1F3A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+              <line x1="1" y1="10" x2="23" y2="10"></line>
+            </svg>
+          </span>
           <span class="more-sheet-label">Mon Wallet NFC</span>
         </button>
         <button type="button" class="more-sheet-item" data-action="mon-contrat">
-          <span class="more-sheet-icon">📜</span>
+          <span class="more-sheet-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+          </span>
           <span class="more-sheet-label">Mon Contrat</span>
         </button>
       </div>

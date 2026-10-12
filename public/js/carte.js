@@ -2144,12 +2144,12 @@ function mettreAJourGraphiqueROI(caActuel, caAvec) {
   chartRoiInstance = new window.Chart(ctx, {
     type: 'bar',
     data: {
-      labels: ['Sans Lou Ame Tay', 'Avec Lou Ame Tay ⭐'],
+      labels: ['Sans Lou Ame Tay', 'Avec Lou Ame Tay ✨'],
       datasets: [{
         label: 'CA Mensuel (en milliers FCFA)',
         data: [Math.round(caActuel / 1000), Math.round(caAvec / 1000)],
-        backgroundColor: ['#64748B', '#C9A227'],
-        borderRadius: 8,
+        backgroundColor: ['#94A3B8', '#22C55E'],
+        borderRadius: 10,
         borderWidth: 0
       }]
     },
@@ -2190,89 +2190,94 @@ function mettreAJourGraphiqueROI(caActuel, caAvec) {
  */
 function initialiserPrestigeCarte(commercial) {
   initialiserBentoEtBoutonOr(commercial);
+  initialiserGalerie16_10();
   initialiserSimulateurDemoLive();
   initialiserDiaporamaSaaS();
   initialiserOngletsPrincipaux();
 }
 
 /**
- * 1. Initialise le bouton d'or prestige et les 2 tuiles Bento
+ * Galerie Diaporama 16:10 Réalisations Terrain (Rotation 4s, tactile & dots)
  */
-function initialiserBentoEtBoutonOr(commercial) {
-  // Bouton Démo Primaire d'Or
-  const btnDemoPrimaire = document.getElementById('btn-demo-primaire');
-  if (btnDemoPrimaire) {
-    btnDemoPrimaire.addEventListener('click', () => {
-      trackerEvenement('clic_demo_primaire', commercial.id);
-      ouvrirRdv(commercial);
-    });
+function initialiserGalerie16_10() {
+  const slides = document.querySelectorAll('.galerie-slide-item');
+  const dots = document.querySelectorAll('.galerie-dot');
+  const btnPrev = document.getElementById('galerie-prev-btn');
+  const btnNext = document.getElementById('galerie-next-btn');
+  const cadre = document.getElementById('galerie-slider-container');
+
+  if (slides.length === 0) return;
+
+  let indexCourant = 0;
+  const total = slides.length;
+  let timerAuto = null;
+
+  function afficher(idx) {
+    indexCourant = (idx + total) % total;
+    slides.forEach((sl, i) => sl.classList.toggle('active', i === indexCourant));
+    dots.forEach((dt, i) => dt.classList.toggle('active', i === indexCourant));
   }
 
-  // Bento Tuile 1 : Enregistrer le contact (vCard + Wallet)
-  const btnSaveContact = document.getElementById('btn-save-contact-compact');
-  if (btnSaveContact) {
-    btnSaveContact.addEventListener('click', () => {
-      trackerEvenement('clic_save_contact_compact', commercial.id);
-      telechargerVCardDirect(commercial);
-      setTimeout(() => {
-        ajouterAuWallet(commercial);
-      }, 700);
-    });
+  function demarrerTimer() {
+    arreterTimer();
+    timerAuto = setInterval(() => {
+      afficher(indexCourant + 1);
+    }, 4000);
   }
 
-  // Bento Tuile 2 : Échanger coordonnées / Recommander
-  const btnEchangeCompact = document.getElementById('btn-echange-compact');
-  const modalEchange = document.getElementById('modal-echange');
-  if (btnEchangeCompact && modalEchange) {
-    btnEchangeCompact.addEventListener('click', () => {
-      trackerEvenement('clic_echange_compact', commercial.id);
-      modalEchange.classList.remove('hidden');
-      modalEchange.classList.add('active');
-    });
+  function arreterTimer() {
+    if (timerAuto) clearInterval(timerAuto);
   }
+
+  btnPrev?.addEventListener('click', () => {
+    afficher(indexCourant - 1);
+    demarrerTimer();
+  });
+
+  btnNext?.addEventListener('click', () => {
+    afficher(indexCourant + 1);
+    demarrerTimer();
+  });
+
+  dots.forEach(dot => {
+    dot.addEventListener('click', () => {
+      const idx = parseInt(dot.getAttribute('data-slide'), 10);
+      if (!isNaN(idx)) {
+        afficher(idx);
+        demarrerTimer();
+      }
+    });
+  });
+
+  if (cadre) {
+    cadre.addEventListener('mouseenter', arreterTimer);
+    cadre.addEventListener('mouseleave', demarrerTimer);
+
+    let startX = 0;
+    cadre.addEventListener('touchstart', (e) => {
+      startX = e.changedTouches[0].screenX;
+      arreterTimer();
+    }, { passive: true });
+
+    cadre.addEventListener('touchend', (e) => {
+      const diff = startX - e.changedTouches[0].screenX;
+      if (Math.abs(diff) > 40) {
+        afficher(diff > 0 ? indexCourant + 1 : indexCourant - 1);
+      }
+      demarrerTimer();
+    }, { passive: true });
+  }
+
+  demarrerTimer();
 }
 
 /**
- * Déclenchement direct du téléchargement vCard (.vcf)
- */
-function telechargerVCardDirect(c) {
-  const telPropre = (c.telephone || '').replace(/\s+/g, '');
-  const bioLigne = (c.bio || "Lou Ame Tay — Solution SaaS Restauration & Hôtellerie").replace(/\r?\n/g, ' ');
-
-  const vCardContenu = [
-    'BEGIN:VCARD',
-    'VERSION:3.0',
-    `N:${c.nom};${c.prenom};;;`,
-    `FN:${c.prenom} ${c.nom}`,
-    `ORG:Lou Ame Tay;Restauration & Hôtellerie SaaS`,
-    `TITLE:${c.poste || 'Conseiller Commercial CHR'}`,
-    `TEL;TYPE=CELL,VOICE,PREF:${telPropre}`,
-    `EMAIL;TYPE=WORK,INTERNET:${c.email || ''}`,
-    `URL:${window.location.href}`,
-    `NOTE:${bioLigne}`,
-    'END:VCARD'
-  ].join('\r\n');
-
-  const blob = new Blob([vCardContenu], { type: 'text/vcard;charset=utf-8;' });
-  const lien = document.createElement('a');
-  const nomFichier = `contact_${c.prenom.toLowerCase()}_${c.nom.toLowerCase()}.vcf`;
-
-  lien.href = URL.createObjectURL(blob);
-  lien.download = nomFichier;
-  document.body.appendChild(lien);
-  lien.click();
-  document.body.removeChild(lien);
-  URL.revokeObjectURL(lien.href);
-
-  afficherToast("✓ Fiche contact ajoutée au téléchargement !");
-}
-
-/**
- * 2. Moteur du Simulateur Démo Live Multi-Écrans (Client ➔ Cuisine KDS ➔ Ticket)
+ * 2. Moteur du Simulateur Démo Live 4 Mockups
+ * 1: iPhone 18 Client | 2: Bar Caisse POS | 3: Cuisine KDS | 4: Ticket Reçu
  */
 function initialiserSimulateurDemoLive() {
-  const demoTabs = document.querySelectorAll('.demo-tab-btn');
-  const demoVues = document.querySelectorAll('.demo-ecran-vue');
+  const demoTabs = document.querySelectorAll('.demo-tab-btn-4, .demo-tab-btn');
+  const demoVues = document.querySelectorAll('.mockup-cadre-vue, .demo-ecran-vue');
   const boutonsAjouter = document.querySelectorAll('.btn-ajouter-panier');
   const totalPanierEl = document.getElementById('demo-panier-total');
   const btnEnvoyerCommande = document.getElementById('btn-envoyer-commande-demo');
@@ -2280,6 +2285,13 @@ function initialiserSimulateurDemoLive() {
   const btnRestart = document.getElementById('btn-restart-demo');
   const btnWave = document.getElementById('btn-payer-wave-demo');
   const btnOm = document.getElementById('btn-payer-om-demo');
+
+  // Éléments du Poste Bar / Caisse POS
+  const posArticlesListe = document.getElementById('pos-articles-liste');
+  const posTotalMontant = document.getElementById('pos-total-montant');
+  const posStatutCommande = document.getElementById('pos-statut-commande');
+  const btnPosEncaisser = document.getElementById('btn-pos-encaisser');
+  const btnsPosModes = document.querySelectorAll('.btn-pos-mode');
 
   let panierDemo = [];
 
@@ -2324,7 +2336,7 @@ function initialiserSimulateurDemoLive() {
     } catch (e) {}
   }
 
-  // Bascule d'écrans
+  // Bascule d'écrans entre les 4 mockups
   function basculerEcran(screenName) {
     demoTabs.forEach(t => t.classList.toggle('active', t.getAttribute('data-screen') === screenName));
     demoVues.forEach(v => v.classList.toggle('active', v.id === `demo-ecran-${screenName}`));
@@ -2341,6 +2353,29 @@ function initialiserSimulateurDemoLive() {
       basculerEcran(screen);
     });
   });
+
+  // Sélection du mode de paiement dans le POS
+  btnsPosModes.forEach(btn => {
+    btn.addEventListener('click', () => {
+      btnsPosModes.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  // Action d'encaissement direct au Bar
+  if (btnPosEncaisser) {
+    btnPosEncaisser.addEventListener('click', () => {
+      afficherToast("💵 Encaissement validé au Bar POS ! Ticket généré.");
+      if (posStatutCommande) {
+        posStatutCommande.textContent = "Payé";
+        posStatutCommande.style.background = "rgba(34, 197, 94, 0.25)";
+        posStatutCommande.style.color = "#4ADE80";
+      }
+      setTimeout(() => {
+        basculerEcran('ticket');
+      }, 500);
+    });
+  }
 
   // Ajout au panier démo
   boutonsAjouter.forEach(btn => {
@@ -2372,6 +2407,26 @@ function initialiserSimulateurDemoLive() {
     if (btnEnvoyerCommande) {
       btnEnvoyerCommande.disabled = panierDemo.length === 0;
     }
+
+    // Mise à jour de la Caisse POS Bar
+    if (posTotalMontant) {
+      posTotalMontant.textContent = `${total.toLocaleString('fr-FR')} FCFA`;
+    }
+    if (btnPosEncaisser) {
+      btnPosEncaisser.disabled = panierDemo.length === 0;
+    }
+    if (posArticlesListe) {
+      if (panierDemo.length === 0) {
+        posArticlesListe.innerHTML = '<li class="pos-vide-txt">Ajoutez des articles depuis l\'écran Menu Client.</li>';
+      } else {
+        posArticlesListe.innerHTML = panierDemo.map(it => `
+          <li style="display:flex; justify-content:space-between; padding:3px 0; border-bottom:1px dashed #334155;">
+            <span>${it.nom}</span>
+            <strong style="color:#22C55E;">${it.prix.toLocaleString('fr-FR')} F</strong>
+          </li>
+        `).join('');
+      }
+    }
   }
 
   // Envoi de commande en cuisine KDS
@@ -2380,17 +2435,19 @@ function initialiserSimulateurDemoLive() {
       if (panierDemo.length === 0) return;
 
       jouerSonBipKDS();
-      afficherToast("🚀 Commande Table #05 envoyée en Cuisine KDS !");
+      afficherToast("🚀 Commande Table #05 envoyée en Cuisine KDS & Bar POS !");
 
-      // Badge alerte rouge sur onglet KDS
       const badgeAlert = document.getElementById('badge-kds-alert');
       if (badgeAlert) badgeAlert.style.display = 'inline-block';
 
-      // Mise à jour de l'écran KDS
       const kdsStatut = document.getElementById('kds-statut-texte');
       if (kdsStatut) {
         kdsStatut.textContent = '🔴 EN CUISSON (CHEF ALERTÉ)';
         kdsStatut.classList.remove('pret');
+      }
+
+      if (posStatutCommande) {
+        posStatutCommande.textContent = 'Transmise';
       }
 
       const kdsHorodatage = document.getElementById('kds-horodatage');
@@ -2418,7 +2475,6 @@ function initialiserSimulateurDemoLive() {
         btnMarquerPret.innerHTML = '<span>Marquer comme Prêt 🍲</span>';
       }
 
-      // Mise à jour du Ticket Numérique
       const ticketLignes = document.getElementById('ticket-lignes-detail');
       const ticketTotal = document.getElementById('ticket-montant-total');
       const total = panierDemo.reduce((acc, it) => acc + it.prix, 0);
@@ -2440,14 +2496,13 @@ function initialiserSimulateurDemoLive() {
         ticketTotal.textContent = `${total.toLocaleString('fr-FR')} FCFA`;
       }
 
-      // Bascule fluide automatique vers Cuisine KDS après 400ms
       setTimeout(() => {
-        basculerEcran('kds');
+        basculerEcran('bar');
       }, 400);
     });
   }
 
-  // Marquer comme prêt en cuisine
+  // Marquer comme prêt en cuisine KDS
   if (btnMarquerPret) {
     btnMarquerPret.addEventListener('click', () => {
       const kdsStatut = document.getElementById('kds-statut-texte');
@@ -2465,7 +2520,7 @@ function initialiserSimulateurDemoLive() {
 
       setTimeout(() => {
         basculerEcran('ticket');
-      }, 800);
+      }, 700);
     });
   }
 
@@ -2496,6 +2551,12 @@ function initialiserSimulateurDemoLive() {
       if (kdsStatut) {
         kdsStatut.textContent = 'EN ATTENTE D\'ENVOI';
         kdsStatut.classList.remove('pret');
+      }
+
+      if (posStatutCommande) {
+        posStatutCommande.textContent = 'En attente';
+        posStatutCommande.style.background = '';
+        posStatutCommande.style.color = '';
       }
 
       if (btnMarquerPret) btnMarquerPret.disabled = true;
