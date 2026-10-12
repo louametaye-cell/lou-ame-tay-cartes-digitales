@@ -174,40 +174,68 @@ async function initialiserCarte() {
   genererQRCode();
 
   // 9. Formulaire de capture de leads (BDD + Scoring + Notification WhatsApp)
-  configurerFormulaireLeads(commercial);
+  try {
+    configurerFormulaireLeads(commercial);
+  } catch (e) {
+    console.warn("Erreur configurerFormulaireLeads:", e);
+  }
 
   // 10. Signature email professionnelle (Modal HTML)
-  configurerSignatureEmail(commercial);
+  try {
+    configurerSignatureEmail(commercial);
+  } catch (e) {
+    console.warn("Erreur configurerSignatureEmail:", e);
+  }
 
-  // Initialisations WOW Networking demandées
-  jouerIntro(commercial);
-  afficherStatut(commercial);
-  afficherCompteur(commercial.id);
-  afficherBadges(commercial.id);
-  afficherClientsConfiance();
-  await chargerTemoignages(commercial.id);
-  await trackerParrainage(commercial.id);
-  await afficherBadgeParrainage(commercial.id);
-  initialiserPartage(commercial);
+  // Initialisations synchrones critiques : Bento, Simulateur Démo Live, Galerie 16:10, Onglets
+  try {
+    initialiserPrestigeCarte(commercial);
+  } catch (e) {
+    console.error("Erreur initialiserPrestigeCarte:", e);
+  }
 
-  // Écouteurs des boutons exacts
+  // Bonus : Simulateur ROI, Wallet
+  try {
+    initialiserSimulateurROI();
+  } catch (e) {
+    console.warn("Erreur initialiserSimulateurROI:", e);
+  }
+  try {
+    initialiserWallet(commercial);
+  } catch (e) {
+    console.warn("Erreur initialiserWallet:", e);
+  }
+
+  // Écouteurs des modales et boutons d'interaction
   const btnEchange = document.getElementById('btn-echange');
   const modalEchange = document.getElementById('modal-echange');
   const formEchange = document.getElementById('form-echange');
   const btnFermerEchange = document.getElementById('btn-fermer-modal-echange');
 
   if (btnEchange && modalEchange) {
-    btnEchange.onclick = () => {
+    btnEchange.onclick = (e) => {
+      e.preventDefault();
       trackerEvenement('clic_echange_carte', commercial.id);
       modalEchange.classList.remove('hidden');
+      modalEchange.classList.add('active');
+      modalEchange.style.display = 'flex';
     };
   }
   if (btnFermerEchange && modalEchange) {
-    btnFermerEchange.onclick = () => modalEchange.classList.add('hidden');
+    btnFermerEchange.onclick = (e) => {
+      e.preventDefault();
+      modalEchange.classList.add('hidden');
+      modalEchange.classList.remove('active');
+      modalEchange.style.display = 'none';
+    };
   }
   if (modalEchange) {
     modalEchange.onclick = (e) => {
-      if (e.target === modalEchange) modalEchange.classList.add('hidden');
+      if (e.target === modalEchange) {
+        modalEchange.classList.add('hidden');
+        modalEchange.classList.remove('active');
+        modalEchange.style.display = 'none';
+      }
     };
   }
   if (formEchange) {
@@ -223,13 +251,19 @@ async function initialiserCarte() {
   const btnFermerRdv = document.getElementById('btn-fermer-modal-rdv');
 
   if (btnRdv) {
-    btnRdv.onclick = () => {
+    btnRdv.onclick = (e) => {
+      e.preventDefault();
       trackerEvenement('clic_rdv', commercial.id);
       ouvrirRdv(commercial);
     };
   }
   if (btnFermerRdv && modalRdv) {
-    btnFermerRdv.onclick = () => modalRdv.classList.add('hidden');
+    btnFermerRdv.onclick = (e) => {
+      e.preventDefault();
+      modalRdv.classList.add('hidden');
+      modalRdv.classList.remove('active');
+      modalRdv.style.display = 'none';
+    };
   }
   if (formRdv) {
     formRdv.onsubmit = (e) => {
@@ -254,13 +288,6 @@ async function initialiserCarte() {
     };
   }
 
-  // Bonus : Simulateur ROI, Wallet
-  initialiserSimulateurROI();
-  initialiserWallet(commercial);
-
-  // Mission Prestige : Initialisation Bento, Simulateur Démo Live, Diaporama SaaS & Onglets
-  initialiserPrestigeCarte(commercial);
-
   // Lien sécurisé discret vers l'Espace Commercial Pro
   const lienEspaceComm = document.getElementById('lien-espace-commercial');
   if (lienEspaceComm && commercial?.id) {
@@ -268,7 +295,36 @@ async function initialiserCarte() {
   }
 
   // 11. Section Entreprise Lou Ame Tay et galerie
-  remplirEntreprise();
+  try {
+    remplirEntreprise();
+  } catch (e) {
+    console.warn("Erreur remplirEntreprise:", e);
+  }
+
+  // Appels asynchrones non-bloquants (networking, parrainage, stats)
+  jouerIntro(commercial);
+  afficherStatut(commercial);
+  afficherCompteur(commercial.id);
+  afficherBadges(commercial.id);
+  afficherClientsConfiance();
+  initialiserPartage(commercial);
+
+  // Exécution asynchrone sécurisée
+  try {
+    await chargerTemoignages(commercial.id);
+  } catch (e) {
+    console.warn("Temoignages indisponibles offline/réseau:", e);
+  }
+  try {
+    await trackerParrainage(commercial.id);
+  } catch (e) {
+    console.warn("Erreur trackerParrainage:", e);
+  }
+  try {
+    await afficherBadgeParrainage(commercial.id);
+  } catch (e) {
+    console.warn("Erreur afficherBadgeParrainage:", e);
+  }
 }
 
 /**
@@ -2185,15 +2241,144 @@ function mettreAJourGraphiqueROI(caActuel, caAvec) {
 // ═══════════════════════════════════════════════════════════════════
 
 /**
+ * 1. Initialisation des boutons Bento compacts, du CTA Devis et des modales
+ * @param {Object} commercial 
+ */
+function initialiserBentoEtBoutonOr(commercial) {
+  // Bouton Démo Primaire d'Or / Devis sur mesure
+  const btnDemoPrimaire = document.getElementById('btn-demo-primaire');
+  if (btnDemoPrimaire) {
+    btnDemoPrimaire.addEventListener('click', (e) => {
+      e.preventDefault();
+      trackerEvenement('clic_demo_primaire', commercial.id);
+      ouvrirRdv(commercial);
+    });
+  }
+
+  // Bento Tuile 1 : Enregistrer le contact (vCard + Wallet)
+  const btnSaveContact = document.getElementById('btn-save-contact-compact');
+  if (btnSaveContact) {
+    btnSaveContact.addEventListener('click', (e) => {
+      e.preventDefault();
+      trackerEvenement('clic_save_contact_compact', commercial.id);
+      telechargerVCardDirect(commercial);
+      setTimeout(() => {
+        if (typeof ajouterAuWallet === 'function') {
+          ajouterAuWallet(commercial);
+        }
+      }, 700);
+    });
+  }
+
+  // Bento Tuile 2 : Échanger coordonnées / Recommander
+  const btnEchangeCompact = document.getElementById('btn-echange-compact');
+  const modalEchange = document.getElementById('modal-echange');
+  if (btnEchangeCompact && modalEchange) {
+    btnEchangeCompact.addEventListener('click', (e) => {
+      e.preventDefault();
+      trackerEvenement('clic_echange_compact', commercial.id);
+      modalEchange.classList.remove('hidden');
+      modalEchange.classList.add('active');
+      modalEchange.style.display = 'flex';
+    });
+  }
+
+  // Sécurisation de la fermeture de la modal échange
+  const btnFermerModalEchange = document.getElementById('btn-fermer-modal-echange');
+  if (btnFermerModalEchange && modalEchange) {
+    btnFermerModalEchange.addEventListener('click', (e) => {
+      e.preventDefault();
+      modalEchange.classList.add('hidden');
+      modalEchange.classList.remove('active');
+      modalEchange.style.display = 'none';
+    });
+  }
+
+  if (modalEchange) {
+    modalEchange.addEventListener('click', (e) => {
+      if (e.target === modalEchange) {
+        modalEchange.classList.add('hidden');
+        modalEchange.classList.remove('active');
+        modalEchange.style.display = 'none';
+      }
+    });
+  }
+}
+
+/**
+ * Déclenchement direct du téléchargement vCard (.vcf)
+ */
+function telechargerVCardDirect(c) {
+  if (!c) return;
+  const telPropre = (c.telephone || '').replace(/\s+/g, '');
+  const bioLigne = (c.bio || "Lou Ame Tay — Solution SaaS Restauration & Hôtellerie").replace(/\r?\n/g, ' ');
+
+  const vCardContenu = [
+    'BEGIN:VCARD',
+    'VERSION:3.0',
+    `N:${c.nom || ''};${c.prenom || ''};;;`,
+    `FN:${c.prenom || ''} ${c.nom || ''}`.trim(),
+    `ORG:Lou Ame Tay;Restauration & Hôtellerie SaaS`,
+    `TITLE:${c.poste || 'Conseiller Commercial CHR'}`,
+    `TEL;TYPE=CELL,VOICE,PREF:${telPropre}`,
+    `EMAIL;TYPE=WORK,INTERNET:${c.email || ''}`,
+    `URL:${window.location.href}`,
+    `NOTE:${bioLigne}`,
+    'END:VCARD'
+  ].join('\r\n');
+
+  const blob = new Blob([vCardContenu], { type: 'text/vcard;charset=utf-8;' });
+  const lien = document.createElement('a');
+  const prenomF = (c.prenom || 'commercial').toLowerCase();
+  const nomF = (c.nom || 'louametay').toLowerCase();
+  const nomFichier = `contact_${prenomF}_${nomF}.vcf`;
+
+  lien.href = URL.createObjectURL(blob);
+  lien.download = nomFichier;
+  document.body.appendChild(lien);
+  lien.click();
+  document.body.removeChild(lien);
+  URL.revokeObjectURL(lien.href);
+
+  if (typeof afficherToast === 'function') {
+    afficherToast("✓ Fiche contact ajoutée au téléchargement !");
+  }
+}
+
+/**
  * Initialise l'ensemble des modules interactifs de la Carte Prestige Lou Ame Tay
  * @param {Object} commercial 
  */
 function initialiserPrestigeCarte(commercial) {
-  initialiserBentoEtBoutonOr(commercial);
-  initialiserGalerie16_10();
-  initialiserSimulateurDemoLive();
-  initialiserDiaporamaSaaS();
-  initialiserOngletsPrincipaux();
+  try {
+    initialiserBentoEtBoutonOr(commercial);
+  } catch (err) {
+    console.error("Erreur initialiserBentoEtBoutonOr:", err);
+  }
+
+  try {
+    initialiserGalerie16_10();
+  } catch (err) {
+    console.error("Erreur initialiserGalerie16_10:", err);
+  }
+
+  try {
+    initialiserSimulateurDemoLive();
+  } catch (err) {
+    console.error("Erreur initialiserSimulateurDemoLive:", err);
+  }
+
+  try {
+    initialiserDiaporamaSaaS();
+  } catch (err) {
+    console.error("Erreur initialiserDiaporamaSaaS:", err);
+  }
+
+  try {
+    initialiserOngletsPrincipaux();
+  } catch (err) {
+    console.error("Erreur initialiserOngletsPrincipaux:", err);
+  }
 }
 
 /**
