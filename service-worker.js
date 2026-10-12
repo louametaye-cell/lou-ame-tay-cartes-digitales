@@ -2,11 +2,11 @@
  * ==============================================================================
  * SERVICE WORKER — LOU AME TAY CARTES DE VISITE (PWA OFFLINE-READY)
  * ==============================================================================
- * Version du cache : lou-ame-tay-v11
+ * Version du cache : lou-ame-tay-v12
  * Stratégie : Network First pour le HTML / API, Cache First pour les assets statiques
  */
 
-const CACHE_NAME = 'lou-ame-tay-v11';
+const CACHE_NAME = 'lou-ame-tay-v12';
 
 const ASSETS_A_METTRE_EN_CACHE = [
   '/',
@@ -25,6 +25,16 @@ const ASSETS_A_METTRE_EN_CACHE = [
   '/js/commercial.js',
   '/js/aissatou-personality.js',
   '/js/aissatou-knowledge-base.js',
+  '/js/aissatou-store-config.js',
+  '/knowledge/01_aissatou_personnalite.md',
+  '/knowledge/02_marche_chr.md',
+  '/knowledge/03_concurrents.md',
+  '/knowledge/04_personas.md',
+  '/knowledge/05_pitchs.md',
+  '/knowledge/06_objections.md',
+  '/knowledge/07_dakar.md',
+  '/knowledge/08_thies_saly.md',
+  '/knowledge/09_saint_louis_casamance.md',
   '/js/contrat-pdf.js',
   '/js/contrat-commercial-pdf.js',
   '/js/image-compressor.js',

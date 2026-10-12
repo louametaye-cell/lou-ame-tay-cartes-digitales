@@ -2698,13 +2698,33 @@ function initialiserGeminiCopilotCommercial() {
     try {
       const res = await poserQuestionAissatou(q);
       if (texteReponseRag) texteReponseRag.textContent = res.reponse;
+
+      const badgeMethode = document.getElementById('badge-methode-aissatou');
+      if (badgeMethode) {
+        badgeMethode.style.display = 'inline-block';
+        if (res.method === 'semantic') {
+          badgeMethode.textContent = '🟢 RAG Sémantique (Gemini)';
+          badgeMethode.style.background = '#DCFCE7';
+          badgeMethode.style.color = '#15803D';
+        } else if (res.method === 'fallback') {
+          badgeMethode.textContent = '🟡 Fallback Local';
+          badgeMethode.style.background = '#FEF9C3';
+          badgeMethode.style.color = '#854D0E';
+        } else {
+          badgeMethode.textContent = '⚪ Mode Local Résilient';
+          badgeMethode.style.background = '#F1F5F9';
+          badgeMethode.style.color = '#475569';
+        }
+      }
+
       if (sourcesReponseRag) {
         sourcesReponseRag.style.display = 'block';
         sourcesReponseRag.innerHTML = `📚 <strong>Sources officielles citées :</strong> ${res.sources.join(' • ')}`;
       }
       if (actionReponseRag) {
         actionReponseRag.style.display = 'block';
-        actionReponseRag.innerHTML = `💡 <strong>Action terrain recommandée :</strong> ${escapeHtml(res.action)}`;
+        const conseilAction = res.action || "Présentez la démo live en 2 minutes sur le smartphone du gérant pour valider son accord.";
+        actionReponseRag.innerHTML = `💡 <strong>Action terrain recommandée :</strong> ${escapeHtml(conseilAction)}`;
       }
     } catch (err) {
       console.error('Erreur Aissatou RAG:', err);
