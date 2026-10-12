@@ -6,7 +6,7 @@
  * Stratégie : Network First pour le HTML / API, Cache First pour les assets statiques
  */
 
-const CACHE_NAME = 'lou-ame-tay-v14';
+const CACHE_NAME = 'lou-ame-tay-v16';
 
 const ASSETS_A_METTRE_EN_CACHE = [
   '/',
@@ -23,6 +23,8 @@ const ASSETS_A_METTRE_EN_CACHE = [
   '/js/app.js',
   '/js/carte.js',
   '/js/commercial.js',
+  '/js/aissatou-voice.js',
+  '/images/aissatou-avatar.png',
   '/js/aissatou-personality.js',
   '/js/aissatou-knowledge-base.js',
   '/js/aissatou-store-config.js',

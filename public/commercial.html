@@ -3138,45 +3138,48 @@
   <!-- =========================================================================
        MODAL : VOICE-TO-CRM (DICTÉE VOCALE WOLOF & FRANÇAIS)
        ========================================================================= -->
+  <!-- =========================================================================
+       MODAL : VOICE-TO-CRM (DICTÉE VOCALE AVEC DIALOGUE DE CONFIRMATION AISSATOU)
+       ========================================================================= -->
   <div class="comm-modal-overlay" id="modal-vocal-crm" style="display: none; align-items: center; justify-content: center;">
-    <div class="comm-modal-card vocal-modal-card" style="max-width: 480px; text-align: center; padding: 2rem 1.5rem; border: 2px solid #C9A227; background: #0B1F3A; color: #FFFFFF; border-radius: 20px; box-shadow: 0 25px 50px rgba(0,0,0,0.5);">
+    <div class="comm-modal-card vocal-modal-card dictee-modal" style="max-width: 480px; text-align: center; padding: 2rem 1.5rem; border: 2px solid #C9A227; background: #0B1F3A; color: #FFFFFF; border-radius: 20px; box-shadow: 0 25px 50px rgba(0,0,0,0.5);">
       
-      <div class="vocal-icon-container" style="position: relative; width: 90px; height: 90px; margin: 0 auto 1.25rem; display: flex; align-items: center; justify-content: center;">
-        <div class="vocal-pulse-ring"></div>
-        <div class="vocal-pulse-ring delay-1"></div>
-        <div class="vocal-mic-circle" style="width: 72px; height: 72px; background: linear-gradient(135deg, #C9A227 0%, #D4AF37 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; color: #0B1F3A; box-shadow: 0 4px 20px rgba(201, 162, 39, 0.5); z-index: 2;">
-          🎙️
+      <!-- Avatar Aissatou animé -->
+      <div class="aissatou-avatar-speak" id="aissatou-avatar">
+        <img src="images/aissatou-avatar.png" alt="Aissatou" onerror="this.onerror=null; this.src='images/logo.png';">
+        <div class="ondes-sonores">
+          <span></span><span></span><span></span>
         </div>
       </div>
-
-      <!-- Ondes sonores animées (5 barres) -->
-      <div class="sound-wave-bars" id="vocal-wave-anim" style="display: flex; align-items: center; justify-content: center; gap: 6px; height: 36px; margin-bottom: 1.25rem;">
-        <span class="sound-wave-bar wave-1"></span>
-        <span class="sound-wave-bar wave-2"></span>
-        <span class="sound-wave-bar wave-3"></span>
-        <span class="sound-wave-bar wave-4"></span>
-        <span class="sound-wave-bar wave-5"></span>
-      </div>
-
-      <h3 style="font-size: 1.25rem; font-weight: 800; color: #F8E294; margin: 0 0 0.5rem;">
-        🎙️ Parlez, nous vous écoutons...
+      
+      <h3 id="dictee-titre" style="font-size: 1.25rem; font-weight: 800; color: #F8E294; margin: 0 0 0.5rem;">
+        🎤 Parlez, je vous écoute...
       </h3>
-      <p style="font-size: 0.82rem; color: #CBD5E1; line-height: 1.45; margin: 0 auto 1.25rem; max-width: 380px;">
-        Exemple : <em>« J'ai visité le restaurant Le Lagon, contact M. Diop au 771234567, très intéressé par Xéweul, rappeler mardi. »</em>
-      </p>
-
-      <!-- Aperçu en direct de la transcription -->
-      <div id="vocal-transcript-box" style="background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(201, 162, 39, 0.4); border-radius: 12px; padding: 1rem; min-height: 80px; max-height: 140px; overflow-y: auto; text-align: left; font-size: 0.88rem; color: #F1F5F9; line-height: 1.5; margin-bottom: 1.5rem; word-break: break-word;">
-        <span style="color: #94A3B8; font-style: italic;">Votre transcription apparaîtra ici en temps réel...</span>
+      
+      <!-- État visuel : "Aissatou parle" ou "Vous pouvez parler" -->
+      <div class="aissatou-status" id="aissatou-status">
+        <span class="status-dot"></span>
+        <span class="status-text">En attente...</span>
       </div>
-
-      <!-- Boutons d'action -->
-      <div style="display: flex; gap: 10px; justify-content: center;">
-        <button type="button" id="btn-annuler-vocal" class="comm-btn-contour" style="background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.25); color: #FFFFFF; padding: 12px 18px; border-radius: 12px; font-weight: 700; cursor: pointer;">
-          ✕ Annuler
+      
+      <!-- Zone de transcription éditable -->
+      <textarea id="champ-transcription" 
+        placeholder="Le texte dicté apparaîtra ici. Vous pouvez le modifier."
+        rows="4"></textarea>
+      
+      <!-- Boutons -->
+      <div class="dictee-actions">
+        <button type="button" onclick="lancerDicteeVocale()" id="btn-start-dictee" class="comm-btn-primary" style="background: #16A34A; padding: 10px 18px; border-radius: 12px; font-weight: 700;">
+          🎤 Démarrer
         </button>
-        <button type="button" id="btn-terminer-vocal" class="comm-btn-gold-step" style="flex: 1; height: 48px; font-size: 0.92rem; margin: 0;">
+        <button type="button" onclick="arreterDictee()" id="btn-stop-dictee" class="comm-btn-contour" style="display:none; background: rgba(239,68,68,0.2); border-color: #EF4444; color: #FCA5A5; padding: 10px 18px; border-radius: 12px; font-weight: 700;">
+          ⏹️ Arrêter
+        </button>
+        <button type="button" onclick="validerExtractionProspect(document.getElementById('champ-transcription').value)" class="comm-btn-gold-step" style="height: 44px; font-size: 0.9rem; padding: 0 16px; margin: 0;">
           <span>⚡ Valider & Extraire</span>
+        </button>
+        <button type="button" onclick="arreterDictee(); document.getElementById('modal-vocal-crm').style.display='none';" class="comm-btn-contour" style="background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.25); color: #FFFFFF; padding: 10px 14px; border-radius: 12px; font-weight: 600;">
+          ✕ Fermer
         </button>
       </div>
 

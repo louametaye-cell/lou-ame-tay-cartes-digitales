@@ -5833,3 +5833,122 @@ body.app-active #section-app-comm {
 
 
 
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   AISSATOU VOICE SERVICE — AVATAR & DIALOGUE VOCAL INTERACTIF
+   ══════════════════════════════════════════════════════════════════════════ */
+/* Avatar Aissatou qui parle */
+.aissatou-avatar-speak {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 16px;
+}
+
+.aissatou-avatar-speak img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 3px solid #C9A227;
+  object-fit: cover;
+  box-shadow: 0 4px 15px rgba(201, 162, 39, 0.35);
+}
+
+/* Ondes sonores qui pulsent quand Aissatou parle */
+.aissatou-avatar-speak.parle .ondes-sonores span {
+  display: inline-block;
+  animation: onde 0.8s infinite ease-in-out;
+}
+
+.ondes-sonores {
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 4px;
+}
+
+.ondes-sonores span {
+  width: 4px;
+  height: 16px;
+  background: #22C55E;
+  border-radius: 2px;
+  display: none;
+}
+
+.ondes-sonores span:nth-child(2) { animation-delay: 0.2s; }
+.ondes-sonores span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes onde {
+  0%, 100% { height: 8px; opacity: 0.5; }
+  50% { height: 24px; opacity: 1; }
+}
+
+/* Statut "Aissatou parle" vs "Vous pouvez parler" */
+.aissatou-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  background: #F8FAFC;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #0F172A;
+}
+
+.aissatou-status.parle {
+  background: #FEF3C7;
+  color: #92400E;
+}
+
+.aissatou-status.ecoute {
+  background: #ECFDF5;
+  color: #065F46;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22C55E;
+  animation: pulse-dot 1.5s infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.5); opacity: 0.5; }
+}
+
+/* Zone textarea transcription */
+#champ-transcription {
+  width: 100%;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  background: #FFFFFF;
+  color: #0F172A;
+  border: 1.5px solid #CBD5E1;
+  resize: vertical;
+  margin-bottom: 16px;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+#champ-transcription:focus {
+  outline: none;
+  border-color: #C9A227;
+  box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.2);
+}
+
+.dictee-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}

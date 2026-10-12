@@ -22,6 +22,7 @@ import { genererSignatureHTML, copierSignature } from './signature-email.js';
 import { genererContratPDFA4 } from './contrat-pdf.js';
 import { genererPitchCommercial, PROFILS_ETABLISSEMENTS } from './gemini-copilot.js';
 import { poserQuestionAissatou } from './aissatou-knowledge-base.js';
+import { aissatouParle, aissatouArreter, initialiserVoixAissatou } from './aissatou-voice.js';
 import { initialiserModeOffline, empilerActionHorsLigne, estEnLigne } from './offline-sync.js';
 import { telechargerPassDigitalNFC } from './wallet-pass.js';
 import { genererContratCommercialPDFA4 } from './contrat-commercial-pdf.js';
@@ -1799,110 +1800,234 @@ initialiserProspects();
  * L'analyseur sémantique extrait automatiquement le restaurant, le contact,
  * le téléphone, la formule et la ville pour pré-remplir le prospect.
  */
-function initialiserVoiceToCRM() {
-  const btnVocal = document.getElementById('btn-vocal-prospect');
-  const modalVocal = document.getElementById('modal-vocal-crm');
-  const btnAnnuler = document.getElementById('btn-annuler-vocal');
-  const btnTerminer = document.getElementById('btn-terminer-vocal');
-  const boxTranscript = document.getElementById('vocal-transcript-box');
+// ═══ DICTÉE VOCALE AVEC DIALOGUE DE CONFIRMATION AISSATOU ═══
+let dicteeEnCours = false;
+let transcriptionEnAttente = '';
+let instanceRecognitionActive = null;
 
-  if (!btnVocal) return;
-
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  let recognition = null;
-  let transcritAccumule = '';
-
-  btnVocal.addEventListener('click', async () => {
-    // Mode secours si Web Speech API non supportée
-    if (!SpeechRecognition) {
-      afficherToast("🎙️ Dictée vocale non supportée par votre navigateur. Ouverture du formulaire...");
-      document.getElementById('modal-nouveau-prospect').style.display = 'flex';
-      return;
-    }
-
-    // Demande préalable explicite de permission micro
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        stream.getTracks().forEach(t => t.stop());
-      } catch (permErr) {
-        console.warn('Microphone permission refusée:', permErr);
-        alert("🔒 Accès au micro refusé !\n\nPour activer la dictée vocale :\n1. Cliquez sur l'icône 🔒 (cadenas ou réglages) dans la barre d'adresse de votre navigateur.\n2. Allez dans 'Autorisations' ou 'Paramètres du site'.\n3. Activez 'Micro' sur 'Autoriser'.\n4. Rafraîchissez la page.");
-        if (modalVocal) modalVocal.style.display = 'none';
-        document.getElementById('modal-nouveau-prospect').style.display = 'flex';
-        return;
-      }
-    }
-
-    transcritAccumule = '';
-    if (boxTranscript) {
-      boxTranscript.innerHTML = '<span style="color: #94A3B8; font-style: italic;">🎙️ Parlez maintenant... Nous vous écoutons.</span>';
-    }
-    if (modalVocal) modalVocal.style.display = 'flex';
-
-    try {
-      recognition = new SpeechRecognition();
-      recognition.lang = 'fr-FR';
-      recognition.continuous = true;
-      recognition.interimResults = true;
-      recognition.maxAlternatives = 1;
-
-      recognition.onresult = (event) => {
-        let interimTranscript = '';
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-          if (event.results[i].isFinal) {
-            transcritAccumule += event.results[i][0].transcript + ' ';
-          } else {
-            interimTranscript += event.results[i][0].transcript;
-          }
-        }
-        const texteComplet = (transcritAccumule + interimTranscript).trim();
-        if (boxTranscript && texteComplet) {
-          boxTranscript.textContent = texteComplet;
-        }
-      };
-
-      recognition.onerror = (event) => {
-        console.warn('Erreur reconnaissance vocale:', event.error);
-        if (event.error === 'not-allowed') {
-          alert("🔒 Accès au micro refusé !\n\nPour activer la dictée vocale :\n1. Cliquez sur l'icône 🔒 (cadenas ou réglages) dans la barre d'adresse de votre navigateur.\n2. Allez dans 'Autorisations' ou 'Paramètres du site'.\n3. Activez 'Micro' sur 'Autoriser'.\n4. Rafraîchissez la page.");
-          if (modalVocal) modalVocal.style.display = 'none';
-          document.getElementById('modal-nouveau-prospect').style.display = 'flex';
-        }
-      };
-
-      recognition.start();
-    } catch (err) {
-      console.warn('Erreur démarrage SpeechRecognition:', err);
-      afficherToast("Impossible d'activer le micro. Ouverture du formulaire...");
-      if (modalVocal) modalVocal.style.display = 'none';
-      document.getElementById('modal-nouveau-prospect').style.display = 'flex';
-    }
-  });
-
-  function arreterEtValider() {
-    if (recognition) {
-      try { recognition.stop(); } catch (e) {}
-    }
-    if (modalVocal) modalVocal.style.display = 'none';
-
-    const texteFinal = (boxTranscript?.textContent || transcritAccumule || '').trim();
-    if (!texteFinal || texteFinal.includes('Parlez maintenant...')) {
-      afficherToast("Aucun son capté. Vous pouvez remplir le formulaire manuellement.");
-      document.getElementById('modal-nouveau-prospect').style.display = 'flex';
-      return;
-    }
-
-    analyserEtRemplirProspect(texteFinal);
+export async function lancerDicteeVocale() {
+  if (dicteeEnCours) {
+    afficherToast('⏹️ Dictée déjà en cours');
+    return;
+  }
+  
+  // 1. Demander micro
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    stream.getTracks().forEach(t => t.stop());
+  } catch (err) {
+    alert('🎤 Micro refusé.\n\nActiver :\n1. Cliquez 🔒 dans la barre d\'adresse\n2. Autorisations → Micro → Autoriser\n3. Rechargez');
+    return;
+  }
+  
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    alert('Navigateur non compatible. Utilisez Chrome Android.');
+    return;
   }
 
-  btnTerminer?.addEventListener('click', arreterEtValider);
-
-  btnAnnuler?.addEventListener('click', () => {
-    if (recognition) {
-      try { recognition.stop(); } catch (e) {}
+  // Ouvrir la modale
+  const modalVocal = document.getElementById('modal-vocal-crm');
+  if (modalVocal) modalVocal.style.display = 'flex';
+  
+  // 2. Aissatou demande quoi dire
+  await aissatouParle(
+    "Bonjour ! Dites-moi les informations du prospect. Par exemple : "
+    + "j'ai visité le restaurant Le Lagon, contact Monsieur Diop au 77 12 34 56 7, "
+    + "intéressé par la formule Xéweul, rappeler mardi."
+  );
+  
+  // 3. Configurer reconnaissance (one-shot)
+  const recognition = new SR();
+  instanceRecognitionActive = recognition;
+  recognition.lang = 'fr-FR';
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+  
+  dicteeEnCours = true;
+  const zone = document.getElementById('champ-transcription');
+  if (zone) {
+    zone.value = '🎤 Enregistrement en cours...';
+    zone.disabled = false;
+  }
+  
+  // Feedback visuel
+  const btnStart = document.getElementById('btn-start-dictee');
+  const btnStop = document.getElementById('btn-stop-dictee');
+  if (btnStart) btnStart.style.display = 'none';
+  if (btnStop) btnStop.style.display = 'inline-block';
+  
+  // 4. Capturer UNE SEULE transcription
+  recognition.onresult = async (event) => {
+    for (let i = 0; i < event.results.length; i++) {
+      if (event.results[i].isFinal) {
+        const texte = event.results[i][0].transcript.trim();
+        const corrige = postTraiterTranscription(texte);
+        
+        if (zone) zone.value = corrige;
+        transcriptionEnAttente = corrige;
+        
+        dicteeEnCours = false;
+        if (btnStart) btnStart.style.display = 'inline-block';
+        if (btnStop) btnStop.style.display = 'none';
+        
+        // 5. Aissatou relit à voix haute
+        await confirmerAvecAissatou(corrige);
+        break;
+      }
     }
-    if (modalVocal) modalVocal.style.display = 'none';
+  };
+  
+  recognition.onend = () => {
+    dicteeEnCours = false;
+    if (btnStart) btnStart.style.display = 'inline-block';
+    if (btnStop) btnStop.style.display = 'none';
+  };
+  
+  recognition.onerror = (event) => {
+    dicteeEnCours = false;
+    if (btnStart) btnStart.style.display = 'inline-block';
+    if (btnStop) btnStop.style.display = 'none';
+    
+    if (event.error === 'no-speech') {
+      if (zone) zone.value = '⚠️ Aucune parole détectée.';
+      aissatouParle("Je n'ai rien entendu. Pouvez-vous répéter ?");
+    } else {
+      if (zone) zone.value = '⚠️ Erreur : ' + event.error;
+    }
+  };
+  
+  try {
+    recognition.start();
+  } catch (err) {
+    dicteeEnCours = false;
+    console.error('Erreur start:', err);
+  }
+}
+
+// ═══ CONFIRMATION DIALOGUÉE ═══
+export async function confirmerAvecAissatou(transcription) {
+  // Aissatou relit
+  await aissatouParle(
+    `Voici ce que j'ai noté : ${transcription}. `
+    + `Est-ce correct ? Répondez OUI pour valider, ou NON pour recommencer.`
+  );
+  
+  // Écouter la réponse OUI/NON
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return;
+  
+  const confirmation = new SR();
+  confirmation.lang = 'fr-FR';
+  confirmation.continuous = false;
+  confirmation.interimResults = false;
+  
+  return new Promise((resolve) => {
+    let resolu = false;
+    
+    confirmation.onresult = (event) => {
+      if (resolu) return;
+      const reponse = event.results[0][0].transcript.toLowerCase().trim();
+      console.log('Réponse commercial :', reponse);
+      
+      if (reponse.includes('oui') || reponse.includes('ok') || reponse.includes('correct') || reponse.includes('exact') || reponse.includes('waaw')) {
+        resolu = true;
+        aissatouParle("Parfait ! J'enregistre ce prospect.");
+        validerExtractionProspect(transcription);
+        resolve('oui');
+      } else if (reponse.includes('non') || reponse.includes('pas') || reponse.includes('incorrect') || reponse.includes('déedéet')) {
+        resolu = true;
+        aissatouParle("D'accord. Pouvez-vous redicter ?");
+        setTimeout(() => lancerDicteeVocale(), 1500);
+        resolve('non');
+      } else {
+        aissatouParle("Je n'ai pas compris. Dites OUI ou NON.");
+        // Relancer l'écoute
+        try { confirmation.start(); } catch(e) {}
+      }
+    };
+    
+    confirmation.onend = () => {
+      if (!resolu) {
+        setTimeout(() => resolve('timeout'), 500);
+      }
+    };
+    
+    confirmation.onerror = () => {
+      if (!resolu) resolve('error');
+    };
+    
+    // Timeout global 15 sec
+    setTimeout(() => {
+      if (!resolu) {
+        resolu = true;
+        try { confirmation.stop(); } catch(e) {}
+        aissatouParle("Pas de réponse. Utilisez le bouton Valider.");
+        resolve('timeout');
+      }
+    }, 15000);
+    
+    try {
+      confirmation.start();
+    } catch (err) {
+      resolve('error');
+    }
+  });
+}
+
+// Post-traitement wolof → FR
+export function postTraiterTranscription(texte) {
+  const dict = {
+    '\\bresto\\b': 'restaurant',
+    '\\bxéweul\\b': 'Xéweul',
+    '\\bxeweul\\b': 'Xéweul',
+    '\\bnio far\\b': 'Nio Far',
+    '\\btàmbali\\b': 'Tàmbali',
+    '\\btambali\\b': 'Tàmbali'
+  };
+  let r = texte;
+  Object.entries(dict).forEach(([p, fr]) => {
+    r = r.replace(new RegExp(p, 'gi'), fr);
+  });
+  return r;
+}
+
+export function arreterDictee() {
+  dicteeEnCours = false;
+  if (instanceRecognitionActive) {
+    try { instanceRecognitionActive.stop(); } catch(e) {}
+  }
+  aissatouArreter();
+  if (typeof window !== 'undefined' && window.speechSynthesis) {
+    window.speechSynthesis.cancel();
+  }
+  const btnStart = document.getElementById('btn-start-dictee');
+  const btnStop = document.getElementById('btn-stop-dictee');
+  if (btnStart) btnStart.style.display = 'inline-block';
+  if (btnStop) btnStop.style.display = 'none';
+}
+
+export function validerExtractionProspect(texte) {
+  const modalVocal = document.getElementById('modal-vocal-crm');
+  if (modalVocal) modalVocal.style.display = 'none';
+  const val = (texte || transcriptionEnAttente || '').trim();
+  if (!val || val.startsWith('🎤') || val.startsWith('⚠️')) {
+    afficherToast("Aucun texte à extraire. Veuillez dicter ou renseigner manuellement.");
+    const modalProspect = document.getElementById('modal-nouveau-prospect');
+    if (modalProspect) modalProspect.style.display = 'flex';
+    return;
+  }
+  analyserEtRemplirProspect(val);
+}
+
+function initialiserVoiceToCRM() {
+  const btnVocal = document.getElementById('btn-vocal-prospect');
+  if (!btnVocal) return;
+  btnVocal.addEventListener('click', () => {
+    const modalVocal = document.getElementById('modal-vocal-crm');
+    if (modalVocal) modalVocal.style.display = 'flex';
+    lancerDicteeVocale();
   });
 }
 
@@ -4131,4 +4256,13 @@ export function initialiserConsultationContratAgent() {
       btnTelecharger.innerHTML = '<span>Télécharger mon Contrat Officiel (PDF A4) 📄</span>';
     }
   });
+}
+
+
+// Export des fonctions pour les déclencheurs onclick HTML
+if (typeof window !== 'undefined') {
+  window.lancerDicteeVocale = lancerDicteeVocale;
+  window.arreterDictee = arreterDictee;
+  window.validerExtractionProspect = validerExtractionProspect;
+  window.confirmerAvecAissatou = confirmerAvecAissatou;
 }
