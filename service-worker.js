@@ -6,7 +6,7 @@
  * Stratégie : Network First pour le HTML / API, Cache First pour les assets statiques
  */
 
-const CACHE_NAME = 'lou-ame-tay-v17';
+const CACHE_NAME = 'lou-ame-tay-v18';
 
 const ASSETS_A_METTRE_EN_CACHE = [
   '/',

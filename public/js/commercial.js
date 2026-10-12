@@ -39,6 +39,17 @@ let listeAnnonces = [];
 let listeRdv = [];
 let fichierJustificatifEnCours = null;
 
+// Au retour dans l'app, restaurer l'onglet RDV si on venait de Maps
+document.addEventListener('DOMContentLoaded', () => {
+  if (sessionStorage.getItem('maps_retour') === 'true') {
+    sessionStorage.removeItem('maps_retour');
+    setTimeout(() => {
+      document.querySelector('[data-panel="panel-rdv-gps"]')?.click();
+      afficherToast('🗺️ Retour de Maps');
+    }, 300);
+  }
+});
+
 // ==============================================================================
 // 1. INITIALISATION DE LA PAGE & GESTION DE SESSION
 // ==============================================================================
@@ -890,13 +901,12 @@ async function chargerRendezVous() {
       });
     });
 
-    // FIX 5 — Au clic Maps : window.open(url, 'lam-maps') + bouton flottant "← Retour" avec window.focus()
+    // Clic Maps : ouvrir dans le même onglet (bouton retour natif)
     document.querySelectorAll('.btn-ouvrir-maps, a[href*="google.com/maps"]').forEach(lien => {
       lien.addEventListener('click', (e) => {
         e.preventDefault();
         const url = lien.href || lien.getAttribute('data-url');
-        window.open(url, 'lam-maps');
-        afficherBoutonRetourApresMaps();
+        ouvrirMapsUrl(url);
       });
     });
 
@@ -905,40 +915,24 @@ async function chargerRendezVous() {
   }
 }
 
-// FIX 5 : Bouton flottant de retour après consultation Google Maps
-function afficherBoutonRetourApresMaps() {
-  let btnRetour = document.getElementById('btn-retour-flottant-maps');
-  if (!btnRetour) {
-    btnRetour = document.createElement('button');
-    btnRetour.id = 'btn-retour-flottant-maps';
-    btnRetour.type = 'button';
-    btnRetour.innerHTML = '← Retour';
-    btnRetour.title = 'Revenir à votre espace commercial';
-    btnRetour.style.position = 'fixed';
-    btnRetour.style.bottom = '85px';
-    btnRetour.style.right = '20px';
-    btnRetour.style.zIndex = '99999';
-    btnRetour.style.padding = '10px 18px';
-    btnRetour.style.background = '#0B1F3A';
-    btnRetour.style.color = '#F8E294';
-    btnRetour.style.border = '2px solid #C9A227';
-    btnRetour.style.borderRadius = '50px';
-    btnRetour.style.boxShadow = '0 6px 20px rgba(11, 31, 58, 0.4)';
-    btnRetour.style.fontWeight = '700';
-    btnRetour.style.fontSize = '0.85rem';
-    btnRetour.style.cursor = 'pointer';
-    btnRetour.style.display = 'flex';
-    btnRetour.style.alignItems = 'center';
-    btnRetour.style.gap = '6px';
-    document.body.appendChild(btnRetour);
-
-    btnRetour.addEventListener('click', () => {
-      window.focus();
-      btnRetour.remove();
-    });
-  } else {
-    btnRetour.style.display = 'flex';
+// Fonctions de navigation Google Maps (même onglet + retour natif)
+export function ouvrirMaps(adresse) {
+  if (!adresse) {
+    afficherToast('⚠️ Aucune adresse');
+    return;
   }
+  const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(adresse)}`;
+  sessionStorage.setItem('maps_retour', 'true');
+  window.location.href = mapsUrl;
+}
+
+export function ouvrirMapsUrl(url) {
+  if (!url) {
+    afficherToast('⚠️ Aucun itinéraire disponible');
+    return;
+  }
+  sessionStorage.setItem('maps_retour', 'true');
+  window.location.href = url;
 }
 
 // Variable locale pour la photo de dérogation compressée
@@ -4259,4 +4253,6 @@ if (typeof window !== 'undefined') {
   window.arreterDictee = arreterDictee;
   window.validerExtractionProspect = validerExtractionProspect;
   window.confirmerAvecAissatou = confirmerAvecAissatou;
+  window.ouvrirMaps = ouvrirMaps;
+  window.ouvrirMapsUrl = ouvrirMapsUrl;
 }
