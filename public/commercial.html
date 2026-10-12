@@ -3969,6 +3969,75 @@
     </div>
   </div>
 
+  <!-- =========================================================================
+       BOTTOM NAVIGATION MOBILE 2026 (Fixe en bas, max-width: 768px)
+       ========================================================================= -->
+  <nav id="bottom-nav-mobile" class="bottom-nav-mobile" aria-label="Navigation principale mobile">
+    <button type="button" class="bn-item active" data-panel="panel-perf" aria-label="Performances">
+      <span class="bn-icon">📊</span>
+      <span class="bn-label">Performances</span>
+    </button>
+    <button type="button" class="bn-item" data-panel="panel-rdv-gps" aria-label="Rendez-vous et pointage GPS">
+      <span class="bn-icon">📍</span>
+      <span class="bn-label">RDV</span>
+    </button>
+    <button type="button" class="bn-item" data-panel="panel-commissions" aria-label="Commissions">
+      <span class="bn-icon">💰</span>
+      <span class="bn-label">Commissions</span>
+    </button>
+    <button type="button" class="bn-item" data-panel="panel-prospects" aria-label="Prospects">
+      <span class="bn-icon">🎯</span>
+      <span class="bn-label">Prospects</span>
+    </button>
+    <button type="button" class="bn-item" id="btn-ouvrir-more-sheet" aria-label="Plus d'outils" aria-haspopup="dialog">
+      <span class="bn-icon">☰</span>
+      <span class="bn-label">Plus</span>
+    </button>
+  </nav>
+
+  <!-- =========================================================================
+       BOTTOM SHEET OVERFLOW "PLUS" (Mobile, max-width: 768px)
+       ========================================================================= -->
+  <div id="more-sheet-overlay" class="more-sheet-overlay hidden" role="dialog" aria-modal="true" aria-label="Menu des fonctionnalités secondaires">
+    <div class="more-sheet-panel">
+      <div class="more-sheet-drag-handle"></div>
+      <div class="more-sheet-header">
+        <h3 class="more-sheet-title">Plus d'outils & options</h3>
+        <button type="button" id="btn-fermer-more-sheet" class="more-sheet-close" aria-label="Fermer le menu">✕</button>
+      </div>
+      <div class="more-sheet-grid">
+        <button type="button" class="more-sheet-item" data-panel="panel-outils">
+          <span class="more-sheet-icon">💼</span>
+          <span class="more-sheet-label">Kit & Outils Pro</span>
+        </button>
+        <button type="button" class="more-sheet-item" data-panel="panel-depenses">
+          <span class="more-sheet-icon">🧾</span>
+          <span class="more-sheet-label">Frais & Remb.</span>
+        </button>
+        <button type="button" class="more-sheet-item" data-panel="panel-annonces">
+          <span class="more-sheet-icon">📢</span>
+          <span class="more-sheet-label">Annonces Équipe</span>
+        </button>
+        <button type="button" class="more-sheet-item" data-panel="panel-avis">
+          <span class="more-sheet-icon">⭐</span>
+          <span class="more-sheet-label">Avis Clients</span>
+        </button>
+        <button type="button" class="more-sheet-item" data-action="copilot-ia">
+          <span class="more-sheet-icon">✨</span>
+          <span class="more-sheet-label">Copilot IA</span>
+        </button>
+        <button type="button" class="more-sheet-item" data-action="pass-wallet">
+          <span class="more-sheet-icon">💳</span>
+          <span class="more-sheet-label">Mon Wallet NFC</span>
+        </button>
+        <button type="button" class="more-sheet-item" data-action="mon-contrat">
+          <span class="more-sheet-icon">📜</span>
+          <span class="more-sheet-label">Mon Contrat</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Notification Toast -->
   <div id="toast" class="toast-notification" role="status" aria-live="polite"></div>
 

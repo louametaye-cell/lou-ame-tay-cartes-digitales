@@ -43,6 +43,7 @@ let fichierJustificatifEnCours = null;
 document.addEventListener('DOMContentLoaded', async () => {
   initialiserDiaporama();
   initialiserNavigationOnglets();
+  initialiserBottomNavMobile();
   initialiserFormulaires();
   initialiserUploadJustificatif();
   initialiserModeOffline({ supabase, afficherToastFn: afficherToast });
@@ -550,18 +551,136 @@ function initialiserNavigationOnglets() {
   const tabs = document.querySelectorAll('.comm-tab-btn');
   tabs.forEach(btn => {
     btn.addEventListener('click', () => {
+      const targetId = btn.getAttribute('data-panel');
+      if (!targetId) return;
+
       tabs.forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.comm-panel').forEach(p => p.classList.remove('active'));
 
       btn.classList.add('active');
-      const targetId = btn.getAttribute('data-panel');
       const targetPanel = document.getElementById(targetId);
       if (targetPanel) {
         targetPanel.classList.add('active');
       }
+
+      // Synchroniser avec la Bottom Nav mobile
+      document.querySelectorAll('.bn-item').forEach(b => {
+        if (b.getAttribute('data-panel') === targetId) {
+          b.classList.add('active');
+        } else {
+          b.classList.remove('active');
+        }
+      });
     });
   });
 }
+
+// ==============================================================================
+// 4-BIS. BOTTOM NAVIGATION MOBILE & OVERFLOW SHEET "PLUS" (2026)
+// ==============================================================================
+function initialiserBottomNavMobile() {
+  const overlay = document.getElementById('more-sheet-overlay');
+  const moreBtn = document.getElementById('btn-ouvrir-more-sheet');
+  const closeBtn = document.getElementById('btn-fermer-more-sheet');
+
+  // Clic sur les onglets directs de la bottom nav
+  document.querySelectorAll('.bn-item[data-panel]').forEach(item => {
+    item.addEventListener('click', () => {
+      const panelId = item.getAttribute('data-panel');
+      if (!panelId) return;
+
+      // Afficher le panel ciblé
+      document.querySelectorAll('.comm-panel').forEach(p => p.classList.remove('active'));
+      const targetPanel = document.getElementById(panelId);
+      if (targetPanel) targetPanel.classList.add('active');
+
+      // État actif de la bottom nav
+      document.querySelectorAll('.bn-item').forEach(b => b.classList.remove('active'));
+      item.classList.add('active');
+
+      // Synchroniser l'onglet desktop
+      document.querySelectorAll('.comm-tab-btn').forEach(tb => {
+        if (tb.getAttribute('data-panel') === panelId) {
+          tb.classList.add('active');
+        } else {
+          tb.classList.remove('active');
+        }
+      });
+
+      if (overlay) overlay.classList.add('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+
+  // Ouvrir le More Sheet
+  if (moreBtn && overlay) {
+    moreBtn.addEventListener('click', () => {
+      overlay.classList.remove('hidden');
+    });
+  }
+
+  // Fermer le More Sheet au clic sur le backdrop
+  if (overlay) {
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) overlay.classList.add('hidden');
+    });
+  }
+
+  // Fermer le More Sheet au clic sur le bouton croix
+  if (closeBtn && overlay) {
+    closeBtn.addEventListener('click', () => {
+      overlay.classList.add('hidden');
+    });
+  }
+
+  // Clic sur les items du More Sheet ouvrant un panneau
+  document.querySelectorAll('.more-sheet-item[data-panel]').forEach(item => {
+    item.addEventListener('click', () => {
+      const panelId = item.getAttribute('data-panel');
+      if (!panelId) return;
+
+      document.querySelectorAll('.comm-panel').forEach(p => p.classList.remove('active'));
+      const targetPanel = document.getElementById(panelId);
+      if (targetPanel) targetPanel.classList.add('active');
+
+      // Mettre l'item "Plus" actif sur la bottom nav
+      document.querySelectorAll('.bn-item').forEach(b => b.classList.remove('active'));
+      if (moreBtn) moreBtn.classList.add('active');
+
+      // Synchroniser avec les onglets desktop
+      document.querySelectorAll('.comm-tab-btn').forEach(tb => {
+        if (tb.getAttribute('data-panel') === panelId) {
+          tb.classList.add('active');
+        } else {
+          tb.classList.remove('active');
+        }
+      });
+
+      if (overlay) overlay.classList.add('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+
+  // Clic sur les actions spéciales du More Sheet (Copilot IA, Pass Wallet, Contrat)
+  document.querySelectorAll('.more-sheet-item[data-action]').forEach(item => {
+    item.addEventListener('click', () => {
+      const action = item.getAttribute('data-action');
+      if (overlay) overlay.classList.add('hidden');
+
+      if (action === 'copilot-ia') {
+        const btnCopilot = document.getElementById('btn-ouvrir-gemini-copilot');
+        if (btnCopilot) btnCopilot.click();
+      } else if (action === 'pass-wallet') {
+        const btnWallet = document.getElementById('btn-ouvrir-pass-wallet');
+        if (btnWallet) btnWallet.click();
+      } else if (action === 'mon-contrat') {
+        const btnContrat = document.getElementById('btn-voir-mon-contrat-agent');
+        if (btnContrat) btnContrat.click();
+      }
+    });
+  });
+}
+
 
 // ==============================================================================
 // 5. CHARGEMENT CENTRALISÉ DES DONNÉES CONSEILLER

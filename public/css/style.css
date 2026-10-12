@@ -4989,4 +4989,224 @@ body.app-active #section-app-comm {
   display: block !important;
 }
 
+/* ==============================================================================
+   BOTTOM NAVIGATION MOBILE 2026 (Fixe en bas, max-width: 768px)
+   ============================================================================== */
+@media (min-width: 769px) {
+  .bottom-nav-mobile,
+  .more-sheet-overlay {
+    display: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Masquer les anciens onglets horizontaux défilants */
+  .comm-tabs-nav {
+    display: none !important;
+  }
+
+  /* Réserver l'espace pour la bottom nav */
+  .comm-container {
+    padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  /* Barre fixe en bas */
+  .bottom-nav-mobile {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    border-top: 1px solid #E2E8F0;
+    box-shadow: 0 -4px 20px rgba(11, 31, 58, 0.08);
+    z-index: 150;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    box-sizing: content-box;
+  }
+
+  body:not(.app-active) .bottom-nav-mobile,
+  body:not(.app-active) .more-sheet-overlay {
+    display: none !important;
+  }
+
+  .bn-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    color: #64748B;
+    padding: 6px 0;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  .bn-item:active {
+    transform: scale(0.92);
+  }
+
+  .bn-icon {
+    font-size: 1.25rem;
+    line-height: 1.2;
+    margin-bottom: 2px;
+    transition: transform 0.2s ease;
+  }
+
+  .bn-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+    white-space: nowrap;
+  }
+
+  .bn-item.active {
+    color: #C9A227 !important;
+  }
+
+  .bn-item.active .bn-icon {
+    transform: translateY(-2px);
+  }
+
+  .bn-item.active .bn-label {
+    font-weight: 800;
+    color: #C9A227;
+  }
+
+  /* Bottom Sheet Overlay */
+  .more-sheet-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(11, 31, 58, 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    transition: opacity 0.3s ease;
+  }
+
+  .more-sheet-overlay.hidden {
+    display: none !important;
+  }
+
+  .more-sheet-panel {
+    background: #FFFFFF;
+    border-radius: 20px 20px 0 0;
+    padding: 12px 18px calc(24px + env(safe-area-inset-bottom, 0px));
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.15);
+    animation: sheetSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes sheetSlideUp {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  .more-sheet-drag-handle {
+    width: 38px;
+    height: 4px;
+    background: #CBD5E1;
+    border-radius: 9999px;
+    margin: 0 auto 12px;
+  }
+
+  .more-sheet-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #F1F5F9;
+  }
+
+  .more-sheet-title {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #0B1F3A;
+    margin: 0;
+  }
+
+  .more-sheet-close {
+    background: #F1F5F9;
+    border: none;
+    color: #64748B;
+    font-size: 1rem;
+    font-weight: 700;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+  }
+
+  .more-sheet-close:active {
+    background: #E2E8F0;
+  }
+
+  .more-sheet-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+
+  .more-sheet-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 14px;
+    padding: 14px 6px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .more-sheet-item:active {
+    transform: scale(0.95);
+    background: #F1F5F9;
+    border-color: #CBD5E1;
+  }
+
+  .more-sheet-icon {
+    font-size: 1.6rem;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .more-sheet-label {
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: #0F172A;
+    line-height: 1.2;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+
 
