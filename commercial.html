@@ -315,7 +315,21 @@
 
     /* RESPONSIVE TABLETTE & SMARTPHONE (max-width: 1024px) */
     @media (max-width: 1024px) {
-      .comm-login-fullscreen {
+      body.app-active .comm-login-fullscreen,
+      body.app-active #section-connexion-comm,
+      body.app-active #ecran-onboarding-contrat,
+      .comm-login-fullscreen.hidden,
+      #section-connexion-comm.hidden {
+        display: none !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+      }
+
+      body.app-active #section-app-comm {
+        display: block !important;
+      }
+
+      .comm-login-fullscreen:not(.hidden) {
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;

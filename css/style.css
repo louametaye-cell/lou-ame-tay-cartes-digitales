@@ -4972,3 +4972,21 @@ body.intro-active {
   animation: fadeIn 0.25s ease-in-out;
 }
 
+/* ==============================================================================
+   SÉCURITÉ APPLICATIVE : DISSOCIATION ÉCRANS AUTH / APP TERRAIN
+   ============================================================================== */
+body.app-active #section-connexion-comm,
+body.app-active #ecran-onboarding-contrat,
+body.app-active .comm-login-fullscreen,
+#section-connexion-comm.hidden,
+#ecran-onboarding-contrat.hidden {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+body.app-active #section-app-comm {
+  display: block !important;
+}
+
+

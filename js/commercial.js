@@ -110,22 +110,53 @@ function initialiserDiaporama() {
 }
 
 function afficherEcranConnexion() {
+  document.body.classList.remove('app-active');
   const sec = document.getElementById('section-connexion-comm');
-  if (sec) sec.style.display = '';
-  document.getElementById('section-app-comm').style.display = 'none';
+  if (sec) {
+    sec.style.display = '';
+    sec.classList.remove('hidden');
+  }
+  const secApp = document.getElementById('section-app-comm');
+  if (secApp) {
+    secApp.style.display = 'none';
+    secApp.classList.add('hidden');
+  }
   const secOnboarding = document.getElementById('ecran-onboarding-contrat');
-  if (secOnboarding) secOnboarding.style.display = 'none';
-  document.getElementById('zone-header-actions').style.display = 'none';
+  if (secOnboarding) {
+    secOnboarding.style.display = 'none';
+    secOnboarding.classList.add('hidden');
+  }
+  const zoneHeader = document.getElementById('zone-header-actions');
+  if (zoneHeader) zoneHeader.style.display = 'none';
   const header = document.querySelector('.comm-header');
   if (header) header.style.display = 'none';
 }
 
 function afficherApplication() {
-  document.getElementById('section-connexion-comm').style.display = 'none';
-  const secOnboarding = document.getElementById('ecran-onboarding-contrat');
-  if (secOnboarding) secOnboarding.style.display = 'none';
-  document.getElementById('section-app-comm').style.display = 'block';
-  document.getElementById('zone-header-actions').style.display = 'block';
+  document.body.classList.add('app-active');
+  
+  // Masquer TOUS les écrans d'authentification
+  const ecranConnexion = document.getElementById('section-connexion-comm');
+  const ecranOnboarding = document.getElementById('ecran-onboarding-contrat');
+  
+  if (ecranConnexion) {
+    ecranConnexion.style.display = 'none';
+    ecranConnexion.classList.add('hidden');
+  }
+  if (ecranOnboarding) {
+    ecranOnboarding.style.display = 'none';
+    ecranOnboarding.classList.add('hidden');
+  }
+  
+  // Afficher l'application
+  const appComm = document.getElementById('section-app-comm');
+  if (appComm) {
+    appComm.style.display = 'block';
+    appComm.classList.remove('hidden');
+  }
+  
+  const zoneHeader = document.getElementById('zone-header-actions');
+  if (zoneHeader) zoneHeader.style.display = 'block';
   const header = document.querySelector('.comm-header');
   if (header) header.style.display = 'flex';
 }
@@ -2872,10 +2903,17 @@ function lancerHeartbeatPresenceCommercial() {
  * @param {Object} agent - Données du conseiller commercial
  */
 export function afficherEcranOnboardingContrat(agent) {
+  document.body.classList.remove('app-active');
   const secConnexion = document.getElementById('section-connexion-comm');
-  if (secConnexion) secConnexion.style.display = 'none';
+  if (secConnexion) {
+    secConnexion.style.display = 'none';
+    secConnexion.classList.add('hidden');
+  }
   const secApp = document.getElementById('section-app-comm');
-  if (secApp) secApp.style.display = 'none';
+  if (secApp) {
+    secApp.style.display = 'none';
+    secApp.classList.add('hidden');
+  }
   const header = document.querySelector('.comm-header');
   if (header) header.style.display = 'none';
   const zoneHeader = document.getElementById('zone-header-actions');
@@ -2884,6 +2922,7 @@ export function afficherEcranOnboardingContrat(agent) {
   const secOnboarding = document.getElementById('ecran-onboarding-contrat');
   if (secOnboarding) {
     secOnboarding.style.display = 'block';
+    secOnboarding.classList.remove('hidden');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
