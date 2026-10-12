@@ -1,0 +1,13 @@
+# Vercel Ignore - Exclusions d'upload pour un déploiement ultra-rapide et fiable
+node_modules
+dist
+*.zip
+.git
+.env.local
+nextjs-app
+archive_old_public
+archive_old_react
+capture teste mobile interface smarphone
+logo partenaire lou ame tay
+scratch
+.system_generated
