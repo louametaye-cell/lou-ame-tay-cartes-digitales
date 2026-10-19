@@ -21,7 +21,7 @@ import { genererCartePDF } from './carte-pdf.js';
 import { genererSignatureHTML, copierSignature } from './signature-email.js';
 import { genererContratPDFA4 } from './contrat-pdf.js';
 import { genererPitchCommercial, PROFILS_ETABLISSEMENTS } from './gemini-copilot.js';
-import { poserQuestionAissatou } from './aissatou-knowledge-base.js';
+import { poserQuestionAissatou, genererCompteRenduRdv } from './aissatou-knowledge-base.js';
 import { aissatouParle, aissatouArreter, initialiserVoixAissatou } from './aissatou-voice.js';
 import { initialiserModeOffline, empilerActionHorsLigne, estEnLigne } from './offline-sync.js';
 import { telechargerPassDigitalNFC } from './wallet-pass.js';
@@ -67,6 +67,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initialiserConsultationContratAgent();
   initialiserModalDerogationPointage();
   initialiserModalReportRdv();
+  initialiserModalResumeRdvAissatou();
   lancerHeartbeatPresenceCommercial();
 
   // Vérifier si une session est déjà mémorisée
@@ -822,6 +823,7 @@ const SVG_CHECK_CIRCLE = `<svg width="14" height="14" viewBox="0 0 24 24" fill="
 const SVG_ALERT_TRIANGLE = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
 const SVG_CLOCK_REWIND = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><polyline points="12 7 12 12 15 15"/></svg>`;
 const SVG_SEARCH_LOUPE = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`;
+const SVG_MIC = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>`;
 
 async function chargerRendezVous() {
   if (!commercialConnecte) return;
@@ -896,6 +898,7 @@ async function chargerRendezVous() {
 
       // 2. Actions Terrain
       let boutonArrivee = '';
+      let boutonNotes = '';
       let boutonReporter = '';
 
       if (estReporte) {
@@ -904,9 +907,11 @@ async function chargerRendezVous() {
         }
       } else if (estPointe) {
         boutonArrivee = `<span style="font-size: 0.78rem; color: #047857; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">${SVG_CHECK_CIRCLE} Certifié</span>`;
+        boutonNotes = `<button type="button" class="comm-btn-notes btn-prendre-notes" data-id="${rdv.id}" title="Aissatou écoute la réunion et prend des notes">${SVG_MIC} <span>Prendre des notes</span></button>`;
       } else if (estAujourdhui) {
-        // RDV Aujourd'hui : Bouton vert doux "Je suis arrivé"
+        // RDV Aujourd'hui : Bouton vert doux "Je suis arrivé" + Bouton "Prendre des notes"
         boutonArrivee = `<button type="button" class="comm-btn-arrivee btn-pointer-gps" data-id="${rdv.id}">${SVG_MAP_PIN} <span>Je suis arrivé</span></button>`;
+        boutonNotes = `<button type="button" class="comm-btn-notes btn-prendre-notes" data-id="${rdv.id}" title="Aissatou écoute la réunion et prend des notes">${SVG_MIC} <span>Prendre des notes</span></button>`;
         boutonReporter = `<button type="button" class="comm-btn-reporter btn-ouvrir-report" data-id="${rdv.id}">${SVG_CLOCK_REWIND} <span>Reporter</span></button>`;
       } else if (estFutur) {
         // RDV Futur : Pas de pointage possible, bouton reporter disponible
@@ -914,6 +919,7 @@ async function chargerRendezVous() {
       } else {
         // RDV Passé non pointé : Bouton Pointer GPS doré
         boutonArrivee = `<button type="button" class="comm-btn-gps btn-pointer-gps" data-id="${rdv.id}">${SVG_MAP_PIN} <span>Pointer GPS</span></button>`;
+        boutonNotes = `<button type="button" class="comm-btn-notes btn-prendre-notes" data-id="${rdv.id}" title="Aissatou écoute la réunion et prend des notes">${SVG_MIC} <span>Prendre des notes</span></button>`;
         boutonReporter = `<button type="button" class="comm-btn-reporter btn-ouvrir-report" data-id="${rdv.id}">${SVG_CLOCK_REWIND} <span>Reporter</span></button>`;
       }
 
@@ -946,6 +952,7 @@ async function chargerRendezVous() {
           <td>
             <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
               ${boutonArrivee}
+              ${boutonNotes}
               ${boutonReporter}
               ${boutonMaps}
               ${boutonGCal}
@@ -980,6 +987,7 @@ async function chargerRendezVous() {
         }
 
         let boutonArriveeMobile = '';
+        let boutonNotesMobile = '';
         let boutonReporterMobile = '';
 
         if (estReporte) {
@@ -988,13 +996,16 @@ async function chargerRendezVous() {
           }
         } else if (estPointe) {
           boutonArriveeMobile = `<span style="font-size: 0.78rem; color: #047857; font-weight: 700;">${SVG_CHECK_CIRCLE} Certifié</span>`;
+          boutonNotesMobile = `<button type="button" class="comm-btn-notes btn-prendre-notes" data-id="${rdv.id}">${SVG_MIC} Notes</button>`;
         } else if (estAujourdhui) {
           boutonArriveeMobile = `<button type="button" class="comm-btn-arrivee btn-pointer-gps" data-id="${rdv.id}">${SVG_MAP_PIN} Je suis arrivé</button>`;
+          boutonNotesMobile = `<button type="button" class="comm-btn-notes btn-prendre-notes" data-id="${rdv.id}">${SVG_MIC} Notes</button>`;
           boutonReporterMobile = `<button type="button" class="comm-btn-reporter btn-ouvrir-report" data-id="${rdv.id}">${SVG_CLOCK_REWIND} Reporter</button>`;
         } else if (estFutur) {
           boutonReporterMobile = `<button type="button" class="comm-btn-reporter btn-ouvrir-report" data-id="${rdv.id}">${SVG_CLOCK_REWIND} Reporter</button>`;
         } else {
           boutonArriveeMobile = `<button type="button" class="comm-btn-gps btn-pointer-gps" data-id="${rdv.id}">${SVG_MAP_PIN} Pointer GPS</button>`;
+          boutonNotesMobile = `<button type="button" class="comm-btn-notes btn-prendre-notes" data-id="${rdv.id}">${SVG_MIC} Notes</button>`;
           boutonReporterMobile = `<button type="button" class="comm-btn-reporter btn-ouvrir-report" data-id="${rdv.id}">${SVG_CLOCK_REWIND} Reporter</button>`;
         }
 
@@ -1012,6 +1023,7 @@ async function chargerRendezVous() {
             ${rdv.motif_report ? `<div class="card-mobile-row"><span>Motif</span><small style="color:#64748B;">${escapeHtml(rdv.motif_report)}</small></div>` : ''}
             <div class="card-mobile-actions" style="margin-top: 10px; display: flex; gap: 6px; flex-wrap: wrap;">
               ${boutonArriveeMobile}
+              ${boutonNotesMobile}
               ${boutonReporterMobile}
               <button type="button" class="comm-btn-ghost" onclick="ouvrirMapsUrl('${lienMaps}')">${SVG_MAP} Maps</button>
             </div>
@@ -1033,6 +1045,14 @@ async function chargerRendezVous() {
       btn.addEventListener('click', (e) => {
         const id = e.currentTarget.getAttribute('data-id');
         ouvrirModalReporterRdv(id);
+      });
+    });
+
+    // Attacher événements de prise de notes Aissatou
+    document.querySelectorAll('.btn-prendre-notes').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const id = e.currentTarget.getAttribute('data-id');
+        demarrerPriseDeNotesRdv(id);
       });
     });
 
@@ -1555,6 +1575,459 @@ window.ouvrirApercuPreuveReport = function(urlEncoded, nomResto) {
     modal.style.display = 'flex';
   }
 };
+
+// ==============================================================================
+// 6d. MODE AISSATOU MEETING NOTES & ÉCOUTE RDV TERRAIN (ASSISTANTE DE RÉUNION)
+// ==============================================================================
+
+// ═══ EMPÊCHER L'ÉCRAN DE S'ÉTEINDRE PENDANT L'ENREGISTREMENT (WAKE LOCK API) ═══
+let wakeLockMeeting = null;
+
+async function activerEcranAllume() {
+  try {
+    if ('wakeLock' in navigator) {
+      wakeLockMeeting = await navigator.wakeLock.request('screen');
+      console.log('✅ Écran maintenu allumé pour la réunion');
+
+      document.addEventListener('visibilitychange', async () => {
+        if (wakeLockMeeting !== null && document.visibilityState === 'visible') {
+          try {
+            wakeLockMeeting = await navigator.wakeLock.request('screen');
+          } catch (e) {
+            console.warn('Erreur réactivation wakeLock:', e);
+          }
+        }
+      });
+    }
+  } catch (err) {
+    console.warn('⚠️ Wake Lock non supporté ou refusé:', err);
+  }
+}
+
+function desactiverEcranAllume() {
+  if (wakeLockMeeting !== null) {
+    try {
+      wakeLockMeeting.release();
+    } catch (e) {}
+    wakeLockMeeting = null;
+    console.log("💤 Écran peut s'éteindre à nouveau");
+  }
+}
+
+let transcriptionGlobaleRdv = '';
+let estEcouteRdvEnCours = false;
+let rdvEnCoursEcoute = null;
+let instanceReconnaissanceRdv = null;
+let chronoEcouteInterval = null;
+let secondesEcouteEcoulees = 0;
+let dernierResumeGenere = null;
+
+export async function demarrerPriseDeNotesRdv(rdvId) {
+  const rdv = listeRdv?.find(r => r.id === rdvId);
+  if (!rdv) {
+    afficherToast('⚠️ Rendez-vous introuvable.');
+    return;
+  }
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    afficherToast("⚠️ La reconnaissance vocale n'est pas supportée sur ce navigateur. Utilisez Chrome ou Edge.");
+    return;
+  }
+
+  // Si une écoute est déjà en cours, avertir
+  if (estEcouteRdvEnCours) {
+    afficherToast("⚠️ Une prise de notes est déjà en cours d'enregistrement.");
+    return;
+  }
+
+  try {
+    // Demander l'accès au micro
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      await navigator.mediaDevices.getUserMedia({ audio: true });
+    }
+  } catch (errMic) {
+    console.error('Erreur accès micro:', errMic);
+    afficherToast('⚠️ Micro refusé. Veuillez autoriser l\'accès au microphone dans les paramètres de votre navigateur.');
+    return;
+  }
+
+  rdvEnCoursEcoute = rdv;
+  transcriptionGlobaleRdv = '';
+  secondesEcouteEcoulees = 0;
+  estEcouteRdvEnCours = true;
+
+  // Activer le maintien de l'écran allumé
+  await activerEcranAllume();
+
+  // Afficher le bandeau sticky
+  const bandeau = document.getElementById('bandeau-ecoute-rdv');
+  const txtResto = document.getElementById('bandeau-ecoute-resto');
+  const txtChrono = document.getElementById('bandeau-ecoute-chrono');
+
+  if (bandeau) {
+    bandeau.style.display = 'block';
+  }
+  if (txtResto) {
+    txtResto.textContent = `Aissatou écoute le RDV — ${rdv.restaurant_prospect || 'Restaurant'}`;
+  }
+  if (txtChrono) {
+    txtChrono.textContent = 'Temps : 00:00';
+  }
+
+  // Démarrer le chronomètre
+  clearInterval(chronoEcouteInterval);
+  chronoEcouteInterval = setInterval(() => {
+    secondesEcouteEcoulees++;
+    const minutes = Math.floor(secondesEcouteEcoulees / 60);
+    const secs = secondesEcouteEcoulees % 60;
+    const pad = (n) => String(n).padStart(2, '0');
+    if (txtChrono) {
+      txtChrono.textContent = `Temps : ${pad(minutes)}:${pad(secs)}`;
+    }
+  }, 1000);
+
+  // Initialiser la reconnaissance vocale en continu
+  try {
+    instanceReconnaissanceRdv = new SpeechRecognition();
+    instanceReconnaissanceRdv.continuous = true;
+    instanceReconnaissanceRdv.interimResults = true;
+    instanceReconnaissanceRdv.lang = 'fr-FR';
+
+    instanceReconnaissanceRdv.onresult = (event) => {
+      let texteFinalNouveau = '';
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          texteFinalNouveau += event.results[i][0].transcript + ' ';
+        }
+      }
+      if (texteFinalNouveau) {
+        transcriptionGlobaleRdv += texteFinalNouveau;
+      }
+    };
+
+    instanceReconnaissanceRdv.onend = () => {
+      // Reprise résiliente automatique si l'utilisateur n'a pas appuyé sur Arrêter
+      if (estEcouteRdvEnCours) {
+        try {
+          instanceReconnaissanceRdv.start();
+        } catch (e) {
+          console.warn('Tentative de redémarrage de la reconnaissance:', e);
+        }
+      }
+    };
+
+    instanceReconnaissanceRdv.onerror = (event) => {
+      console.warn('Événement reconnaissance vocale RDV:', event.error);
+      if (event.error === 'not-allowed') {
+        afficherToast('⚠️ Accès au micro non autorisé.');
+        arreterPriseDeNotesRdv(false);
+      }
+    };
+
+    instanceReconnaissanceRdv.start();
+    afficherToast(`🎙️ Aissatou écoute votre réunion chez ${rdv.restaurant_prospect}. Posez votre téléphone et échangez naturellement !`);
+
+  } catch (errRec) {
+    console.error('Erreur démarrage reconnaissance RDV:', errRec);
+    afficherToast('⚠️ Impossible de démarrer la reconnaissance vocale.');
+    arreterPriseDeNotesRdv(false);
+  }
+}
+
+export async function arreterPriseDeNotesRdv(genererResume = true) {
+  estEcouteRdvEnCours = false;
+
+  // Stopper le micro et le chrono
+  if (instanceReconnaissanceRdv) {
+    try {
+      instanceReconnaissanceRdv.stop();
+    } catch (e) {}
+    instanceReconnaissanceRdv = null;
+  }
+  clearInterval(chronoEcouteInterval);
+  chronoEcouteInterval = null;
+
+  // Libérer le Wake Lock
+  desactiverEcranAllume();
+
+  // Masquer le bandeau sticky
+  const bandeau = document.getElementById('bandeau-ecoute-rdv');
+  if (bandeau) {
+    bandeau.style.display = 'none';
+  }
+
+  if (!genererResume) return;
+
+  const texteNettoye = transcriptionGlobaleRdv.trim();
+  const rdv = rdvEnCoursEcoute;
+
+  if (!rdv) {
+    afficherToast('⚠️ Aucun rendez-vous actif.');
+    return;
+  }
+
+  // Vérifier la longueur de la transcription
+  const mots = texteNettoye ? texteNettoye.split(/\s+/).filter(Boolean) : [];
+  if (mots.length < 15) {
+    if (!confirm(`La transcription enregistrée ne contient que ${mots.length} mots.\n\nSouhaitez-vous quand même qu'Aissatou génère un compte-rendu avec les éléments entendus ?`)) {
+      afficherToast('Prise de notes annulée.');
+      return;
+    }
+  }
+
+  // Ouvrir la modale en état de chargement
+  const modal = document.getElementById('modal-resume-rdv-aissatou');
+  const sousTitre = document.getElementById('resume-rdv-sous-titre');
+  const loading = document.getElementById('resume-rdv-loading');
+  const boxContenu = document.getElementById('resume-rdv-contenu-box');
+  const actionsBar = document.getElementById('resume-rdv-actions-bar');
+  const zoneTexte = document.getElementById('resume-rdv-texte');
+  const zoneTranscription = document.getElementById('resume-rdv-transcription-brute');
+  const countMots = document.getElementById('resume-rdv-mots-count');
+
+  if (modal) modal.style.display = 'flex';
+  if (sousTitre) {
+    sousTitre.textContent = `${rdv.restaurant_prospect || 'Restaurant'} — Gérant : ${rdv.nom_prospect || '—'} (Durée : ${Math.floor(secondesEcouteEcoulees / 60)} min)`;
+  }
+  if (loading) loading.style.display = 'block';
+  if (boxContenu) boxContenu.style.display = 'none';
+  if (actionsBar) actionsBar.style.display = 'none';
+
+  try {
+    const commercialNom = commercialConnecte ? `${commercialConnecte.prenom || ''} ${commercialConnecte.nom || ''}`.trim() : 'Conseiller terrain';
+    const infoRdv = {
+      restaurant_prospect: rdv.restaurant_prospect,
+      nom_prospect: rdv.nom_prospect,
+      commercial: commercialNom,
+      adresse_restaurant: rdv.adresse_restaurant
+    };
+
+    const resumeMarkdown = await genererCompteRenduRdv(texteNettoye, infoRdv);
+    dernierResumeGenere = {
+      rdv,
+      texte: resumeMarkdown,
+      transcription: texteNettoye,
+      date: new Date().toISOString()
+    };
+
+    // Formater le Markdown pour l'affichage HTML
+    if (zoneTexte) {
+      zoneTexte.innerHTML = formaterMarkdownPourAffichage(resumeMarkdown);
+    }
+    if (zoneTranscription) {
+      zoneTranscription.textContent = texteNettoye || '(Aucune parole intelligible détectée)';
+    }
+    if (countMots) {
+      countMots.textContent = `${mots.length} mots captés`;
+    }
+
+    if (loading) loading.style.display = 'none';
+    if (boxContenu) boxContenu.style.display = 'block';
+    if (actionsBar) actionsBar.style.display = 'flex';
+
+  } catch (errGen) {
+    console.error('Erreur génération compte-rendu:', errGen);
+    if (loading) loading.style.display = 'none';
+    if (zoneTexte) {
+      zoneTexte.innerHTML = `<p style="color: #DC2626;">Une erreur est survenue lors de la synthèse IA. Vous pouvez consulter la transcription brute ci-dessous.</p>`;
+    }
+    if (boxContenu) boxContenu.style.display = 'block';
+  }
+}
+
+function formaterMarkdownPourAffichage(md) {
+  if (!md) return '';
+  return escapeHtml(md)
+    .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+    .replace(/^## (.*$)/gim, '<h3>$1</h3>')
+    .replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/gim, '<em>$1</em>')
+    .replace(/^\- (.*$)/gim, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>)/gims, '<ul>$1</ul>')
+    .replace(/\n\n/gim, '<p></p>')
+    .replace(/\n/gim, '<br>');
+}
+
+export async function envoyerCompteRenduDirection() {
+  if (!dernierResumeGenere || !dernierResumeGenere.rdv) {
+    afficherToast('⚠️ Aucun compte-rendu à envoyer.');
+    return;
+  }
+
+  const btn = document.getElementById('btn-envoyer-resume-direction');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span>Envoi en cours...</span>';
+  }
+
+  const rdv = dernierResumeGenere.rdv;
+  const nomCommercial = commercialConnecte ? `${commercialConnecte.prenom || ''} ${commercialConnecte.nom || ''}`.trim() : 'Conseiller terrain';
+  const cId = commercialConnecte?.id;
+  const titreRapport = `[@DIRECTION] Compte-Rendu RDV : ${rdv.restaurant_prospect || 'Restaurant'}`;
+  const contenuRapport = `COMPTE-RENDU DE RÉUNION DU ${new Date().toLocaleDateString('fr-FR')}\nÉtablissement : ${rdv.restaurant_prospect}\nContact : ${rdv.nom_prospect || '—'} (${rdv.telephone_prospect || '—'})\nConseiller : ${nomCommercial}\n\n${dernierResumeGenere.texte}`;
+
+  try {
+    let succesEnvoi = false;
+
+    // 1. Tenter l'insertion dans la table dédiée messages_internes
+    try {
+      const { error: errDirect } = await supabase
+        .from('messages_internes')
+        .insert([{
+          commercial_id: cId,
+          expediteur_nom: nomCommercial,
+          expediteur_type: 'commercial',
+          destinataire_type: 'admin',
+          titre: titreRapport,
+          contenu: contenuRapport,
+          rdv_id: rdv.id
+        }]);
+
+      if (!errDirect) {
+        succesEnvoi = true;
+      }
+    } catch (eTable) {
+      console.warn('Table messages_internes non disponible, bascule API messages:', eTable);
+    }
+
+    // 2. Si non inséré ou fallback, router via /api/messages (qui garantit l'insertion dans annonces_equipe)
+    if (!succesEnvoi) {
+      const resApi = await fetch('/api/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          expediteur: nomCommercial,
+          destinataire_id: 'DIRECTION',
+          titre: `Compte-Rendu RDV : ${rdv.restaurant_prospect || 'Restaurant'}`,
+          contenu: contenuRapport,
+          type: 'info'
+        })
+      });
+
+      if (resApi.ok) {
+        succesEnvoi = true;
+      }
+    }
+
+    // 3. Journaliser dans le journal d'activités
+    try {
+      await supabase.from('journal_activites').insert([{
+        commercial_id: cId,
+        action: 'ENVOI_COMPTE_RENDU_DIRECTION',
+        details: {
+          restaurant: rdv.restaurant_prospect,
+          rdv_id: rdv.id,
+          mots: dernierResumeGenere.transcription?.split(/\s+/).length || 0
+        }
+      }]);
+    } catch (eLog) {}
+
+    afficherToast('✓ Compte-rendu transmis avec succès à la Direction (M. Mbaye) !');
+
+    if (btn) {
+      btn.innerHTML = '<span>✓ Transmis à la Direction</span>';
+      btn.style.background = '#047857';
+    }
+
+  } catch (err) {
+    console.error('Erreur transmission direction:', err);
+    afficherToast(err.message || 'Erreur lors de la transmission à la direction.');
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '<span>📤 Envoyer à la Direction</span>';
+    }
+  }
+}
+
+export async function sauvegarderCompteRenduProspect() {
+  if (!dernierResumeGenere || !dernierResumeGenere.rdv) {
+    afficherToast('⚠️ Aucun compte-rendu actif.');
+    return;
+  }
+
+  const btn = document.getElementById('btn-sauvegarder-resume-prospect');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span>Sauvegarde...</span>';
+  }
+
+  const rdv = dernierResumeGenere.rdv;
+  const dateStr = new Date().toLocaleDateString('fr-FR');
+  const noteEnrichie = `[CR Aissatou ${dateStr}] : \n${dernierResumeGenere.texte}\n\n${rdv.notes || ''}`.trim();
+
+  try {
+    // 1. Mettre à jour les notes du rendez-vous
+    const { error: errRdv } = await supabase
+      .from('rendez_vous')
+      .update({
+        notes: noteEnrichie,
+        checkin_notes: noteEnrichie
+      })
+      .eq('id', rdv.id);
+
+    if (errRdv) throw errRdv;
+
+    // 2. Mettre à jour le lead si existant
+    try {
+      if (rdv.restaurant_prospect) {
+        await supabase
+          .from('leads')
+          .update({ message: noteEnrichie })
+          .ilike('restaurant_nom', `%${rdv.restaurant_prospect}%`);
+      }
+    } catch (eLead) {}
+
+    afficherToast('✓ Compte-rendu sauvegardé dans la fiche du prospect !');
+
+    if (btn) {
+      btn.innerHTML = '<span>✓ Sauvegardé</span>';
+      btn.style.background = '#047857';
+    }
+
+    await chargerRendezVous();
+
+  } catch (err) {
+    console.error('Erreur sauvegarde prospect:', err);
+    afficherToast('Erreur lors de la sauvegarde dans le prospect.');
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '<span>💾 Sauvegarder dans le Prospect</span>';
+    }
+  }
+}
+
+export async function copierCompteRenduRdv() {
+  if (!dernierResumeGenere || !dernierResumeGenere.texte) {
+    afficherToast('⚠️ Aucun texte à copier.');
+    return;
+  }
+
+  const rdv = dernierResumeGenere.rdv;
+  const texteWhatsApp = `*LOU AME TAY — COMPTE-RENDU DE RDV*\n🏢 *Restaurant :* ${rdv.restaurant_prospect || '—'}\n👤 *Contact :* ${rdv.nom_prospect || '—'} (${rdv.telephone_prospect || '—'})\n\n${dernierResumeGenere.texte}\n\n_Généré par Aissatou RH & Stratégie CHR_`;
+
+  try {
+    await navigator.clipboard.writeText(texteWhatsApp);
+    afficherToast('✓ Compte-rendu copié (prêt à coller sur WhatsApp) !');
+  } catch (err) {
+    afficherToast('Sélectionnez le texte pour le copier.');
+  }
+}
+
+function initialiserModalResumeRdvAissatou() {
+  document.getElementById('btn-arreter-ecoute-rdv')?.addEventListener('click', () => {
+    arreterPriseDeNotesRdv(true);
+  });
+
+  document.getElementById('btn-fermer-modal-resume-rdv')?.addEventListener('click', () => {
+    const modal = document.getElementById('modal-resume-rdv-aissatou');
+    if (modal) modal.style.display = 'none';
+  });
+
+  document.getElementById('btn-envoyer-resume-direction')?.addEventListener('click', envoyerCompteRenduDirection);
+  document.getElementById('btn-sauvegarder-resume-prospect')?.addEventListener('click', sauvegarderCompteRenduProspect);
+  document.getElementById('btn-copier-resume-rdv')?.addEventListener('click', copierCompteRenduRdv);
+}
 
 // ==============================================================================
 // 7. MODULE COMMISSIONS & INSTANT-WALLET (LOU AME TAY FINTECH PRO)

@@ -2127,6 +2127,29 @@
 <body>
 
   <!-- =========================================================================
+       BANDEAU STICKY : ÉCOUTE CONTINUE AISSATOU POUR PRISE DE NOTES RDV
+       ========================================================================= -->
+  <div id="bandeau-ecoute-rdv" class="bandeau-ecoute-rdv" style="display: none;">
+    <div class="bandeau-ecoute-content">
+      <div class="bandeau-ecoute-info">
+        <span class="pastille-enregistrement-clignotante"></span>
+        <div class="bandeau-ecoute-textes">
+          <strong id="bandeau-ecoute-resto">Aissatou écoute le RDV...</strong>
+          <span class="bandeau-ecoute-chrono" id="bandeau-ecoute-chrono">Temps : 00:00</span>
+        </div>
+      </div>
+      <div class="bandeau-ecoute-actions">
+        <button type="button" id="btn-arreter-ecoute-rdv" class="btn-arreter-ecoute" title="Terminer l'entretien et générer le compte-rendu">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+            <rect x="4" y="4" width="16" height="16" rx="2" />
+          </svg>
+          <span>Arrêter et Générer le Résumé</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
        1. EN-TÊTE FIXE DU CONSEILLER
        ========================================================================= -->
   <header class="comm-header">
@@ -3993,6 +4016,69 @@
             <div id="liste-objections-copilot" style="font-size: 0.82rem; color: #451A03; line-height: 1.45;"></div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODAL : COMPTE-RENDU DE RÉUNION AISSATOU & ENVOI DIRECTION
+       ========================================================================= -->
+  <div class="comm-modal-overlay" id="modal-resume-rdv-aissatou" style="display: none;">
+    <div class="comm-modal-card" style="max-width: 680px; max-height: 90vh; display: flex; flex-direction: column;">
+      <button type="button" class="comm-modal-close" id="btn-fermer-modal-resume-rdv">✕</button>
+
+      <!-- En-tête -->
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1rem; border-bottom: 1px solid #E2E8F0; padding-bottom: 0.75rem;">
+        <div class="aissatou-avatar">
+          <img src="images/aissatou-avatar.png" alt="Aissatou" onerror="this.onerror=null; this.src='images/logo.svg';">
+        </div>
+        <div>
+          <h3 style="font-size: 1.15rem; color: #0B1F3A; margin: 0; font-weight: 800;">
+            Compte-Rendu de Réunion Aissatou
+          </h3>
+          <p id="resume-rdv-sous-titre" style="margin: 2px 0 0; font-size: 0.8rem; color: #64748B;">
+            Restitution intelligente & actions recommandées
+          </p>
+        </div>
+      </div>
+
+      <!-- Corps défilant du résumé -->
+      <div class="resume-rdv-corps" style="flex: 1; overflow-y: auto; padding: 4px; margin-bottom: 1rem;">
+        <!-- Indicateur de génération -->
+        <div id="resume-rdv-loading" style="text-align: center; padding: 2.5rem 1rem;">
+          <div class="spinner-chargement-or" style="margin: 0 auto 1rem;"></div>
+          <p style="font-weight: 700; color: #0B1F3A; margin-bottom: 4px;">Aissatou analyse la conversation du RDV...</p>
+          <small style="color: #64748B;">Synthèse des points clés, objections et plan d'action (Gemini RAG)</small>
+        </div>
+
+        <!-- Contenu textuel généré -->
+        <div id="resume-rdv-contenu-box" style="display: none;">
+          <div id="resume-rdv-texte" class="resume-rdv-texte-format"></div>
+          
+          <!-- Transcription brute repliable -->
+          <details style="margin-top: 14px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 8px 12px;">
+            <summary style="font-size: 0.78rem; font-weight: 700; color: #64748B; cursor: pointer;">
+              🔍 Voir la transcription brute entendue (<span id="resume-rdv-mots-count">0 mots</span>)
+            </summary>
+            <div id="resume-rdv-transcription-brute" style="margin-top: 8px; font-size: 0.75rem; color: #475569; line-height: 1.5; max-height: 150px; overflow-y: auto; white-space: pre-wrap;"></div>
+          </details>
+        </div>
+      </div>
+
+      <!-- Barre d'actions -->
+      <div id="resume-rdv-actions-bar" style="display: none; gap: 8px; flex-wrap: wrap; border-top: 1px solid #E2E8F0; padding-top: 12px;">
+        <button type="button" id="btn-envoyer-resume-direction" class="comm-btn-primary" style="flex: 1; background: #16A34A; min-width: 180px; justify-content: center;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          <span>Envoyer à la Direction</span>
+        </button>
+        <button type="button" id="btn-sauvegarder-resume-prospect" class="comm-btn-gold" style="flex: 1; min-width: 180px; justify-content: center;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          <span>Sauvegarder dans le Prospect</span>
+        </button>
+        <button type="button" id="btn-copier-resume-rdv" class="comm-btn-contour" style="padding: 0 14px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span>Copier</span>
+        </button>
       </div>
     </div>
   </div>

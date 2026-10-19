@@ -6524,3 +6524,198 @@ body.app-active #section-app-comm {
   cursor: not-allowed;
   transform: none;
 }
+
+/* ==============================================================================
+   MODE AISSATOU MEETING NOTES & ÉCOUTE RDV TERRAIN (ASSISTANTE COMPLÈTE)
+   ============================================================================== */
+
+/* Bouton "Prendre des notes" dans les actions RDV */
+.comm-btn-notes {
+  background: #0B1F3A;
+  color: #FFFFFF;
+  border: 1px solid #C9A227;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.comm-btn-notes:hover {
+  background: #1E3A8A;
+  border-color: #EAB308;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(201, 162, 39, 0.25);
+}
+
+.comm-btn-notes svg {
+  color: #C9A227;
+  flex-shrink: 0;
+}
+
+/* Bandeau Sticky Écoute Continue Aissatou */
+.bandeau-ecoute-rdv {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100000;
+  background: linear-gradient(135deg, #0B1F3A 0%, #1E293B 100%);
+  color: #FFFFFF;
+  border-bottom: 2px solid #EF4444;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+  padding: 10px 18px;
+  animation: slideDownBandeau 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: 'Montserrat', sans-serif;
+}
+
+@keyframes slideDownBandeau {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.bandeau-ecoute-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.bandeau-ecoute-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pastille-enregistrement-clignotante {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #EF4444;
+  box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.8);
+  animation: pulse-red-record 1.2s infinite;
+  flex-shrink: 0;
+}
+
+@keyframes pulse-red-record {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.8);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
+
+.bandeau-ecoute-textes strong {
+  display: block;
+  font-size: 0.90rem;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.bandeau-ecoute-chrono {
+  font-size: 0.78rem;
+  color: #FCA5A5;
+  font-family: monospace;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-arreter-ecoute {
+  background: #DC2626;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.35);
+  font-family: inherit;
+}
+
+.btn-arreter-ecoute:hover {
+  background: #B91C1C;
+  transform: scale(1.02);
+}
+
+/* Modale de Compte-Rendu Aissatou */
+.resume-rdv-corps {
+  font-family: 'Montserrat', sans-serif;
+  color: #1E293B;
+}
+
+.resume-rdv-texte-format {
+  font-size: 0.88rem;
+  line-height: 1.65;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.resume-rdv-texte-format h3 {
+  font-size: 0.98rem;
+  color: #0B1F3A;
+  margin: 14px 0 6px 0;
+  font-weight: 800;
+  border-bottom: 1px solid #F1F5F9;
+  padding-bottom: 4px;
+}
+
+.resume-rdv-texte-format h3:first-child {
+  margin-top: 0;
+}
+
+.resume-rdv-texte-format ul {
+  padding-left: 20px;
+  margin: 6px 0;
+}
+
+.resume-rdv-texte-format li {
+  margin-bottom: 4px;
+}
+
+.resume-rdv-texte-format p {
+  margin: 6px 0;
+}
+
+/* Spinner doré */
+.spinner-chargement-or {
+  width: 44px;
+  height: 44px;
+  border: 4px solid #F1F5F9;
+  border-top: 4px solid #C9A227;
+  border-radius: 50%;
+  animation: spinner-rot 0.9s linear infinite;
+}
+
+@keyframes spinner-rot {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

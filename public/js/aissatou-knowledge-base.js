@@ -221,6 +221,101 @@ async function chargerFichesLocales() {
   return result;
 }
 
+// ═══ GÉNÉRATEUR DE COMPTE-RENDU DE RÉUNION TERRAIN (MEETING NOTES GEMINI) ═══
+export async function genererCompteRenduRdv(transcription, rdvInfo = {}) {
+  const ai = initialiserClientGenAI();
+  const resto = rdvInfo.restaurant_prospect || rdvInfo.restaurant_nom || rdvInfo.restaurant || 'Établissement visité';
+  const contact = rdvInfo.nom_prospect || rdvInfo.prospect_nom || rdvInfo.contact || 'Gérant';
+  const commercial = rdvInfo.commercial_nom || rdvInfo.commercial || 'Conseiller terrain Lou Ame Tay';
+  const lieu = rdvInfo.adresse_restaurant || rdvInfo.ville || 'Sénégal';
+
+  const systemInstructions = `Tu es Aissatou, Directrice RH & Stratégie CHR chez Lou Ame Tay (solutions SaaS de menus QR, serveurs mobiles, KDS et caisses tactiles au Sénégal).
+Ta mission est de transformer la transcription d'un rendez-vous commercial terrain en un compte-rendu exécutif clair, percutant et professionnel destiné au CEO M. Mbaye et au commercial.
+
+Consignes impératives :
+1. Rédige en français soigné, professionnel et percutant.
+2. Structure obligatoirement ta réponse avec ces 3 sections en Markdown :
+### 📋 1. Résumé Exécutif
+(3 lignes synthétisant le profil du restaurant, le climat de l'échange et la décision principale).
+
+### 🎯 2. Points Clés & Objections
+- **Besoins & Intérêts** : Ce qui a particulièrement retenu l'attention du restaurateur (ex: commande à table, encaissement rapide, menus multilingues, photos des plats).
+- **Objections & Freins** : Prix, habitude papier, connexion internet, avis des associés, etc.
+- **Formule Lou Ame Tay Visée** : Tàmbali (15 000 F), Nio Far (25 000 F), Xéweul (35 000 F) ou Sur-Mesure.
+
+### 🚀 3. Prochaines Actions & Relance
+- **Action Commercial** : Ce que le conseiller doit envoyer ou réaliser (ex: devis WhatsApp, démo live, proposition avec réduction).
+- **Action Direction / Support** : Validation éventuelle (ex: création du menu test, configuration compte).
+- **Date & Modalité de Relance** : Échéance recommandée (ex: J+2 par appel téléphonique ou visite terrain).`;
+
+  if (ai) {
+    const modeles = [
+      'models/gemini-flash-lite-latest',
+      'models/gemini-3.1-flash-lite',
+      'models/gemini-3.5-flash'
+    ];
+
+    for (const model of modeles) {
+      try {
+        const response = await ai.models.generateContent({
+          model,
+          contents: `${systemInstructions}\n\nINFORMATIONS DU RDV :\n- Restaurant : ${resto}\n- Contact : ${contact}\n- Commercial : ${commercial}\n- Lieu : ${lieu}\n\nTRANSCRIPTION BRUTE DU RDV :\n"""\n${transcription}\n"""`
+        });
+
+        const texte = response.text;
+        if (texte && texte.trim()) {
+          return texte.trim();
+        }
+      } catch (err) {
+        console.warn(`[Compte-Rendu Gemini] Échec avec ${model}:`, err.message);
+      }
+    }
+  }
+
+  return genererCompteRenduFallback(transcription, rdvInfo);
+}
+
+function genererCompteRenduFallback(transcription, rdvInfo = {}) {
+  const resto = rdvInfo.restaurant_prospect || rdvInfo.restaurant_nom || rdvInfo.restaurant || 'Établissement visité';
+  const contact = rdvInfo.nom_prospect || rdvInfo.prospect_nom || rdvInfo.contact || 'Gérant';
+  const tLower = (transcription || '').toLowerCase();
+
+  let formuleDetectee = 'Xéweul (35 000 F / mois)';
+  if (tLower.includes('tambali') || tLower.includes('menu seul') || tLower.includes('15000') || tLower.includes('15 000')) {
+    formuleDetectee = 'Tàmbali (15 000 F / mois - Menu QR seul)';
+  } else if (tLower.includes('nio far') || tLower.includes('serveur') || tLower.includes('25000') || tLower.includes('25 000')) {
+    formuleDetectee = 'Nio Far (25 000 F / mois - Serveur Mobile)';
+  }
+
+  let objectionsDetectees = [];
+  if (tLower.includes('cher') || tLower.includes('prix') || tLower.includes('budget') || tLower.includes('cout') || tLower.includes('coût')) {
+    objectionsDetectees.push('Sensibilité au prix mensuel (nécessite de valoriser le gain de temps et l\'augmentation du panier moyen de +25%).');
+  }
+  if (tLower.includes('connexion') || tLower.includes('internet') || tLower.includes('reseau') || tLower.includes('réseau') || tLower.includes('wifi')) {
+    objectionsDetectees.push('Crainte des pannes de réseau internet (rassurer sur le mode résilient et le cache local).');
+  }
+  if (tLower.includes('associe') || tLower.includes('associé') || tLower.includes('patron') || tLower.includes('proprietaire')) {
+    objectionsDetectees.push('Décision finale dépendante de l\'associé / propriétaire.');
+  }
+  if (objectionsDetectees.length === 0) {
+    objectionsDetectees.push('Établissement réceptif à la digitalisation, questions classiques sur le déploiement.');
+  }
+
+  return `### 📋 1. Résumé Exécutif
+Entretien commercial terrain mené auprès de ${contact} au restaurant **${resto}**. L'échange a porté sur la modernisation de la prise de commande et la mise en avant des plats avec la technologie Lou Ame Tay. L'intérêt global est positif avec une volonté d'optimiser le service en salle.
+
+### 🎯 2. Points Clés & Objections
+- **Besoins & Intérêts** : Volonté de fluidifier le service, présenter les visuels des plats et tester le menu interactif.
+- **Objections & Freins** : ${objectionsDetectees.join(' ')}
+- **Formule Lou Ame Tay Visée** : **${formuleDetectee}**.
+
+### 🚀 3. Prochaines Actions & Relance
+- **Action Commercial** : Transmettre la maquette démo personnalisée WhatsApp sous 24h avec le lien interactif.
+- **Action Direction / Support** : Enregistrer le prospect dans la base active et préparer les QR codes tests.
+- **Date & Modalité de Relance** : Relance recommandée à **J+2** par appel téléphonique direct pour convenir du démarrage.`;
+}
+
 if (typeof window !== 'undefined') {
   window.poserQuestionAissatou = poserQuestionAissatou;
+  window.genererCompteRenduRdv = genererCompteRenduRdv;
 }
