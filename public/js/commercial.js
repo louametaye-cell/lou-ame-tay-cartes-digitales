@@ -3273,6 +3273,213 @@ function escapeHtml(str) {
 // ==============================================================================
 // 13. MODULE AISSATOU RH & STRATÉGIE CHR (RAG GEMINI BASE 9 FICHES)
 // ==============================================================================
+// GESTION DU CHAT VOCAL ET CONVERSATIONNEL AISSATOU (STT + TTS)
+// ==============================================================================
+
+let reconnaissanceVocaleAissatou = null;
+let estEnregistrementAissatou = false;
+let indicateurChargementElem = null;
+
+function initialiserChatVocalAissatou() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    console.warn("Speech Recognition non supporté sur ce navigateur.");
+    return null;
+  }
+  
+  const rec = new SpeechRecognition();
+  rec.lang = 'fr-FR';
+  rec.continuous = false;
+  rec.interimResults = false;
+
+  // Quand on parle, le texte s'ajoute dans l'input (permettant de relire ou compléter avant envoi)
+  rec.onresult = (event) => {
+    const texte = event.results[0][0].transcript;
+    const input = document.getElementById('aissatou-input');
+    if (input) {
+      input.value = texte;
+      input.focus();
+    }
+    afficherToast("🎤 Parole transcrite ! Relisez ou complétez avant d'envoyer.");
+  };
+
+  rec.onend = () => {
+    estEnregistrementAissatou = false;
+    document.getElementById('aissatou-mic-btn')?.classList.remove('recording');
+  };
+
+  rec.onerror = (event) => {
+    console.error("Erreur micro:", event.error);
+    estEnregistrementAissatou = false;
+    document.getElementById('aissatou-mic-btn')?.classList.remove('recording');
+    if (event.error === 'not-allowed') {
+      afficherToast("⚠️ Autorisez le micro dans les paramètres de votre navigateur.");
+    }
+  };
+
+  return rec;
+}
+
+function toggleMicroAissatou() {
+  if (!reconnaissanceVocaleAissatou) {
+    reconnaissanceVocaleAissatou = initialiserChatVocalAissatou();
+    if (!reconnaissanceVocaleAissatou) {
+      afficherToast("⚠️ La reconnaissance vocale n'est pas disponible sur ce navigateur.");
+      return;
+    }
+  }
+
+  const btnMicro = document.getElementById('aissatou-mic-btn');
+
+  if (estEnregistrementAissatou) {
+    try { reconnaissanceVocaleAissatou.stop(); } catch(e) {}
+    estEnregistrementAissatou = false;
+    btnMicro?.classList.remove('recording');
+  } else {
+    // Demander la permission et démarrer
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(() => {
+          reconnaissanceVocaleAissatou.start();
+          estEnregistrementAissatou = true;
+          btnMicro?.classList.add('recording');
+          afficherToast("🎤 Parlez maintenant...");
+        })
+        .catch((err) => {
+          console.error("Micro refusé:", err);
+          afficherToast("⚠️ Micro refusé. Vérifiez les autorisations.");
+        });
+    } else {
+      try {
+        reconnaissanceVocaleAissatou.start();
+        estEnregistrementAissatou = true;
+        btnMicro?.classList.add('recording');
+        afficherToast("🎤 Parlez maintenant...");
+      } catch (e) {
+        afficherToast("⚠️ Impossible de démarrer le micro.");
+      }
+    }
+  }
+}
+
+function afficherIndicateurChargementAissatou() {
+  const messagesDiv = document.getElementById('aissatou-messages');
+  if (!messagesDiv) return;
+  retirerIndicateurChargementAissatou();
+  indicateurChargementElem = document.createElement('div');
+  indicateurChargementElem.className = 'message-loading';
+  indicateurChargementElem.innerHTML = `<span>👩🏾‍💼</span><span>Aissatou consulte sa base de connaissances (10 fiches RAG)...</span>`;
+  messagesDiv.appendChild(indicateurChargementElem);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+function retirerIndicateurChargementAissatou() {
+  if (indicateurChargementElem && indicateurChargementElem.parentNode) {
+    indicateurChargementElem.parentNode.removeChild(indicateurChargementElem);
+    indicateurChargementElem = null;
+  }
+}
+
+function ajouterMessageChatAissatou(auteur, texte, meta = {}) {
+  const messagesDiv = document.getElementById('aissatou-messages');
+  if (!messagesDiv) return;
+
+  if (auteur === 'user') {
+    const userMsg = document.createElement('div');
+    userMsg.className = 'message-user';
+    userMsg.innerHTML = `<div class="message-user-content">${escapeHtml(texte)}</div>`;
+    messagesDiv.appendChild(userMsg);
+  } else {
+    const iaMsg = document.createElement('div');
+    iaMsg.className = 'message-ia';
+    
+    let metaHtml = '';
+    if (meta.sources && meta.sources.length > 0) {
+      metaHtml += `<div class="message-ia-sources">📚 <strong>Sources :</strong> ${escapeHtml(meta.sources.join(' • '))}</div>`;
+    }
+    if (meta.action) {
+      metaHtml += `<div class="message-ia-action">💡 <strong>Action terrain :</strong> ${escapeHtml(meta.action)}</div>`;
+    }
+    
+    const idCopie = 'msg-aissatou-' + Math.random().toString(36).substring(2, 9);
+    iaMsg.innerHTML = `
+      <div class="message-ia-content" id="${idCopie}">
+        ${escapeHtml(texte).replace(/\n/g, '<br>')}
+        ${metaHtml}
+        <div class="message-ia-actions-bar">
+          <button type="button" class="aissatou-copy-btn" onclick="copierTexteAissatou('${idCopie}')">
+            📋 Copier
+          </button>
+        </div>
+      </div>
+    `;
+    messagesDiv.appendChild(iaMsg);
+  }
+
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+window.copierTexteAissatou = async function(id) {
+  try {
+    const elem = document.getElementById(id);
+    if (!elem) return;
+    const clone = elem.cloneNode(true);
+    const actionsBar = clone.querySelector('.message-ia-actions-bar');
+    if (actionsBar) actionsBar.remove();
+    const texte = clone.innerText.trim();
+    await navigator.clipboard.writeText(texte);
+    afficherToast('✓ Réponse d\'Aissatou copiée !');
+  } catch {
+    afficherToast('Sélectionnez le texte pour le copier.');
+  }
+};
+
+async function envoyerQuestionAissatou(texte) {
+  const q = (texte || '').trim();
+  if (!q) {
+    afficherToast('Veuillez saisir votre question pour Aissatou.');
+    return;
+  }
+
+  const btnSend = document.getElementById('aissatou-send-btn');
+  const input = document.getElementById('aissatou-input');
+  
+  if (btnSend) btnSend.disabled = true;
+
+  // 1. Ajouter le message de l'utilisateur
+  ajouterMessageChatAissatou('user', q);
+  if (input) input.value = '';
+
+  // 2. Afficher l'indicateur de chargement
+  afficherIndicateurChargementAissatou();
+
+  try {
+    const res = await poserQuestionAissatou(q);
+    retirerIndicateurChargementAissatou();
+
+    // 3. Afficher la réponse d'Aissatou
+    ajouterMessageChatAissatou('ia', res.reponse, {
+      sources: res.sources,
+      action: res.action || (res.reponse.includes('💡 Action') ? null : "Présentez la démo live en 2 minutes sur le smartphone du gérant pour valider son accord.")
+    });
+
+    // 4. Aissatou répond à voix haute (TTS)
+    if (typeof aissatouParle === 'function') {
+      try {
+        await aissatouParle(res.reponse);
+      } catch (errVoix) {
+        console.warn('Synthèse vocale Aissatou non audible:', errVoix);
+      }
+    }
+  } catch (err) {
+    console.error('Erreur Aissatou RAG:', err);
+    retirerIndicateurChargementAissatou();
+    ajouterMessageChatAissatou('ia', "Je rencontre une difficulté temporaire pour consulter la base. Veuillez renouveler votre question.");
+  } finally {
+    if (btnSend) btnSend.disabled = false;
+  }
+}
+
 function initialiserGeminiCopilotCommercial() {
   const btnOuvrir = document.getElementById('btn-ouvrir-gemini-copilot');
   const modal = document.getElementById('modal-gemini-copilot');
@@ -3289,21 +3496,17 @@ function initialiserGeminiCopilotCommercial() {
   const btnOuvrirWa = document.getElementById('btn-ouvrir-wa-copilot');
   const btnOuvrirOutils = document.getElementById('comm-btn-ouvrir-copilot-outils');
 
-  // Nouveaux éléments UI Aissatou RAG
+  // Nouveaux éléments UI Aissatou Chat & Pitch
   const tabChat = document.getElementById('tab-aissatou-chat');
   const tabPitch = document.getElementById('tab-aissatou-pitch');
   const sectionChat = document.getElementById('section-aissatou-chat-rag');
   const sectionPitch = document.getElementById('section-aissatou-generateur-pitch');
-  const inputQuestion = document.getElementById('input-question-aissatou');
-  const btnEnvoyerQuestion = document.getElementById('btn-envoyer-question-aissatou');
-  const zoneReponseRag = document.getElementById('zone-reponse-aissatou-rag');
-  const texteReponseRag = document.getElementById('texte-reponse-aissatou');
-  const sourcesReponseRag = document.getElementById('sources-reponse-aissatou');
-  const actionReponseRag = document.getElementById('action-reponse-aissatou');
-  const btnCopierReponse = document.getElementById('btn-copier-reponse-aissatou');
+  const inputChat = document.getElementById('aissatou-input');
+  const btnEnvoyerChat = document.getElementById('aissatou-send-btn');
+  const btnMicroChat = document.getElementById('aissatou-mic-btn');
   const quickPrompts = document.querySelectorAll('#aissatou-quick-prompts button');
 
-  // Gestion des sous-onglets Chat vs Pitch
+  // Gestion des sous-onglets Chat vs Pitch (si réactivés)
   tabChat?.addEventListener('click', () => {
     tabChat.classList.add('active');
     tabPitch?.classList.remove('active');
@@ -3321,78 +3524,21 @@ function initialiserGeminiCopilotCommercial() {
     }
   });
 
-  // Poser une question à Aissatou
-  async function traiterQuestionAissatou(question) {
-    const q = (question || '').trim();
-    if (!q) {
-      afficherToast('Veuillez saisir votre question pour Aissatou.');
-      return;
+  // Événements d'envoi et de saisie vocale
+  btnMicroChat?.addEventListener('click', toggleMicroAissatou);
+
+  btnEnvoyerChat?.addEventListener('click', () => {
+    if (inputChat && inputChat.value.trim()) {
+      envoyerQuestionAissatou(inputChat.value.trim());
     }
-
-    if (btnEnvoyerQuestion) {
-      btnEnvoyerQuestion.disabled = true;
-      btnEnvoyerQuestion.textContent = 'Recherche...';
-    }
-
-    if (zoneReponseRag) {
-      zoneReponseRag.style.display = 'block';
-    }
-    if (texteReponseRag) {
-      texteReponseRag.textContent = '👩🏾‍💼 Aissatou consulte sa base de connaissances (9 fiches RAG)...';
-    }
-    if (sourcesReponseRag) sourcesReponseRag.style.display = 'none';
-    if (actionReponseRag) actionReponseRag.style.display = 'none';
-
-    try {
-      const res = await poserQuestionAissatou(q);
-      if (texteReponseRag) texteReponseRag.textContent = res.reponse;
-
-      const badgeMethode = document.getElementById('badge-methode-aissatou');
-      if (badgeMethode) {
-        badgeMethode.style.display = 'inline-block';
-        if (res.method === 'semantic') {
-          badgeMethode.textContent = '🟢 RAG Sémantique (Gemini)';
-          badgeMethode.style.background = '#DCFCE7';
-          badgeMethode.style.color = '#15803D';
-        } else if (res.method === 'fallback') {
-          badgeMethode.textContent = '🟡 Fallback Local';
-          badgeMethode.style.background = '#FEF9C3';
-          badgeMethode.style.color = '#854D0E';
-        } else {
-          badgeMethode.textContent = '⚪ Mode Local Résilient';
-          badgeMethode.style.background = '#F1F5F9';
-          badgeMethode.style.color = '#475569';
-        }
-      }
-
-      if (sourcesReponseRag) {
-        sourcesReponseRag.style.display = 'block';
-        sourcesReponseRag.innerHTML = `📚 <strong>Sources officielles citées :</strong> ${res.sources.join(' • ')}`;
-      }
-      if (actionReponseRag) {
-        actionReponseRag.style.display = 'block';
-        const conseilAction = res.action || "Présentez la démo live en 2 minutes sur le smartphone du gérant pour valider son accord.";
-        actionReponseRag.innerHTML = `💡 <strong>Action terrain recommandée :</strong> ${escapeHtml(conseilAction)}`;
-      }
-    } catch (err) {
-      console.error('Erreur Aissatou RAG:', err);
-      if (texteReponseRag) texteReponseRag.textContent = "Je rencontre une difficulté temporaire pour consulter la base. Veuillez renouveler votre question.";
-    } finally {
-      if (btnEnvoyerQuestion) {
-        btnEnvoyerQuestion.disabled = false;
-        btnEnvoyerQuestion.textContent = 'Envoyer';
-      }
-    }
-  }
-
-  btnEnvoyerQuestion?.addEventListener('click', () => {
-    traiterQuestionAissatou(inputQuestion?.value);
   });
 
-  inputQuestion?.addEventListener('keydown', (e) => {
+  inputChat?.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      traiterQuestionAissatou(inputQuestion.value);
+      if (inputChat && inputChat.value.trim()) {
+        envoyerQuestionAissatou(inputChat.value.trim());
+      }
     }
   });
 
@@ -3400,28 +3546,21 @@ function initialiserGeminiCopilotCommercial() {
   quickPrompts.forEach(btn => {
     btn.addEventListener('click', () => {
       const q = btn.getAttribute('data-query');
-      if (inputQuestion) inputQuestion.value = q;
-      traiterQuestionAissatou(q);
+      if (inputChat) inputChat.value = q;
+      envoyerQuestionAissatou(q);
     });
-  });
-
-  btnCopierReponse?.addEventListener('click', async () => {
-    try {
-      const contenuACopier = `${texteReponseRag?.textContent || ''}\n\n${sourcesReponseRag?.textContent || ''}\n\n${actionReponseRag?.textContent || ''}`;
-      await navigator.clipboard.writeText(contenuACopier);
-      afficherToast('✓ Réponse d\'Aissatou copiée avec ses sources !');
-    } catch {
-      afficherToast('Sélectionnez le texte pour le copier.');
-    }
   });
 
   const ouvrirModalCopilot = () => {
     if (modal) {
       modal.style.display = 'flex';
       saluerCommercialVocalement();
-      // Si la zone de réponse est vide, charger la réponse par défaut d'Aissatou
-      if (zoneReponseRag && (!texteReponseRag || !texteReponseRag.textContent.trim())) {
-        traiterQuestionAissatou("Bonjour Aissatou, comment peux-tu m'aider aujourd'hui ?");
+      
+      const messagesDiv = document.getElementById('aissatou-messages');
+      if (messagesDiv && messagesDiv.children.length === 0) {
+        const prenom = commercialConnecte?.prenom || 'Cher Conseiller';
+        const msgAccueil = `Bonjour ${prenom} ! Je suis Aissatou, votre Directrice RH & Stratégie CHR. Posez-moi vos questions sur le marché, vos objections ou nos formules Lou Ame Tay. Vous pouvez m'écrire ou me parler directement au micro !`;
+        ajouterMessageChatAissatou('ia', msgAccueil);
       }
     }
   };
