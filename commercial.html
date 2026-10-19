@@ -2742,14 +2742,20 @@
         <span class="badge-count" id="badge-depenses-attente">0</span>
       </button>
       <button type="button" class="comm-tab-btn" data-panel="panel-prospects">
-        <span>🎯 Mes Prospects</span>
+        <span style="display: inline-flex; align-items: center; gap: 6px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+          Mes Prospects
+        </span>
         <span class="badge-count" id="badge-prospects-count">0</span>
       </button>
       <button type="button" class="comm-tab-btn" data-panel="panel-outils">
         <span>🛠️ Kit & Outils Pro</span>
       </button>
       <button type="button" class="comm-tab-btn" data-panel="panel-annonces">
-        <span>📢 Annonces Équipe</span>
+        <span style="display: inline-flex; align-items: center; gap: 6px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg>
+          Annonces Équipe
+        </span>
       </button>
       <button type="button" class="comm-tab-btn" data-panel="panel-avis">
         <span>⭐ Avis Clients</span>
@@ -3039,16 +3045,33 @@
       <section id="panel-prospects" class="comm-panel">
         <div class="comm-card">
           <div class="comm-card-header">
-            <h3 class="comm-card-title">🎯 Mes Prospects & Devis en cours</h3>
-            <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
-              <button type="button" id="btn-vocal-prospect" class="btn-vocal-pulse">
-                <span class="icone-micro">🎙️</span>
-                <span>Dicter un nouveau prospect (Wolof ou Français)</span>
+            <h3 class="comm-card-title" style="display: flex; align-items: center; gap: 8px;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A227" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+              <span>Mes Prospects & Devis en cours</span>
+            </h3>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+              <button type="button" id="btn-vocal-prospect" class="btn-vocal-prospect-pro" title="Dicter un nouveau prospect">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9A227" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                  <line x1="12" y1="19" x2="12" y2="22"></line>
+                </svg>
+                <span>Dicter un nouveau prospect</span>
               </button>
-              <button type="button" class="comm-btn-gold" id="btn-ouvrir-modal-contrat">
-                <span>✍️ Faire signer un restaurant (Wave/OM)</span>
+              <button type="button" class="comm-btn-gold-pro" id="btn-ouvrir-modal-contrat" title="Faire signer un restaurant">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
+                  <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
+                  <path d="M2 2l7.586 7.586"></path>
+                  <circle cx="11" cy="11" r="2"></circle>
+                </svg>
+                <span>Faire signer un restaurant</span>
               </button>
-              <button type="button" class="comm-btn-outline" id="btn-ouvrir-modal-prospect">
+              <button type="button" class="comm-btn-outline-pro" id="btn-ouvrir-modal-prospect" title="Nouveau prospect">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
                 <span>+ Nouveau Prospect</span>
               </button>
             </div>
@@ -3154,19 +3177,45 @@
       </section>
 
       <!-- =====================================================================
-           ONGLET 5 : ANNONCES & NOTES DE SERVICE DE LA DIRECTION
+           ONGLET 5 : INBOX & MESSAGERIE DE LA DIRECTION
            ===================================================================== -->
       <section id="panel-annonces" class="comm-panel">
-        <div class="comm-card">
-          <div class="comm-card-header">
-            <h3 class="comm-card-title">📢 Mur d'Équipe & Notes de Service</h3>
-            <span style="font-size: 0.85rem; color: var(--texte-muet);">Mises à jour de la Direction</span>
-          </div>
+        <div class="comm-card" style="padding: 0; overflow: hidden;">
+          <div class="inbox-container">
+            <!-- Colonne de gauche : Liste des messages -->
+            <aside class="inbox-sidebar">
+              <div class="inbox-header">
+                <h3 style="display: flex; align-items: center; gap: 8px;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline>
+                    <path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path>
+                  </svg>
+                  <span>Boîte de réception</span>
+                </h3>
+                <span class="inbox-count" id="inbox-messages-count">0 message</span>
+              </div>
+              
+              <div class="inbox-list" id="inbox-list-items">
+                <div style="text-align: center; padding: 2.5rem 1rem; color: var(--texte-muet); font-size: 0.85rem;">
+                  Chargement des messages...
+                </div>
+              </div>
+            </aside>
 
-          <div id="liste-annonces-equipe">
-            <div style="text-align: center; padding: 2rem; color: var(--texte-muet);">
-              Chargement des annonces...
-            </div>
+            <!-- Colonne de droite : Détail du message -->
+            <main class="inbox-detail" id="inbox-detail-view">
+              <div id="inbox-detail-content">
+                <div class="inbox-detail-header" id="inbox-detail-header">
+                  <h2>Sélectionnez un message</h2>
+                  <div class="inbox-detail-meta">
+                    <span>Cliquez sur un message à gauche pour lire les détails.</span>
+                  </div>
+                </div>
+                <div class="inbox-detail-body" id="inbox-detail-body">
+                  <p style="color: var(--texte-muet);">Votre messagerie interne centralise toutes les notes de service, objectifs et validations de la Direction Lou Ame Tay.</p>
+                </div>
+              </div>
+            </main>
           </div>
         </div>
       </section>
@@ -4358,19 +4407,17 @@
        FOOTER BRANDING ÉDITEUR (MG DIGITAL ARTS WORK + SÉCURITÉ)
        ========================================================================= -->
   <footer class="footer-officiel" style="margin-bottom: 70px;">
-    <div class="footer-lock">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+    <p class="footer-domaines">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="2" y1="12" x2="22" y2="12"></line>
+        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
       </svg>
-      <span>Plateforme certifiée & sécurisée par MG Digital Arts Work</span>
-    </div>
-    <div class="footer-mentions">
-      <p class="footer-editeur">Lou Ame Tay by Digital Arts Work · Édition 2026</p>
-      <p>Éditeur : Digital Arts Work (DAW)</p>
-      <p>Domaines certifiés : <a href="https://www.louametay.com" target="_blank" rel="noopener noreferrer">louametay.com</a> · <a href="https://louametay.online" target="_blank" rel="noopener noreferrer">louametay.online</a></p>
-      <p>© 2026 Lou Ame Tay. Tous droits réservés.</p>
-    </div>
+      Domaines certifiés : <strong>louametay.com</strong> · <strong>louametay.online</strong>
+    </p>
+    <p class="footer-copyright">
+      © 2026 <strong>Lou Ame Tay</strong>. Tous droits réservés.
+    </p>
   </footer>
 
   <!-- =========================================================================

@@ -40,10 +40,11 @@ async function executerTests() {
     tester('Récupération de la liste des commerciaux', Array.isArray(coms) && coms.length >= 4, `${coms.length} commerciaux trouvés`);
 
     const tels = coms.map(c => c.telephone);
-    tester('Commercial 1 : Babacar Gueye (+221771303678)', tels.includes('771303678') || tels.includes('+221771303678'));
-    tester('Commercial 2 : Cheikh Ahmadou Bamba MBODJ (+221771492973)', tels.includes('771492973') || tels.includes('+221771492973'));
-    tester('Commercial 3 : Arona Sow (+221770000001)', tels.includes('770000001') || tels.includes('+221770000001'));
-    tester('Commercial 4 : Fatou Diop (+221770000002)', tels.includes('770000002') || tels.includes('+221770000002'));
+    tester('Commercial 1 : Babacar Gueye (771303678)', tels.some(t => t && t.includes('771303678')));
+    tester('Commercial 2 : Cheikh Ahmadou Bamba MBODJ (771492973)', tels.some(t => t && t.includes('771492973')));
+    tester('Commercial 3 : Khadija Fall (771624837)', tels.some(t => t && t.includes('771624837')));
+    tester('Commercial 4 : Mame Mor Gueye (774882222)', tels.some(t => t && t.includes('774882222')));
+    tester('Vérification exclusion comptes test (Fatou Diop & Arona Sow)', !tels.includes('770000001') && !tels.includes('770000002'));
   } catch (err) {
     tester('Erreur connexion Supabase Commerciaux', false, err.message);
   }

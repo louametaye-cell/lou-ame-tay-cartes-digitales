@@ -3068,23 +3068,33 @@ async function chargerProspects() {
       const msgRelance = `Bonjour M. ${l.prospect_nom || ''}, c'est ${commercialConnecte.prenom} de Lou Ame Tay. Suite à notre échange pour le restaurant ${l.restaurant_nom || ''}, je reste à votre entière disposition pour planifier la démonstration de notre menu digital et écran cuisine.`;
       const urlWa = `https://wa.me/${telPur.startsWith('221') ? telPur : '221' + telPur}?text=${encodeURIComponent(msgRelance)}`;
 
-      const badgeClass = l.statut === 'SIGNE' ? 'vert' : l.statut === 'EN_COURS' ? 'bleu' : 'jaune';
+      const statutNormalise = String(l.statut || 'nouveau').toUpperCase();
+      let badgeHtml = '<span class="badge badge-bleu">Nouveau</span>';
+      if (statutNormalise === 'SIGNE' || statutNormalise === 'SIGNÉ') {
+        badgeHtml = '<span class="badge badge-vert">Signé</span>';
+      } else if (statutNormalise === 'CONTACTE' || statutNormalise === 'CONTACTÉ' || statutNormalise === 'EN_COURS') {
+        badgeHtml = '<span class="badge badge-jaune">Contacté</span>';
+      }
 
-      const boutonAction = l.statut === 'SIGNE'
+      const boutonAction = (statutNormalise === 'SIGNE' || statutNormalise === 'SIGNÉ')
         ? `<div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
-             <button type="button" class="comm-btn-gold btn-telecharger-contrat-existant" data-id="${l.id}" style="font-size: 0.78rem; padding: 5px 10px;" title="Télécharger le contrat officiel signé (PDF A4)">
-               <span>Contrat A4</span> 📄
+             <button type="button" class="btn-secondaire btn-telecharger-contrat-existant" data-id="${l.id}" style="font-size: 0.78rem; padding: 6px 12px; border-radius: 9999px;" title="Télécharger le contrat officiel signé (PDF A4)">
+               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+               <span>Contrat A4</span>
              </button>
-             <button type="button" class="comm-btn-outline btn-ouvrir-copilot-wa-prospect" data-id="${l.id}" style="font-size: 0.78rem; padding: 5px 8px; border-color: #10B981; color: #047857;" title="Copilot WhatsApp B2B (Confirmation & Suivi J+15)">
-               <span>Copilot WA</span> 💬
+             <button type="button" class="btn-copilot-wa-ghost btn-ouvrir-copilot-wa-prospect" data-id="${l.id}" title="Copilot WhatsApp B2B (Confirmation & Suivi J+15)">
+               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+               <span>Copilot WA</span>
              </button>
            </div>`
         : `<div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
-             <button type="button" class="comm-btn-primary btn-signer-contrat-prospect" data-id="${l.id}" style="font-size: 0.78rem; padding: 5px 10px; background: linear-gradient(135deg, #16a34a, #0d7031); border: none;" title="Faire signer le contrat tactile et encaisser l'acompte Wave/OM">
-               <span>Signer & Wave</span> ✍️
+             <button type="button" class="btn-signer-contrat-prospect" data-id="${l.id}" title="Faire signer le contrat tactile et encaisser l'acompte Wave/OM">
+               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+               <span>Signer le contrat</span>
              </button>
-             <button type="button" class="comm-btn-outline btn-ouvrir-copilot-wa-prospect" data-id="${l.id}" style="font-size: 0.78rem; padding: 5px 8px; border-color: #10B981; color: #047857;" title="Copilot WhatsApp B2B (5 Templates 1-Clic)">
-               <span>Copilot WA</span> 💬
+             <button type="button" class="btn-copilot-wa-ghost btn-ouvrir-copilot-wa-prospect" data-id="${l.id}" title="Copilot WhatsApp B2B (5 Templates 1-Clic)">
+               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+               <span>Copilot WA</span>
              </button>
            </div>`;
 
@@ -3093,8 +3103,8 @@ async function chargerProspects() {
           <td><strong>${escapeHtml(l.restaurant_nom || '—')}</strong><br><span style="font-size: 0.78rem; color: var(--texte-muet);">${escapeHtml(l.ville || '')}</span></td>
           <td>${escapeHtml(l.prospect_nom || '—')}</td>
           <td>${escapeHtml(l.telephone || '—')}</td>
-          <td><span class="comm-badge bleu">${escapeHtml(l.formule || 'Xéweul')}</span></td>
-          <td><span class="comm-badge ${badgeClass}">${escapeHtml(l.statut || 'Nouveau')}</span></td>
+          <td><span class="badge badge-bleu">${escapeHtml(l.formule || 'Xéweul')}</span></td>
+          <td>${badgeHtml}</td>
           <td>${boutonAction}</td>
         </tr>`;
     }).join('');
@@ -3103,28 +3113,32 @@ async function chargerProspects() {
     const cardsMobileProspects = document.getElementById('cards-prospects-mobile');
     if (cardsMobileProspects) {
       cardsMobileProspects.innerHTML = listeProspects.map(l => {
-        const badgeStatut = l.statut === 'SIGNE'
-          ? '<span class="card-mobile-badge client">Signé</span>'
-          : l.statut === 'EN_COURS'
-          ? '<span class="card-mobile-badge rdv">En cours</span>'
-          : '<span class="card-mobile-badge contacte">Contacté</span>';
+        const statutNormalise = String(l.statut || 'nouveau').toUpperCase();
+        const badgeStatut = (statutNormalise === 'SIGNE' || statutNormalise === 'SIGNÉ')
+          ? '<span class="badge badge-vert">Signé</span>'
+          : (statutNormalise === 'CONTACTE' || statutNormalise === 'CONTACTÉ' || statutNormalise === 'EN_COURS')
+          ? '<span class="badge badge-jaune">Contacté</span>'
+          : '<span class="badge badge-bleu">Nouveau</span>';
 
-        const boutonActionMobile = l.statut === 'SIGNE'
-          ? `<button type="button" class="btn-telecharger-contrat-existant" data-id="${l.id}" style="background: #C9A227; color:#0B1F3A;">📄 Contrat A4</button>`
-          : `<button type="button" class="btn-signer-contrat-prospect" data-id="${l.id}" style="background: #16A34A; color:#FFF;">✍️ Signer & Wave</button>`;
+        const boutonActionMobile = (statutNormalise === 'SIGNE' || statutNormalise === 'SIGNÉ')
+          ? `<button type="button" class="btn-secondaire btn-telecharger-contrat-existant" data-id="${l.id}" style="font-size: 0.8rem; padding: 7px 12px; border-radius: 9999px; display: inline-flex; align-items: center; gap: 6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg> Contrat A4</button>`
+          : `<button type="button" class="btn-signer-contrat-prospect" data-id="${l.id}" style="font-size: 0.8rem; padding: 7px 12px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg> Signer le contrat</button>`;
 
         return `
-          <div class="card-mobile">
-            <div class="card-mobile-header">
-              <span class="card-mobile-nom">${escapeHtml(l.restaurant_nom || '—')}</span>
+          <div class="card-mobile carte-ui" style="margin-bottom: 12px;">
+            <div class="card-mobile-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span class="card-mobile-nom" style="font-weight: 800; color: #0B1F3A;">${escapeHtml(l.restaurant_nom || '—')}</span>
               ${badgeStatut}
             </div>
             <div class="card-mobile-row"><span>Gérant</span><strong>${escapeHtml(l.prospect_nom || '—')}</strong></div>
             <div class="card-mobile-row"><span>Contact</span><strong>${escapeHtml(l.telephone || '—')}</strong></div>
             <div class="card-mobile-row"><span>Formule</span><strong>${escapeHtml(l.formule || 'Xéweul')}</strong></div>
-            <div class="card-mobile-actions">
+            <div class="card-mobile-actions" style="display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap;">
               ${boutonActionMobile}
-              <button type="button" class="btn-ouvrir-copilot-wa-prospect" data-id="${l.id}" style="background: #0B1F3A; color:#FFF;">💬 WhatsApp</button>
+              <button type="button" class="btn-copilot-wa-ghost btn-ouvrir-copilot-wa-prospect" data-id="${l.id}" style="font-size: 0.8rem; padding: 7px 12px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                WhatsApp
+              </button>
             </div>
           </div>
         `;
@@ -3199,30 +3213,107 @@ async function chargerAnnonces() {
       ];
     }
 
-    conteneur.innerHTML = listeAnnonces.map(a => {
-      const typeClass = a.type || 'info';
-      const dateAffichee = a.created_at ? new Date(a.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Aujourd\'hui';
+    const conteneurListe = document.getElementById('inbox-list-items') || document.getElementById('liste-annonces-equipe');
+    const badgeCount = document.getElementById('inbox-messages-count');
+    const detailView = document.getElementById('inbox-detail-view');
 
-      let icone = '📢';
-      if (a.type === 'bonus') icone = '🎁';
-      else if (a.type === 'reunion') icone = '📅';
-      else if (a.type === 'urgent') icone = '🚨';
+    if (!conteneurListe) return;
+
+    if (badgeCount) {
+      badgeCount.textContent = `${listeAnnonces.length} message${listeAnnonces.length > 1 ? 's' : ''}`;
+    }
+
+    conteneurListe.innerHTML = listeAnnonces.map((a, idx) => {
+      const dateAffichee = a.created_at ? new Date(a.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : 'Récemment';
+      const auteur = a.auteur || 'Direction Commerciale';
+      const apercu = String(a.contenu || '').replace(/<[^>]*>/g, '').slice(0, 75) + '...';
+      const estActif = idx === 0 ? 'active' : '';
+      const estNonLu = idx === 0 ? 'unread' : '';
 
       return `
-        <div class="comm-annonce-card ${typeClass}">
-          <div class="comm-annonce-header">
-            <h4 class="comm-annonce-title">${icone} ${escapeHtml(a.titre)}</h4>
-            <span class="comm-annonce-date">${dateAffichee}</span>
+        <div class="inbox-item ${estActif} ${estNonLu}" data-id="${a.id || idx}">
+          <div class="inbox-item-header">
+            <span class="inbox-expediteur">${escapeHtml(auteur)}</span>
+            <span class="inbox-date">${dateAffichee}</span>
           </div>
-          <p class="comm-annonce-body">${escapeHtml(a.contenu)}</p>
-          <div style="margin-top: 8px; font-size: 0.76rem; color: var(--texte-muet); text-align: right;">
-            Par : <strong>${escapeHtml(a.auteur || 'Direction')}</strong>
-          </div>
+          <div class="inbox-sujet">${escapeHtml(a.titre || 'Note de service')}</div>
+          <div class="inbox-preview">${escapeHtml(apercu)}</div>
+          <span class="inbox-dot"></span>
         </div>`;
     }).join('');
 
+    // Afficher le premier message par défaut sur grand écran
+    if (listeAnnonces.length > 0 && detailView) {
+      afficherDetailInbox(listeAnnonces[0]);
+    }
+
+    // Écouteurs de clic sur les éléments de l'inbox
+    conteneurListe.querySelectorAll('.inbox-item').forEach((item, index) => {
+      item.addEventListener('click', () => {
+        conteneurListe.querySelectorAll('.inbox-item').forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+        item.classList.remove('unread');
+        const dot = item.querySelector('.inbox-dot');
+        if (dot) dot.style.display = 'none';
+
+        const annonce = listeAnnonces[index];
+        if (annonce) {
+          afficherDetailInbox(annonce);
+          if (window.innerWidth <= 768 && detailView) {
+            detailView.classList.add('show-mobile');
+          }
+        }
+      });
+    });
+
   } catch (err) {
     console.warn('Erreur chargement annonces:', err);
+  }
+}
+
+function afficherDetailInbox(a) {
+  const detailView = document.getElementById('inbox-detail-view');
+  if (!detailView) return;
+
+  const dateComplete = a.created_at ? new Date(a.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Aujourd\'hui';
+  const auteur = a.auteur || 'Direction Commerciale';
+
+  detailView.innerHTML = `
+    <button type="button" class="btn-retour-inbox-mobile" id="btn-fermer-detail-inbox">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+      <span>Retour aux messages</span>
+    </button>
+    <div class="inbox-detail-header">
+      <h2>${escapeHtml(a.titre || 'Directive de la Direction')}</h2>
+      <div class="inbox-detail-meta">
+        <span>De : <strong>${escapeHtml(auteur)}</strong></span>
+        <span>Le : ${dateComplete}</span>
+      </div>
+    </div>
+    <div class="inbox-detail-body">
+      <p>${escapeHtml(a.contenu || '')}</p>
+    </div>
+    <div class="inbox-detail-actions">
+      <button type="button" class="btn btn-secondaire" id="btn-repondre-direction">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 17 4 12 9 7"></polyline><path d="M20 18v-2a4 4 0 0 0-4-4H4"></path></svg>
+        <span>Répondre à la Direction</span>
+      </button>
+    </div>
+  `;
+
+  const btnRetour = detailView.querySelector('#btn-fermer-detail-inbox');
+  if (btnRetour) {
+    btnRetour.addEventListener('click', () => {
+      detailView.classList.remove('show-mobile');
+    });
+  }
+
+  const btnRepondre = detailView.querySelector('#btn-repondre-direction');
+  if (btnRepondre) {
+    btnRepondre.addEventListener('click', () => {
+      const destinataire = encodeURIComponent(`Bonjour M. Mbaye (Direction Lou Ame Tay), suite à votre message "${a.titre}" : `);
+      window.open(`https://wa.me/221774587474?text=${destinataire}`, '_blank');
+    });
   }
 }
 

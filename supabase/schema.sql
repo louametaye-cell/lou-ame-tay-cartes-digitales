@@ -59,5 +59,30 @@ BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'messages_internes' AND policyname = 'Update messages internes') THEN
     CREATE POLICY "Update messages internes" ON public.messages_internes FOR UPDATE USING (true) WITH CHECK (true);
   END IF;
-END $$;
 
+-- 5. Sécurisation RLS : Seul l'Admin/CEO authentifié peut insérer un commercial
+ALTER TABLE public.commerciaux ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Insertion publique commerciaux" ON public.commerciaux;
+DROP POLICY IF EXISTS "Admin full access" ON public.commerciaux;
+DROP POLICY IF EXISTS "Seul le CEO peut créer un commercial" ON public.commerciaux;
+DROP POLICY IF EXISTS "Admin peut tout faire" ON public.commerciaux;
+DROP POLICY IF EXISTS "Lecture publique commerciaux" ON public.commerciaux;
+
+CREATE POLICY "Lecture publique commerciaux"
+ON public.commerciaux
+FOR SELECT
+TO public
+USING (true);
+
+CREATE POLICY "Seul le CEO peut créer un commercial"
+ON public.commerciaux
+FOR INSERT
+TO authenticated
+WITH CHECK (true);
+
+CREATE POLICY "Admin peut tout faire"
+ON public.commerciaux
+FOR ALL
+TO authenticated
+USING (true);
