@@ -7239,3 +7239,65 @@ textarea:focus {
   border-color: var(--dore);
   box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.15);
 }
+
+/* ═══ ALIGNEMENT UNIVERSEL DES ICÔNES SVG DANS LES BOUTONS & HEADERS ═══ */
+.btn svg, 
+.nav-link svg,
+.header-actions-droite svg,
+.btn-hero-or svg,
+.btn-hero-blanc svg,
+.btn-acces-pro svg,
+.tiroir-lien svg,
+.metric-valeur svg,
+.nav-onglet-btn svg {
+  width: 18px;
+  height: 18px;
+  vertical-align: middle;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.btn:hover svg,
+.nav-link:hover svg,
+.btn-hero-or:hover svg,
+.btn-hero-blanc:hover svg,
+.btn-acces-pro:hover svg,
+.tiroir-lien:hover svg {
+  transform: scale(1.08);
+}
+
+.icone-globe-lang {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #C9A227;
+  margin-left: 6px;
+  margin-right: -2px;
+}
+
+.btn-icon-only {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  padding: 0;
+  margin: 0;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  color: #0B1F3A;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-icon-only svg {
+  margin-right: 0 !important;
+  width: 16px;
+  height: 16px;
+}
+.btn-icon-only:hover {
+  background: #F8FAFC;
+  border-color: #C9A227;
+  color: #C9A227;
+  transform: translateY(-1px);
+}

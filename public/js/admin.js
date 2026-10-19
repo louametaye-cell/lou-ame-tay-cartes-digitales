@@ -515,7 +515,20 @@ function rendreTableauCommerciaux(liste) {
         <!-- QR Code -->
         <td>
           <button type="button" class="btn-qr-action btn-ouvrir-qr" data-id="${safeId}" title="Aperçu et export PNG 1000px">
-            <span class="icone-qr-btn">▦</span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;">
+              <rect width="5" height="5" x="3" y="3" rx="1"></rect>
+              <rect width="5" height="5" x="16" y="3" rx="1"></rect>
+              <rect width="5" height="5" x="3" y="16" rx="1"></rect>
+              <path d="M21 16h-3a2 2 0 0 0-2 2v3"></path>
+              <path d="M21 21v.01"></path>
+              <path d="M12 7v3a2 2 0 0 1-2 2H7"></path>
+              <path d="M3 12h.01"></path>
+              <path d="M12 3h.01"></path>
+              <path d="M12 16v.01"></path>
+              <path d="M16 12h1"></path>
+              <path d="M21 12v.01"></path>
+              <path d="M12 21v-1"></path>
+            </svg>
             <span>QR Code</span>
           </button>
         </td>
@@ -524,13 +537,25 @@ function rendreTableauCommerciaux(liste) {
         <td style="text-align: right;">
           <div class="table-actions-cell">
             <button type="button" class="btn-icone-action btn-voir" onclick="voirProfil(this.dataset.id)" data-id="${safeId}" aria-label="Voir le profil" title="Voir le profil">
-              👁️
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
             </button>
             <button type="button" class="btn-icone-action btn-editer" data-id="${safeId}" title="Modifier">
-              ✏️
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 20h9"></path>
+                <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
+              </svg>
             </button>
             <button type="button" class="btn-icone-action btn-supprimer" data-id="${safeId}" title="Supprimer">
-              🗑️
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 6h18"></path>
+                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                <line x1="10" x2="10" y1="11" y2="17"></line>
+                <line x1="14" x2="14" y1="11" y2="17"></line>
+              </svg>
             </button>
           </div>
         </td>
@@ -1755,15 +1780,26 @@ function rendreTableauLeads(liste) {
         <td style="text-align: right;">
           <div style="display: flex; gap: 0.4rem; justify-content: flex-end; align-items: center; flex-wrap: wrap;">
             ${(statutActuel === 'converti' || lead.statut === 'SIGNE') ? `
-              <button type="button" class="btn-telecharger-contrat-admin" data-id="${lead.id}" title="Télécharger le contrat officiel signé (PDF A4)" style="background: #0B1F3A; color: #F8E294; border: 1px solid #C9A227; padding: 4px 8px; font-size: 0.78rem; font-weight: 700; border-radius: 6px; cursor: pointer;">
-                📄 Contrat
+              <button type="button" class="btn-telecharger-contrat-admin" data-id="${lead.id}" title="Télécharger le contrat officiel signé (PDF A4)" style="background: #0B1F3A; color: #F8E294; border: 1px solid #C9A227; padding: 4px 8px; font-size: 0.78rem; font-weight: 700; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+                <span>Contrat</span>
               </button>
             ` : ''}
-            <a href="https://wa.me/${telNet}?text=${msgRelance}" target="_blank" rel="noopener noreferrer" class="btn-wa-direct-lead" title="Contacter sur WhatsApp">
-              💬 WhatsApp
+            <a href="https://wa.me/${telNet}?text=${msgRelance}" target="_blank" rel="noopener noreferrer" class="btn-wa-direct-lead" title="Contacter sur WhatsApp" style="display: inline-flex; align-items: center; gap: 4px;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"></path>
+              </svg>
+              <span>WhatsApp</span>
             </a>
             <button type="button" class="btn-icone-action btn-supprimer-lead" data-id="${lead.id}" title="Supprimer ce lead">
-              🗑️
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 6h18"></path>
+                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+              </svg>
             </button>
           </div>
         </td>

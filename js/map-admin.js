@@ -256,14 +256,26 @@ export function initialiserCarteSenegalLeads(containerId, leads = [], rdvs = [])
          </div>`;
 
     const popupHtml = `
-      <div class="popup-titre-ville">📍 ${region.nom}</div>
+      <div class="popup-titre-ville" style="display: flex; align-items: center; gap: 6px;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#C9A227" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+          <circle cx="12" cy="10" r="3"></circle>
+        </svg>
+        <span>${region.nom}</span>
+      </div>
       <div style="font-size: 0.7rem; color: #64748B; margin-bottom: 6px;">${region.description}</div>
       <div class="popup-stat-ligne" style="margin-bottom: 3px;">
         <strong>${stat.totalLeads}</strong> demande${stat.totalLeads > 1 ? 's' : ''} de devis enregistrée${stat.totalLeads > 1 ? 's' : ''}
       </div>
       ${stat.totalRdvs > 0 ? `
-        <div class="popup-stat-ligne" style="margin-bottom: 3px; color: #0284C7; font-weight: 600;">
-          🚗 <strong>${stat.totalRdvs}</strong> rendez-vous terrain pointé${stat.totalRdvs > 1 ? 's' : ''} GPS
+        <div class="popup-stat-ligne" style="margin-bottom: 3px; color: #0284C7; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="8" rx="2"></rect>
+            <circle cx="7" cy="19" r="2"></circle>
+            <circle cx="17" cy="19" r="2"></circle>
+            <path d="M5 11l2-5h10l2 5"></path>
+          </svg>
+          <span><strong>${stat.totalRdvs}</strong> rendez-vous terrain pointé${stat.totalRdvs > 1 ? 's' : ''} GPS</span>
         </div>
       ` : ''}
       ${restosList}

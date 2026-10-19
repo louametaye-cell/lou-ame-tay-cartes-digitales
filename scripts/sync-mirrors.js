@@ -21,8 +21,11 @@ copyFileSafe('index.html', 'public/index.html');
 copyFileSafe('js/commercial.js', 'public/js/commercial.js');
 copyFileSafe('js/icons.js', 'public/js/icons.js');
 copyFileSafe('js/admin.js', 'public/js/admin.js');
+copyFileSafe('js/map-admin.js', 'public/js/map-admin.js');
 copyFileSafe('js/aissatou-knowledge-base.js', 'public/js/aissatou-knowledge-base.js');
 copyFileSafe('css/style.css', 'public/css/style.css');
+copyFileSafe('css/admin.css', 'public/css/admin.css');
+copyFileSafe('css/admin-v2.css', 'public/css/admin-v2.css');
 
 // 4. Knowledge
 if (fs.existsSync('knowledge')) {
