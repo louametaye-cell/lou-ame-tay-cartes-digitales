@@ -14,6 +14,8 @@ copyFileSafe('service-worker.js', 'public/service-worker.js');
 // 2. HTML
 copyFileSafe('commercial.html', 'public/commercial.html');
 copyFileSafe('admin.html', 'public/admin.html');
+copyFileSafe('carte.html', 'public/carte.html');
+copyFileSafe('index.html', 'public/index.html');
 
 // 3. JS critiques & Styles
 copyFileSafe('js/commercial.js', 'public/js/commercial.js');

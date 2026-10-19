@@ -7183,14 +7183,14 @@ body.app-active #section-app-comm {
   box-shadow: 0 6px 18px rgba(201, 162, 39, 0.2) !important;
 }
 .page-carte-fond .cta-devis-vert {
-  background: linear-gradient(135deg, #0B1F3A 0%, #15325B 100%) !important;
-  border: 1.5px solid #C9A227 !important;
+  background: linear-gradient(135deg, #C9A227 0%, #B8921F 100%) !important;
+  border: none !important;
   color: #FFFFFF !important;
-  box-shadow: 0 6px 20px rgba(11, 31, 58, 0.25) !important;
+  box-shadow: 0 6px 20px rgba(201, 162, 39, 0.35) !important;
 }
 .page-carte-fond .cta-devis-vert:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(201, 162, 39, 0.3) !important;
+  box-shadow: 0 8px 24px rgba(201, 162, 39, 0.45) !important;
 }
 
 /* ═══ FOOTER OFFICIEL MINIMALISTE ═══ */
@@ -7215,4 +7215,27 @@ body.app-active #section-app-comm {
   margin: 0;
   font-size: 0.8rem;
   color: #64748B;
+}
+
+/* ═══ FORMULAIRES & INPUTS GLOBAUX DU DESIGN SYSTEM ═══ */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+select,
+textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--bordure);
+  border-radius: var(--radius-md);
+  font-family: var(--police);
+  font-size: var(--texte-sm);
+  color: var(--texte-principal);
+  outline: none;
+  background: var(--blanc);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):focus,
+select:focus,
+textarea:focus {
+  border-color: var(--dore);
+  box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.15);
 }
