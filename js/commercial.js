@@ -66,6 +66,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initialiserOnboardingContratAgent();
   initialiserConsultationContratAgent();
   initialiserModalDerogationPointage();
+  initialiserModalReportRdv();
   lancerHeartbeatPresenceCommercial();
 
   // Vérifier si une session est déjà mémorisée
@@ -814,6 +815,14 @@ const COORDONNEES_VILLES_SENEGAL = {
   'Autre': { lat: 14.6928, lon: -17.4467 }
 };
 
+const SVG_MAP_PIN = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`;
+const SVG_MAP = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>`;
+const SVG_CALENDAR = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`;
+const SVG_CHECK_CIRCLE = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`;
+const SVG_ALERT_TRIANGLE = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
+const SVG_CLOCK_REWIND = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><polyline points="12 7 12 12 15 15"/></svg>`;
+const SVG_SEARCH_LOUPE = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`;
+
 async function chargerRendezVous() {
   if (!commercialConnecte) return;
   const cId = commercialConnecte.id;
@@ -828,7 +837,7 @@ async function chargerRendezVous() {
       .order('date_rdv', { ascending: false });
 
     if (error || !Array.isArray(data) || data.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--texte-muet); padding: 2rem;">Aucun rendez-vous planifié pour le moment. Cliquez sur « + Planifier un RDV Restaurant » ci-dessus.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--texte-muet); padding: 2rem;">Aucun rendez-vous planifié pour le moment. Cliquez sur « Planifier un RDV Restaurant » ci-dessus.</td></tr>`;
       const badgeCount = document.getElementById('badge-rdv-count');
       if (badgeCount) badgeCount.textContent = '0';
       return;
@@ -849,18 +858,65 @@ async function chargerRendezVous() {
         minute: '2-digit'
       });
 
-      // Statut GPS
-      let badgeGps = '<span class="comm-badge jaune">⏳ Non pointé</span>';
-      if (rdv.checkin_statut === 'VALIDE_SUR_PLACE') {
-        const distStr = rdv.checkin_distance_metres !== null ? `${rdv.checkin_distance_metres}m` : 'Validé';
-        const heureCheck = rdv.checkin_at ? new Date(rdv.checkin_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '';
-        badgeGps = `<span class="comm-badge vert">🟢 SUR PLACE (${distStr})</span><br><small style="color: #64748B; font-size: 0.72rem;">Pointé à ${heureCheck}</small>`;
-      } else if (rdv.checkin_statut === 'ECART_SUSPECT') {
-        const distStr = rdv.checkin_distance_metres !== null ? `${rdv.checkin_distance_metres}m` : '>200m';
-        badgeGps = `<span class="comm-badge rouge">🔴 ÉCART SUSPECT (${distStr})</span><br><small style="color: #EF4444; font-size: 0.72rem;">Distance > 200m</small>`;
+      const aujourdhui = new Date();
+      const estAujourdhui = !isNaN(d.getTime()) && d.toDateString() === aujourdhui.toDateString();
+      const estFutur = !isNaN(d.getTime()) && d > aujourdhui && !estAujourdhui;
+      const estPointe = ['VALIDE_SUR_PLACE', 'VALIDE_TOLERANCE_100M', 'VALIDE_DEROGATION_TERRAIN'].includes(rdv.checkin_statut);
+      const estReporte = rdv.statut === 'reporte';
+
+      const urlPreuve = rdv.preuve_report_url || (estReporte ? rdv.checkin_photo_url : null);
+      let motifAffiche = rdv.motif_report;
+      if (!motifAffiche && rdv.notes && rdv.notes.includes('[REPORTÉ - Motif : ')) {
+        try {
+          motifAffiche = rdv.notes.split('[REPORTÉ - Motif : ')[1].split(']')[0];
+        } catch (_) {}
       }
 
-      // Liens Google
+      // 1. Statut & Pointage
+      let badgeStatutHtml = '<span class="comm-badge non-pointe">Non pointé</span>';
+      if (estReporte) {
+        let btnPreuve = '';
+        if (urlPreuve) {
+          btnPreuve = ` <button type="button" class="btn-voir-preuve" onclick="window.ouvrirApercuPreuveReport('${encodeURIComponent(urlPreuve)}', '${escapeHtml(rdv.restaurant_prospect || '')}')" title="Voir la preuve du report">${SVG_SEARCH_LOUPE}</button>`;
+        }
+        badgeStatutHtml = `<span class="comm-badge reporte">${SVG_CLOCK_REWIND} Reporté</span>${btnPreuve}`;
+        if (motifAffiche) {
+          badgeStatutHtml += `<br><small style="color: #64748B; font-size: 0.72rem;">Motif : ${escapeHtml(motifAffiche)}</small>`;
+        }
+      } else if (estPointe) {
+        const distStr = rdv.checkin_distance_metres !== null ? `${rdv.checkin_distance_metres}m` : 'Validé';
+        const heureCheck = rdv.checkin_at ? new Date(rdv.checkin_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '';
+        badgeStatutHtml = `<span class="comm-badge pointe">${SVG_CHECK_CIRCLE} Pointé (${distStr})</span><br><small style="color: #64748B; font-size: 0.72rem;">À ${heureCheck}</small>`;
+      } else if (rdv.checkin_statut === 'ECART_SUSPECT') {
+        const distStr = rdv.checkin_distance_metres !== null ? `${rdv.checkin_distance_metres}m` : '>200m';
+        badgeStatutHtml = `<span class="comm-badge suspect">${SVG_ALERT_TRIANGLE} Écart suspect (${distStr})</span>`;
+      } else if (rdv.statut === 'planifie' || rdv.rdv_parent_id || (rdv.notes && rdv.notes.includes('[Suite du RDV'))) {
+        badgeStatutHtml = `<span class="comm-badge planifie">${SVG_CALENDAR} Planifié</span>`;
+      }
+
+      // 2. Actions Terrain
+      let boutonArrivee = '';
+      let boutonReporter = '';
+
+      if (estReporte) {
+        if (rdv.preuve_report_url) {
+          boutonArrivee = `<button type="button" class="comm-btn-ghost" onclick="window.ouvrirApercuPreuveReport('${encodeURIComponent(rdv.preuve_report_url)}', '${escapeHtml(rdv.restaurant_prospect || '')}')">${SVG_SEARCH_LOUPE} Preuve</button>`;
+        }
+      } else if (estPointe) {
+        boutonArrivee = `<span style="font-size: 0.78rem; color: #047857; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">${SVG_CHECK_CIRCLE} Certifié</span>`;
+      } else if (estAujourdhui) {
+        // RDV Aujourd'hui : Bouton vert doux "Je suis arrivé"
+        boutonArrivee = `<button type="button" class="comm-btn-arrivee btn-pointer-gps" data-id="${rdv.id}">${SVG_MAP_PIN} <span>Je suis arrivé</span></button>`;
+        boutonReporter = `<button type="button" class="comm-btn-reporter btn-ouvrir-report" data-id="${rdv.id}">${SVG_CLOCK_REWIND} <span>Reporter</span></button>`;
+      } else if (estFutur) {
+        // RDV Futur : Pas de pointage possible, bouton reporter disponible
+        boutonReporter = `<button type="button" class="comm-btn-reporter btn-ouvrir-report" data-id="${rdv.id}">${SVG_CLOCK_REWIND} <span>Reporter</span></button>`;
+      } else {
+        // RDV Passé non pointé : Bouton Pointer GPS doré
+        boutonArrivee = `<button type="button" class="comm-btn-gps btn-pointer-gps" data-id="${rdv.id}">${SVG_MAP_PIN} <span>Pointer GPS</span></button>`;
+        boutonReporter = `<button type="button" class="comm-btn-reporter btn-ouvrir-report" data-id="${rdv.id}">${SVG_CLOCK_REWIND} <span>Reporter</span></button>`;
+      }
+
       const lienMaps = genererLienItineraireGoogle(
         rdv.restaurant_prospect,
         rdv.latitude_restaurant,
@@ -873,9 +929,8 @@ async function chargerRendezVous() {
         dateDebutISO: rdv.date_rdv
       });
 
-      const boutonPointer = rdv.checkin_statut !== 'VALIDE_SUR_PLACE'
-        ? `<button type="button" class="comm-btn-gold btn-pointer-gps" data-id="${rdv.id}" style="padding: 5px 10px; font-size: 0.78rem;"><span>📍 Pointer GPS</span></button>`
-        : `<span style="font-size: 0.78rem; color: #16A34A; font-weight: 700;">✓ Certifié</span>`;
+      const boutonMaps = `<a href="${lienMaps}" class="comm-btn-ghost btn-ouvrir-maps" title="Itinéraire Google Maps">${SVG_MAP} Maps</a>`;
+      const boutonGCal = `<a href="${lienGCal}" target="_blank" rel="noopener noreferrer" class="comm-btn-ghost" title="Ajouter à Google Calendar">${SVG_CALENDAR} G-Cal</a>`;
 
       return `
         <tr>
@@ -887,12 +942,13 @@ async function chargerRendezVous() {
           <td>
             <span>${escapeHtml(rdv.adresse_restaurant || 'Sénégal')}</span>
           </td>
-          <td>${badgeGps}</td>
+          <td>${badgeStatutHtml}</td>
           <td>
             <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
-              ${boutonPointer}
-              <a href="${lienMaps}" class="comm-btn-outline btn-ouvrir-maps" style="padding: 5px 8px; font-size: 0.78rem;" title="Itinéraire Google Maps">🗺️ Maps</a>
-              <a href="${lienGCal}" target="_blank" rel="noopener noreferrer" class="comm-btn-outline" style="padding: 5px 8px; font-size: 0.78rem;" title="Ajouter à Google Calendar">📅 G-Cal</a>
+              ${boutonArrivee}
+              ${boutonReporter}
+              ${boutonMaps}
+              ${boutonGCal}
             </div>
           </td>
         </tr>
@@ -907,27 +963,57 @@ async function chargerRendezVous() {
         const dateFormatee = isNaN(d.getTime()) ? 'Date non définie' : d.toLocaleDateString('fr-FR', {
           weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
         });
-        const lienMaps = genererLienItineraireGoogle(rdv.restaurant_prospect, rdv.latitude_restaurant, rdv.longitude_restaurant);
-        const boutonPointer = rdv.checkin_statut !== 'VALIDE_SUR_PLACE'
-          ? `<button type="button" class="btn-pointer-gps" data-id="${rdv.id}" style="background: #C9A227; color:#0B1F3A;">📍 Pointer</button>`
-          : `<button type="button" disabled style="background: #DCFCE7; color:#166534;">✓ Pointé</button>`;
 
-        const badgeStatut = rdv.checkin_statut === 'VALIDE_SUR_PLACE'
-          ? '<span class="card-mobile-badge client">Sur place</span>'
-          : '<span class="card-mobile-badge contacte">En attente</span>';
+        const aujourdhui = new Date();
+        const estAujourdhui = !isNaN(d.getTime()) && d.toDateString() === aujourdhui.toDateString();
+        const estFutur = !isNaN(d.getTime()) && d > aujourdhui && !estAujourdhui;
+        const estPointe = ['VALIDE_SUR_PLACE', 'VALIDE_TOLERANCE_100M', 'VALIDE_DEROGATION_TERRAIN'].includes(rdv.checkin_statut);
+        const estReporte = rdv.statut === 'reporte';
+
+        let badgeMobile = '<span class="comm-badge non-pointe">Non pointé</span>';
+        if (estReporte) {
+          badgeMobile = `<span class="comm-badge reporte">${SVG_CLOCK_REWIND} Reporté</span>`;
+        } else if (estPointe) {
+          badgeMobile = `<span class="comm-badge pointe">${SVG_CHECK_CIRCLE} Pointé</span>`;
+        } else if (rdv.statut === 'planifie' || rdv.rdv_parent_id) {
+          badgeMobile = `<span class="comm-badge planifie">${SVG_CALENDAR} Planifié</span>`;
+        }
+
+        let boutonArriveeMobile = '';
+        let boutonReporterMobile = '';
+
+        if (estReporte) {
+          if (rdv.preuve_report_url) {
+            boutonArriveeMobile = `<button type="button" class="comm-btn-ghost" onclick="window.ouvrirApercuPreuveReport('${encodeURIComponent(rdv.preuve_report_url)}', '${escapeHtml(rdv.restaurant_prospect || '')}')">${SVG_SEARCH_LOUPE} Preuve</button>`;
+          }
+        } else if (estPointe) {
+          boutonArriveeMobile = `<span style="font-size: 0.78rem; color: #047857; font-weight: 700;">${SVG_CHECK_CIRCLE} Certifié</span>`;
+        } else if (estAujourdhui) {
+          boutonArriveeMobile = `<button type="button" class="comm-btn-arrivee btn-pointer-gps" data-id="${rdv.id}">${SVG_MAP_PIN} Je suis arrivé</button>`;
+          boutonReporterMobile = `<button type="button" class="comm-btn-reporter btn-ouvrir-report" data-id="${rdv.id}">${SVG_CLOCK_REWIND} Reporter</button>`;
+        } else if (estFutur) {
+          boutonReporterMobile = `<button type="button" class="comm-btn-reporter btn-ouvrir-report" data-id="${rdv.id}">${SVG_CLOCK_REWIND} Reporter</button>`;
+        } else {
+          boutonArriveeMobile = `<button type="button" class="comm-btn-gps btn-pointer-gps" data-id="${rdv.id}">${SVG_MAP_PIN} Pointer GPS</button>`;
+          boutonReporterMobile = `<button type="button" class="comm-btn-reporter btn-ouvrir-report" data-id="${rdv.id}">${SVG_CLOCK_REWIND} Reporter</button>`;
+        }
+
+        const lienMaps = genererLienItineraireGoogle(rdv.restaurant_prospect, rdv.latitude_restaurant, rdv.longitude_restaurant);
 
         return `
           <div class="card-mobile">
             <div class="card-mobile-header">
               <span class="card-mobile-nom">${escapeHtml(rdv.restaurant_prospect)}</span>
-              ${badgeStatut}
+              ${badgeMobile}
             </div>
             <div class="card-mobile-row"><span>Date</span><strong>${dateFormatee}</strong></div>
             <div class="card-mobile-row"><span>Contact</span><strong>${escapeHtml(rdv.nom_prospect || '—')} (${escapeHtml(rdv.telephone_prospect || '—')})</strong></div>
             <div class="card-mobile-row"><span>Lieu</span><strong>${escapeHtml(rdv.adresse_restaurant || 'Sénégal')}</strong></div>
-            <div class="card-mobile-actions">
-              ${boutonPointer}
-              <button type="button" onclick="ouvrirMapsUrl('${lienMaps}')" style="background: #0B1F3A; color:#FFF;">🗺️ Maps</button>
+            ${rdv.motif_report ? `<div class="card-mobile-row"><span>Motif</span><small style="color:#64748B;">${escapeHtml(rdv.motif_report)}</small></div>` : ''}
+            <div class="card-mobile-actions" style="margin-top: 10px; display: flex; gap: 6px; flex-wrap: wrap;">
+              ${boutonArriveeMobile}
+              ${boutonReporterMobile}
+              <button type="button" class="comm-btn-ghost" onclick="ouvrirMapsUrl('${lienMaps}')">${SVG_MAP} Maps</button>
             </div>
           </div>
         `;
@@ -939,6 +1025,14 @@ async function chargerRendezVous() {
       btn.addEventListener('click', async (e) => {
         const id = e.currentTarget.getAttribute('data-id');
         await pointerArriveeGPS(id, e.currentTarget);
+      });
+    });
+
+    // Attacher événements d'ouverture du modal de report
+    document.querySelectorAll('.btn-ouvrir-report').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const id = e.currentTarget.getAttribute('data-id');
+        ouvrirModalReporterRdv(id);
       });
     });
 
@@ -1224,6 +1318,243 @@ function initialiserModalDerogationPointage() {
     await chargerRendezVous();
   });
 }
+
+// ==============================================================================
+// 6c. GESTION DES REPORTS DE RENDEZ-VOUS (AVEC PREUVE & REPLANIFICATION)
+// ==============================================================================
+let fichierPreuveReportCompresse = null;
+
+function initialiserModalReportRdv() {
+  const modal = document.getElementById('modal-reporter-rdv');
+  const btnFermer = document.getElementById('btn-fermer-modal-reporter-rdv');
+  const btnAnnuler = document.getElementById('btn-annuler-reporter-rdv');
+  const form = document.getElementById('form-reporter-rdv');
+  const inputPreuve = document.getElementById('reporter-rdv-preuve');
+  const previewBox = document.getElementById('reporter-preuve-preview-box');
+  const previewImg = document.getElementById('reporter-preuve-preview-img');
+  const badgePoids = document.getElementById('reporter-preuve-poids-badge');
+
+  btnFermer?.addEventListener('click', () => {
+    if (modal) modal.style.display = 'none';
+  });
+  btnAnnuler?.addEventListener('click', () => {
+    if (modal) modal.style.display = 'none';
+  });
+
+  inputPreuve?.addEventListener('change', async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      afficherToast('Optimisation du justificatif de report... ⚡');
+      const resultat = await compresserImagePourTerrain(file, {
+        maxDimension: 1200,
+        maxPoidsKo: 120,
+        qualiteInitiale: 0.75
+      });
+      fichierPreuveReportCompresse = resultat.file;
+      if (previewImg && previewBox) {
+        previewImg.src = resultat.base64;
+        previewBox.style.display = 'block';
+        if (badgePoids) {
+          badgePoids.textContent = `Preuve optimisée : ${resultat.sizeKo} Ko (-${resultat.gainPercent}% data)`;
+        }
+      }
+    } catch (err) {
+      console.warn('Erreur compression preuve report:', err);
+      fichierPreuveReportCompresse = file;
+    }
+  });
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('btn-confirmer-reporter-rdv');
+    const rdvId = document.getElementById('reporter-rdv-id')?.value;
+    const nouvelleDate = document.getElementById('reporter-rdv-nouvelle-date')?.value;
+    const motif = document.getElementById('reporter-rdv-motif')?.value;
+    const notes = document.getElementById('reporter-rdv-notes')?.value.trim();
+
+    if (!rdvId || !nouvelleDate || !motif) {
+      afficherToast('Veuillez renseigner tous les champs obligatoires.');
+      return;
+    }
+
+    const rdv = listeRdv?.find(r => r.id === rdvId);
+    if (!rdv) {
+      afficherToast('Rendez-vous introuvable.');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span>Enregistrement du report...</span> ⏳';
+
+    try {
+      let preuveUrl = null;
+      const fileToUpload = fichierPreuveReportCompresse || inputPreuve?.files?.[0];
+
+      if (fileToUpload && estEnLigne()) {
+        try {
+          const nomFichier = `report_${rdv.id}_${Date.now()}.webp`;
+          const { error: upErr } = await supabase.storage
+            .from('justificatifs')
+            .upload(nomFichier, fileToUpload, { cacheControl: '3600', upsert: false });
+          if (!upErr) {
+            preuveUrl = `${SUPABASE_URL}/storage/v1/object/public/justificatifs/${nomFichier}`;
+          } else {
+            console.warn('Erreur upload Supabase Storage justificatifs:', upErr);
+          }
+        } catch (errUpload) {
+          console.warn('Exception upload justificatif report:', errUpload);
+        }
+      }
+
+      // 1. Mettre à jour l'ancien RDV : statut 'reporte'
+      const dateOldFormatee = rdv.date_rdv ? new Date(rdv.date_rdv).toLocaleDateString('fr-FR') : 'initial';
+      const payloadAncien = {
+        statut: 'reporte',
+        motif_report: motif,
+        preuve_report_url: preuveUrl,
+        notes: notes ? `${rdv.notes ? rdv.notes + ' | ' : ''}Reporté (${motif}) : ${notes}` : rdv.notes
+      };
+
+      let { error: updateErr } = await supabase
+        .from('rendez_vous')
+        .update(payloadAncien)
+        .eq('id', rdv.id);
+
+      // Si les colonnes motif_report / preuve_report_url n'existent pas encore dans le cache DB
+      if (updateErr && (updateErr.code === '42703' || updateErr.message?.includes('column'))) {
+        console.warn('Repli colonnes standard pour report:', updateErr.message);
+        const payloadRepli = {
+          statut: 'reporte',
+          checkin_photo_url: preuveUrl,
+          notes: `[REPORTÉ - Motif : ${motif}] Preuve: ${preuveUrl || 'N/A'}${notes ? ' | ' + notes : ''}`
+        };
+        const { error: fallbackErr } = await supabase.from('rendez_vous').update(payloadRepli).eq('id', rdv.id);
+        if (fallbackErr) throw fallbackErr;
+      } else if (updateErr) {
+        throw updateErr;
+      }
+
+      // 2. Créer le nouveau RDV (statut 'confirme' accepté par la contrainte live)
+      const payloadNouveau = {
+        commercial_id: rdv.commercial_id || commercialConnecte.id,
+        restaurant_prospect: rdv.restaurant_prospect,
+        nom_prospect: rdv.nom_prospect,
+        telephone_prospect: rdv.telephone_prospect,
+        email_prospect: rdv.email_prospect || null,
+        adresse_restaurant: rdv.adresse_restaurant || null,
+        latitude_restaurant: rdv.latitude_restaurant || null,
+        longitude_restaurant: rdv.longitude_restaurant || null,
+        date_rdv: new Date(nouvelleDate).toISOString(),
+        duree_minutes: rdv.duree_minutes || 30,
+        type_rdv: rdv.type_rdv || 'demo',
+        notes: notes ? `Report du RDV du ${dateOldFormatee} (${motif}) : ${notes}` : `Report du RDV du ${dateOldFormatee} (${motif})`,
+        statut: 'confirme',
+        checkin_statut: 'EN_ATTENTE',
+        rdv_parent_id: rdv.id
+      };
+
+      let { error: insertErr } = await supabase
+        .from('rendez_vous')
+        .insert([payloadNouveau]);
+
+      // Si la colonne rdv_parent_id n'existe pas encore en base
+      if (insertErr && (insertErr.code === '42703' || insertErr.message?.includes('column'))) {
+        console.warn('Repli insertion sans rdv_parent_id:', insertErr.message);
+        delete payloadNouveau.rdv_parent_id;
+        payloadNouveau.notes = `[Suite du RDV ${rdv.id}] ${payloadNouveau.notes}`;
+        const { error: insertFallbackErr } = await supabase.from('rendez_vous').insert([payloadNouveau]);
+        if (insertFallbackErr) throw insertFallbackErr;
+      } else if (insertErr) {
+        throw insertErr;
+      }
+
+      // 3. Traçabilité dans le journal d'activités
+      await enregistrerActivite({
+        typeAction: 'ADMIN_ACTION',
+        description: `RDV reporté : "${rdv.restaurant_prospect}" reprogrammé au ${new Date(nouvelleDate).toLocaleString('fr-FR')} (Motif : ${motif})`,
+        details: {
+          rdv_parent_id: rdv.id,
+          restaurant: rdv.restaurant_prospect,
+          motif_report: motif,
+          preuve_report_url: preuveUrl,
+          nouvelle_date: nouvelleDate
+        },
+        commercialId: commercialConnecte?.id,
+        commercialNom: `${commercialConnecte?.prenom || ''} ${commercialConnecte?.nom || ''}`,
+        statut: 'SUCCES'
+      });
+
+      const dateFmt = new Date(nouvelleDate).toLocaleDateString('fr-FR', {
+        weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+      });
+      afficherToast(`RDV reporté. Nouveau créneau : ${dateFmt}`);
+
+      if (modal) modal.style.display = 'none';
+      form.reset();
+      if (previewBox) previewBox.style.display = 'none';
+      fichierPreuveReportCompresse = null;
+
+      await chargerRendezVous();
+
+    } catch (err) {
+      console.error('Erreur lors du report de RDV:', err);
+      afficherToast(err.message || 'Erreur lors de l\'enregistrement du report.');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<span>Confirmer le report</span>';
+    }
+  });
+}
+
+function ouvrirModalReporterRdv(rdvId) {
+  const rdv = listeRdv?.find(r => r.id === rdvId);
+  if (!rdv) return;
+
+  const modal = document.getElementById('modal-reporter-rdv');
+  const inputId = document.getElementById('reporter-rdv-id');
+  const sousTitre = document.getElementById('reporter-rdv-sous-titre');
+  const inputDate = document.getElementById('reporter-rdv-nouvelle-date');
+  const form = document.getElementById('form-reporter-rdv');
+  const previewBox = document.getElementById('reporter-preuve-preview-box');
+
+  if (inputId) inputId.value = rdvId;
+  if (sousTitre) {
+    sousTitre.textContent = `${rdv.restaurant_prospect || 'Restaurant'} — Gérant : ${rdv.nom_prospect || '—'} (${rdv.telephone_prospect || '—'})`;
+  }
+
+  // Pré-remplir la nouvelle date (+1 jour même heure)
+  if (inputDate) {
+    const baseDate = rdv.date_rdv ? new Date(rdv.date_rdv) : new Date();
+    baseDate.setDate(baseDate.getDate() + 1);
+    const pad = (n) => String(n).padStart(2, '0');
+    const isoLocal = `${baseDate.getFullYear()}-${pad(baseDate.getMonth() + 1)}-${pad(baseDate.getDate())}T${pad(baseDate.getHours())}:${pad(baseDate.getMinutes())}`;
+    inputDate.value = isoLocal;
+  }
+
+  if (previewBox) previewBox.style.display = 'none';
+  fichierPreuveReportCompresse = null;
+
+  if (modal) modal.style.display = 'flex';
+}
+
+window.ouvrirApercuPreuveReport = function(urlEncoded, nomResto) {
+  const url = decodeURIComponent(urlEncoded);
+  const modal = document.getElementById('modal-apercu-justificatif');
+  const img = document.getElementById('img-justificatif-grand');
+  const btnLien = document.getElementById('btn-ouvrir-justificatif-tab');
+  const titre = document.getElementById('titre-apercu-justificatif');
+
+  if (modal && img && btnLien) {
+    img.src = url;
+    btnLien.href = url;
+    if (titre) {
+      titre.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span>Preuve du report — ${escapeHtml(nomResto || 'Restaurant')}</span>`;
+    }
+    modal.style.display = 'flex';
+  }
+};
 
 // ==============================================================================
 // 7. MODULE COMMISSIONS & INSTANT-WALLET (LOU AME TAY FINTECH PRO)

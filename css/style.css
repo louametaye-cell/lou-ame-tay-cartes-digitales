@@ -6078,33 +6078,196 @@ body.app-active #section-app-comm {
 }
 .aissatou-exemples.masque { display: none !important; }
 
-/* FIX 6 — BOUTON "JE SUIS ARRIVÉ" (1 CLIC) */
-.btn-arrive {
+/* ==============================================================================
+   REFONTE UX/UI DU MODULE RENDEZ-VOUS & POINTAGE GPS (DAW EXECUTIVE B2B)
+   ============================================================================== */
+
+/* Tableau épuré et professionnel */
+.comm-table-wrap {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid #E2E8F0;
+  background: #FFFFFF;
+  box-shadow: 0 1px 3px rgba(11, 31, 58, 0.04);
+}
+
+.comm-table {
   width: 100%;
-  padding: 18px;
-  background: linear-gradient(135deg, #22C55E, #16A34A);
-  color: #FFF;
-  border: none;
-  border-radius: 14px;
-  font-size: 16px;
-  font-weight: 800;
+  border-collapse: separate;
+  border-spacing: 0;
+  text-align: left;
+  font-size: 0.88rem;
+  background: #FFFFFF;
+}
+
+.comm-table th {
+  background: #F8FAFC;
+  padding: 12px 14px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #0B1F3A;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.comm-table td {
+  padding: 13px 14px;
+  border-bottom: 1px solid #F1F5F9;
+  vertical-align: middle;
+  color: #1E293B;
+}
+
+.comm-table tbody tr:nth-child(even) {
+  background-color: #F8FAFC;
+}
+
+.comm-table tbody tr:nth-child(odd) {
+  background-color: #FFFFFF;
+}
+
+.comm-table tbody tr:hover {
+  background-color: #F1F5F9;
+  transition: background-color 0.15s ease;
+}
+
+.comm-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Badges statuts épurés */
+.comm-badge.non-pointe {
+  background: #F1F5F9;
+  color: #475569;
+  border: 1px solid #E2E8F0;
+}
+
+.comm-badge.pointe {
+  background: #ECFDF5;
+  color: #047857;
+  border: 1px solid #A7F3D0;
+}
+
+.comm-badge.reporte {
+  background: #F1F5F9;
+  color: #64748B;
+  border: 1px solid #CBD5E1;
+}
+
+.comm-badge.planifie {
+  background: #EFF6FF;
+  color: #1D4ED8;
+  border: 1px solid #BFDBFE;
+}
+
+.comm-badge.suspect {
+  background: #FEF2F2;
+  color: #B91C1C;
+  border: 1px solid #FECACA;
+}
+
+/* Boutons d'actions terrain */
+.comm-btn-arrivee {
+  background: #10B981;
+  color: #FFFFFF;
+  border: 1px solid #059669;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
-  box-shadow: 0 6px 20px rgba(34,197,94,0.35);
-  margin-bottom: 16px;
-  font-family: inherit;
-  transition: transform 0.15s ease;
+  gap: 5px;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 3px rgba(16, 185, 129, 0.2);
 }
-.btn-arrive:active { transform: scale(0.98); }
-.pulse-dot {
-  width: 10px; height: 10px;
-  background: #FFF; border-radius: 50%;
-  animation: pulseDot 2s infinite;
+
+.comm-btn-arrivee:hover {
+  background: #059669;
 }
-@keyframes pulseDot {
-  0%,100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.6); opacity: 0.5; }
+
+.comm-btn-arrivee:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.comm-btn-gps {
+  background: #C9A227;
+  color: #FFFFFF;
+  border: 1px solid #B08D1E;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.15s ease;
+}
+
+.comm-btn-gps:hover {
+  background: #B08D1E;
+}
+
+.comm-btn-reporter {
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  color: #475569;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.15s ease;
+}
+
+.comm-btn-reporter:hover {
+  border-color: #0B1F3A;
+  color: #0B1F3A;
+  background: #F8FAFC;
+}
+
+.comm-btn-ghost {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  color: #0B1F3A;
+  padding: 6px 9px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.comm-btn-ghost:hover {
+  background: #F8FAFC;
+  border-color: #0B1F3A;
+  color: #0B1F3A;
+}
+
+.btn-voir-preuve {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #64748B;
+  padding: 3px 6px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 4px;
+  vertical-align: middle;
+  transition: all 0.15s ease;
+}
+
+.btn-voir-preuve:hover {
+  color: #0B1F3A;
+  background: #E2E8F0;
 }

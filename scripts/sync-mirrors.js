@@ -15,10 +15,12 @@ copyFileSafe('service-worker.js', 'public/service-worker.js');
 copyFileSafe('commercial.html', 'public/commercial.html');
 copyFileSafe('admin.html', 'public/admin.html');
 
-// 3. JS critiques
+// 3. JS critiques & Styles
 copyFileSafe('js/commercial.js', 'public/js/commercial.js');
+copyFileSafe('js/icons.js', 'public/js/icons.js');
 copyFileSafe('js/admin.js', 'public/js/admin.js');
 copyFileSafe('js/aissatou-knowledge-base.js', 'public/js/aissatou-knowledge-base.js');
+copyFileSafe('css/style.css', 'public/css/style.css');
 
 // 4. Knowledge
 if (fs.existsSync('knowledge')) {
