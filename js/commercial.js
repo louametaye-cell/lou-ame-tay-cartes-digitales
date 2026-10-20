@@ -1893,20 +1893,46 @@ export async function envoyerCompteRenduDirection() {
 
     // 2. Si non inséré ou fallback, router via /api/messages (qui garantit l'insertion dans annonces_equipe)
     if (!succesEnvoi) {
-      const resApi = await fetch('/api/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          expediteur: nomCommercial,
-          destinataire_id: 'DIRECTION',
-          titre: `Compte-Rendu RDV : ${rdv.restaurant_prospect || 'Restaurant'}`,
-          contenu: contenuRapport,
-          type: 'info'
-        })
-      });
+      try {
+        const resApi = await fetch('/api/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            expediteur: nomCommercial,
+            destinataire_id: 'DIRECTION',
+            titre: `Compte-Rendu RDV : ${rdv.restaurant_prospect || 'Restaurant'}`,
+            contenu: contenuRapport,
+            type: 'info'
+          })
+        });
 
-      if (resApi.ok) {
-        succesEnvoi = true;
+        if (resApi.ok) {
+          succesEnvoi = true;
+        }
+      } catch (eApi) {
+        console.warn('API /api/messages non disponible, repli direct Supabase:', eApi);
+      }
+    }
+
+    // 2b. Fallback direct client Supabase dans annonces_equipe (garantie absolue en local et en prod)
+    if (!succesEnvoi) {
+      try {
+        const { error: errAnnonce } = await supabase
+          .from('annonces_equipe')
+          .insert([{
+            titre: titreRapport,
+            contenu: contenuRapport,
+            auteur: nomCommercial,
+            type: 'info',
+            actif: true,
+            date_evenement: null
+          }]);
+
+        if (!errAnnonce) {
+          succesEnvoi = true;
+        }
+      } catch (eAnnonce) {
+        console.warn('Erreur insertion directe annonces_equipe:', eAnnonce);
       }
     }
 
@@ -1914,7 +1940,10 @@ export async function envoyerCompteRenduDirection() {
     try {
       await supabase.from('journal_activites').insert([{
         commercial_id: cId,
+        commercial_nom: nomCommercial,
         action: 'ENVOI_COMPTE_RENDU_DIRECTION',
+        type_action: 'ADMIN_ACTION',
+        description: `Envoi compte-rendu direction : ${rdv.restaurant_prospect || 'Restaurant'}`,
         details: {
           restaurant: rdv.restaurant_prospect,
           rdv_id: rdv.id,
