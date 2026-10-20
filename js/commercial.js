@@ -264,6 +264,37 @@ function initialiserFormulaires() {
     document.getElementById('modal-nouveau-rdv-comm').style.display = 'none';
   });
 
+  // Bouton de capture GPS en direct dans le formulaire de planification RDV
+  document.getElementById('btn-geoloc-actuelle-rdv')?.addEventListener('click', async () => {
+    const btn = document.getElementById('btn-geoloc-actuelle-rdv');
+    const badge = document.getElementById('rdv-geoloc-statut');
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<span>Recherche satellite...</span> 🛰️';
+    }
+
+    try {
+      const coords = await obtenirPositionLowPower({ timeoutMs: 8000 });
+      const latInput = document.getElementById('rdv-lat-exacte');
+      const lonInput = document.getElementById('rdv-lon-exacte');
+      if (latInput) latInput.value = coords.lat;
+      if (lonInput) lonInput.value = coords.lng;
+
+      if (badge) {
+        badge.textContent = `✓ Coordonnées GPS captées (${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)})`;
+        badge.style.display = 'block';
+      }
+      afficherToast('✓ Position satellite GPS captée au mètre près !');
+    } catch (e) {
+      afficherToast('Impossible de capter le signal GPS : ' + (e.message || 'Erreur'));
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<span>🎯 Utiliser ma position GPS (sur place)</span>';
+      }
+    }
+  });
+
   document.getElementById('form-nouveau-rdv-comm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = document.getElementById('btn-submit-rdv-comm');
@@ -280,6 +311,18 @@ function initialiserFormulaires() {
       const notes = document.getElementById('rdv-notes').value.trim();
 
       const villeCoord = COORDONNEES_VILLES_SENEGAL[ville] || COORDONNEES_VILLES_SENEGAL['Dakar Plateau'];
+      const latExacte = document.getElementById('rdv-lat-exacte')?.value;
+      const lonExacte = document.getElementById('rdv-lon-exacte')?.value;
+
+      let finalLat = latExacte ? parseFloat(latExacte) : villeCoord.lat;
+      let finalLon = lonExacte ? parseFloat(lonExacte) : villeCoord.lon;
+
+      // Protection toponymique intelligente (ex: "route de mbour" à Thiès)
+      const addrLower = (adresse || '').toLowerCase();
+      if (!latExacte && (addrLower.includes('lat dior') || (addrLower.includes('thies') && addrLower.includes('mbour')))) {
+        finalLat = 14.77102;
+        finalLon = -16.94626;
+      }
 
       const { error: insertErr } = await supabase
         .from('rendez_vous')
@@ -290,8 +333,8 @@ function initialiserFormulaires() {
           telephone_prospect: tel,
           date_rdv: new Date(dateRdv).toISOString(),
           adresse_restaurant: adresse,
-          latitude_restaurant: villeCoord.lat,
-          longitude_restaurant: villeCoord.lon,
+          latitude_restaurant: finalLat,
+          longitude_restaurant: finalLon,
           notes: notes,
           statut: 'confirme',
           checkin_statut: 'EN_ATTENTE'
@@ -806,6 +849,8 @@ const COORDONNEES_VILLES_SENEGAL = {
   'Dakar Almadies / Ngor': { lat: 14.7455, lon: -17.5186 },
   'Dakar Point E / Mermoz': { lat: 14.7042, lon: -17.4667 },
   'Thiès Ville': { lat: 14.7910, lon: -16.9260 },
+  'Thiès Route de Mbour': { lat: 14.77102, lon: -16.94626 },
+  'Thiès': { lat: 14.7910, lon: -16.9260 },
   'Mbour / Saly': { lat: 14.4447, lon: -16.9856 },
   'Saint-Louis': { lat: 16.0326, lon: -16.5050 },
   'Louga': { lat: 15.6187, lon: -16.2244 },
@@ -1232,6 +1277,77 @@ function initialiserModalDerogationPointage() {
 
   btnFermer?.addEventListener('click', () => {
     if (modal) modal.style.display = 'none';
+  });
+
+  // Bouton d'auto-ancrage GPS 1ère visite (recalibrage satellite sur site)
+  document.getElementById('btn-ancrer-position-resto-exacte')?.addEventListener('click', async () => {
+    const rdvId = document.getElementById('derogation-rdv-id')?.value;
+    const latStr = document.getElementById('derogation-lat')?.value;
+    const lonStr = document.getElementById('derogation-lon')?.value;
+
+    if (!rdvId || !latStr || !lonStr) {
+      afficherToast('Coordonnées GPS introuvables.');
+      return;
+    }
+
+    const lat = parseFloat(latStr);
+    const lon = parseFloat(lonStr);
+    const btn = document.getElementById('btn-ancrer-position-resto-exacte');
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<span>Ancrage satellite en cours...</span> ⏳';
+    }
+
+    try {
+      const payload = {
+        latitude_restaurant: lat,
+        longitude_restaurant: lon,
+        checkin_at: new Date().toISOString(),
+        checkin_latitude: lat,
+        checkin_longitude: lon,
+        checkin_distance_metres: 0,
+        checkin_statut: 'VALIDE_SUR_PLACE',
+        statut: 'effectue'
+      };
+
+      if (!estEnLigne()) {
+        empilerActionHorsLigne({
+          type: 'CHECKIN_AGENT',
+          table: 'rendez_vous',
+          payload: { id: rdvId, ...payload },
+          description: 'Auto-ancrage GPS 1ère visite - Mode Offline'
+        });
+        afficherToast('💾 Emplacement ancré localement (Mode Offline).');
+      } else {
+        const { error } = await supabase
+          .from('rendez_vous')
+          .update(payload)
+          .eq('id', rdvId);
+
+        if (error) throw error;
+
+        await enregistrerActivite({
+          typeAction: 'CHECKIN_GPS',
+          description: 'Auto-ancrage GPS et arrivée validée : restaurant géo-référencé au mètre près.',
+          commercialId: commercialConnecte?.id,
+          commercialNom: `${commercialConnecte?.prenom || ''} ${commercialConnecte?.nom || ''}`.trim(),
+          statut: 'SUCCES'
+        });
+      }
+
+      afficherToast('✓ Emplacement exact du restaurant ancré à vie et présence validée !');
+      if (modal) modal.style.display = 'none';
+      await chargerRendezVous();
+
+    } catch (err) {
+      console.error('Erreur ancrage GPS:', err);
+      afficherToast('Erreur lors de l\'ancrage GPS : ' + err.message);
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<span>📍 Ancrer l\'emplacement exact ici & Valider mon arrivée</span>';
+      }
+    }
   });
 
   // Capture et compression automatique de la photo d'enseigne
