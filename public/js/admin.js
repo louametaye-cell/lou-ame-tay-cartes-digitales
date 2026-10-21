@@ -1351,7 +1351,8 @@ function basculerOnglet(nomOnglet) {
     parrainages: '📤 Suivi des Parrainages & Recommandations',
     analytics: 'Statistiques, Scans & Performance',
     exports: 'Exports & QR Codes',
-    parametres: 'Paramètres & Base de données'
+    parametres: 'Paramètres & Base de données',
+    'rapports-direction': '📄 Rapports de Réunion Direction (Aissatou AI)'
   };
   if (titrePage && titres[nomOnglet]) {
     titrePage.textContent = titres[nomOnglet];
@@ -1375,6 +1376,8 @@ function basculerOnglet(nomOnglet) {
     chargerParrainages();
   } else if (nomOnglet === 'analytics') {
     chargerAnalytics();
+  } else if (nomOnglet === 'rapports-direction') {
+    chargerRapportsDirectionAdmin();
   }
 
   document.getElementById('admin-sidebar')?.classList.remove('ouverte');
@@ -1711,7 +1714,10 @@ function rendreTableauLeads(liste) {
         <!-- Restaurant & Prospect -->
         <td>
           <div>
-            <strong style="color: var(--marine-fonce); font-size: 0.95rem;">${escapeHtml(lead.restaurant_nom || 'Établissement inconnu')}</strong>
+            <a href="javascript:void(0)" class="btn-ouvrir-fiche-prospect" data-id="${lead.id}" style="color: var(--marine-fonce); font-size: 0.95rem; font-weight: 800; text-decoration: none; display: flex; align-items: center; gap: 4px;" title="Cliquer pour ouvrir la fiche complète & l'historique des visites">
+              <span>${escapeHtml(lead.restaurant_nom || 'Établissement inconnu')}</span>
+              <span style="font-size: 0.75rem; color: #D97706;">↗</span>
+            </a>
             <div style="font-size: 0.82rem; color: #64748B;">👤 ${escapeHtml(lead.prospect_nom || '')}</div>
             <span style="font-size: 0.72rem; color: #94A3B8;">📅 ${dateStr}</span>
           </div>
@@ -1779,6 +1785,9 @@ function rendreTableauLeads(liste) {
         <!-- Actions -->
         <td style="text-align: right;">
           <div style="display: flex; gap: 0.4rem; justify-content: flex-end; align-items: center; flex-wrap: wrap;">
+            <button type="button" class="btn-ouvrir-fiche-prospect" data-id="${lead.id}" title="Consulter la fiche prospect & historique RDV" style="background: #F1F5F9; color: #0B1F3A; border: 1px solid #CBD5E1; padding: 4px 8px; font-size: 0.78rem; font-weight: 700; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+              <span>👁️ Fiche</span>
+            </button>
             ${(statutActuel === 'converti' || lead.statut === 'SIGNE') ? `
               <button type="button" class="btn-telecharger-contrat-admin" data-id="${lead.id}" title="Télécharger le contrat officiel signé (PDF A4)" style="background: #0B1F3A; color: #F8E294; border: 1px solid #C9A227; padding: 4px 8px; font-size: 0.78rem; font-weight: 700; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1811,6 +1820,15 @@ function rendreTableauLeads(liste) {
 }
 
 function attacherEvenementsLeads(conteneur) {
+  // Écouteur pour ouvrir la fiche détaillée du prospect
+  conteneur.querySelectorAll('.btn-ouvrir-fiche-prospect').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const leadId = btn.getAttribute('data-id');
+      window.ouvrirModalFicheProspect(leadId);
+    });
+  });
+
   // Changement de statut en direct
   conteneur.querySelectorAll('.select-statut-lead').forEach(select => {
     select.addEventListener('change', async (e) => {
@@ -3283,25 +3301,44 @@ function rendreTableauAnnonces(liste) {
   if (!tbody) return;
 
   tbody.innerHTML = liste.map(a => {
+    const estRapport = a.titre && (a.titre.includes('[@DIRECTION]') || a.titre.includes('Compte-Rendu') || a.titre.includes('Rapport'));
     let typeBadge = '<span class="badge-role">🔵 Information</span>';
-    if (a.type === 'reunion') typeBadge = '<span class="badge-role" style="background:#DBEAFE; color:#1E40AF;">📅 Réunion</span>';
+    if (estRapport) {
+      typeBadge = '<span class="badge-role" style="background:#FEF3C7; color:#92400E; border:1.5px solid #F59E0B; font-weight:800;">📋 Rapport RDV Direction</span> <span class="badge-role" style="background:#FEE2E2; color:#991B1B; font-weight:800; margin-left: 4px;">⚡ Priorité Haute</span>';
+    } else if (a.type === 'reunion') typeBadge = '<span class="badge-role" style="background:#DBEAFE; color:#1E40AF;">📅 Réunion</span>';
     else if (a.type === 'bonus') typeBadge = '<span class="badge-role" style="background:#DCFCE7; color:#166534;">🎁 Bonus / Challenge</span>';
     else if (a.type === 'urgent') typeBadge = '<span class="badge-role" style="background:#FEE2E2; color:#991B1B;">🚨 Urgent</span>';
 
     return `
-      <tr class="ligne-commercial">
+      <tr class="ligne-commercial" style="${estRapport ? 'background: #FFFBEB; border-left: 4px solid #D97706;' : ''}">
         <td>${typeBadge}</td>
-        <td><strong>${escapeHtml(a.titre)}</strong></td>
+        <td><strong style="${estRapport ? 'color: #92400E;' : ''}">${escapeHtml(a.titre)}</strong></td>
         <td style="max-width: 320px; font-size: 0.85rem; color: #475569;">${escapeHtml(a.contenu)}</td>
         <td style="font-size: 0.85rem; color: #64748B;">${escapeHtml(a.auteur || 'Direction')}</td>
         <td style="font-size: 0.8rem; color: #64748B;">${a.created_at ? new Date(a.created_at).toLocaleDateString('fr-FR') : '—'}</td>
-        <td style="text-align: right;">
+        <td style="text-align: right; display: flex; gap: 4px; justify-content: flex-end; align-items: center;">
+          ${estRapport ? `
+            <button type="button" class="btn btn-sm btn-primaire btn-lire-rapport-annonce" data-id="${a.id}" style="background: #D97706; padding: 4px 8px; font-size: 0.78rem; font-weight: 700;">
+              👁️ Consulter
+            </button>
+          ` : ''}
           <button type="button" class="btn btn-danger btn-sm" onclick="window.supprimerAnnonceAdmin('${a.id}')" title="Supprimer">
             ✕ Retirer
           </button>
         </td>
       </tr>`;
   }).join('');
+
+  // Écouteurs pour lire le rapport complet depuis les annonces
+  tbody.querySelectorAll('.btn-lire-rapport-annonce').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const aId = btn.getAttribute('data-id');
+      const annonce = listeAnnoncesAdmin.find(item => item.id === aId);
+      if (annonce) {
+        window.ouvrirModalLectureRapport(annonce);
+      }
+    });
+  });
 }
 
 window.supprimerAnnonceAdmin = async function(id) {
@@ -3895,5 +3932,516 @@ if (typeof document !== 'undefined') {
   } else {
     initialiserMessagerieAdmin();
     initialiserAissatouCEO();
+  }
+}
+
+
+// ==============================================================================
+// 30. MODULE RAPPORTS DIRECTION (AISSATOU AI) & FICHE PROSPECT AVEC HISTORIQUE RDV
+// ==============================================================================
+
+let listeRapportsDirection = [];
+let filtreRapportActuel = 'tous';
+let rapportEnCoursLecture = null;
+
+function formaterMarkdownRapport(md) {
+  if (!md) return '';
+  return escapeHtml(md)
+    .replace(/^### (.*$)/gim, '<h4 style="color:#0B1F3A; margin: 14px 0 6px; font-size: 1.05rem; font-weight:800; border-bottom: 1px solid #E2E8F0; padding-bottom: 4px;">$1</h4>')
+    .replace(/^## (.*$)/gim, '<h3 style="color:#0B1F3A; margin: 16px 0 8px; font-size: 1.15rem; font-weight:800;">$1</h3>')
+    .replace(/\*\*(.*?)\*\*/gim, '<strong style="color: #0F172A;">$1</strong>')
+    .replace(/\*(.*?)\*/gim, '<em>$1</em>')
+    .replace(/^\- (.*$)/gim, '<li style="margin-bottom: 5px; color: #334155;">$1</li>')
+    .replace(/(<li.*<\/li>)/gims, '<ul style="margin: 6px 0 12px 1.25rem; padding-left: 0;">$1</ul>')
+    .replace(/\n\n/gim, '<p style="margin-bottom: 10px;"></p>')
+    .replace(/\n/gim, '<br>');
+}
+
+export async function chargerRapportsDirectionAdmin() {
+  const tbody = document.getElementById('tbody-rapports-direction');
+  const badgeCompteur = document.getElementById('badge-compteur-rapports-direction');
+  const kpiTotal = document.getElementById('kpi-total-rapports-direction');
+  const kpiNonLus = document.getElementById('kpi-non-lus-rapports-direction');
+  const kpiLus = document.getElementById('kpi-lus-rapports-direction');
+
+  if (tbody) {
+    tbody.innerHTML = '<tr><td colspan="6" class="table-chargement">Chargement des comptes-rendus de réunion...</td></tr>';
+  }
+
+  try {
+    let rapports = [];
+
+    // 1. Récupération depuis annonces_equipe
+    try {
+      const { data: annonces, error: errAnnonces } = await supabase
+        .from('annonces_equipe')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (!errAnnonces && Array.isArray(annonces)) {
+        rapports = annonces.filter(a => a.titre && (
+          a.titre.includes('[@DIRECTION]') ||
+          a.titre.toLowerCase().includes('compte-rendu') ||
+          a.titre.toLowerCase().includes('rapport')
+        ));
+      }
+    } catch (eAnn) {}
+
+    // 2. Récupération complémentaire depuis messages_internes si disponible
+    try {
+      const { data: msgs, error: errMsgs } = await supabase
+        .from('messages_internes')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (!errMsgs && Array.isArray(msgs)) {
+        msgs.forEach(m => {
+          if (!rapports.some(r => r.id === m.id)) {
+            rapports.push({
+              id: m.id,
+              titre: m.titre,
+              contenu: m.contenu,
+              auteur: m.expediteur_nom || 'Conseiller terrain',
+              created_at: m.created_at,
+              date_evenement: m.statut_lecture ? m.created_at : null
+            });
+          }
+        });
+      }
+    } catch (eMsg) {}
+
+    // Tri par date décroissante
+    rapports.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+    listeRapportsDirection = rapports;
+
+    // Calcul des statistiques
+    const total = rapports.length;
+    const nonLus = rapports.filter(r => !r.date_evenement).length;
+    const lus = rapports.filter(r => Boolean(r.date_evenement)).length;
+
+    if (kpiTotal) kpiTotal.textContent = total;
+    if (kpiNonLus) kpiNonLus.textContent = nonLus;
+    if (kpiLus) kpiLus.textContent = lus;
+
+    // Mise à jour du badge sidebar
+    if (badgeCompteur) {
+      if (nonLus > 0) {
+        badgeCompteur.textContent = nonLus;
+        badgeCompteur.style.display = 'inline-block';
+      } else {
+        badgeCompteur.textContent = '0';
+        badgeCompteur.style.display = 'none';
+      }
+    }
+
+    rendreListeRapportsDirection(filtreRapportActuel);
+
+  } catch (err) {
+    console.error('Erreur chargement rapports direction:', err);
+    if (tbody) {
+      tbody.innerHTML = `<tr><td colspan="6" class="table-vide"><p style="color:#EF4444; padding:1.5rem;">Erreur : ${err.message}</p></td></tr>`;
+    }
+  }
+}
+
+function rendreListeRapportsDirection(filtre = 'tous') {
+  filtreRapportActuel = filtre;
+  const tbody = document.getElementById('tbody-rapports-direction');
+  const compteurTxt = document.getElementById('compteur-rapports-filtres');
+  if (!tbody) return;
+
+  let liste = [...listeRapportsDirection];
+  if (filtre === 'non_lus') {
+    liste = liste.filter(r => !r.date_evenement);
+  } else if (filtre === 'lus') {
+    liste = liste.filter(r => Boolean(r.date_evenement));
+  }
+
+  if (compteurTxt) {
+    compteurTxt.textContent = `${liste.length} rapport(s) affiché(s)`;
+  }
+
+  if (liste.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" class="table-vide">
+          <div style="padding: 2.5rem; text-align: center;">
+            <p style="font-size: 1.05rem; color: #475569; margin-bottom: 0.5rem;">Aucun compte-rendu dans cette vue.</p>
+            <p style="font-size: 0.85rem; color: #94A3B8;">Les rapports de réunion générés par Aissatou et transmis par vos conseillers apparaîtront ici.</p>
+          </div>
+        </td>
+      </tr>`;
+    return;
+  }
+
+  tbody.innerHTML = liste.map(r => {
+    const estLu = Boolean(r.date_evenement);
+    const dateStr = r.created_at ? new Date(r.created_at).toLocaleDateString('fr-FR', {
+      day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
+    }) : '—';
+
+    // Extraction du nom de restaurant
+    const matchResto = (r.titre || '').replace('[@DIRECTION]', '').replace('Compte-Rendu RDV :', '').trim();
+    const nomResto = matchResto || 'Restaurant Partenaire';
+
+    // Extrait propre du contenu
+    const apercu = (r.contenu || '').replace(/COMPTE-RENDU DE RÉUNION.*?\n\n/s, '').slice(0, 140) + '...';
+
+    return `
+      <tr class="ligne-commercial" style="${!estLu ? 'background: #FFFBEB; border-left: 4px solid #D97706;' : ''}">
+        <td>
+          ${!estLu ? `
+            <span class="badge-role" style="background:#FEE2E2; color:#991B1B; font-weight:800; border:1px solid #FCA5A5;">
+              ⚡ Non lu (Priorité Haute)
+            </span>
+          ` : `
+            <span class="badge-role" style="background:#DCFCE7; color:#166534; font-weight:700;">
+              ✓ Traité / Lu
+            </span>
+          `}
+        </td>
+        <td>
+          <div>
+            <strong style="color: #0B1F3A; font-size: 0.95rem;">${escapeHtml(nomResto)}</strong>
+            <div style="font-size: 0.78rem; color: #64748B;">${escapeHtml(r.titre)}</div>
+          </div>
+        </td>
+        <td>
+          <span style="font-weight: 600; color: #334155; font-size: 0.88rem;">
+            ${escapeHtml(r.auteur || 'Conseiller terrain')}
+          </span>
+        </td>
+        <td>
+          <span style="font-size: 0.82rem; color: #64748B;">${dateStr}</span>
+        </td>
+        <td style="max-width: 280px; font-size: 0.82rem; color: #475569;">
+          ${escapeHtml(apercu)}
+        </td>
+        <td style="text-align: right;">
+          <div style="display: flex; gap: 6px; justify-content: flex-end; align-items: center;">
+            <button type="button" class="btn btn-sm btn-primaire btn-consulter-rapport-direction" data-id="${r.id}" style="background: #D97706; padding: 4px 10px; font-size: 0.78rem; font-weight: 700;">
+              👁️ Consulter
+            </button>
+            <button type="button" class="btn btn-sm btn-contour btn-toggle-lu-action" data-id="${r.id}" data-lu="${estLu}" style="padding: 4px 8px; font-size: 0.78rem;">
+              ${estLu ? 'Marquer non lu' : '✓ Lu'}
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  // Attachement des clics
+  tbody.querySelectorAll('.btn-consulter-rapport-direction').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const rId = btn.getAttribute('data-id');
+      const rapport = listeRapportsDirection.find(item => item.id === rId);
+      if (rapport) {
+        window.ouvrirModalLectureRapport(rapport);
+      }
+    });
+  });
+
+  tbody.querySelectorAll('.btn-toggle-lu-action').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const rId = btn.getAttribute('data-id');
+      const dejaLu = btn.getAttribute('data-lu') === 'true';
+      await window.marquerRapportCommeLu(rId, !dejaLu);
+    });
+  });
+}
+
+window.marquerRapportCommeLu = async function(id, passerALu = true) {
+  try {
+    const nouvelleDate = passerALu ? new Date().toISOString() : null;
+
+    // 1. Mise à jour dans annonces_equipe
+    try {
+      await supabase
+        .from('annonces_equipe')
+        .update({ date_evenement: nouvelleDate })
+        .eq('id', id);
+    } catch (e1) {}
+
+    // 2. Mise à jour dans messages_internes si présent
+    try {
+      await supabase
+        .from('messages_internes')
+        .update({ statut_lecture: passerALu })
+        .eq('id', id);
+    } catch (e2) {}
+
+    // Mise à jour de l'objet local
+    const item = listeRapportsDirection.find(r => r.id === id);
+    if (item) {
+      item.date_evenement = nouvelleDate;
+    }
+
+    afficherToast(passerALu ? '✓ Rapport marqué comme lu !' : 'Rapport marqué comme non lu.');
+    await chargerRapportsDirectionAdmin();
+
+  } catch (err) {
+    console.error('Erreur marquage lecture:', err);
+    afficherToast('Erreur mise à jour statut de lecture.');
+  }
+};
+
+window.ouvrirModalLectureRapport = function(rapport) {
+  rapportEnCoursLecture = rapport;
+  const modal = document.getElementById('modal-lecture-rapport');
+  const titreEl = document.getElementById('modal-lecture-titre');
+  const metaEl = document.getElementById('modal-lecture-meta');
+  const contenuEl = document.getElementById('modal-lecture-contenu');
+  const statutBadgeEl = document.getElementById('modal-lecture-statut-badge');
+  const btnToggleLu = document.getElementById('btn-toggle-lu-modal');
+
+  if (!modal) return;
+
+  const estLu = Boolean(rapport.date_evenement);
+  const dateStr = rapport.created_at ? new Date(rapport.created_at).toLocaleDateString('fr-FR', {
+    day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
+  }) : '';
+
+  if (titreEl) titreEl.textContent = rapport.titre || 'Compte-Rendu de Réunion Aissatou';
+  if (metaEl) metaEl.textContent = `Conseiller : ${rapport.auteur || 'Conseiller terrain'} | Transmis le : ${dateStr}`;
+
+  if (contenuEl) {
+    contenuEl.innerHTML = formaterMarkdownRapport(rapport.contenu || '');
+  }
+
+  if (statutBadgeEl) {
+    statutBadgeEl.innerHTML = !estLu
+      ? '<span class="badge-role" style="background:#FEE2E2; color:#991B1B; font-weight:800;">⚡ En attente d\'arbitrage Direction</span>'
+      : '<span class="badge-role" style="background:#DCFCE7; color:#166534; font-weight:700;">✓ Traité & Archivé</span>';
+  }
+
+  if (btnToggleLu) {
+    btnToggleLu.innerHTML = estLu ? '<span>Marquer comme Non Lu</span>' : '<span>✓ Marquer comme Lu</span>';
+    btnToggleLu.style.background = estLu ? '#64748B' : '#16A34A';
+    btnToggleLu.onclick = async () => {
+      await window.marquerRapportCommeLu(rapport.id, !estLu);
+      modal.classList.remove('active');
+    };
+  }
+
+  modal.classList.add('active');
+};
+
+window.ouvrirModalFicheProspect = async function(leadId) {
+  const modal = document.getElementById('modal-fiche-prospect');
+  if (!modal) return;
+
+  const lead = (listeLeads || []).find(l => l.id === leadId);
+  if (!lead) {
+    afficherToast('Prospect introuvable.');
+    return;
+  }
+
+  // Remplissage des informations de base
+  const nomRestoEl = document.getElementById('fiche-prospect-nom-resto');
+  const statutBadgeEl = document.getElementById('fiche-prospect-statut-badge');
+  const gerantTxtEl = document.getElementById('fiche-prospect-gerant-txt');
+  const telEl = document.getElementById('fiche-prospect-tel');
+  const villeEl = document.getElementById('fiche-prospect-ville');
+  const formuleEl = document.getElementById('fiche-prospect-formule');
+  const commEl = document.getElementById('fiche-prospect-commercial');
+  const waBtn = document.getElementById('btn-fiche-prospect-wa');
+  const listeRdvEl = document.getElementById('fiche-prospect-rdv-liste');
+
+  const telNet = (lead.telephone || '').replace(/\D/g, '');
+  const nomCommercial = lead.commerciaux ? `${lead.commerciaux.prenom} ${lead.commerciaux.nom}` : 'Attribution directe';
+
+  if (nomRestoEl) nomRestoEl.textContent = lead.restaurant_nom || 'Établissement';
+  if (gerantTxtEl) gerantTxtEl.textContent = `Contact décideur : ${lead.prospect_nom || 'Non renseigné'}`;
+  if (statutBadgeEl) {
+    statutBadgeEl.textContent = (lead.statut || 'Nouveau').toUpperCase();
+  }
+  if (telEl) telEl.innerHTML = `<a href="tel:${lead.telephone}" style="color:#0B1F3A; text-decoration:none;">📞 ${escapeHtml(lead.telephone || '—')}</a>`;
+  if (villeEl) villeEl.textContent = lead.ville || 'Sénégal';
+  if (formuleEl) formuleEl.textContent = lead.formule || 'Non précisée';
+  if (commEl) commEl.textContent = nomCommercial;
+
+  if (waBtn) {
+    waBtn.href = `https://wa.me/${telNet}?text=${encodeURIComponent(`Bonjour ${lead.prospect_nom || ''}, Direction Lou Ame Tay. Suite à notre échange pour ${lead.restaurant_nom || ''}...`)}`;
+  }
+
+  if (listeRdvEl) {
+    listeRdvEl.innerHTML = '<div style="text-align: center; color: #64748B; padding: 2rem;">Recherche des rendez-vous et comptes-rendus...</div>';
+  }
+
+  modal.classList.add('active');
+
+  // Recherche des rendez-vous terrain et des comptes-rendus
+  try {
+    const restoNom = (lead.restaurant_nom || '').trim();
+    let rdvs = [];
+    let rapportsLies = [];
+
+    // 1. Chercher dans la table rendez_vous
+    try {
+      const { data: dataRdv } = await supabase
+        .from('rendez_vous')
+        .select('*')
+        .ilike('restaurant_prospect', `%${restoNom}%`)
+        .order('created_at', { ascending: false });
+
+      if (Array.isArray(dataRdv)) {
+        rdvs = dataRdv;
+      }
+    } catch (eRdv) {}
+
+    // 2. Chercher dans annonces_equipe les rapports liés à ce restaurant
+    try {
+      const { data: dataAnn } = await supabase
+        .from('annonces_equipe')
+        .select('*')
+        .ilike('titre', `%${restoNom}%`)
+        .order('created_at', { ascending: false });
+
+      if (Array.isArray(dataAnn)) {
+        rapportsLies = dataAnn;
+      }
+    } catch (eAnn) {}
+
+    let contenuHtml = '';
+
+    // Remarques initiales du lead
+    if (lead.message) {
+      contenuHtml += `
+        <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 12px; margin-bottom: 8px;">
+          <div style="font-weight: 700; color: #475569; font-size: 0.8rem; margin-bottom: 4px;">📝 Note initiale / Besoins renseignés :</div>
+          <div style="font-size: 0.88rem; color: #1E293B; line-height: 1.45;">${escapeHtml(lead.message)}</div>
+        </div>
+      `;
+    }
+
+    // Afficher les rendez-vous
+    if (rdvs.length > 0) {
+      contenuHtml += rdvs.map(r => {
+        const dateRdv = r.date_rdv || r.created_at ? new Date(r.date_rdv || r.created_at).toLocaleDateString('fr-FR', {
+          day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+        }) : 'Date non précisée';
+
+        const aUnCR = r.notes && r.notes.includes('[CR Aissatou');
+        const estReporte = r.notes && r.notes.includes('[REPORTÉ');
+
+        return `
+          <div style="background: ${aUnCR ? '#FFFBEB' : '#FFFFFF'}; border: 1.5px solid ${aUnCR ? '#F59E0B' : '#E2E8F0'}; border-radius: 10px; padding: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-weight: 800; color: #0B1F3A; font-size: 0.95rem;">📅 Visite du ${dateRdv}</span>
+                ${aUnCR ? '<span class="badge-role" style="background:#FEF3C7; color:#92400E; border:1px solid #F59E0B; font-weight:800;">👩🏾‍💼 Compte-Rendu Aissatou AI</span>' : ''}
+                ${estReporte ? '<span class="badge-role" style="background:#FEE2E2; color:#991B1B; font-weight:700;">⚠️ Visite Reportée</span>' : ''}
+              </div>
+              <span style="font-size: 0.75rem; color: #64748B;">Pointage GPS : ${escapeHtml(r.checkin_statut || 'En attente')}</span>
+            </div>
+
+            <div style="font-size: 0.88rem; color: #334155; line-height: 1.55;">
+              ${aUnCR ? formaterMarkdownRapport(r.notes) : escapeHtml(r.notes || r.checkin_notes || 'Aucune note additionnelle.')}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Afficher les rapports d'équipe liés
+    if (rapportsLies.length > 0) {
+      rapportsLies.forEach(rep => {
+        // Éviter les doublons stricts si déjà dans les notes
+        if (!rdvs.some(r => r.notes && r.notes.includes(rep.contenu?.slice(0, 40)))) {
+          contenuHtml += `
+            <div style="background: #EFF6FF; border: 1.5px solid #93C5FD; border-radius: 10px; padding: 14px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-weight: 800; color: #1E40AF; font-size: 0.95rem;">📢 Rapport Direction transmis : ${escapeHtml(rep.titre)}</span>
+                <span style="font-size: 0.75rem; color: #64748B;">Par : ${escapeHtml(rep.auteur || 'Conseiller')}</span>
+              </div>
+              <div style="font-size: 0.88rem; color: #1E293B; line-height: 1.55;">
+                ${formaterMarkdownRapport(rep.contenu || '')}
+              </div>
+            </div>
+          `;
+        }
+      });
+    }
+
+    if (!contenuHtml) {
+      contenuHtml = `
+        <div style="text-align: center; color: #64748B; padding: 2rem; background: #F8FAFC; border-radius: 8px;">
+          <p style="margin-bottom: 4px; font-weight: 600;">Aucun historique de visite ou compte-rendu enregistré pour le moment.</p>
+          <small>Dès qu'un conseiller réalise un RDV avec ce prospect et génère un compte-rendu avec Aissatou, il s'affichera ici automatiquement.</small>
+        </div>
+      `;
+    }
+
+    if (listeRdvEl) {
+      listeRdvEl.innerHTML = contenuHtml;
+    }
+
+  } catch (errFiche) {
+    console.error('Erreur chargement détails prospect:', errFiche);
+    if (listeRdvEl) {
+      listeRdvEl.innerHTML = `<div style="color: #EF4444; padding: 1rem;">Erreur chargement de l'historique : ${errFiche.message}</div>`;
+    }
+  }
+};
+
+function initialiserModuleRapportsEtFiches() {
+  // Filtres de la vue Rapports Direction
+  document.querySelectorAll('.btn-filtre-rapports').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.btn-filtre-rapports').forEach(b => {
+        b.classList.remove('btn-primaire');
+        b.classList.add('btn-contour');
+      });
+      btn.classList.remove('btn-contour');
+      btn.classList.add('btn-primaire');
+
+      const filtre = btn.getAttribute('data-filtre');
+      rendreListeRapportsDirection(filtre);
+    });
+  });
+
+  // Bouton Actualiser
+  document.getElementById('btn-actualiser-rapports-direction')?.addEventListener('click', () => {
+    chargerRapportsDirectionAdmin();
+  });
+
+  // Fermetures de modales
+  document.getElementById('btn-fermer-modal-lecture-rapport')?.addEventListener('click', () => {
+    document.getElementById('modal-lecture-rapport')?.classList.remove('active');
+  });
+  document.getElementById('btn-fermer-lecture-bas')?.addEventListener('click', () => {
+    document.getElementById('modal-lecture-rapport')?.classList.remove('active');
+  });
+
+  document.getElementById('btn-fermer-modal-fiche-prospect')?.addEventListener('click', () => {
+    document.getElementById('modal-fiche-prospect')?.classList.remove('active');
+  });
+  document.getElementById('btn-fermer-fiche-prospect-bas')?.addEventListener('click', () => {
+    document.getElementById('modal-fiche-prospect')?.classList.remove('active');
+  });
+
+  // Fermeture par clic sur l'overlay
+  ['modal-lecture-rapport', 'modal-fiche-prospect'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('click', (e) => {
+        if (e.target === el) {
+          el.classList.remove('active');
+        }
+      });
+    }
+  });
+
+  // Chargement initial des rapports pour mettre à jour le badge
+  chargerRapportsDirectionAdmin();
+}
+
+// Initialisation globale
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initialiserModuleRapportsEtFiches);
+  } else {
+    initialiserModuleRapportsEtFiches();
   }
 }

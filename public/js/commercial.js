@@ -264,6 +264,37 @@ function initialiserFormulaires() {
     document.getElementById('modal-nouveau-rdv-comm').style.display = 'none';
   });
 
+  // Bouton de capture GPS en direct dans le formulaire de planification RDV
+  document.getElementById('btn-geoloc-actuelle-rdv')?.addEventListener('click', async () => {
+    const btn = document.getElementById('btn-geoloc-actuelle-rdv');
+    const badge = document.getElementById('rdv-geoloc-statut');
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<span>Recherche satellite...</span> 🛰️';
+    }
+
+    try {
+      const coords = await obtenirPositionLowPower({ timeoutMs: 8000 });
+      const latInput = document.getElementById('rdv-lat-exacte');
+      const lonInput = document.getElementById('rdv-lon-exacte');
+      if (latInput) latInput.value = coords.lat;
+      if (lonInput) lonInput.value = coords.lng;
+
+      if (badge) {
+        badge.textContent = `✓ Coordonnées GPS captées (${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)})`;
+        badge.style.display = 'block';
+      }
+      afficherToast('✓ Position satellite GPS captée au mètre près !');
+    } catch (e) {
+      afficherToast('Impossible de capter le signal GPS : ' + (e.message || 'Erreur'));
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<span>🎯 Utiliser ma position GPS (sur place)</span>';
+      }
+    }
+  });
+
   document.getElementById('form-nouveau-rdv-comm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = document.getElementById('btn-submit-rdv-comm');
@@ -280,6 +311,18 @@ function initialiserFormulaires() {
       const notes = document.getElementById('rdv-notes').value.trim();
 
       const villeCoord = COORDONNEES_VILLES_SENEGAL[ville] || COORDONNEES_VILLES_SENEGAL['Dakar Plateau'];
+      const latExacte = document.getElementById('rdv-lat-exacte')?.value;
+      const lonExacte = document.getElementById('rdv-lon-exacte')?.value;
+
+      let finalLat = latExacte ? parseFloat(latExacte) : villeCoord.lat;
+      let finalLon = lonExacte ? parseFloat(lonExacte) : villeCoord.lon;
+
+      // Protection toponymique intelligente (ex: "route de mbour" à Thiès)
+      const addrLower = (adresse || '').toLowerCase();
+      if (!latExacte && (addrLower.includes('lat dior') || (addrLower.includes('thies') && addrLower.includes('mbour')))) {
+        finalLat = 14.77102;
+        finalLon = -16.94626;
+      }
 
       const { error: insertErr } = await supabase
         .from('rendez_vous')
@@ -290,8 +333,8 @@ function initialiserFormulaires() {
           telephone_prospect: tel,
           date_rdv: new Date(dateRdv).toISOString(),
           adresse_restaurant: adresse,
-          latitude_restaurant: villeCoord.lat,
-          longitude_restaurant: villeCoord.lon,
+          latitude_restaurant: finalLat,
+          longitude_restaurant: finalLon,
           notes: notes,
           statut: 'confirme',
           checkin_statut: 'EN_ATTENTE'
@@ -312,20 +355,50 @@ function initialiserFormulaires() {
       document.getElementById('form-nouveau-rdv-comm').reset();
       await chargerRendezVous();
 
-      // FIX 4 — Proposition d'ajout à Google Agenda
+      // Synchronisation Google Agenda avec alerte 30 minutes (.ics + Template)
       try {
-        const rdvGoogle = {
-          restaurant_nom: resto,
-          date_rdv: dateRdv,
-          telephone: tel,
-          adresse: adresse,
-          ville: ville
-        };
-        const debut = new Date(rdvGoogle.date_rdv);
+        const debut = new Date(dateRdv);
         const fin = new Date(debut.getTime() + 3600000);
         const fmt = d => d.toISOString().replace(/[-:]|\.\d{3}/g, '');
-        const urlGoogleCal = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('RDV ' + rdvGoogle.restaurant_nom)}&dates=${fmt(debut)}/${fmt(fin)}&details=${encodeURIComponent('Tél: ' + rdvGoogle.telephone)}&location=${encodeURIComponent(rdvGoogle.adresse || rdvGoogle.ville)}`;
-        if (confirm('Ajouter à Google Agenda ?')) window.open(urlGoogleCal, '_blank');
+        const detailsRdv = `RDV Démonstration Lou Ame Tay avec ${contact} (Tél: ${tel}).\nFormule visée: Menu digital QR & Écran KDS.\nNotification/Alerte programmée 30 minutes avant le RDV.`;
+        const urlGoogleCal = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('RDV Lou Ame Tay — ' + resto)}&dates=${fmt(debut)}/${fmt(fin)}&details=${encodeURIComponent(detailsRdv)}&location=${encodeURIComponent(adresse || ville)}&add=30`;
+        
+        // Fichier standard .ics avec alerte VALARM à -30 minutes
+        const icsContent = [
+          'BEGIN:VCALENDAR',
+          'VERSION:2.0',
+          'PRODID:-//Lou Ame Tay SASU//CRM Commercial//FR',
+          'CALSCALE:GREGORIAN',
+          'METHOD:PUBLISH',
+          'BEGIN:VEVENT',
+          `UID:rdv-${Date.now()}@louametay.online`,
+          `DTSTAMP:${fmt(new Date())}`,
+          `DTSTART:${fmt(debut)}`,
+          `DTEND:${fmt(fin)}`,
+          `SUMMARY:RDV CHR — ${resto}`,
+          `DESCRIPTION:${detailsRdv.replace(/\n/g, '\\n')}`,
+          `LOCATION:${adresse || ville}`,
+          'STATUS:CONFIRMED',
+          'BEGIN:VALARM',
+          'TRIGGER:-PT30M',
+          'ACTION:DISPLAY',
+          'DESCRIPTION:Rappel RDV Lou Ame Tay dans 30 minutes',
+          'END:VALARM',
+          'END:VEVENT',
+          'END:VCALENDAR'
+        ].join('\r\n');
+
+        const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8;' });
+        const lienIcs = document.createElement('a');
+        lienIcs.href = URL.createObjectURL(blob);
+        lienIcs.download = `RDV_${resto.replace(/\s+/g, '_')}.ics`;
+        document.body.appendChild(lienIcs);
+        lienIcs.click();
+        document.body.removeChild(lienIcs);
+        URL.revokeObjectURL(lienIcs.href);
+
+        window.open(urlGoogleCal, '_blank');
+        afficherToast('📅 Événement Google Agenda généré avec alerte 30 min !');
       } catch (calErr) {
         console.warn('Erreur génération Google Agenda:', calErr);
       }
@@ -806,6 +879,8 @@ const COORDONNEES_VILLES_SENEGAL = {
   'Dakar Almadies / Ngor': { lat: 14.7455, lon: -17.5186 },
   'Dakar Point E / Mermoz': { lat: 14.7042, lon: -17.4667 },
   'Thiès Ville': { lat: 14.7910, lon: -16.9260 },
+  'Thiès Route de Mbour': { lat: 14.77102, lon: -16.94626 },
+  'Thiès': { lat: 14.7910, lon: -16.9260 },
   'Mbour / Saly': { lat: 14.4447, lon: -16.9856 },
   'Saint-Louis': { lat: 16.0326, lon: -16.5050 },
   'Louga': { lat: 15.6187, lon: -16.2244 },
@@ -1070,15 +1145,41 @@ async function chargerRendezVous() {
   }
 }
 
-// Fonctions de navigation Google Maps (même onglet + retour natif)
+// Fonctions de navigation Google Maps sécurisées avec bandeau retour
+export function afficherBandeauRetourMaps() {
+  let bandeau = document.getElementById('bandeau-retour-maps');
+  if (!bandeau) {
+    bandeau = document.createElement('div');
+    bandeau.id = 'bandeau-retour-maps';
+    bandeau.className = 'bandeau-retour-app-maps';
+    bandeau.innerHTML = `
+      <div class="bandeau-retour-maps-content">
+        <span class="maps-dot-live"></span>
+        <div style="flex: 1; font-size: 0.82rem; font-weight: 700; color: #FFFFFF;">
+          🗺️ Itinéraire Google Maps actif
+          <div style="font-size: 0.72rem; font-weight: 400; opacity: 0.85;">Votre session CRM Lou Ame Tay reste ouverte</div>
+        </div>
+        <button type="button" id="btn-revenir-app-maps" class="btn-revenir-crm">
+          ⬅️ Retour à l'application
+        </button>
+      </div>
+    `;
+    document.body.appendChild(bandeau);
+    bandeau.querySelector('#btn-revenir-app-maps')?.addEventListener('click', () => {
+      bandeau.classList.remove('active');
+    });
+  }
+  bandeau.classList.add('active');
+}
+
 export function ouvrirMaps(adresse) {
   if (!adresse) {
     afficherToast('⚠️ Aucune adresse');
     return;
   }
   const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(adresse)}`;
-  sessionStorage.setItem('maps_retour', 'true');
-  window.location.href = mapsUrl;
+  afficherBandeauRetourMaps();
+  window.open(mapsUrl, '_blank');
 }
 
 export function ouvrirMapsUrl(url) {
@@ -1086,8 +1187,8 @@ export function ouvrirMapsUrl(url) {
     afficherToast('⚠️ Aucun itinéraire disponible');
     return;
   }
-  sessionStorage.setItem('maps_retour', 'true');
-  window.location.href = url;
+  afficherBandeauRetourMaps();
+  window.open(url, '_blank');
 }
 
 // Variable locale pour la photo de dérogation compressée
@@ -1232,6 +1333,77 @@ function initialiserModalDerogationPointage() {
 
   btnFermer?.addEventListener('click', () => {
     if (modal) modal.style.display = 'none';
+  });
+
+  // Bouton d'auto-ancrage GPS 1ère visite (recalibrage satellite sur site)
+  document.getElementById('btn-ancrer-position-resto-exacte')?.addEventListener('click', async () => {
+    const rdvId = document.getElementById('derogation-rdv-id')?.value;
+    const latStr = document.getElementById('derogation-lat')?.value;
+    const lonStr = document.getElementById('derogation-lon')?.value;
+
+    if (!rdvId || !latStr || !lonStr) {
+      afficherToast('Coordonnées GPS introuvables.');
+      return;
+    }
+
+    const lat = parseFloat(latStr);
+    const lon = parseFloat(lonStr);
+    const btn = document.getElementById('btn-ancrer-position-resto-exacte');
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<span>Ancrage satellite en cours...</span> ⏳';
+    }
+
+    try {
+      const payload = {
+        latitude_restaurant: lat,
+        longitude_restaurant: lon,
+        checkin_at: new Date().toISOString(),
+        checkin_latitude: lat,
+        checkin_longitude: lon,
+        checkin_distance_metres: 0,
+        checkin_statut: 'VALIDE_SUR_PLACE',
+        statut: 'effectue'
+      };
+
+      if (!estEnLigne()) {
+        empilerActionHorsLigne({
+          type: 'CHECKIN_AGENT',
+          table: 'rendez_vous',
+          payload: { id: rdvId, ...payload },
+          description: 'Auto-ancrage GPS 1ère visite - Mode Offline'
+        });
+        afficherToast('💾 Emplacement ancré localement (Mode Offline).');
+      } else {
+        const { error } = await supabase
+          .from('rendez_vous')
+          .update(payload)
+          .eq('id', rdvId);
+
+        if (error) throw error;
+
+        await enregistrerActivite({
+          typeAction: 'CHECKIN_GPS',
+          description: 'Auto-ancrage GPS et arrivée validée : restaurant géo-référencé au mètre près.',
+          commercialId: commercialConnecte?.id,
+          commercialNom: `${commercialConnecte?.prenom || ''} ${commercialConnecte?.nom || ''}`.trim(),
+          statut: 'SUCCES'
+        });
+      }
+
+      afficherToast('✓ Emplacement exact du restaurant ancré à vie et présence validée !');
+      if (modal) modal.style.display = 'none';
+      await chargerRendezVous();
+
+    } catch (err) {
+      console.error('Erreur ancrage GPS:', err);
+      afficherToast('Erreur lors de l\'ancrage GPS : ' + err.message);
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<span>📍 Ancrer l\'emplacement exact ici & Valider mon arrivée</span>';
+      }
+    }
   });
 
   // Capture et compression automatique de la photo d'enseigne
@@ -1893,20 +2065,46 @@ export async function envoyerCompteRenduDirection() {
 
     // 2. Si non inséré ou fallback, router via /api/messages (qui garantit l'insertion dans annonces_equipe)
     if (!succesEnvoi) {
-      const resApi = await fetch('/api/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          expediteur: nomCommercial,
-          destinataire_id: 'DIRECTION',
-          titre: `Compte-Rendu RDV : ${rdv.restaurant_prospect || 'Restaurant'}`,
-          contenu: contenuRapport,
-          type: 'info'
-        })
-      });
+      try {
+        const resApi = await fetch('/api/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            expediteur: nomCommercial,
+            destinataire_id: 'DIRECTION',
+            titre: `Compte-Rendu RDV : ${rdv.restaurant_prospect || 'Restaurant'}`,
+            contenu: contenuRapport,
+            type: 'info'
+          })
+        });
 
-      if (resApi.ok) {
-        succesEnvoi = true;
+        if (resApi.ok) {
+          succesEnvoi = true;
+        }
+      } catch (eApi) {
+        console.warn('API /api/messages non disponible, repli direct Supabase:', eApi);
+      }
+    }
+
+    // 2b. Fallback direct client Supabase dans annonces_equipe (garantie absolue en local et en prod)
+    if (!succesEnvoi) {
+      try {
+        const { error: errAnnonce } = await supabase
+          .from('annonces_equipe')
+          .insert([{
+            titre: titreRapport,
+            contenu: contenuRapport,
+            auteur: nomCommercial,
+            type: 'info',
+            actif: true,
+            date_evenement: null
+          }]);
+
+        if (!errAnnonce) {
+          succesEnvoi = true;
+        }
+      } catch (eAnnonce) {
+        console.warn('Erreur insertion directe annonces_equipe:', eAnnonce);
       }
     }
 
@@ -1914,7 +2112,10 @@ export async function envoyerCompteRenduDirection() {
     try {
       await supabase.from('journal_activites').insert([{
         commercial_id: cId,
+        commercial_nom: nomCommercial,
         action: 'ENVOI_COMPTE_RENDU_DIRECTION',
+        type_action: 'ADMIN_ACTION',
+        description: `Envoi compte-rendu direction : ${rdv.restaurant_prospect || 'Restaurant'}`,
         details: {
           restaurant: rdv.restaurant_prospect,
           rdv_id: rdv.id,
@@ -3900,10 +4101,18 @@ function toggleMicroAissatou() {
     estEnregistrementAissatou = false;
     btnMicro?.classList.remove('recording');
   } else {
-    // Demander la permission et démarrer
+    // Demander la permission et démarrer avec forçage HTTPS et libération de flux
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+        window.location.href = window.location.href.replace('http:', 'https:');
+        return;
+      }
       navigator.mediaDevices.getUserMedia({ audio: true })
-        .then(() => {
+        .then((stream) => {
+          // Libérer immédiatement les pistes audio pour éviter le conflit avec SpeechRecognition
+          if (stream && stream.getTracks) {
+            stream.getTracks().forEach(t => t.stop());
+          }
           reconnaissanceVocaleAissatou.start();
           estEnregistrementAissatou = true;
           btnMicro?.classList.add('recording');

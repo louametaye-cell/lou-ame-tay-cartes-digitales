@@ -97,6 +97,21 @@
         <span>Commissions <span id="badge-nav-taux-comm">10%</span></span>
       </button>
 
+      <!-- RAPPORTS DE RÉUNION DIRECTION (AISSATOU AI) -->
+      <button type="button" class="nav-onglet-btn" data-onglet="rapports-direction">
+        <span class="nav-icone" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+        </span>
+        <span>Rapports Direction</span>
+        <span id="badge-compteur-rapports-direction" class="nav-badge-compteur" style="background: #EF4444; color: #FFFFFF; font-weight: 800; display: none;">0</span>
+      </button>
+
       <!-- ANNONCES & NOTES DE SERVICE ÉQUIPE -->
       <button type="button" class="nav-onglet-btn" data-onglet="annonces">
         <span class="nav-icone" aria-hidden="true">
@@ -443,27 +458,7 @@
         <div class="ceo-visuals-grid">
           <!-- Graphique Chart.js 30 jours -->
           <div class="visuel-carte-cadre">
-            <div class="visuel-cadre-header">
-              <div>
-                <h4 class="visuel-cadre-titre" style="display: flex; align-items: center; gap: 8px;">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9A227" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
-                    <polyline points="17 6 23 6 23 12"></polyline>
-                  </svg>
-                  <span>Évolution des Leads (30 jours)</span>
-                </h4>
-                <p class="visuel-cadre-soustitre">Flux journalier des demandes de démo et devis</p>
-              </div>
-              <span class="badge-statut-pill statut-vert">Temps réel</span>
-            </div>
-            <div style="position: relative; height: 320px; width: 100%;">
-              <canvas id="chart-leads-30j-ceo"></canvas>
-            </div>
-          </div>
-
-          <!-- Carte Leaflet Sénégal -->
-          <div class="visuel-carte-cadre">
-            <div class="visuel-cadre-header">
+            <div class="visuel-cadre-header" style="flex-wrap: wrap; gap: 10px;">
               <div>
                 <h4 class="visuel-cadre-titre" style="display: flex; align-items: center; gap: 8px;">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9A227" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -474,7 +469,22 @@
                 </h4>
                 <p class="visuel-cadre-soustitre">Dakar, Thiès, Saly/Mbour, St-Louis, Louga, Touba, Kaolack, Saloum, Casamance</p>
               </div>
-              <span class="badge-categorie badge-direction">Sénégal CHR</span>
+              <div style="display: flex; align-items: center; gap: 10px; margin-left: auto;">
+                <div style="display: flex; align-items: center; gap: 6px; background: #F8FAFC; border: 1.5px solid #CBD5E1; border-radius: 8px; padding: 4px 10px;">
+                  <label for="filtre-commercial-carte" style="font-size: 0.75rem; font-weight: 700; color: #0B1F3A; display: flex; align-items: center; gap: 4px; margin: 0;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0B1F3A" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    <span>Conseiller :</span>
+                  </label>
+                  <select id="filtre-commercial-carte" style="font-family: inherit; font-size: 0.78rem; font-weight: 600; color: #0B1F3A; background: transparent; border: none; outline: none; cursor: pointer;">
+                    <option value="TOUS">🌍 Toute l'équipe (National)</option>
+                    <option value="1f6306c0-cd61-4d2f-96b4-130705f8af81">Babacar Gueye (Thiès)</option>
+                    <option value="d1d2955f-34f3-42f3-9601-7e4866ecd301">Cheikh A. Bamba MBODJ (Axe Thiès-Dakar-Mbour)</option>
+                    <option value="9e505eb4-b2b3-48bb-b456-35c6d8faa428">Arona Sow (Dakar)</option>
+                    <option value="f4e5f971-e137-4bbb-9b52-62fdc16be380">Fatou Diop (Petite Côte & Saly)</option>
+                  </select>
+                </div>
+                <span class="badge-categorie badge-direction">Sénégal CHR</span>
+              </div>
             </div>
             <div id="map-senegal-leads"></div>
           </div>
@@ -486,7 +496,7 @@
         <div class="top3-commerciaux-bloc">
           <div class="panneau-entete" style="margin-bottom: 0.5rem;">
             <div>
-              <h4 style="font-family: 'Poppins', sans-serif; font-size: 1.1rem; color: #0B1F3A; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 8px;">
+              <h4 style="font-family: inherit; font-size: 1.1rem; color: #0B1F3A; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 8px;">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9A227" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
                   <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
@@ -1555,6 +1565,93 @@ VALUES
       </section>
 
       <!-- ==================================================================
+           VUE RAPPORTS DIRECTION : COMPTES-RENDUS RDV TERRAIN & AISSATOU AI
+           ================================================================== -->
+      <section id="vue-rapports-direction" class="admin-vue">
+        <div class="panneau-entete" style="margin-bottom: 1.25rem;">
+          <div>
+            <h3 class="panneau-titre" style="font-size: 1.35rem; color: #0B1F3A; display: flex; align-items: center; gap: 8px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+              </svg>
+              <span>Rapports de Réunion & Arbitrage Direction</span>
+            </h3>
+            <p class="panneau-soustitre">Centralisation des comptes-rendus de visite terrain rédigés avec Aissatou AI, points clés, objections détectées et demandes de validation pour la Direction Générale.</p>
+          </div>
+          <button type="button" id="btn-actualiser-rapports-direction" class="btn btn-contour btn-sm">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+            <span>Actualiser</span>
+          </button>
+        </div>
+
+        <!-- KPI RAPPORTS DIRECTION -->
+        <div class="admin-stats-grille" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+          <div class="admin-stat-carte" style="border-left: 4px solid #3B82F6;">
+            <div class="stat-entete">
+              <span class="stat-libelle">Total Rapports Reçus</span>
+              <span class="stat-badge">Historique</span>
+            </div>
+            <div id="kpi-total-rapports-direction" class="stat-valeur" style="color: #0B1F3A;">0</div>
+            <p class="stat-tendance">Tous les comptes-rendus terrain</p>
+          </div>
+
+          <div class="admin-stat-carte" style="border-left: 4px solid #EF4444;">
+            <div class="stat-entete">
+              <span class="stat-libelle">En attente d'arbitrage</span>
+              <span class="stat-badge" style="background: #FEE2E2; color: #991B1B;">⚡ Priorité Haute</span>
+            </div>
+            <div id="kpi-non-lus-rapports-direction" class="stat-valeur" style="color: #DC2626;">0</div>
+            <p class="stat-tendance">Non lus par la Direction</p>
+          </div>
+
+          <div class="admin-stat-carte" style="border-left: 4px solid #10B981;">
+            <div class="stat-entete">
+              <span class="stat-libelle">Rapports Traités / Lus</span>
+              <span class="stat-badge" style="background: #DCFCE7; color: #166534;">✓ Archivés</span>
+            </div>
+            <div id="kpi-lus-rapports-direction" class="stat-valeur" style="color: #16A34A;">0</div>
+            <p class="stat-tendance">Arbitrés par la Direction</p>
+          </div>
+        </div>
+
+        <!-- BARRE DE FILTRES -->
+        <div style="display: flex; gap: 8px; margin-bottom: 1rem; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+          <div style="display: flex; gap: 8px;">
+            <button type="button" class="btn btn-sm btn-primaire btn-filtre-rapports" data-filtre="tous">Tous les rapports</button>
+            <button type="button" class="btn btn-sm btn-contour btn-filtre-rapports" data-filtre="non_lus" style="border-color: #EF4444; color: #DC2626; font-weight: 700;">⚡ Non lus uniquement</button>
+            <button type="button" class="btn btn-sm btn-contour btn-filtre-rapports" data-filtre="lus">✓ Déjà traités</button>
+          </div>
+          <div style="font-size: 0.85rem; color: #64748B;">
+            <span id="compteur-rapports-filtres">0 rapport(s) affiché(s)</span>
+          </div>
+        </div>
+
+        <!-- TABLEAU DES RAPPORTS -->
+        <div class="admin-carte-tableau">
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Statut</th>
+                  <th>Établissement & Prospect</th>
+                  <th>Conseiller Émetteur</th>
+                  <th>Date & Heure</th>
+                  <th>Aperçu de la Synthèse</th>
+                  <th style="text-align: right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-rapports-direction">
+                <tr><td colspan="6" class="table-chargement">Chargement des rapports de réunion...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================================================================
            VUE AUDIT : JOURNAL D'ACTIVITÉS, TRAÇABILITÉ & POINTAGES GPS EN DIRECT
            ================================================================== -->
       <section id="vue-audit" class="admin-vue">
@@ -2355,5 +2452,105 @@ VALUES
   <script src="js/env.js"></script>
   <script type="module" src="js/qrcode-export.js"></script>
   <script type="module" src="js/admin.js"></script>
+  <!-- ======================================================================
+       MODAL : LECTURE DU COMPTE-RENDU DE RÉUNION DIRECTION (AISSATOU AI)
+       ====================================================================== -->
+  <div id="modal-lecture-rapport" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal-contenu" style="max-width: 720px; max-height: 90vh; display: flex; flex-direction: column;">
+      <div class="modal-entete" style="border-bottom: 1px solid #E2E8F0; padding-bottom: 1rem;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="width: 40px; height: 40px; border-radius: 50%; background: #FEF3C7; border: 1.5px solid #F59E0B; display: flex; align-items: center; justify-content: center;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+          </div>
+          <div>
+            <h3 id="modal-lecture-titre" style="font-size: 1.15rem; color: #0B1F3A; font-weight: 800; margin: 0;">Compte-Rendu RDV Terrain</h3>
+            <div id="modal-lecture-meta" style="font-size: 0.8rem; color: #64748B; margin-top: 2px;">Conseiller : — | Date : —</div>
+          </div>
+        </div>
+        <button type="button" id="btn-fermer-modal-lecture-rapport" class="btn-fermer-modal" aria-label="Fermer">✕</button>
+      </div>
+
+      <!-- Corps défilant avec le Markdown rendu -->
+      <div id="modal-lecture-corps" style="flex: 1; overflow-y: auto; padding: 1.25rem 0.5rem; line-height: 1.6; color: #1E293B; font-size: 0.92rem;">
+        <div id="modal-lecture-contenu" class="resume-rdv-texte-format"></div>
+      </div>
+
+      <!-- Actions de pied de modale -->
+      <div style="border-top: 1px solid #E2E8F0; padding-top: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+        <div id="modal-lecture-statut-badge"></div>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" id="btn-toggle-lu-modal" class="btn btn-sm btn-primaire" style="background: #16A34A;">
+            <span>✓ Marquer comme lu</span>
+          </button>
+          <button type="button" id="btn-fermer-lecture-bas" class="btn btn-sm btn-contour">
+            <span>Fermer</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MODAL : FICHE COMPLÈTE DU PROSPECT & HISTORIQUE DES VISITES / NOTES RDV
+       ====================================================================== -->
+  <div id="modal-fiche-prospect" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal-contenu" style="max-width: 780px; max-height: 92vh; display: flex; flex-direction: column;">
+      <div class="modal-entete" style="border-bottom: 1px solid #E2E8F0; padding-bottom: 1rem;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <h3 id="fiche-prospect-nom-resto" style="font-size: 1.25rem; color: #0B1F3A; font-weight: 800; margin: 0;">Hôtel Résidence Lat Dior</h3>
+            <span id="fiche-prospect-statut-badge" class="badge-statut-pill statut-vert" style="font-size: 0.75rem;">Nouveau</span>
+          </div>
+          <p id="fiche-prospect-gerant-txt" style="margin: 2px 0 0; font-size: 0.85rem; color: #64748B;">Contact : Mr Moctar Diouf</p>
+        </div>
+        <button type="button" id="btn-fermer-modal-fiche-prospect" class="btn-fermer-modal" aria-label="Fermer">✕</button>
+      </div>
+
+      <div style="flex: 1; overflow-y: auto; padding: 1.25rem 0.25rem;">
+        <!-- Grille des informations clés -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 1.5rem; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 12px;">
+          <div>
+            <span style="font-size: 0.75rem; color: #64748B; display: block;">Téléphone WhatsApp</span>
+            <div id="fiche-prospect-tel" style="font-weight: 700; color: #0B1F3A; font-size: 0.9rem;">—</div>
+          </div>
+          <div>
+            <span style="font-size: 0.75rem; color: #64748B; display: block;">Ville / Zone</span>
+            <div id="fiche-prospect-ville" style="font-weight: 700; color: #0B1F3A; font-size: 0.9rem;">—</div>
+          </div>
+          <div>
+            <span style="font-size: 0.75rem; color: #64748B; display: block;">Formule souhaitée</span>
+            <div id="fiche-prospect-formule" style="font-weight: 700; color: #047857; font-size: 0.9rem;">—</div>
+          </div>
+          <div>
+            <span style="font-size: 0.75rem; color: #64748B; display: block;">Commercial affilié</span>
+            <div id="fiche-prospect-commercial" style="font-weight: 700; color: #0B1F3A; font-size: 0.9rem;">—</div>
+          </div>
+        </div>
+
+        <!-- SECTION HISTORIQUE DES VISITES / NOTES DE RDV -->
+        <div style="margin-top: 1.5rem;">
+          <h4 style="font-size: 1.05rem; color: #0B1F3A; font-weight: 800; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 8px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+            <span>Historique des visites / Notes de RDV</span>
+          </h4>
+
+          <div id="fiche-prospect-rdv-liste" style="display: flex; flex-direction: column; gap: 12px;">
+            <div style="text-align: center; color: #64748B; padding: 2rem;">Recherche des rendez-vous et comptes-rendus...</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="border-top: 1px solid #E2E8F0; padding-top: 1rem; display: flex; justify-content: space-between; align-items: center;">
+        <a id="btn-fiche-prospect-wa" href="#" target="_blank" class="btn btn-sm btn-primaire" style="background: #25D366; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"></path></svg>
+          <span>Ouvrir WhatsApp</span>
+        </a>
+        <button type="button" id="btn-fermer-fiche-prospect-bas" class="btn btn-sm btn-contour">
+          <span>Fermer</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>

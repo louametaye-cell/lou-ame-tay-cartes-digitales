@@ -214,7 +214,21 @@ export function initialiserVisuelsCEO() {
   initialiserGraphiqueLeads30Jours('chart-leads-30j-ceo', leadsGlobal);
 
   // Carte Sénégal des 9 points chauds nationaux (Leads + RDVs)
-  initialiserCarteSenegalLeads('map-senegal-leads', leadsGlobal, rdvsGlobal);
+  // Filtrage dynamique selon le commercial sélectionné
+  const selectFiltre = document.getElementById('filtre-commercial-carte');
+  const appliquerFiltreCarte = () => {
+    const commId = selectFiltre ? selectFiltre.value : 'TOUS';
+    const leadsFiltres = commId === 'TOUS' ? leadsGlobal : leadsGlobal.filter(l => l.commercial_id === commId);
+    const rdvsFiltres = commId === 'TOUS' ? rdvsGlobal : rdvsGlobal.filter(r => r.commercial_id === commId);
+    initialiserCarteSenegalLeads('map-senegal-leads', leadsFiltres, rdvsFiltres);
+  };
+
+  if (selectFiltre && !selectFiltre.dataset.initialise) {
+    selectFiltre.dataset.initialise = 'true';
+    selectFiltre.addEventListener('change', appliquerFiltreCarte);
+  }
+
+  appliquerFiltreCarte();
 }
 
 /**

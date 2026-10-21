@@ -37,17 +37,10 @@ export async function ajouterAuWallet(commercial) {
     ? SUPABASE_URL
     : 'https://ugmdpjncplnlizhpongo.supabase.co';
 
-  if (plateforme === 'ios') {
-    // Redirection directe vers le fichier .pkpass Apple Wallet
-    const urlApplePass = `${baseUrl}/functions/v1/generate-apple-pass?id=${encodeURIComponent(commercial.id)}`;
-    window.location.href = urlApplePass;
-  } else if (plateforme === 'android') {
-    // Redirection vers le flux Google Wallet 'Save to Google Wallet'
-    const urlGooglePass = `${baseUrl}/functions/v1/generate-google-pass?id=${encodeURIComponent(commercial.id)}`;
-    window.location.href = urlGooglePass;
-  } else {
-    // Desktop : Affichage de la modale de choix avec QR Code ou options
-    afficherModalChoixWallet(commercial, baseUrl);
+  // Sur mobile iOS & Android, téléchargement direct de la vCard 4.0 enrichie (standard universel 0 page blanche)
+  telechargerPassDigitalNFC(commercial);
+  if (typeof afficherToast === 'function') {
+    afficherToast('📇 Pass contact téléchargé ! Ajoutez-le directement à votre carnet.');
   }
 }
 

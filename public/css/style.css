@@ -3989,7 +3989,7 @@ body.intro-active {
   color: #FFFFFF;
   border: 1.5px solid #C9A227;
   border-radius: 14px;
-  font-family: 'Poppins', sans-serif;
+  font-family: inherit;
   font-size: 0.92rem;
   font-weight: 700;
   cursor: pointer;
@@ -4088,7 +4088,7 @@ body.intro-active {
   cursor: pointer;
   text-align: left;
   transition: all 0.2s ease;
-  font-family: 'Poppins', sans-serif;
+  font-family: inherit;
 }
 
 .btn-partage-option:hover {
@@ -7300,4 +7300,174 @@ textarea:focus {
   border-color: #C9A227;
   color: #C9A227;
   transform: translateY(-1px);
+}
+
+/* ==============================================================================
+   SPRINT CRITIQUE V32 — DESIGN SYSTEM, RESPONSIVE CARDS & TOGGLE SWITCH
+   ============================================================================== */
+
+/* 1. TABLEAUX EN CARDS EMPILÉES SUR MOBILE (< 768px) */
+@media (max-width: 768px) {
+  .panneau-table table,
+  .comm-table {
+    border: none !important;
+    background: transparent !important;
+  }
+
+  .panneau-table thead,
+  .comm-table thead {
+    display: none !important;
+  }
+
+  .panneau-table tbody tr,
+  .comm-table tbody tr {
+    display: block !important;
+    background: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 12px !important;
+    margin-bottom: 0.85rem !important;
+    padding: 0.85rem !important;
+    box-shadow: 0 2px 8px rgba(11, 31, 58, 0.05) !important;
+  }
+
+  .panneau-table tbody td,
+  .comm-table tbody td {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 0.45rem 0 !important;
+    border-bottom: 1px dashed #F1F5F9 !important;
+    font-size: 0.84rem !important;
+    text-align: right !important;
+  }
+
+  .panneau-table tbody td:last-child,
+  .comm-table tbody td:last-child {
+    border-bottom: none !important;
+    padding-top: 0.6rem !important;
+    justify-content: center !important;
+  }
+
+  .panneau-table tbody td::before,
+  .comm-table tbody td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    color: #64748B;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    text-align: left;
+    margin-right: 8px;
+  }
+}
+
+/* 2. TOGGLE SWITCH MODERNE ON/OFF (STATUT DISPONIBILITÉ COMMERCIAL) */
+.statut-toggle-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  padding: 4px 12px 4px 6px;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  user-select: none;
+}
+
+.statut-toggle-switch:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.switch-pill {
+  width: 38px;
+  height: 22px;
+  background: #64748B;
+  border-radius: 20px;
+  position: relative;
+  transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.switch-knob {
+  width: 18px;
+  height: 18px;
+  background: #FFFFFF;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.statut-toggle-switch.on .switch-pill {
+  background: #22C55E !important;
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.4);
+}
+
+.statut-toggle-switch.on .switch-knob {
+  transform: translateX(16px);
+}
+
+.switch-text {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  letter-spacing: 0.2px;
+}
+
+/* 3. BANDEAU DE RETOUR APPLICATION (NAVIGATION GOOGLE MAPS) */
+.bandeau-retour-app-maps {
+  position: fixed;
+  bottom: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 92%;
+  max-width: 500px;
+  background: #0B1F3A;
+  border: 1.5px solid #C9A227;
+  border-radius: 14px;
+  padding: 12px 16px;
+  box-shadow: 0 10px 30px rgba(11, 31, 58, 0.35);
+  z-index: 99999;
+  transition: bottom 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bandeau-retour-app-maps.active {
+  bottom: 20px;
+}
+
+.bandeau-retour-maps-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.maps-dot-live {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #22C55E;
+  box-shadow: 0 0 8px #22C55E;
+  animation: pulseMaps 1.5s infinite;
+}
+
+@keyframes pulseMaps {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.2); }
+}
+
+.btn-revenir-crm {
+  background: #C9A227;
+  color: #0B1F3A;
+  font-weight: 800;
+  font-size: 0.8rem;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-revenir-crm:hover {
+  background: #E5BE3E;
 }

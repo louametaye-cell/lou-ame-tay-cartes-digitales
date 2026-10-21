@@ -458,27 +458,7 @@
         <div class="ceo-visuals-grid">
           <!-- Graphique Chart.js 30 jours -->
           <div class="visuel-carte-cadre">
-            <div class="visuel-cadre-header">
-              <div>
-                <h4 class="visuel-cadre-titre" style="display: flex; align-items: center; gap: 8px;">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9A227" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
-                    <polyline points="17 6 23 6 23 12"></polyline>
-                  </svg>
-                  <span>Évolution des Leads (30 jours)</span>
-                </h4>
-                <p class="visuel-cadre-soustitre">Flux journalier des demandes de démo et devis</p>
-              </div>
-              <span class="badge-statut-pill statut-vert">Temps réel</span>
-            </div>
-            <div style="position: relative; height: 320px; width: 100%;">
-              <canvas id="chart-leads-30j-ceo"></canvas>
-            </div>
-          </div>
-
-          <!-- Carte Leaflet Sénégal -->
-          <div class="visuel-carte-cadre">
-            <div class="visuel-cadre-header">
+            <div class="visuel-cadre-header" style="flex-wrap: wrap; gap: 10px;">
               <div>
                 <h4 class="visuel-cadre-titre" style="display: flex; align-items: center; gap: 8px;">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9A227" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -489,7 +469,22 @@
                 </h4>
                 <p class="visuel-cadre-soustitre">Dakar, Thiès, Saly/Mbour, St-Louis, Louga, Touba, Kaolack, Saloum, Casamance</p>
               </div>
-              <span class="badge-categorie badge-direction">Sénégal CHR</span>
+              <div style="display: flex; align-items: center; gap: 10px; margin-left: auto;">
+                <div style="display: flex; align-items: center; gap: 6px; background: #F8FAFC; border: 1.5px solid #CBD5E1; border-radius: 8px; padding: 4px 10px;">
+                  <label for="filtre-commercial-carte" style="font-size: 0.75rem; font-weight: 700; color: #0B1F3A; display: flex; align-items: center; gap: 4px; margin: 0;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0B1F3A" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    <span>Conseiller :</span>
+                  </label>
+                  <select id="filtre-commercial-carte" style="font-family: inherit; font-size: 0.78rem; font-weight: 600; color: #0B1F3A; background: transparent; border: none; outline: none; cursor: pointer;">
+                    <option value="TOUS">🌍 Toute l'équipe (National)</option>
+                    <option value="1f6306c0-cd61-4d2f-96b4-130705f8af81">Babacar Gueye (Thiès)</option>
+                    <option value="d1d2955f-34f3-42f3-9601-7e4866ecd301">Cheikh A. Bamba MBODJ (Axe Thiès-Dakar-Mbour)</option>
+                    <option value="9e505eb4-b2b3-48bb-b456-35c6d8faa428">Arona Sow (Dakar)</option>
+                    <option value="f4e5f971-e137-4bbb-9b52-62fdc16be380">Fatou Diop (Petite Côte & Saly)</option>
+                  </select>
+                </div>
+                <span class="badge-categorie badge-direction">Sénégal CHR</span>
+              </div>
             </div>
             <div id="map-senegal-leads"></div>
           </div>
@@ -501,7 +496,7 @@
         <div class="top3-commerciaux-bloc">
           <div class="panneau-entete" style="margin-bottom: 0.5rem;">
             <div>
-              <h4 style="font-family: 'Poppins', sans-serif; font-size: 1.1rem; color: #0B1F3A; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 8px;">
+              <h4 style="font-family: inherit; font-size: 1.1rem; color: #0B1F3A; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 8px;">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9A227" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
                   <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>

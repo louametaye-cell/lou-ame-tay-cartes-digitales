@@ -3510,7 +3510,8 @@
               <option value="Dakar Plateau">Dakar Plateau</option>
               <option value="Dakar Almadies / Ngor">Dakar Almadies / Ngor</option>
               <option value="Dakar Point E / Mermoz">Dakar Point E / Mermoz</option>
-              <option value="Thiès Ville">Thiès Ville</option>
+              <option value="Thiès Ville">Thiès (Centre / Ville)</option>
+              <option value="Thiès Route de Mbour">Thiès — Route de Mbour / Stade Lat Dior</option>
               <option value="Mbour / Saly">Mbour / Saly (Petite Côte)</option>
               <option value="Saint-Louis">Saint-Louis (Ndar)</option>
               <option value="Louga">Louga</option>
@@ -3529,8 +3530,16 @@
         </div>
 
         <div class="comm-form-group">
-          <label for="rdv-adresse">Adresse précise / Repère connu</label>
-          <input type="text" id="rdv-adresse" class="comm-input" placeholder="Ex: Corniche Est, face mer, Dakar">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; flex-wrap: wrap; gap: 4px;">
+            <label for="rdv-adresse" style="margin: 0; font-weight: 700;">Adresse précise / Repère connu</label>
+            <button type="button" id="btn-geoloc-actuelle-rdv" class="comm-btn-contour" style="padding: 3px 8px; font-size: 0.74rem; display: inline-flex; align-items: center; gap: 4px; border-color: #047857; color: #047857; font-weight: 700; background: #F0FDF4;">
+              <span>🎯 Utiliser ma position GPS (sur place)</span>
+            </button>
+          </div>
+          <input type="text" id="rdv-adresse" class="comm-input" placeholder="Ex: Face Stade Lat Dior, route de Mbour, Thiès">
+          <input type="hidden" id="rdv-lat-exacte">
+          <input type="hidden" id="rdv-lon-exacte">
+          <div id="rdv-geoloc-statut" style="font-size: 0.74rem; color: #047857; font-weight: 700; margin-top: 3px; display: none;">✓ Coordonnées GPS satellites captées au mètre près</div>
         </div>
 
         <div class="comm-form-group">
@@ -3857,6 +3866,24 @@
         <p id="texte-derogation-distance" style="margin: 0; font-size: 0.88rem; color: #92400E; font-weight: 600; line-height: 1.4;">
           ⚠️ Vous êtes situé à plus de 100 mètres du point de repère enregistré.
         </p>
+      </div>
+
+      <!-- OPTION ANCRAGE GPS IMMÉDIAT (1ÈRE VISITE OU RECALIBRAGE SUR PLACE) -->
+      <div id="box-ancrage-gps-premier-passage" style="background: #F0FDF4; border: 1.5px solid #10B981; border-radius: 10px; padding: 1rem; margin-bottom: 1.25rem;">
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <div style="font-size: 1.5rem; line-height: 1;">📍</div>
+          <div style="flex: 1;">
+            <strong style="color: #065F46; font-size: 0.95rem; display: block; margin-bottom: 2px;">
+              Vous êtes bien sur place devant l'établissement ?
+            </strong>
+            <p style="margin: 0 0 10px; font-size: 0.8rem; color: #166534; line-height: 1.4;">
+              Si l'adresse initiale était approximative, ancrez les coordonnées satellites réelles de votre smartphone pour géo-référencer ce restaurant au mètre près pour toujours.
+            </p>
+            <button type="button" id="btn-ancrer-position-resto-exacte" class="comm-btn-primary" style="background: #047857; width: 100%; justify-content: center; font-size: 0.86rem; padding: 10px; font-weight: 700;">
+              <span>📍 Ancrer l'emplacement exact ici & Valider mon arrivée</span>
+            </button>
+          </div>
+        </div>
       </div>
 
       <form id="form-derogation-pointage">
