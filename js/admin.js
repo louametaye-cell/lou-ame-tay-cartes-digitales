@@ -16,7 +16,7 @@ import { supabase, estSupabaseConfigure, enregistrerConfigurationSupabase, SUPAB
 import { telechargerQRCodePNG, ouvrirModalPreviewQR, telechargerToutesCartesPDF, exporterDonneesCSV } from './qrcode-export.js';
 import { getPrioriteLead } from './lead-scoring.js';
 import { commerciaux as commerciauxSecours } from './data.js';
-import { initialiserAdminV2, calculerEtAfficherKpisCEO, chargerParrainages } from './admin-v2.js';
+import { initialiserAdminV2, calculerEtAfficherKpisCEO, chargerParrainages, peuplerFiltreCommerciauxCarte } from './admin-v2.js';
 import { rafraichirTailleCarte } from './map-admin.js';
 import { genererContratPDFA4 } from './contrat-pdf.js';
 import { genererSyntheseCEODuJour } from './gemini-copilot.js';
@@ -1341,6 +1341,7 @@ function basculerOnglet(nomOnglet) {
   const titrePage = document.getElementById('topbar-titre-page');
   const titres = {
     dashboard: '📊 Pilotage Stratégique & Tableau de bord',
+    'aissatou-ceo': '🎙️ Aissatou — Conseillère Stratégique Direction Générale (CEO)',
     commerciaux: 'Gestion des commerciaux',
     leads: 'CRM — Leads & Devis Restauration',
     depenses: '🧾 Gestion des Notes de Frais & Dépenses Terrain',

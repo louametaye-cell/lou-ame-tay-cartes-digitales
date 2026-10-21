@@ -269,3 +269,28 @@ export function afficherToast(msg, type = 'succes') {
 - **Sprint 2 (Kit Outils)** : D1 Téléchargement Kit ZIP, D2 Carte de visite PDF 85x55mm, D3 Signature email HTML.
 - **Sprint 3 (Admin v2)** : Dashboard CEO en direct, CRM Leads avec scoring, modération d'avis, correctif d'équité profil commercial.
 - **Sprint Clôture** : Archivage en 12 Skills, 7 Mémoires, 9 Patterns, 6 Prompts, 6 Business Assets et Base Gemini.
+- **Sprint Aissatou V2 & Mémoire Thiès** : Architecture RAG enrichie avec le répertoire exhaustif des restaurants, hôtels et résidences de Thiès (Le Croissant Magique, LE FESTIN 24h, ñaari gaar, Tasset, La Fandenoise Lodge 8.4/10, PRIMIS 8.2/10, Grand Hôtel de Thiès, Khadija, Blue Hôtel, Belier, etc.).
+
+---
+
+## 🏙️ Base de Connaissance Terrain — Ville de Thiès (Mémoire Aissatou)
+
+### Restaurants à Thiès
+- **Le Croissant Magique** : Situé Rue Amadou Dieye, attenant à un hôtel, cuisine simple et de qualité (pizzas, burgers, salades, spécialités sénégalaises) en salle climatisée ou terrasse. Clientèle business, bon wifi.
+- **LE FESTIN** : Fast-food d'élite noté 4.5/5, ouvert 24h/24. Vente à emporter, livraison et service à table. Adresse : Code Plus Q395+RV8, Thiès.
+- **ñaari gaar - teranga** : Restaurant noté 5/5, service à table, livraison et vente à emporter. Hospitalité et cuisine sénégalaise.
+- **Tasset** : Restaurant noté 3.9/5, ouvert de 8h à 23h. Adresse : Code Plus Q3R7+CJQ, Thiès.
+- **Mame Diarra Bousso** : Situé à Keur Cheikh Awa, ouvert 7j/7 de 08h à 01h.
+- **Autres restaurants clés** : Restaurant Madiba, Sam's Prestige (3.5/5 avec 224 avis), Les Délices, Le Café du Rail, Pamanda, Restaurant L'Escale, Thian Mbam.
+
+### 🏨 Hôtels et Résidences à Thiès
+- **La Fandenoise Lodge** : Vue sur jardin, restaurant, bar, piscine extérieure et terrasse. Note : 8.4/10.
+- **Résidence Blue Hôtel** : Wi-Fi gratuit, piscine extérieure, jardin et terrasse. Note : 8.2/10.
+- **Résidences PRIMIS Thiès** : Appartements et chambres avec terrasse, Wi-Fi gratuit et parking privé. Note : 8.2/10 (125 avis).
+- **LE GRAND HOTEL DE THIES** : Hôtel d'affaires situé au 255 Rue de Verdun, petit-déjeuner, Wi-Fi et parking gratuits.
+- **Hôtel Résidence Khadija** : Situé à Grand Standing Thiès, 2 restaurants et Wi-Fi gratuit.
+- **Relax Residences** : Situé à Thiès Village Souné, Wi-Fi gratuit, parking et restaurant. Note : 8/10.
+- **Hôtel Résidence Ngary** : Situé à Thiès Villa n°346, piscine, restaurant, bar et salle de fitness.
+- **RESIDENCE BELIER** : Situé à Keur Moussa, sur la route de Kayar. Restaurant, bar et jardin. Note de 5/5.
+- **Autres résidences** : Résidence Mounir, THIES Al Hakim Résidence (Grand Standing), Villa d'Hôtes avec piscine.
+

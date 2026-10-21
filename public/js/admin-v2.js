@@ -207,11 +207,80 @@ function afficherPodiumTop3Commerciaux() {
 }
 
 /**
+ * Peuple dynamiquement le sélecteur "Conseiller" de la carte à partir des commerciaux actifs
+ * Exclut strictement les faux comptes, comptes inactifs ou tests (ex: Arona Sow)
+ */
+export function peuplerFiltreCommerciauxCarte(commerciaux = []) {
+  const selectFiltre = document.getElementById('filtre-commercial-carte');
+  if (!selectFiltre) return;
+
+  const sourceCommerciaux = (Array.isArray(commerciaux) && commerciaux.length > 0)
+    ? commerciaux
+    : (commerciauxGlobal || []);
+
+  // Filtrage strict :
+  // - Statut actif obligatoire (c.actif === true ou c.actif !== false)
+  // - Non supprimé (pas de is_deleted ou deleted_at)
+  // - Exclure formellement les comptes de test et faux profils
+  const commerciauxValides = sourceCommerciaux.filter(c => {
+    if (!c || !c.id) return false;
+    
+    // Vérification du statut actif
+    const estActif = c.actif === true || (c.actif !== false && c.statut !== 'inactif');
+    if (!estActif) return false;
+
+    // Vérification compte supprimé / soft-deleted
+    if (c.is_deleted === true || c.deleted_at) return false;
+
+    // Détection des comptes fictifs de test
+    const nomComplet = `${c.prenom || ''} ${c.nom || ''}`.trim().toLowerCase();
+    const email = (c.email || '').toLowerCase();
+    
+    // Exclusion des faux profils ou mentions de test
+    if (nomComplet.includes('test') || email.includes('test') || email.includes('fake')) return false;
+    if (nomComplet.includes('arona sow')) return false; // Profil test banni
+
+    return true;
+  });
+
+  // Mémoriser la sélection en cours
+  const valeurActuelle = selectFiltre.value || 'TOUS';
+
+  // Trier par ordre alphabétique (Prénom Nom)
+  commerciauxValides.sort((a, b) => {
+    const nomA = `${a.prenom || ''} ${a.nom || ''}`.trim();
+    const nomB = `${b.prenom || ''} ${b.nom || ''}`.trim();
+    return nomA.localeCompare(nomB, 'fr');
+  });
+
+  // Construire les options HTML dynamiques
+  let optionsHtml = '<option value="TOUS">🌍 Toute l\'équipe (National)</option>';
+  commerciauxValides.forEach(c => {
+    const prenomNom = `${c.prenom || ''} ${c.nom || ''}`.trim();
+    const zoneInfo = c.zone ? ` (${c.zone.split(',')[0].trim()})` : '';
+    optionsHtml += `<option value="${c.id}">${prenomNom}${zoneInfo}</option>`;
+  });
+
+  selectFiltre.innerHTML = optionsHtml;
+
+  // Restaurer la sélection si le commercial existe toujours dans la liste
+  const existeToujours = Array.from(selectFiltre.options).some(opt => opt.value === valeurActuelle);
+  if (existeToujours) {
+    selectFiltre.value = valeurActuelle;
+  } else {
+    selectFiltre.value = 'TOUS';
+  }
+}
+
+/**
  * Initialise le graphique 30 jours et la carte Leaflet
  */
 export function initialiserVisuelsCEO() {
   // Graphique Leads 30 jours
   initialiserGraphiqueLeads30Jours('chart-leads-30j-ceo', leadsGlobal);
+
+  // Peuplement dynamique du filtre conseiller à partir des données réelles
+  peuplerFiltreCommerciauxCarte(commerciauxGlobal);
 
   // Carte Sénégal des 9 points chauds nationaux (Leads + RDVs)
   // Filtrage dynamique selon le commercial sélectionné
@@ -285,7 +354,7 @@ async function actualiserDonneesSilencieusement() {
   if (!estSupabaseConfigure()) return;
 
   try {
-    const [resLeads, resRdvs] = await Promise.all([
+    const [resLeads, resRdvs, resCommerciaux] = await Promise.all([
       supabase
         .from('leads')
         .select('*, commerciaux(prenom, nom, telephone, whatsapp)')
@@ -293,7 +362,11 @@ async function actualiserDonneesSilencieusement() {
       supabase
         .from('rendez_vous')
         .select('*')
-        .order('date_rdv', { ascending: false })
+        .order('date_rdv', { ascending: false }),
+      supabase
+        .from('commerciaux')
+        .select('*')
+        .order('created_at', { ascending: false })
     ]);
 
     if (resLeads && resLeads.data) {
@@ -301,6 +374,10 @@ async function actualiserDonneesSilencieusement() {
     }
     if (resRdvs && resRdvs.data) {
       rdvsGlobal = resRdvs.data;
+    }
+    if (resCommerciaux && resCommerciaux.data) {
+      commerciauxGlobal = resCommerciaux.data;
+      peuplerFiltreCommerciauxCarte(commerciauxGlobal);
     }
 
     calculerEtAfficherKpisCEO();

@@ -33,6 +33,7 @@ const fichiersJs = [
   'aissatou-actions.js',
   'aissatou-drive.js',
   'aissatou-knowledge-base.js',
+  'admin-aissatou-ceo.js',
   'gemini-copilot.js',
   'supabase-client.js'
 ];
